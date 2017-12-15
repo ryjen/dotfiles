@@ -6,7 +6,6 @@ compinit
 _comp_options+=(globdots)	# auto-complete dot files
 
 # GNU core utilities
-eval `dircolors ~/.zsh/dircolors.256dark`	# colored ls
 export LC_ALL=en_US.UTF-8
 export LANG=en_US.UTF-8
 
