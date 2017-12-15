@@ -1,10 +1,10 @@
 # Local/private config goes in the include
 [include]
-    path = ~/.config/git/credentials
-[core]
-    editor = micro
-    excludesfile = ~/.gitignore
+    path = ~/.config/git/gitconfig.sec
 
+[core]
+    editor = vim
+    excludesfile = ~/.gitignore
 
 # From there, sections are in alphabetic order
 
@@ -46,3 +46,4 @@
 
 [push]
     default = simple
+
