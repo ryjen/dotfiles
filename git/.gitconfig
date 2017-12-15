@@ -3,10 +3,12 @@
     path = ~/.config/.gitconfig.sec
 
 [user]
-    name = Fabrice Laporte
+    name = Ryan Jennings
+    signingkey = 7CCC02C0EC44ECEE
+    email = ryan@coda.life
 
 [core]
-    editor = nano
+    editor = vim
     excludesfile = ~/.gitignore
 
 # From there, sections are in alphabetic order
@@ -55,3 +57,7 @@
 
 [rebase]
     autoStash = true
+[commit]
+	gpgsign = true
+[gpg]
+	program = gpg
