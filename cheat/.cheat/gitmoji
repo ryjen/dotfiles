@@ -1,0 +1,158 @@
+# Improving structure / format of the code.
+🎨
+
+# Improving performance.
+⚡️
+
+# Removing code or files.
+🔥
+
+# Fixing a bug.
+🐛
+
+# Critical hotfix.
+🚑
+
+# Introducing new features.
+✨
+
+# Writing docs.
+📝
+
+# Deploying stuff.
+🚀
+
+# Updating the UI and style files.
+💄
+
+# Initial commit.
+🎉
+
+# Adding tests.
+✅
+
+# Fixing security issues.
+🔒
+
+# Fixing something on macOS.
+🍎
+
+# Fixing something on Linux.
+🐧
+
+# Fixing something on Windows.
+🏁
+
+# Fixing something on Android.
+🤖
+
+# Fixing something on iOS.
+🍏
+
+# Releasing / Version tags.
+🔖
+
+# Removing linter warnings.
+🚨
+
+# Work in progress.	
+🚧
+
+# Fixing CI Build.
+💚
+
+# Downgrading dependencies.
+⬇️
+
+# Upgrading dependencies.		
+⬆️		
+
+# Pinning dependencies to specific versions.
+📌
+
+# Adding CI build system.
+👷
+
+# Adding analytics or tracking code.
+📈
+
+# Refactoring code.
+♻️
+
+# Removing a dependency.
+➖
+
+# Work about Docker.
+🐳
+
+# Adding a dependency.
+➕
+
+# Changing configuration files.
+🔧
+
+# Internationalization and localization.
+🌐
+
+# Fixing typos.
+✏️
+
+# Writing bad code that needs to be improved.
+💩
+
+# Reverting changes.
+⏪
+
+# Merging branches.
+🔀
+
+# Updating compiled files or packages.
+📦
+
+# Updating code due to external API changes.
+👽
+
+# Moving or renaming files.
+🚚
+
+# Adding or updating license.
+📄
+
+# Introducing breaking changes.
+💥
+
+# Adding or updating assets.
+🍱
+
+# Updating code due to code review changes.
+👌
+
+# Improving accessibility.
+♿️
+
+# Documenting source code.
+💡
+
+# Writing code drunkenly.
+🍻
+
+# Updating text and literals.
+💬
+
+# Performing database related changes.
+🗃
+
+# Adding logs.
+🔊
+
+# Removing logs.
+🔇
+
+# Add contributor(s).
+👥
+
+# Improving user experience / usability.
+🚸
+
+# Making architectural changes.
+🏗

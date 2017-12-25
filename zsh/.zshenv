@@ -1,10 +1,11 @@
 # .zshenv is always sourced, define here exported variables that should
 # be available to other programs.
 
-export EDITOR=nano
-export PAGER=more
+export EDITOR=vim
 
 export PATH=$PATH:~/bin:/usr/local/bin
+
+eval $(docker-machine env)
 
 # load zsh config files
 
