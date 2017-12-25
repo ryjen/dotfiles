@@ -1,3 +1,8 @@
+# start tmux if necessary
+if command -v tmux>/dev/null; then
+  [[ ! $TERM =~ screen ]] && [ -z $TMUX ] && exec tmux
+fi
+
 # files to source in priority
 source ~/.oh_my.zsh
 
@@ -7,7 +12,5 @@ for file in ${config_files}
 do
   source $file
 done
-
-eval "$(direnv hook zsh)"
 
 tmux new-session -A -s main

@@ -16,15 +16,6 @@
     unstage = reset HEAD --
     lg = log --graph --abbrev-commit --decorate --date=relative --all
 
-[color]
-    diff = auto
-    status = auto
-    branch = auto
-    ui = true
-
-[diff]
-    tool = meld
-
 [difftool]
     prompt = false
 
@@ -35,14 +26,14 @@
 [help]
     autocorrect = 1
 
-[merge]
-    tool = meld
-
 [mergetool]
     keepBackup = false
 
 [mergetool "meld"]
     cmd = meld "$LOCAL" "$BASE" "$REMOTE" --output "$MERGED"
+
+[pull]
+    rebase = true
 
 [push]
     default = simple

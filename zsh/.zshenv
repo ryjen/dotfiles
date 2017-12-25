@@ -2,8 +2,9 @@
 # be available to other programs.
 
 export VISUAL=subl
-export EDITOR=nano
 export PAGER=more
+export EDITOR=vim
+
 export PATH=$PATH:~/bin:/usr/local/bin
 
 # load zsh config files
