@@ -1,4 +1,4 @@
-export GOPATH=${HOME}/.go
+export GOPATH=${HOME}/Projects/dev/go
 
 [ -f /usr/local/etc/profile.d/autojump.sh ] && . /usr/local/etc/profile.d/autojump.sh
 
