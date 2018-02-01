@@ -19,5 +19,9 @@ Plug 'junegunn/limelight.vim'
 
 Plug 'altercation/vim-colors-solarized'
 
+Plug 'fatih/vim-go'
+
+Plug 'terryma/vim-multiple-cursors'
+
 call plug#end()
 
