@@ -18,8 +18,16 @@ setopt EXTENDED_HISTORY # add timestamps to history
 setopt SHARE_HISTORY    # share history between sessions ???
 setopt APPEND_HISTORY   # adds history
 
-# ssh-agent
-eval "$(ssh-agent -s)"
+# ssh-agen
+SSH_AGENT_ENV_FILE=/usr/local/var/run/agent-env
+if [[ `pgrep ssh-agent` ]] ; then
+	ssh-agent -s > ${SSH_AGENT_ENV_FILE}
+fi
+if [[ -e ${SSH_AGENT_ENV_FILE} ]]; then
+    source ${SSH_AGENT_ENV_FILE}
+else
+    echo "Error, no ssh-agent environment"
+fi
 
 # set various options
 setopt AUTO_CD
