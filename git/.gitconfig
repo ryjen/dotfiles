@@ -28,6 +28,11 @@
 
 [mergetool]
     keepBackup = false
+    prompt = false
+
+[merge]
+    tool = vimdiff
+    conflictstyle = diff3
 
 [mergetool "meld"]
     cmd = meld "$LOCAL" "$BASE" "$REMOTE" --output "$MERGED"
