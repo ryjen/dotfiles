@@ -6,5 +6,7 @@
 !README.md
 !*example
 
+vim/.vim/plugged/*
+
 # packages that should not be pushed on github (local backup only)
 qifqif/
