@@ -10,6 +10,7 @@ mutt
 ncdu
 nginx
 ninja
+pinentry
 rbenv
 redis
 spark
