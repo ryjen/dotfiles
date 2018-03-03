@@ -1,0 +1,1 @@
+export GOPATH=/Users/ryanjennings/.devel/go
