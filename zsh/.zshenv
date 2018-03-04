@@ -5,8 +5,6 @@ export EDITOR=vim
 
 export PATH=$PATH:~/bin:/usr/local/bin
 
-eval $(docker-machine env)
-
 # load zsh config files
 
 env_config_files=(~/.zsh/**/*.zshenv(N))
