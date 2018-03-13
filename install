@@ -1,4 +1,0 @@
-#/bin/sh
-
-echo "--target=$HOME" > $HOME/.stowrc
-

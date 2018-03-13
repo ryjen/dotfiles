@@ -109,3 +109,5 @@ autocmd! User GoyoLeave Limelight!
 
 source $HOME/.vim/config/plug.vim
 
+source $HOME/.vim/config/nerdtree.vim
+
