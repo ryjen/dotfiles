@@ -19,7 +19,7 @@ Great effort is put on up-to-date documentation, ease of maintenance and deploym
 ## Install
 
 1. clone the repository : `git clone https://github.com/Kraymer/F-dotfiles.git ~/ ; cd ~/F-dotfiles`
-1. setup `stow`, *inception style* : `stow -t ~ stow` 
+1. setup `stow` to your home directory : `./install` 
 1. install desired package via `stow <directory>` <sup id="a1">[1](#f1)</sup>
 
 When needed, special install instructions are present in package `README.md` file.
