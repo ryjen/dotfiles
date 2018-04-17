@@ -1,9 +1,14 @@
+**/sec/**/*.zsh
+**/sec/**/*.zshenv
+*.sec*
+sec.conf
 .DS_Store
 /bin/
 !README.md
+*.log
 !*example
 
 # packages that should not be pushed on github (local backup only)
 
-vim/.vim/plugged/*
 taskwarrior/.config/task/certs/*
+vim/.vim/plugged/*
