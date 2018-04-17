@@ -1,10 +1,11 @@
 **/sec/**/*.zsh
 **/sec/**/*.zshenv
 *.sec*
+sec.conf
 .DS_Store
 /bin/
 !README.md
 !*example
 
 vim/.vim/plugged/*
-
+*.log

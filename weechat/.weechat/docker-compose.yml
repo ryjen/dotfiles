@@ -1,0 +1,17 @@
+version: '2'
+services:
+  weechat:
+    build: .
+    image: ${DOCKER_WEECHAT_IMAGE_NAME}
+    restart: always
+    stdin_open: true
+    tty: true
+    environment:
+      - 'UID=1000'
+      - 'GID=1000'
+  tor:
+    image: goldy/tor-hidden-service
+    links:
+      - weechat
+    environment:
+      WEECHAT_PORTS: 9001:9001
