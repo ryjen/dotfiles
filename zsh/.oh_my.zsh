@@ -7,13 +7,18 @@ export ZSH=$HOME/.oh-my-zsh
 # time that oh-my-zsh is loaded.
 ZSH_THEME="powerlevel9k/powerlevel9k"
 
-POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(time context dir virtualenv vcs)
+POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(time context dir virtualenv vcs custom_boobs)
 POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(status history)
 POWERLEVEL9K_SHORTEN_STRATEGY=truncate_middle
 POWERLEVEL9K_SHORTEN_DELIMITER="*"
 POWERLEVEL9K_PROMPT_ON_NEWLINE=true
 POWERLEVEL9K_TIME_FORMAT='%D{%H:%M}'
 POWERLEVEL9K_VIRTUALENV_BACKGROUND='150'  # Greenish
+POWERLEVEL9K_CUSTOM_BOOBS="boobify"
+
+boobify() {
+    echo -n "（。 ㅅ 。）"
+}
 
 # Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
