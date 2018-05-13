@@ -5,7 +5,7 @@ export VISUAL=subl
 export PAGER=more
 export EDITOR=vim
 
-export PATH=$PATH:~/bin:/usr/local/bin
+export PATH=$PATH:$HOME/bin:/usr/local/bin
 
 # load zsh config files
 
