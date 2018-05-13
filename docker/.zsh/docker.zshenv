@@ -1,5 +1,5 @@
 
-type 'docker-machine' > /dev/null
+type docker-machine > /dev/null
 
 if [ $? = 0 ]; then
 
