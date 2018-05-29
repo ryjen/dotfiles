@@ -18,4 +18,3 @@ if test ! -z "$env_config_files" ;
     done
 fi
 
-export TERM="xterm-256color"

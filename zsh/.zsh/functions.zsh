@@ -1,12 +1,12 @@
 # Reset prompt every minute to update hour
-TRAPALRM() {  # don't clear completion items on reset prompt
+function TRAPALRM() {  # don't clear completion items on reset prompt
     if [ "$WIDGET" != "complete-word" ]; then
         zle reset-prompt
     fi
 }
 
 
-dirwatch() {
+function dirwatch() {
     inotifywait -m $1 -e create -e move -e delete |
         while read thepath action file; do
             echo "$action $file"
@@ -17,11 +17,11 @@ where() {
     find . -name "*${1}*"
 }
 
-ssh() {
-	/usr/bin/ssh -t "$@" tmux -f .tmux.conf new-session -A -s fabrice-session
+function ssh() {
+	/usr/bin/ssh -t "$@" tmux -f .tmux.conf new-session -A -s $(USER)-session
 }
 
-psql_history() {
+function psql_history() {
     psql -U postgres -c "SELECT (pg_stat_file('base/'||oid ||'/PG_VERSION')).modification, datname FROM pg_database;"
 }
 
