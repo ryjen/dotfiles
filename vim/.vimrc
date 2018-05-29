@@ -111,3 +111,7 @@ source $HOME/.vim/config/plug.vim
 
 source $HOME/.vim/config/nerdtree.vim
 
+source $HOME/.vim/config/multi-cursor.vim
+
+source $HOME/.vim/config/limelight.vim
+
