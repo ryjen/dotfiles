@@ -1,17 +1,18 @@
-a
-*[F-dotfiles](https://github.com/Kraymer/F-dotfiles) is an opiniated dotfiles organization scheme based on stow.   
+![F-dotfiles banner](https://raw.githubusercontent.com/Kraymer/bulkdata/master/F-dotfiles/banner.png)
+
+*F-dotfiles is an opiniated dotfiles organization scheme based on stow.   
 Highest priorities are ease of maintenance and deployment on both Linux and OS X.*
 
 - **`stow` powered:** symlink dotfiles and thus keep them always up-to-date in your repository
 - **topical organization:** organize dotfiles by application facilitating reuse across different machines
 - **clever naming scheme:** the repository architecture is easy to browse while staying compatible with `stow` symlinking mechanism
-- **KISS:** the repository consist of dotfiles all installable using same modus operandi (`stow <directory>`)
+- **KISS:** there is deliberately none build script involved at all, the repository consist of dotfiles all installable using same modus operandi (`stow <directory>`)
 - **documentation:** each package has a *README.md* which present its purpose and a flat `tree` view of its files. Install notes and requirements can also be listed. 
 
 ## Install
 
-1. clone the repository : `git clone https://github.com/ryjen/dotfiles.git ~/ ; cd ~/dotfiles`
-1. setup `stow` to your home directory : `./install` or create a `.stowrc` file with `--target=<home path>`
+1. clone the repository : `git clone https://github.com/Kraymer/F-dotfiles.git ~/ ; cd ~/F-dotfiles`
+1. setup `stow`, *inception style* : `stow -t ~ stow` 
 1. install desired package via `stow <directory>` <sup id="a1">[1](#f1)</sup>
 
 When needed, special install instructions are present in package `README.md` file.
@@ -60,4 +61,4 @@ Feel confused ? Check [example](https://github.com/Kraymer/F-dotfiles/tree/maste
 
 ---
 <i id="f1">1</i> it's because we installed `stow` package at step 2 that the flag `-t ~` can be omitted here, see [.stowrc](https://github.com/Kraymer/F-dotfiles/blob/master/stow/.stowrc) [⤸](#a1)  
-<i id="f2">2</i> https://www.youtube.com/watch?v=ezQLP1dj_t8 [â¤¸](#a2)
+<i id="f2">2</i> https://www.youtube.com/watch?v=ezQLP1dj_t8 [⤸](#a2)
