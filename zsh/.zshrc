@@ -1,6 +1,3 @@
-if command -v tmux>/dev/null; then
-  [[ ! $TERM =~ screen ]] && [ -z $TMUX ] && exec tmux
-fi
 
 source ~/.oh_my.zsh
 
