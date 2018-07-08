@@ -1,4 +1,11 @@
 # GNU core utilities
 eval `dircolors ~/.zsh/dircolors.256dark`      # colored ls
-xmodmap ~/.Xmodmap
-alias open='xdg-open'
+
+if type xmodmap > /dev/null; then
+    xmodmap ~/.Xmodmap
+fi
+
+if type xdg-open > /dev/null; then
+    alias open='xdg-open'
+fi 
+

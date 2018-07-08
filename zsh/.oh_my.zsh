@@ -1,11 +1,7 @@
 # Path to your oh-my-zsh installation.
 export ZSH=$HOME/.oh-my-zsh
 
-# Set name of the theme to load.
-# Look in ~/.oh-my-zsh/themes/
-# Optionally, if you set this to "random", it'll load a random theme each
-# time that oh-my-zsh is loaded.
-ZSH_THEME="powerlevel9k/powerlevel9k"
+source $ZSH/oh-my-zsh-theme.sh
 
 POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(time context dir virtualenv vcs)
 POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(command_execution_time status history)
@@ -24,7 +20,7 @@ boobify() {
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(ssh-agent autojump command-not-found adb colored-man-pages docker-compose docker-machine docker emoji emotty git gitignore golang gpg-agent gradle osx gnu-utils history-substring-search pip python zsh-autosuggestions zsh-syntax-highlighting)
+source $ZSH/oh-my-zsh-plugins.sh
 
 source $ZSH/oh-my-zsh.sh
 
