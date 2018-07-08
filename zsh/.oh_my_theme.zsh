@@ -1,8 +1,8 @@
 ZSH_DEFAULT_THEME_DIR="$HOME/.oh-my-zsh/custom/themes/powerlevel9k"
 
-if ! [[ -d $ZSH_DEFAULT_THEME_DIR ]]; then
+if ! [[ -d $ZSH_DEFAULT_THEME_DIR ]] &&type git > /dev/null; then
     echo "Downloading oh-my-zsh default theme..."
-    @clone https://github.com/bhilburn/powerlevel9k.git $ZSH_DEFAULT_THEME_DIR
+    $(git clone https://github.com/bhilburn/powerlevel9k.git $ZSH_DEFAULT_THEME_DIR)
     if ! [[ $? -eq 0 ]]; then
         echo "Unable download theme"
     fi
