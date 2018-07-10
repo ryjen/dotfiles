@@ -47,11 +47,11 @@ syntax on
 " Highlight current line
 set cursorline
 " Make tabs as wide as two spaces
-set tabstop=4
+set tabstop=2
 set expandtab
 set smarttab
 set softtabstop=0
-set shiftwidth=4
+set shiftwidth=2
 " Show “invisible” characters
 "set lcs=tab:▸\ ,trail:·,eol:¬,nbsp:_
 "set list
@@ -95,7 +95,9 @@ function! StripWhitespace()
 	call setpos('.', save_cursor)
 	call setreg('/', old_query)
 endfunction
+
 noremap <leader>ss :call StripWhitespace()<CR>
+
 " Save a file as root (,W)
 noremap <leader>W :w !sudo tee % > /dev/null<CR>
 
@@ -114,4 +116,3 @@ source $HOME/.vim/config/nerdtree.vim
 source $HOME/.vim/config/multi-cursor.vim
 
 source $HOME/.vim/config/limelight.vim
-
