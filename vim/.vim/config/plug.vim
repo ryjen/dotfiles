@@ -23,5 +23,9 @@ Plug 'fatih/vim-go'
 
 Plug 'terryma/vim-multiple-cursors'
 
+Plug 'jeetsukumaran/vim-buffergator'
+
+Plug 'Valloric/YouCompleteMe'
+
 call plug#end()
 
