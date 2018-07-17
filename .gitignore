@@ -9,3 +9,7 @@ sec.conf
 
 vim/.vim/plugged/*
 *.log
+*.key
+*.kbx
+*~
+trustdb.gpg
