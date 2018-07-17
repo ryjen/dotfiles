@@ -8,7 +8,10 @@ sec.conf
 *.log
 !*example
 
-# packages that should not be pushed on github (local backup only)
-
 taskwarrior/.config/task/certs/*
 vim/.vim/plugged/*
+
+*.key
+*.kbx
+*~
+trustdb.gpg
