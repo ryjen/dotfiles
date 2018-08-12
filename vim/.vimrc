@@ -3,6 +3,8 @@ set background=dark
 colorscheme solarized
 let g:solarized_termtrans=1
 
+" Use true color
+set termguicolors
 " Make Vim more useful
 set nocompatible
 " Use the OS clipboard by default (on versions compiled with `+clipboard`)
@@ -10,7 +12,7 @@ set clipboard=unnamed
 " Enhance command-line completion
 set wildmenu
 " Allow cursor keys in insert mode
-set esckeys
+" set esckeys
 " Allow backspace in insert mode
 set backspace=indent,eol,start
 " Optimize for fast terminal connections
@@ -116,3 +118,9 @@ source $HOME/.vim/config/nerdtree.vim
 source $HOME/.vim/config/multi-cursor.vim
 
 source $HOME/.vim/config/limelight.vim
+
+source $HOME/.vim/config/youcompleteme.vim
+
+source $HOME/.vim/config/lsp.vim
+
+

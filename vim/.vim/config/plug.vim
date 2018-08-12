@@ -27,5 +27,13 @@ Plug 'jeetsukumaran/vim-buffergator'
 
 Plug 'Valloric/YouCompleteMe'
 
+Plug 'rust-lang/rust.vim'
+
+Plug 'prabirshrestha/async.vim'
+
+Plug 'prabirshrestha/vim-lsp'
+
+Plug 'racer-rust/vim-racer'
+
 call plug#end()
 

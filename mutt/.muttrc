@@ -14,3 +14,9 @@ set move = no
 set imap_keepalive = 900
 set smtp_authenticators = 'gssapi:login'
 set editor="nano"
+set ssl_force_tls = yes
+set use_from = yes
+set envelope_from = yes
+bind index G imap-fetch-mail
+set editor = "vim"
+set charset = "utf-8
