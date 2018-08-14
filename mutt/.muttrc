@@ -1,22 +1,88 @@
+# user info config
 set from = ${MUTT_FROM}
 set realname = ${MUTT_REAL_NAME}
+
+# IMAP config
 set imap_user = "${MUTT_IMAP_USER}@gmail.com"
 set imap_pass = ${MUTT_IMAP_PASS}
+set imap_check_subscribed
 set folder = "imaps://imap.gmail.com:993"
 set spoolfile = "+INBOX"
 set postponed ="+[Gmail]/Drafts"
-set header_cache =~/.mutt/cache/headers
-set message_cachedir =~/.mutt/cache/bodies
-set certificate_file =~/.mutt/certificates
+set record = "+[Gmail]/Sent Mail"
+set imap_keepalive = 900
+unset imap_passive
+
+# Caching / System folders
+set header_cache = "$HOME/.mutt/cache/headers"
+set message_cachedir = "$HOME/.mutt/cache/bodies"
+set certificate_file = "$HOME/.mutt/certificates"
+
+# SMTP config
 set smtp_url = "smtps://${MUTT_IMAP_USER}@smtp.gmail.com:465/"
 set smtp_pass = ${MUTT_IMAP_PASS}
-set move = no
-set imap_keepalive = 900
 set smtp_authenticators = 'gssapi:login'
-set editor="nano"
+
+# General config for Gmail
+set mail_check = 5
+set move = no
+set copy = no
+set edit_headers
 set ssl_force_tls = yes
 set use_from = yes
 set envelope_from = yes
-bind index G imap-fetch-mail
-set editor = "vim"
+set editor = "vim +/^$ ++1"
 set charset = "utf-8
+set sort = reverse-date
+set sort_aux = last-date-received
+set index_format="%4C %Z %{%b %d %R} %-15.15L (%?l?%4l&%4c?) %s"
+set sleep_time=0 # be faster
+set text_flowed       = yes
+set mark_old = no
+set alias_file        = "$HOME/.mutt/aliases.txt"
+set display_filter    = "$HOME/.mutt/aliases.sh"
+set mail_check_stats
+auto_view text/html
+unset record
+
+# Side bar enable
+set sidebar_visible
+set sidebar_format="%B%?F? [%F]?%* %?N?%N/?%S"
+
+# You can use any gmail imap mailboxes
+mailboxes =INBOX =[Gmail]/Sent\ Mail =[Gmail]/Drafts =[Gmail]/Spam =[Gmail]/Trash
+
+# Vim like binds
+bind attach,index,pager \CF next-page             # Ctrl-F to move forward
+bind attach,index,pager \CB previous-page         # Ctrl-B to move backward
+bind pager g top                                  # g to move to top of pager
+bind pager G bottom                               # G to move to bottom of pager
+bind attach,index g first-entry                   # g to move to first entry
+bind attach,index G last-entry                    # G to move to last entry
+
+# Sidebar binds
+bind index,pager \CP sidebar-prev                 # Ctrl-n to select next folder
+bind index,pager \CN sidebar-next                 # Ctrl-p to select previous folder
+bind index,pager \CI sidebar-open                 # Ctrl-o to open selected folder
+bind index,pager \CB sidebar-toggle-visible       # Ctrl-b to toggle visibility of the sidebar
+
+# pgp config
+set pgp_auto_decode=yes
+set pgp_decode_command="gpg %?p?--passphrase-fd 0? --no-verbose --batch --output - %f"
+set pgp_verify_command="gpg --no-verbose --batch --output - --verify %s %f"
+set pgp_decrypt_command="gpg --passphrase-fd 0 --no-verbose --batch --output - %f"
+set pgp_sign_command="gpg --no-verbose --batch --output - --passphrase-fd 0 --armor --detach-sign --textmode %?a?-u %a? %f"
+set pgp_clearsign_command="gpg --no-verbose --batch --output - --passphrase-fd 0 --armor --textmode --clearsign %?a?-u %a? %f"
+set pgp_encrypt_only_command="pgpewrap gpg --batch --quiet --no-verbose --output - --encrypt --textmode --armor --always-trust --encrypt-to 0xC9C40C31 -- -r %r -- %f"
+set pgp_encrypt_sign_command="pgpewrap gpg --passphrase-fd 0 --batch --quiet --no-verbose --textmode --output - --encrypt --sign %?a?-u %a? --armor --always-trust --encrypt-to 0xC9C40C31 -- -r %r -- %f"
+set pgp_import_command="gpg --no-verbose --import -v %f"
+set pgp_export_command="gpg --no-verbose --export --armor %r"
+set pgp_verify_key_command="gpg --no-verbose --batch --fingerprint --check-sigs %r"
+set pgp_list_pubring_command="gpg --no-verbose --batch --with-colons --list-keys %r" 
+set pgp_list_secring_command="gpg --no-verbose --batch --with-colons --list-secret-keys %r" 
+set pgp_autosign=yes
+set pgp_sign_as=0xC9C40C31
+set pgp_replyencrypt=yes
+set pgp_timeout=1800
+set pgp_good_sign="^gpg: Good signature from"
+
