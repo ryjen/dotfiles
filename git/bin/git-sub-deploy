@@ -1,0 +1,22 @@
+#!/bin/sh
+
+FOLDER="$1"
+REMOTE="$2"
+BRANCH="$3"
+
+if [ -z "$FOLDER" ]; then
+  echo "Syntax: git deploy <folder> [remote(=origin)] [branch(=master)]"
+  exit 1
+fi
+
+if [ -z "$REMOTE" ]; then
+  REMOTE="origin"
+fi
+
+if [ -z "$BRANCH" ]; then
+  BRANCH="master"
+fi
+
+git subtree push --prefix $FOLDER $REMOTE $BRANCH
+
+
