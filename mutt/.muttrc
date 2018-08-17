@@ -14,9 +14,9 @@ set imap_keepalive = 900
 unset imap_passive
 
 # Caching / System folders
-set header_cache = "$HOME/.mutt/cache/headers"
-set message_cachedir = "$HOME/.mutt/cache/bodies"
-set certificate_file = "$HOME/.mutt/certificates"
+set header_cache = "$HOME/.config/mutt/cache/headers"
+set message_cachedir = "$HOME/.config/mutt/cache/bodies"
+set certificate_file = "$HOME/.config/mutt/certificates"
 
 # SMTP config
 set smtp_url = "smtps://${MUTT_IMAP_USER}@smtp.gmail.com:465/"
@@ -39,8 +39,8 @@ set index_format="%4C %Z %{%b %d %R} %-15.15L (%?l?%4l&%4c?) %s"
 set sleep_time=0 # be faster
 set text_flowed       = yes
 set mark_old = no
-set alias_file        = "$HOME/.mutt/aliases.txt"
-set display_filter    = "$HOME/.mutt/aliases.sh"
+set alias_file        = "$HOME/.config/mutt/aliases.txt"
+set display_filter    = "$HOME/.config/mutt/aliases.sh"
 set mail_check_stats
 auto_view text/html
 unset record
@@ -66,6 +66,9 @@ bind index,pager \CN sidebar-next                 # Ctrl-p to select previous fo
 bind index,pager \CI sidebar-open                 # Ctrl-o to open selected folder
 bind index,pager \CB sidebar-toggle-visible       # Ctrl-b to toggle visibility of the sidebar
 
+# Gmail binds
+macro index,pager A "<save-message>=[Gmail]/Archive<enter>" "Archive Message"
+
 # pgp config
 set pgp_auto_decode=yes
 set pgp_decode_command="gpg %?p?--passphrase-fd 0? --no-verbose --batch --output - %f"
@@ -83,6 +86,7 @@ set pgp_replyencrypt=yes
 set pgp_timeout=1800
 set pgp_good_sign="^gpg: Good signature from"
 
+# import user specific pgp settings
 source .config/mutt/muttrc.sec
 
 

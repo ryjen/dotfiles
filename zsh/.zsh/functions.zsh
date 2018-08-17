@@ -5,7 +5,6 @@ function TRAPALRM() {  # don't clear completion items on reset prompt
     fi
 }
 
-
 function dirwatch() {
     inotifywait -m $1 -e create -e move -e delete |
         while read thepath action file; do
@@ -13,8 +12,12 @@ function dirwatch() {
         done
 }
 
-where() {
+function where() {
     find . -name "*${1}*"
+}
+
+function test_network() {
+  nc -zw1 "google.com" 443 > /dev/null
 }
 
 function ssh() {
