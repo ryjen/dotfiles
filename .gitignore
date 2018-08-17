@@ -13,3 +13,5 @@ vim/.vim/plugged/*
 *.kbx
 *~
 trustdb.gpg
+.netrwhist
+*.swp
