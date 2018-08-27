@@ -6,10 +6,10 @@ AWK='{$1=""; if (NF == 3) {print "alias" $0;} else if (NF == 2) {print "alias" $
 
 NEWALIAS=$(echo "${MESSAGE}" | grep ^"From: " | sed s/[\,\"\']//g | awk "$AWK")
 
-if grep -Fxq "$NEWALIAS" $HOME/.mutt/aliases.txt; then
+if grep -Fxq "$NEWALIAS" $HOME/.config/mutt/aliases.txt; then
     :
 else
-    echo "$NEWALIAS" >> $HOME/.mutt/aliases.txt
+    echo "$NEWALIAS" >> $HOME/.config/mutt/aliases.txt
 fi
 
 echo "${MESSAGE}"
