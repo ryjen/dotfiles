@@ -17,3 +17,4 @@ vim/.vim/plugged/*
 trustdb.gpg
 .netrwhist
 *.swp
+*.swo
