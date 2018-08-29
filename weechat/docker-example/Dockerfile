@@ -15,7 +15,7 @@ RUN mkdir -p $HOME/.weechat\
     && addgroup weechat\
     && adduser -h $HOME -D -s /bin/bash -G weechat weechat
 
-COPY . /weechat/.weechat/
+COPY ../.weechat/ /weechat/.weechat/
 
 RUN chown -R weechat:weechat $HOME
 

@@ -123,4 +123,5 @@ source $HOME/.vim/config/youcompleteme.vim
 
 source $HOME/.vim/config/lsp.vim
 
+source $HOME/.vim/config/nvim.vim
 
