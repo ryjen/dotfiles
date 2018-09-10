@@ -16,3 +16,4 @@ trustdb.gpg
 .netrwhist
 *.swp
 *.swo
+mutt/.config/mutt/aliases.txt

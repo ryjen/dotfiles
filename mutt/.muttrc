@@ -89,4 +89,5 @@ set pgp_good_sign="^gpg: Good signature from"
 # import user specific pgp settings
 source .config/mutt/muttrc.sec
 
+source .config/mutt/colors
 

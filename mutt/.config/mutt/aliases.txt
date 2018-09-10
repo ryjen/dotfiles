@@ -1,9 +1,0 @@
-alias teachings-eckhart Eckhart Teachings <eckharttolle@reply.bronto.com>
-alias friends?-extremely Extremely Shy - Looking for Friends? <info@meetup.com>
-alias Clearly <clearly@e.clearly.ca>
-alias bundle-humble Humble Bundle <contact@mailer.humblebundle.com>
-alias group-north North Vancouver Life Drawing weekly group <info@meetup.com>
-alias checkout-visa Visa Checkout <visacheckout@marketingemail.visa.com>
-alias safety-digitalocean DigitalOcean Trust & Safety Team
-alias vancouver-bitcoin Bitcoin Vancouver <info@meetup.com>
-alias Dctrl <info@meetup.com>
