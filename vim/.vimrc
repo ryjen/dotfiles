@@ -105,17 +105,13 @@ noremap <leader>W :w !sudo tee % > /dev/null<CR>
 
 noremap <F3> :Autoformat<CR>
 
-nmap <Leader>l <Plug>(Limelight)
-xmap <Leader>l <Plug>(Limelight)
-
-autocmd! User GoyoEnter Limelight
-autocmd! User GoyoLeave Limelight!
-
-source $HOME/.vim/config/plug.vim
+:source $HOME/.vim/config/plug.vim
 
 source $HOME/.vim/config/nerdtree.vim
 
 source $HOME/.vim/config/multi-cursor.vim
+
+source $HOME/.vim/config/goyo.vim
 
 source $HOME/.vim/config/limelight.vim
 
