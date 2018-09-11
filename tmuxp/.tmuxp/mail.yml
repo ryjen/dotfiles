@@ -1,0 +1,11 @@
+session_name: MAIL
+windows:
+- window_name: gmail
+  panes:
+    - neomutt
+- window_name: modd
+  shell_command_before:
+    - mkdir /tmp/mutt
+    - cd -P /tmp/mutt
+  panes:
+    - modd -f ~/.mutt/modd.conf

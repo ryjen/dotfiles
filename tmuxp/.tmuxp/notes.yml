@@ -1,0 +1,17 @@
+session_name: NOTES
+start_directory: ~/Documents/Notes
+shell_command_before:
+  - tmux set status off
+  - cls
+windows:
+- layout: main-vertical
+  options:
+    main-pane-width: 160
+  panes:
+  - shell_command_before:
+    - tmux resize-pane -Z
+    shell_command:
+    - sleep 0.7
+    - nvim -c Goyo
+    focus: true
+  - blank

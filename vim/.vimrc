@@ -121,3 +121,5 @@ source $HOME/.vim/config/lsp.vim
 
 source $HOME/.vim/config/nvim.vim
 
+source $HOME/.vim/config/lightline.vim
+

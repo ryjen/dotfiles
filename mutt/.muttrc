@@ -43,6 +43,7 @@ set alias_file        = "$HOME/.config/mutt/aliases.txt"
 set display_filter    = "$HOME/.config/mutt/aliases.sh"
 set mail_check_stats
 auto_view text/html
+alternative_order text/plain text/enriched text/html
 unset record
 
 # Side bar enable

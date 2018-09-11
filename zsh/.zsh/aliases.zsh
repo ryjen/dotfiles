@@ -9,6 +9,11 @@ alias irc='/usr/bin/ssh ryan@micrantha.com -t tmux attach-session -t irc'
 alias -s log=nano
 alias -s conf=nano
 
-alias gut=git
+alias gut='git'
 
+type nvim >/dev/null
+
+if [[ $? == 0 ]]; then
+  alias vim='nvim'
+fi
 
