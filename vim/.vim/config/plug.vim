@@ -9,7 +9,7 @@ Plug 'ctrlpvim/ctrlp.vim'
 
 Plug 'SirVer/ultisnips' | Plug 'honza/vim-snippets'
 
-Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
+Plug 'scrooloose/nerdtree'
 
 Plug 'Chiel92/vim-autoformat'
 
@@ -25,7 +25,7 @@ Plug 'terryma/vim-multiple-cursors'
 
 Plug 'jeetsukumaran/vim-buffergator'
 
-Plug 'Valloric/YouCompleteMe'
+Plug 'Valloric/YouCompleteMe', { 'do': 'python ./install.py --system-libclang --clang-completer --gocode-completer --racer-completer --tern-completer' }
 
 Plug 'rust-lang/rust.vim'
 
@@ -34,6 +34,24 @@ Plug 'prabirshrestha/async.vim'
 Plug 'prabirshrestha/vim-lsp'
 
 Plug 'racer-rust/vim-racer'
+
+Plug 'itchyny/lightline.vim'
+
+Plug 'tyrannicaltoucan/vim-deep-space'
+
+Plug 'christoomey/vim-tmux-navigator'
+
+Plug 'tpope/vim-obsession'
+
+Plug 'tpope/vim-unimpaired'
+
+Plug 'tpope/vim-fugitive'
+
+Plug 'tpope/vim-surround'
+
+Plug 'majutsushi/tagbar'
+
+Plug 'edkolev/tmuxline.vim'
 
 call plug#end()
 

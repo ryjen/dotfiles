@@ -14,3 +14,5 @@ fi
 
 git clone https://github.com/tmux-plugins/tpm $HOME/.tmux/plugins/tpm
 
+export DISABLE_AUTO_TITLE='true'
+

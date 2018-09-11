@@ -1,0 +1,10 @@
+session_name: 4pane
+windows:
+- window_name: dev window
+  layout: main-vertical
+  shell_command_before:
+    - cd ~/Source
+  panes:
+    - vim
+    - fortune | cowsay
+    - htop                     
