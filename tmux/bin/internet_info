@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+
+if [ "$(uname)" == "Darwin" ]; then
+  IP=$(ipconfig getifaddr en0)
+  strength=`airport -I | grep agrCtlRSSI | awk '{print $2}' | sed 's/-//g'`
+else
+  WIFI=$(iwgetid | cut -d ' ' -f 1)
+  IP=$(ifconfig $WIFI | grep 'inet ' | xargs | cut -d ' ' -f 2)
+  strength=`iwconfig $WIFI | grep 'Signal' | cut -d '=' -f3 | cut -d ' ' -f1`
+fi
+
+PUB_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)
+
+INTERNET='🖧'
+
+
+if [[ $strength -lt -20 ]]; then
+    echo -n '#[fg=colour116]'
+elif [[ $strength -lt -30 ]]; then
+    echo -n '#[fg=colour117]'
+elif [[ $strength -lt -40 ]]; then
+    echo -n '#[fg=colour118]'
+elif [[ $strength -lt -50 ]]; then
+    echo -n '#[fg=colour119]'
+else
+    echo -n '#[fg=colour120]'
+fi
+
+echo -n "$INTERNET ${strength}db #[fg=colour197]$IP #[fg=colour213]$PUB_IP"
+
