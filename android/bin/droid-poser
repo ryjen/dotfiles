@@ -1,0 +1,18 @@
+#!/usr/bin/env sh
+
+PWD=$(pwd)
+
+cd $ANDROID_HOME/emulator
+
+if [ -z "$1" ]; then
+  echo "Please specify an AVD to launch.  Available AVDs are:"
+  echo ""
+  emulator -list-avds
+  echo ""
+  exit 1
+fi
+
+emulator $@ &
+
+cd $PWD
+

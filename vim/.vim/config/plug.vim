@@ -53,5 +53,14 @@ Plug 'majutsushi/tagbar'
 
 Plug 'edkolev/tmuxline.vim'
 
+Plug 'pangloss/vim-javascript'
+
+Plug 'mxw/vim-jsx'
+
+Plug 'mattn/emmet-vim'
+
+Plug 'w0rp/ale'
+
 call plug#end()
+
 
