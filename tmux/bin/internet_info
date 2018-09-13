@@ -2,17 +2,23 @@
 
 
 if [ "$(uname)" == "Darwin" ]; then
-  IP=$(ipconfig getifaddr en0)
+  if [ -z "$LOCAL_IP" ]; then
+    export LOCAL_IP=$(ipconfig getifaddr en0)
+  fi
   strength=`airport -I | grep agrCtlRSSI | awk '{print $2}' | sed 's/-//g'`
 else
   WIFI=$(iwgetid | cut -d ' ' -f 1)
-  IP=$(ifconfig $WIFI | grep 'inet ' | xargs | cut -d ' ' -f 2)
+  if [ -z "$LOCAL_IP" ]; then
+    export LOCAL_IP=$(ifconfig $WIFI | grep 'inet ' | xargs | cut -d ' ' -f 2)
+  fi
   strength=`iwconfig $WIFI | grep 'Signal' | cut -d '=' -f3 | cut -d ' ' -f1`
 fi
 
-PUB_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)
+if [ -z "$PUBLIC_IP" ]; then
+  export PUBLIC_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)
+fi
 
-INTERNET='⌔'
+INTERNET='🌎'
 
 if [ ! -z "$strength" ]; then
   if [[ $strength -lt -20 ]]; then
@@ -27,7 +33,7 @@ if [ ! -z "$strength" ]; then
     echo -n '#[fg=colour120]'
   fi
 
-  echo -n "$INTERNET ${strength}db "
+  echo -n "${INTERNET} ${strength}db "
 fi
-echo -n "#[fg=colour197]$IP #[fg=colour213]$PUB_IP"
+echo -n "#[fg=colour197]$LOCAL_IP #[fg=colour213]$PUBLIC_IP"
 
