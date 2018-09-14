@@ -1,8 +1,11 @@
 # GNU core utilities
 eval `dircolors ~/.zsh/dircolors.256dark`      # colored ls
 
-if [ -f ~/.Xmodmap ] && [ type xmodmap > /dev/null ]; then
-  xmodmap ~/.Xmodmap
+if [ -f ~/.Xmodmap ]; then
+  type xmodmap > /dev/null
+  if [[ $? == 0 ]]; then
+    xmodmap ~/.Xmodmap
+  fi
 fi
 
 if type xdg-open > /dev/null; then
