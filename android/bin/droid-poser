@@ -5,7 +5,7 @@ PWD=$(pwd)
 cd $ANDROID_SDK_HOME/emulator
 
 if [ -z "$1" ]; then
-  echo "Please specify an AVD to launch.  Available AVDs are:"
+  echo "Please specify an AVD to launch.  For example: @Nexus.  Available AVDs are:"
   echo ""
   ./emulator -list-avds
   echo ""

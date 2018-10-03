@@ -1,21 +1,36 @@
 #!/usr/bin/env bash
 
+ENV_FILE=/tmp/internet_info.env
+
+if [ -f $ENV_FILE ]; then
+  export $(cat $ENV_FILE | xargs)
+else
+  RESET_ENV=true
+fi
 
 if [ "$(uname)" == "Darwin" ]; then
   if [ -z "$LOCAL_IP" ]; then
-    export LOCAL_IP=$(ipconfig getifaddr en0)
+    LOCAL_IP=$(ipconfig getifaddr en0)
+    RESET_ENV=true
   fi
   strength=`airport -I | grep agrCtlRSSI | awk '{print $2}' | sed 's/-//g'`
 else
   WIFI=$(iwgetid | cut -d ' ' -f 1)
   if [ -z "$LOCAL_IP" ]; then
-    export LOCAL_IP=$(ifconfig $WIFI | grep 'inet ' | xargs | cut -d ' ' -f 2)
+    LOCAL_IP=$(ifconfig $WIFI | grep 'inet ' | xargs | cut -d ' ' -f 2)
+    RESET_ENV=true
   fi
   strength=`iwconfig $WIFI | grep 'Signal' | cut -d '=' -f3 | cut -d ' ' -f1`
 fi
 
 if [ -z "$PUBLIC_IP" ]; then
-  export PUBLIC_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)
+  PUBLIC_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)
+  RESET_ENV=true
+fi
+
+if [[ $RESET_ENV = true ]]; then
+  echo "PUBLIC_IP=$PUBLIC_IP" > $ENV_FILE
+  echo "LOCAL_IP=$LOCAL_IP" >> $ENV_FILE
 fi
 
 INTERNET='🌎'
