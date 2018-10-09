@@ -1,10 +1,9 @@
 
 export ZSH_TMUX_AUTOSTART='true'
 
-# Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
-# Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
-# Example format: plugins=(rails git textmate ruby lighthouse)
-# Add wisely, as too many plugins slow down shell startup.
-plugins=(tmux tmuxinator ssh-agent last-working-dir taskwarrior yarn autojump command-not-found adb colored-man-pages docker-compose docker-machine docker emoji emotty git gitignore golang gpg-agent gradle gnu-utils history-substring-search pip python zsh-autosuggestions zsh-syntax-highlighting)
+zstyle :omz:plugins:ssh-agent agent-forwarding on
+zstyle :omz:plugins:ssh-agent identities id_home id_work
+
+plugins=(tmux ssh-agent last-working-dir taskwarrior autojump command-not-found adb colored-man-pages docker gpg-agent gnu-utils zsh-autosuggestions zsh-syntax-highlighting battery emoji sudo)
 
 
