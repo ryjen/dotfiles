@@ -1,0 +1,55 @@
+
+trap ctrl_c INT
+
+ctrl_c() {
+  exit 0
+}
+
+# `refresh cmd` executes clears the terminal and prints
+# the output of `cmd` in it.
+refresh() {
+  tput clear || exit 2; # Clear screen. Almost same as echo -en '\033[2J';
+  $@;
+}
+
+usage() {
+  echo "Syntax: cwatch -n<seconds> COMMAND";
+}
+
+# Like watch, but with color
+seconds=1;
+
+while getopts "hn:" o; do
+  case "${o}" in
+    n)
+      seconds=${OPTARG};
+      ;;
+    h | *)
+      usage;
+      ;;
+  esac
+done
+
+if [ $seconds -lt 1 ]; then
+  usage;
+  return 1;
+fi
+
+shift $((OPTIND-1));
+
+if [ -z "$1" ]; then
+  usage;
+  return 1;
+fi
+
+while true; do
+  # Cache output to prevent flicker. Assigning to variable
+  # also removes trailing newline.
+  refresh $@
+  # Exit if ^C was pressed while command was executing or there was an error.
+  exitcode=$?; [ $exitcode -ne 0 ] && exit $exitcode
+  sleep $seconds;
+done;
+
+
+
