@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+
+DEVICE_FILE=/tmp/ios_sim.uuid
+
+function cache_sim_uuid {
+  local uuid=`xcrun simctl list devices | grep "iPhone 6 (" | head -n 1 | cut -d "(" -f 2 | cut -d ")" -f 1`
+
+  echo $uuid > $DEVICE_FILE
+}
+
+function boot_sim {
+  local uuid="$1"
+
+  xcrun simctl boot $uuid
+
+  open /Applications/Xcode.app/Contents/Developer/Applications/Simulator.app
+}
+
+function log_device {
+  local uuid="$1"
+  tail -f $HOME/Library/Logs/CoreSimulator/$uuid/system.log
+}
+
+function test_device {
+  local uuid="$1"
+
+  $(xcrun simctl getenv $uuid TEST)
+
+  return [[ $? == 0 ]]
+}
+
+
+if [ ! -f $DEVICE_FILE ]; then
+  echo "Finding simulator UUID..."
+  cache_sim_uuid
+fi
+
+UUID=`cat $DEVICE_FILE | xargs`
+
+CMD=$1
+
+shift
+
+case "$CMD" in
+  boot)
+    echo "Booting simulator..."
+    boot_sim $UUID
+    ;;
+  log)
+    echo "Logging simulator..."
+    log_device $UUID
+    ;;
+  clear)
+    echo "Finding simulator UUID..."
+    cache_sim_uuid
+    ;;
+  *)
+    echo "Syntax: $0 boot|log|clear"
+    ;;
+esac
+
+
