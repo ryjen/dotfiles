@@ -103,7 +103,7 @@ noremap <leader>ss :call StripWhitespace()<CR>
 " Save a file as root (,W)
 noremap <leader>W :w !sudo tee % > /dev/null<CR>
 
-noremap <F3> :Autoformat<CR>
+noremap <leader>f :Autoformat<CR>
 
 :source $HOME/.vim/config/plug.vim
 

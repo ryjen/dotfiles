@@ -1,52 +1,56 @@
 # Local/private config goes in the include
 [include]
-    path = ~/.config/git/gitconfig.sec
+  path = ~/.config/git/gitconfig.sec
 
 [core]
-    editor = vim
-    excludesfile = ~/.gitignore
+  editor = vim
+  excludesfile = ~/.gitignore
+  pager = diff-so-fancy | less --tabs=4 -RFX
 
 # From there, sections are in alphabetic order
 
 [alias]
-    co = "!f() { git checkout \"$@\" && git stash list | grep \"$1:\"; }; f"
-    last = log -1 HEAD
-    st = status
-    uncommit = reset --soft HEAD~
-    unstage = reset HEAD --
-    lg = log --graph --abbrev-commit --decorate --date=relative --all
+  co = "!f() { git checkout \"$@\" && git stash list | grep \"$1:\"; }; f"
+  last = log -1 HEAD
+  st = status
+  uncommit = reset --soft HEAD~
+  unstage = reset HEAD --
+  lg = log --graph --abbrev-commit --decorate --date=relative --all
 
 [difftool]
-    prompt = false
+  prompt = false
 
 [gui]
     # Remove `git gui` pop-up warning
-    gcwarning = false
+  gcwarning = false
 
 [help]
-    autocorrect = 1
+  autocorrect = 1
 
 [mergetool]
-    keepBackup = false
-    prompt = false
+  keepBackup = false
+  prompt = false
 
 [merge]
-    tool = vimdiff
-    conflictstyle = diff3
+  tool = vimdiff
+  conflictstyle = diff3
 
 [mergetool "meld"]
     cmd = meld "$LOCAL" "$BASE" "$REMOTE" --output "$MERGED"
 
 [pager]
-    diff = diff-so-fancy | less --tabs=1,5 -RFX
-    show = diff-so-fancy | less --tabs=1,5 -RFX
+  diff = diff-so-fancy | less --tabs=1,5 -RFX
+  show = diff-so-fancy | less --tabs=1,5 -RFX
 
 [pull]
-    rebase = true
+  rebase = true
 
 [push]
-    default = simple
+  default = simple
+
+[rebase]
+    autoStash = true
 
 [credential]
-    helper = cache --timeout=3600
+  helper = cache --timeout=3600
 

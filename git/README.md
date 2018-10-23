@@ -1,19 +1,16 @@
 ## [`git`](https://git-scm.com/)
 
-> I use `SublimeMerge` when I commit but rely on the CLI tool for the rest.   
 > Git commands are sometimes weird, and I use my shell history/auto-completions abundantly to circumvent that rather than using a porcelain layer over git.
 
-~~~
-~
-├── .config
-│   └── git
-│       └── credentials.local
-├── .gitconfig
-├── .gitignore
-└── .zsh
-    ├── aliases_git.zsh
-    └── functions_git.zsh
-~~~
+    ├── .config
+    │   └── git
+    │       └── gitconfig.sec
+    ├── .gitconfig
+    ├── .gitignore
+    └── bin
+      ├── git-reset-author
+      └── git-sub-push
 
-✏ **`credentials`**: secret file to enter your git identity (name and email)  
-🗎 `functions_git.zsh`: bash functions executing advanced git routines
+`.gitconfig` includes an external `~/.config/.gitconfig.sec`, allowing to have settings (credentials come to mind) specifics to each machine, cf [`@mac/.config/.gitconfig.sec.example`](https://github.com/Kraymer/F-dotfiles/blob/master/%40mac/.config/.gitconfig.sec.example).
+
+`icdiff`<<https://github.com/jeffkaufman/icdiff>>  
