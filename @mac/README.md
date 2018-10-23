@@ -9,9 +9,4 @@
 
     
 This package installs configuration files, aliases, functions, etc. for an OS X environment.
-Use subpackages for configuration specific to a mac instance.
 
-### Subpackages
-
-- [@macbook](https://github.com/Kraymer/F-dotfiles/tree/master/%40mac/%40macbook)
-- [@macmini](https://github.com/Kraymer/F-dotfiles/tree/master/%40mac/%40macmini)
