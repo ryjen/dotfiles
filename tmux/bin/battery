@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-let INTERVAL=$SECONDS%15
+EPOCH=$(date +%s)
+
+let INTERVAL=$(($EPOCH % 15))
 
 if [[ $INTERVAL -ne 0 ]]; then
   exit 0
