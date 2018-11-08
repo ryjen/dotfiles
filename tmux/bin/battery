@@ -1,13 +1,5 @@
 #!/usr/bin/env bash
 
-EPOCH=$(date +%s)
-
-let INTERVAL=$(($EPOCH % 15))
-
-if [[ $INTERVAL -ne 0 ]]; then
-  exit 0
-fi
-
 VOLTAGE='⚡'
 
 BAT1_FILE="/sys/class/power_supply/BAT1/capacity"
@@ -25,15 +17,15 @@ else
 fi
 
 if [[ $current_charge -lt 30 ]]; then
-    echo -n '#[fg=colour9]'
+  echo -n '#[fg=colour9]'
 elif [[ $current_charge -lt 50 ]]; then
-    echo -n '#[fg=colour184]'
+  echo -n '#[fg=colour184]'
 elif [[ $current_charge -lt 70 ]]; then
-    echo -n '#[fg=colour190]'
+  echo -n '#[fg=colour190]'
 elif [[ $current_charge -lt 90 ]]; then
-    echo -n '#[fg=colour226]'
+  echo -n '#[fg=colour226]'
 else
-    echo -n '#[fg=colour11]'
+  echo -n '#[fg=colour11]'
 fi
 
 echo -n "$VOLTAGE ${current_charge}%"

@@ -13,23 +13,24 @@ fi
 EPOCH=$(date +%s)
 
 ##
-# only run every 10 seconds
-##
-INTERVAL=$(($EPOCH % 15))
-
-# and has run at least once
-if [[ $INTERVAL -ne 0 ]] && [ ! -z "$PUBLIC_IP" ] && [ ! -z "$LOCAL_IP" ]; then
-  exit 0
-fi
-
-##
-# reset the values every 24 hours
+# get the modified time of the environment file
 ##
 let INTERVAL=$EPOCH-$(stat -c "%Y" $ENV_FILE)
 
+# reset every 24 hours
 if [[ $INTERVAL -gt 86400 ]]; then
   unset PUBLIC_IP
   unset LOCAL_IP
+  unset WIFI_STRENGTH
+else
+  ##
+  # only check wifi on intervals
+  ##
+  INTERVAL=$(($EPOCH % 15))
+
+  if [[ $INTERVAL -eq 0 ]]; then
+    unset WIFI_STRENGTH
+  fi
 fi
 
 ##
@@ -40,14 +41,22 @@ if [ "$(uname)" == "Darwin" ]; then
     LOCAL_IP=$(ipconfig getifaddr en0)
     RESET_ENV=1
   fi
-  strength=`airport -I | grep agrCtlRSSI | awk '{print $2}' | sed 's/-//g'`
+  if [ -z "$WIFI_STRENGTH" ]; then
+    WIFI_STRENGTH=`airport -I | grep agrCtlRSSI | awk '{print $2}' | sed 's/-//g'`
+    RESET_ENV=1
+  fi
 else
-  WIFI=$(iwgetid | cut -d ' ' -f 1)
+  if [ -z "$LOCAL_IP" ] || [ -z "$WIFI_STRENGTH" ]; then
+    WIFI=$(iwgetid | cut -d ' ' -f 1)
+  fi
   if [ -z "$LOCAL_IP" ]; then
     LOCAL_IP=$(ifconfig $WIFI | grep 'inet ' | xargs | cut -d ' ' -f 2)
     RESET_ENV=1
   fi
-  strength=`iwconfig $WIFI | grep 'Signal' | cut -d '=' -f3 | cut -d ' ' -f1`
+  if [ -z "$WIFI_STRENGTH" ]; then
+    WIFI_STRENGTH=`iwconfig $WIFI | grep 'Signal' | cut -d '=' -f3 | cut -d ' ' -f1`
+    RESET_ENV=1
+  fi
 fi
 
 ##
@@ -64,24 +73,25 @@ fi
 if [[ $RESET_ENV -eq 1 ]]; then
   echo "PUBLIC_IP=$PUBLIC_IP" > $ENV_FILE
   echo "LOCAL_IP=$LOCAL_IP" >> $ENV_FILE
+  echo "WIFI_STRENGTH=$WIFI_STRENGTH" >> $ENV_FILE
 fi
 
 INTERNET='🌎'
 
-if [ ! -z "$strength" ]; then
-  if [[ $strength -lt -20 ]]; then
+if [ ! -z "$WIFI_STRENGTH" ]; then
+  if [[ $WIFI_STRENGTH -lt -20 ]]; then
     echo -n '#[fg=colour116]'
-  elif [[ $strength -lt -30 ]]; then
+  elif [[ $WIFI_STRENGTH -lt -30 ]]; then
     echo -n '#[fg=colour117]'
-  elif [[ $strength -lt -40 ]]; then
+  elif [[ $WIFI_STRENGTH -lt -40 ]]; then
     echo -n '#[fg=colour118]'
-  elif [[ $strength -lt -50 ]]; then
+  elif [[ $WIFI_STRENGTH -lt -50 ]]; then
     echo -n '#[fg=colour119]'
   else
     echo -n '#[fg=colour120]'
   fi
 
-  echo -n "${INTERNET} ${strength}db "
+  echo -n "${INTERNET} ${WIFI_STRENGTH}db "
 fi
 echo -n "#[fg=colour197]$LOCAL_IP #[fg=colour213]$PUBLIC_IP"
 
