@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 if [ -z "$ANDROID_SDK_HOME" ]; then
   echo "Please define ANDROID_SDK_HOME first"
