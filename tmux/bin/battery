@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+let INTERVAL=$SECONDS%15
+
+if [[ $INTERVAL -ne 0 ]]; then
+  exit 0
+fi
+
 VOLTAGE='⚡'
 
 BAT1_FILE="/sys/class/power_supply/BAT1/capacity"

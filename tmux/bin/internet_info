@@ -1,34 +1,65 @@
 #!/usr/bin/env bash
 
+##
+# use and temp file to persist across shells and for performance
+##
 ENV_FILE=/tmp/internet_info.env
 
+## source the file variables
 if [ -f $ENV_FILE ]; then
-  export $(cat $ENV_FILE | xargs)
-else
-  RESET_ENV=true
+  source $ENV_FILE
 fi
 
+##
+# only run every 10 seconds
+##
+let INTERVAL=$SECONDS%15
+
+# and has run at least once
+if [[ $INTERVAL -ne 0 ]] && [ ! -z "$PUBLIC_IP" ] && [ ! -z "$LOCAL_IP" ]; then
+  exit 0
+fi
+
+##
+# reset the values every 24 hours
+##
+let INTERVAL=$SECONDS-$(stat -c "%Y" $ENV_FILE)
+
+if [[ $INTERVAL -gt 86400 ]]; then
+  unset PUBLIC_IP
+  unset LOCAL_IP
+fi
+
+##
+# get the local ip and wifi signal strength
+##
 if [ "$(uname)" == "Darwin" ]; then
   if [ -z "$LOCAL_IP" ]; then
     LOCAL_IP=$(ipconfig getifaddr en0)
-    RESET_ENV=true
+    RESET_ENV=1
   fi
   strength=`airport -I | grep agrCtlRSSI | awk '{print $2}' | sed 's/-//g'`
 else
   WIFI=$(iwgetid | cut -d ' ' -f 1)
   if [ -z "$LOCAL_IP" ]; then
     LOCAL_IP=$(ifconfig $WIFI | grep 'inet ' | xargs | cut -d ' ' -f 2)
-    RESET_ENV=true
+    RESET_ENV=1
   fi
   strength=`iwconfig $WIFI | grep 'Signal' | cut -d '=' -f3 | cut -d ' ' -f1`
 fi
 
+##
+# reset public ip if needed
+##
 if [ -z "$PUBLIC_IP" ]; then
-  PUBLIC_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)
-  RESET_ENV=true
+  PUBLIC_IP=$(curl ifconfig.me)
+  RESET_ENV=1
 fi
 
-if [[ $RESET_ENV = true ]]; then
+##
+# write the environment file if needed
+##
+if [[ $RESET_ENV -eq 1 ]]; then
   echo "PUBLIC_IP=$PUBLIC_IP" > $ENV_FILE
   echo "LOCAL_IP=$LOCAL_IP" >> $ENV_FILE
 fi

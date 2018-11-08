@@ -1,1 +1,3 @@
 export ANDROID_SDK_HOME=$HOME/Android/Sdk
+export ANDROID_HOME=$ANDROID_SDK_HOME
+
