@@ -123,3 +123,8 @@ source $HOME/.vim/config/nvim.vim
 
 source $HOME/.vim/config/lightline.vim
 
+source $HOME/.vim/config/emoji.vim
+
+source $HOME/.vim/config/commandt.vim
+
+

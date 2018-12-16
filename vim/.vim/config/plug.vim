@@ -5,7 +5,9 @@ Plug 'tpope/vim-sensible'
 
 Plug 'junegunn/vim-easy-align'
 
-Plug 'ctrlpvim/ctrlp.vim'
+Plug 'wincent/command-t', { 'do': 'cd ruby/command-t/ext/command-t && ruby extconf.rb && make' }
+
+Plug 'junegunn/vim-emoji'
 
 Plug 'SirVer/ultisnips' | Plug 'honza/vim-snippets'
 
@@ -49,6 +51,8 @@ Plug 'tpope/vim-fugitive'
 
 Plug 'tpope/vim-surround'
 
+Plug 'airblade/vim-gitgutter'
+
 Plug 'majutsushi/tagbar'
 
 Plug 'edkolev/tmuxline.vim'
@@ -62,5 +66,3 @@ Plug 'mattn/emmet-vim'
 Plug 'w0rp/ale'
 
 call plug#end()
-
-
