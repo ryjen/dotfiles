@@ -9,7 +9,7 @@ alias irc='/usr/bin/ssh ryan@micrantha.com -t tmux attach-session -t irc'
 alias -s log=nano
 alias -s conf=nano
 
-alias gut='git'
+alias weather='curl http://wttr.in/vancouver'
 
 type nvim >/dev/null
 
