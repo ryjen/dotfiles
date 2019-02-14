@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 
-if [ -z "$ANDROID_SDK_HOME" ]; then
-  echo "Please define ANDROID_SDK_HOME first"
+if [ -z "$ANDROID_HOME" ]; then
+  echo "Please define ANDROID_HOME first"
   exit 1
 fi
 
 function boot_emulator {
   local PWD=$(pwd)
 
-  cd $ANDROID_SDK_HOME/emulator
+  cd $ANDROID_HOME/emulator
 
   if [ -z "$1" ]; then
     echo "Please specify an AVD to launch.  For example: @Nexus.  Available AVDs are:"
