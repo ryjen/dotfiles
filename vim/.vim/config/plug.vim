@@ -65,4 +65,8 @@ Plug 'mattn/emmet-vim'
 
 Plug 'w0rp/ale'
 
+Plug 'jooize/vim-colemak'
+
+Plug 'stanangeloff/php.vim'
+
 call plug#end()
