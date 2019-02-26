@@ -105,6 +105,12 @@ noremap <leader>W :w !sudo tee % > /dev/null<CR>
 
 noremap <leader>f :Autoformat<CR>
 
+" Temporarily remove dependency on arrow key to encourage other navigation
+noremap <Up> <nop>
+noremap <Down> <nop>
+noremap <Left> <nop>
+noremap <Right> <nop>
+
 :source $HOME/.vim/config/plug.vim
 
 source $HOME/.vim/config/nerdtree.vim
@@ -127,4 +133,5 @@ source $HOME/.vim/config/emoji.vim
 
 source $HOME/.vim/config/commandt.vim
 
+source $HOME/.vim/config/colemak.vim 
 

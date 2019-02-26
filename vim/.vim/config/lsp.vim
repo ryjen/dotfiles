@@ -22,6 +22,14 @@ if executable('cquery')
         \ 'whitelist': ['c', 'cpp', 'objc', 'objcpp', 'cc'],
         \ })
 endif
+if executable('javascript-typescript-langserver')
+  au User lsp_setup call lsp#register_server({
+       \ 'name': 'javascript-typescript-langserver',
+       \ 'cmd': {sever_info->['javascript-typescript-langserver']},
+       \ 'root_uri': {server_info->lsp#utils#path_to_uri(lsp#utils#find_nearest_parent_file_directory(lsp#utils#get_buffer_path(), 'tsconfig.json'))},
+       \ 'whitelist': ['ts', 'tsx', 'js', 'jsx'],
+       \ })
+endif
 
 noremap <silent> H :call LspHover()<CR>
 noremap <silent> Z :call LspDefinition()<CR>
