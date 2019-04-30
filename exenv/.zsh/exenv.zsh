@@ -1,6 +1,6 @@
 
-type exenv > /dev/null
+if [ -d "$HOME/.exenv/bin" ]; then
+  PATH="$HOME/.exenv/bin:$PATH"
 
-if [ $? = 0 ]; then
   eval "$(exenv init -)"
 fi
