@@ -111,6 +111,8 @@ noremap <Down> <nop>
 noremap <Left> <nop>
 noremap <Right> <nop>
 
+noremap <leader>P :set spell spelllang=en_ca<CR>
+
 :source $HOME/.vim/config/plug.vim
 
 source $HOME/.vim/config/nerdtree.vim
