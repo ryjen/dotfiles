@@ -1,5 +1,5 @@
 
-type gdircolors > /dev/null
+type gdircolors &> /dev/null
 
 if [[ $? == 0 ]]; then
   # GNU core utilities
