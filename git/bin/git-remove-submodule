@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+# Written by Eric Crosson
+# 2017-08-30
+#
+# Remove a git submodule, following the procedure outlined in [this
+# StackOverflow answer](https://stackoverflow.com/a/16162000).  This
+# procedure has proven reliable with git 2.14.1.
+
+set -o nounset
+# TODO: remove
+set -x
+set -e
+
+usage() {
+    cat <<EOF
+usage: git remove-submodule <submodule>
+
+Remove a git submodule from the current repository.
+
+<submodule>   The git submodule to remove. Specify as a relative path
+              from root of current repository, do not include a
+              trailing slash.
+
+EOF
+    exit 1
+}
+
+##
+# Run this script from the root of the current git repository.
+pushd "$(git rev-parse --show-toplevel)" >/dev/null
+readonly root="$(pwd)"
+##
+
+##
+# Parse arguments
+# TODO: allow option to quit before deleting removed-submodule
+readonly submodule="$1"; shift
+test -d "${submodule}" || usage
+##
+
+##
+# Rename the git submodule
+readonly old_submodule="$(mktemp -d -p "${root}")"
+cleanup() {
+    rm -rf "${old_submodule}"
+}
+trap cleanup EXIT
+mv "${submodule}" "${old_submodule}"
+##
+
+##
+# Deinit and remove the old submodule
+git submodule deinit -f -- "${submodule}"
+rm -rf ".git/modules/${submodule}"
+git rm -f "${submodule}"
+##
+
+# or, if you want to leave it in your working tree
+# git rm --cached a/submodule
+# mv a/submodule_tmp a/submodule
+
+##
+# Show changes to the repository
+git status
+##
