@@ -6,11 +6,6 @@
 # StackOverflow answer](https://stackoverflow.com/a/16162000).  This
 # procedure has proven reliable with git 2.14.1.
 
-set -o nounset
-# TODO: remove
-set -x
-set -e
-
 usage() {
     cat <<EOF
 usage: git remove-submodule <submodule>
@@ -61,5 +56,6 @@ git rm -f "${submodule}"
 
 ##
 # Show changes to the repository
-git status
+#git status
 ##
+echo "Done.  Make sure to commit changes."
