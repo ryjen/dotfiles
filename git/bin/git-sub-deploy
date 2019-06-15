@@ -1,3 +1,6 @@
+# Author: Ryan Jennings <ryan@micrantha.com>
+# Description:
+#   Creates a subtree and pushes to a remote.  Useful for deploying generated content to PaaS.
 #!/bin/sh
 
 die() {
@@ -73,6 +76,11 @@ done
 
 FOLDER=$1
 
+if [ ! -d "$FOLDER" ]; then
+  help
+  exit 1
+fi
+
 echo ""
 read -p "Deploy subtree '$FOLDER' on branch '$BRANCH' to remote '$REMOTE'? [Y/n]" confirm
 
@@ -81,11 +89,6 @@ case $confirm in
     exit 1
     ;;
 esac
-
-if [ ! -d "$FOLDER" ]; then
-  help
-  exit 1
-fi
 
 if [ $FORCE ]; then
 
