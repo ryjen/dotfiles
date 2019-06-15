@@ -1,22 +1,99 @@
 #!/bin/sh
 
-FOLDER="$1"
-REMOTE="$2"
-BRANCH="$3"
+die() {
+  printf '%s\n', "$1" >&2
+  exit 1
+}
 
-if [ -z "$FOLDER" ]; then
-  echo "Syntax: git deploy <folder> [remote(=origin)] [branch(=master)]"
+help() {
+  echo "Syntax: git sub-deploy <folder>\n"
+  echo "Options:\n"
+  echo "-r, --remote  : Sets the remote repository url to deploy to. Defaults to 'origin'."
+  echo "-b, --branch  : Sets the branch to deploy with. Defaults to 'master'."
+  echo "-f, --force   : Force pushes the deploy."
+  echo "-h, --help    : Prints this help message."
+}
+
+REMOTE="origin"
+BRANCH="master"
+FORCE=0
+
+while :; do
+  case $1 in
+    -h|-\?|--help)
+      help
+      exit 1
+      ;;
+    -r|--remote)
+      if [ "$2" ]; then 
+        REMOTE=$2
+        shift
+      else
+        die "Which remote?"
+      fi
+      ;;
+    --remote=?*)
+      REMOTE=${1#*=}
+      ;;
+    --remote=)
+      die "Which remote?"
+      ;;
+    -b|--branch)
+      if [ "$2" ]; then
+        BRANCH=$2
+        shift
+      else
+        die "Which branch?"
+      fi
+      ;;
+    --branch=?*)
+      BRANCH=${1#*=}
+      ;;
+    --branch=)
+      die "Which branch?"
+      ;;
+    -f|--force)
+      FORCE=1
+      ;;
+    --)
+      shift
+      break
+      ;;
+    -?*)
+      printf 'WARN: Unknown option (ignored): %s\n' "$1" >&2
+      ;;
+    *)
+      break
+      ;;
+
+  esac
+
+  shift
+done
+
+FOLDER=$1
+
+echo ""
+read -p "Deploy subtree '$FOLDER' on branch '$BRANCH' to remote '$REMOTE'? [Y/n]" confirm
+
+case $confirm in
+  [nN]*)
+    exit 1
+    ;;
+esac
+
+if [ ! -d "$FOLDER" ]; then
+  help
   exit 1
 fi
 
-if [ -z "$REMOTE" ]; then
-  REMOTE="origin"
+if [ $FORCE ]; then
+
+  git push $REMOTE `git subtree split --prefix $FOLDER $BRANCH`:$BRANCH --force
+
+else 
+
+  git subtree push --prefix $FOLDER $REMOTE $BRANCH
+
 fi
-
-if [ -z "$BRANCH" ]; then
-  BRANCH="master"
-fi
-
-git subtree push --prefix $FOLDER $REMOTE $BRANCH
-
 

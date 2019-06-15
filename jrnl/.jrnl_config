@@ -6,7 +6,12 @@
     "academia": "~/Sync/jrnl/academia",
     "dayone": "~/Library/Mobile Documents/5U8NS4GX82~com~dayoneapp~dayone/Documents/Journal_dayone"
   },
-  "encrypt": true,
-  "highlight": true,
-  "editor": "vim"
+  "default_hour": 9, 
+  "timeformat": "%Y-%m-%d %H:%M", 
+  "linewrap": 79, 
+  "encrypt": true, 
+  "editor": "vim", 
+  "default_minute": 0, 
+  "highlight": true, 
+  "tagsymbols": "@"
 }
