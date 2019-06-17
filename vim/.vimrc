@@ -103,17 +103,22 @@ noremap <leader>ss :call StripWhitespace()<CR>
 " Save a file as root (,W)
 noremap <leader>W :w !sudo tee % > /dev/null<CR>
 
-noremap <leader>f :Autoformat<CR>
-
 " Temporarily remove dependency on arrow key to encourage other navigation
 noremap <Up> <nop>
 noremap <Down> <nop>
 noremap <Left> <nop>
 noremap <Right> <nop>
 
+nnoremap <Tab> <Esc>
+vnoremap <Tab> <Esc>gV
+onoremap <Tab> <Esc>
+cnoremap <Tab> <C-C><Esc>
+inoremap <Tab> <Esc>`^
+inoremap <Leader><Tab> <Tab>
+
 noremap <leader>P :set spell spelllang=en_ca<CR>
 
-:source $HOME/.vim/config/plug.vim
+source $HOME/.vim/config/plug.vim
 
 source $HOME/.vim/config/nerdtree.vim
 
@@ -135,5 +140,7 @@ source $HOME/.vim/config/emoji.vim
 
 source $HOME/.vim/config/commandt.vim
 
-source $HOME/.vim/config/colemak.vim 
+source $HOME/.vim/config/colemak.vim
+
+source $HOME/.vim/config/autoformat.vim
 
