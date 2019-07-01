@@ -54,18 +54,16 @@ set sidebar_format="%B%?F? [%F]?%* %?N?%N/?%S"
 mailboxes =INBOX =[Gmail]/Sent\ Mail =[Gmail]/Drafts =[Gmail]/Spam =[Gmail]/Trash
 
 # Vim like binds
-bind attach,index,pager \CF next-page             # Ctrl-F to move forward
-bind attach,index,pager \CB previous-page         # Ctrl-B to move backward
-bind pager g top                                  # g to move to top of pager
-bind pager G bottom                               # G to move to bottom of pager
-bind attach,index g first-entry                   # g to move to first entry
-bind attach,index G last-entry                    # G to move to last entry
+# source .config/mutt/vim-keys.rc
+
+# Colemak layout binds
+source .config/mutt/colemak.rc
 
 # Sidebar binds
-bind index,pager \CP sidebar-prev                 # Ctrl-n to select next folder
-bind index,pager \CN sidebar-next                 # Ctrl-p to select previous folder
-bind index,pager \CI sidebar-open                 # Ctrl-o to open selected folder
-bind index,pager \CB sidebar-toggle-visible       # Ctrl-b to toggle visibility of the sidebar
+#bind index,pager \CP sidebar-prev                 # Ctrl-n to select next folder
+#bind index,pager \CN sidebar-next                 # Ctrl-p to select previous folder
+#bind index,pager \CI sidebar-open                 # Ctrl-o to open selected folder
+bind index,pager \CT sidebar-toggle-visible       # Ctrl-b to toggle visibility of the sidebar
 
 # Gmail binds
 macro index,pager A "<save-message>=[Gmail]/Archive<enter>" "Archive Message"
@@ -80,8 +78,8 @@ set pgp_clearsign_command="gpg --no-verbose --batch --output - --passphrase-fd 0
 set pgp_import_command="gpg --no-verbose --import -v %f"
 set pgp_export_command="gpg --no-verbose --export --armor %r"
 set pgp_verify_key_command="gpg --no-verbose --batch --fingerprint --check-sigs %r"
-set pgp_list_pubring_command="gpg --no-verbose --batch --with-colons --list-keys %r" 
-set pgp_list_secring_command="gpg --no-verbose --batch --with-colons --list-secret-keys %r" 
+set pgp_list_pubring_command="gpg --no-verbose --batch --with-colons --list-keys %r"
+set pgp_list_secring_command="gpg --no-verbose --batch --with-colons --list-secret-keys %r"
 set pgp_autosign=yes
 set pgp_replyencrypt=yes
 set pgp_timeout=1800
@@ -90,5 +88,10 @@ set pgp_good_sign="^gpg: Good signature from"
 # import user specific pgp settings
 source .config/mutt/muttrc.sec
 
-source .config/mutt/colors
+# solarized colors
+source .config/mutt/solarized.rc
+
+# custom colors
+source .config/mutt/colors.rc
+
 

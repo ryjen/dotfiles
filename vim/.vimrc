@@ -109,14 +109,13 @@ noremap <Down> <nop>
 noremap <Left> <nop>
 noremap <Right> <nop>
 
-nnoremap <Tab> <Esc>
-vnoremap <Tab> <Esc>gV
-onoremap <Tab> <Esc>
-cnoremap <Tab> <C-C><Esc>
-inoremap <Tab> <Esc>`^
-inoremap <Leader><Tab> <Tab>
+nnoremap <A-Tab> <Esc>
+vnoremap <A-Tab> <Esc>gV
+onoremap <A-Tab> <Esc>
+cnoremap <A-Tab> <C-C><Esc>
+inoremap <A-Tab> <Esc>`^
 
-noremap <leader>P :set spell spelllang=en_ca<CR>
+noremap <A-P> :set spell spelllang=en_ca<CR>
 
 source $HOME/.vim/config/plug.vim
 

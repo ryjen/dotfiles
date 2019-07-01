@@ -8,7 +8,7 @@ fi
 function boot_emulator {
   local PWD=$(pwd)
 
-  cd $ANDROID_HOME/emulator
+  cd $ANDROID_HOME/tools
 
   if [ -z "$1" ]; then
     echo "Please specify an AVD to launch.  For example: @Nexus.  Available AVDs are:"
@@ -33,7 +33,7 @@ CMD="$1"
 
 shift
 
-case "$CMD" in 
+case "$CMD" in
   boot)
     echo "Booting android emulator..."
     boot_emulator $@
