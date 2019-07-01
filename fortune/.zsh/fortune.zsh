@@ -1,13 +1,10 @@
-type fortune > /dev/null
 
-if [ $? -ne 0 ]; then
-  return
-fi
+if command_exists fortune; then
 
-type cowsay > /dev/null
+  if command_exists cowsay; then
+    fortune -s | cowsay
+  else
+    fortune
+  fi
 
-if [ $? -eq 0 ]; then
-  fortune -s | cowsay
-else
-  fortune
 fi

@@ -1,3 +1,4 @@
+
 # Reset prompt every minute to update hour
 function TRAPALRM() {  # don't clear completion items on reset prompt
     if [ "$WIDGET" != "complete-word" ]; then
@@ -16,8 +17,12 @@ function where() {
     find . -name $@
 }
 
-function test_network() {
-  nc -zw1 "google.com" 443 > /dev/null
+function network_connected() {
+  nc -zw1 "google.com" 443 > /dev/null;
+}
+
+function command_exists() {
+  type $@ > /dev/null;
 }
 
 function ssh() {
