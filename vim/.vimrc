@@ -3,7 +3,7 @@ set background=dark
 colorscheme solarized
 let g:solarized_termtrans=1
 
-" Use true color
+" Use true colour
 set termguicolors
 " Make Vim more useful
 set nocompatible
@@ -109,13 +109,16 @@ noremap <Down> <nop>
 noremap <Left> <nop>
 noremap <Right> <nop>
 
-nnoremap <A-Tab> <Esc>
-vnoremap <A-Tab> <Esc>gV
-onoremap <A-Tab> <Esc>
-cnoremap <A-Tab> <C-C><Esc>
-inoremap <A-Tab> <Esc>`^
+" easy escape key
+nnoremap <leader>. <Esc>
+vnoremap <leader>. <Esc>gV
+onoremap <leader>. <Esc>
+cnoremap <leader>. <C-C><Esc>
+inoremap <leader>. <Esc>`^
 
-noremap <A-P> :set spell spelllang=en_ca<CR>
+" start spell checker
+noremap <C-P> :set spell spelllang=en_ca<CR>
+noremap <leader>p :set spell spelllang=en_ca<CR>
 
 source $HOME/.vim/config/plug.vim
 
@@ -142,4 +145,3 @@ source $HOME/.vim/config/commandt.vim
 source $HOME/.vim/config/colemak.vim
 
 source $HOME/.vim/config/autoformat.vim
-
