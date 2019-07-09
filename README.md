@@ -5,7 +5,6 @@ Highest priorities are ease of maintenance and deployment on both Linux and OS X
 - **`stow` powered:** symlink dotfiles and thus keep them always up-to-date in your repository
 - **topical organization:** organize dotfiles by application facilitating reuse across different machines
 - **clever naming scheme:** the repository architecture is easy to browse while staying compatible with `stow` symlinking mechanism
-- **KISS:** there is deliberately no build script involved at all, the repository consist of dotfiles all installable using same modus operandi (`stow <directory>`)
 - **documentation:** each package has a _README.md_ which present its purpose and a flat `tree` view of its files. Install notes and requirements can also be listed.
 
 ## Install
