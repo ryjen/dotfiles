@@ -1,6 +1,6 @@
 # Author: Ryan Jennings <ryan@micrantha.com>
 # Description:
-#   Creates a subtree and pushes to a remote.  Useful for deploying generated content to PaaS.
+#   Pushes a subtree folder on a branch to a remote.  Useful for deploying generated content in a project.
 #!/bin/sh
 
 die() {
@@ -9,12 +9,12 @@ die() {
 }
 
 help() {
-  echo "Syntax: git sub-deploy <folder>\n"
+  echo "Syntax: git sub-push <folder>\n"
   echo "Options:\n"
-  echo "-r, --remote  : Sets the remote repository url to deploy to. Defaults to 'origin'."
-  echo "-b, --branch  : Sets the branch to deploy with. Defaults to 'master'."
-  echo "-f, --force   : Force pushes the deploy."
-  echo "-h, --help    : Prints this help message."
+  echo "\t-r, --remote  : Sets the remote repository url to deploy to. Defaults to 'origin'."
+  echo "\t-b, --branch  : Sets the branch to deploy with. Defaults to 'master'."
+  echo "\t-f, --force   : Force pushes the deploy."
+  echo "\t-h, --help    : Prints this help message."
 }
 
 REMOTE="origin"
@@ -28,7 +28,7 @@ while :; do
       exit 1
       ;;
     -r|--remote)
-      if [ "$2" ]; then 
+      if [ "$2" ]; then
         REMOTE=$2
         shift
       else
@@ -82,7 +82,7 @@ if [ ! -d "$FOLDER" ]; then
 fi
 
 echo ""
-read -p "Deploy subtree '$FOLDER' on branch '$BRANCH' to remote '$REMOTE'? [Y/n]" confirm
+read -p "Push subtree '$FOLDER' on branch '$BRANCH' to remote '$REMOTE'? [Y/n]" confirm
 
 case $confirm in
   [nN]*)
@@ -94,7 +94,7 @@ if [ $FORCE ]; then
 
   git push $REMOTE `git subtree split --prefix $FOLDER $BRANCH`:$BRANCH --force
 
-else 
+else
 
   git subtree push --prefix $FOLDER $REMOTE $BRANCH
 
