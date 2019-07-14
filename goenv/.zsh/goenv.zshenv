@@ -1,10 +1,12 @@
+type goenv > /dev/null
 
-if [ ! -d $HOME/.goenv ]; then
-  type git &> /dev/null && git clone https://github.com/syndbg/goenv.git $HOME/.goenv
+if [ $? -eq 0 ]; then
+
+  export GOENV_DISABLE_GOPATH=1
+  export GOENV_GOPATH_PREFIX=$HOME/Source/go
+  eval "$(goenv init -)"
+  export PATH=$GOENV_ROOT/bin:$PATH
+  export GOROOT="$(goenv prefix)"
+
 fi
-
-export GOENV_ROOT=$HOME/.goenv
-export PATH=$GOENV_ROOT/bin:$PATH
-#export GOENV_DISABLE_GOPATH=1
-eval "$(goenv init -)"
 
