@@ -122,8 +122,6 @@ noremap <leader>p :set spell spelllang=en_ca<CR>
 
 source $HOME/.vim/config/plug.vim
 
-source $HOME/.vim/config/nerdtree.vim
-
 source $HOME/.vim/config/multi-cursor.vim
 
 source $HOME/.vim/config/goyo.vim
@@ -145,3 +143,6 @@ source $HOME/.vim/config/commandt.vim
 source $HOME/.vim/config/colemak.vim
 
 source $HOME/.vim/config/autoformat.vim
+
+source $HOME/.vim/config/netw.vim
+

@@ -4,9 +4,9 @@ if has("nvim")
 
   " Make navigation into and out of Neovim terminal splits nicer.
   tnoremap <C-h> <C-\><C-N><C-w>h
-  tnoremap <C-j> <C-\><C-N><C-w>j
-  tnoremap <C-k> <C-\><C-N><C-w>k
-  tnoremap <C-l> <C-\><C-N><C-w>l
+  tnoremap <C-n> <C-\><C-N><C-w>n
+  tnoremap <C-e> <C-\><C-N><C-w>e
+  tnoremap <C-i> <C-\><C-N><C-w>i
 
   " I like relative numbering when in normal mode.
   autocmd TermOpen * setlocal conceallevel=0 colorcolumn=0 relativenumber

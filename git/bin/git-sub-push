@@ -14,7 +14,7 @@ help() {
   echo "\t-r, --remote  : Sets the remote repository url to deploy to. Defaults to 'origin'."
   echo "\t-b, --branch  : Sets the branch to deploy with. Defaults to 'master'."
   echo "\t-f, --force   : Force pushes the deploy."
-  echo "\t-h, --help    : Prints this help message."
+  echo "\t-h, --help    : Prints this help message.\n"
 }
 
 REMOTE="origin"
