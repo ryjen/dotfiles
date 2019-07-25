@@ -1,3 +1,5 @@
+# This script simplifies the process of booting a simulator from the
+# command line.  As a bonus, it allows you to boot more than one.
 #!/usr/bin/env bash
 
 DEVICE="iPhone 7"
@@ -7,16 +9,22 @@ PROJECT_PATH="."
 OUTPUT_PATH="/tmp/DerivedData"
 APP_NAME=""
 
-function die() {
+function error() {
   printf "$1\n" >&2
+}
+
+# print a message and exit with an error code
+function die() {
+  errror $1
   exit 1
 }
 
+# shows help for this script
 function help() {
   echo ""
   echo "Syntax: ios-poser boot|log|install"
   echo ""
-  echo "  Options:"
+  echo "  Boot Options:"
   echo "    --device,-d     Specifies which device to use. Defaults to iPhone 7."
   echo "    --runtime,-r    Specifies which runtime to use.  Defaults to iOS."
   echo ""
@@ -25,32 +33,50 @@ function help() {
   echo "    --project,-p    Specifies the path to the project source. Defaults to current directory."
   echo "    --app,-a        Specifies the app name from the project build.  Defaults to automatically trying to determine."
   echo ""
+  echo "  List Options:"
+  echo "    --list-devices  Lists which devices are available to boot."
+  echo "    --list-runtimes Lists which runtimes are available to boot."
+  echo ""
 }
 
+# lists a simplified view of the available devices
 function list_devices() {
-  xcrun simctl list devices available
+    echo "Available Devices:"
+  xcrun simctl list devices available | cut -d '(' -f1 | uniq | egrep -v Unavailable
 }
 
+# lists a simplified view of the available runtimes
 function list_runtimes() {
-  xcrun simctl list runtime
+  echo "Available iOS Runtimes:"
+  xcrun simctl list runtimes | grep iOS | cut -d ' ' -f2
+  echo ""
+  echo "Available tvOS Runtimes:"
+  xcrun simctl list runtimes | grep tvOS | cut -d ' ' -f2
+  echo ""
+  echo "Available watchOS Runtimes:"
+  xcrun simctl list runtimes | grep watchOS | cut -d ' ' -f2
 }
 
 ###### Logic
 
+# boots the selected device and opens the UI
 function boot_sim() {
   xcrun simctl boot "$DEVICE"
   [ $? -eq 0 ] && open "/Applications/Xcode.app/Contents/Developer/Applications/Simulator.app"
 }
 
+# starts logging on booted devices
 function log_device() {
   xcrun simctl spawn booted log stream — level=debug
 }
 
+# tests that a device has booted
 function test_device() {
   $(xcrun simctl getenv booted TEST)
   return [[ $? == 0 ]]
 }
 
+# builds and installs the specified project
 function install_app() {
   if [ -z "$SCHEME" ]; then
     die "You must specify a scheme to build and install"
@@ -85,8 +111,8 @@ while :; do
   case $1 in
   --device | -d)
     if [ -z "$2" ]; then
-      die "Which device?"
       list_devices
+      die "Which device?"
     fi
     DEVICE=$2
     shift
@@ -94,20 +120,24 @@ while :; do
   --device=?*)
     DEVICE=${1#*=}
     ;;
-  --device=)
-    die "Which device?"
+  --device=|--devices)
     list_devices
+    die "Which device?"
     ;;
   --runtime | -r)
     if [ -z "$2" ]; then
-      die "Which runtime?"
       list_runtimes
+      die "Which runtime?"
     fi
     RUNTIME=$2
     shift
     ;;
   --runtime=?*)
     RUNTIME=${1#*=}
+    ;;
+  --runtime=)
+    list_runtimes
+    die "Which runtime?"
     ;;
   --app | -a)
     if [ -z "$2" ]; then
@@ -139,12 +169,20 @@ while :; do
   --project=?*)
     PROJECT_PATH=${1#*=}
     ;;
+  --list-devices)
+    list_devices
+    exit 1
+    ;;
+  --list-runtimes)
+    list_runtimes
+    exit 1
+    ;;
   --)
     shift
     break
     ;;
   -?*)
-    printf 'WARN: Unknown option (ignored): %s\n' "$1" >&2
+    error "WARN: Unknown option (ignored): $1"
     ;;
   *)
     break
