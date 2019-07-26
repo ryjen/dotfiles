@@ -1,5 +1,5 @@
 # This script simplifies the process of booting a simulator from the
-# command line.  As a bonus, it allows you to boot more than one.
+# command line.
 #!/usr/bin/env bash
 
 DEVICE="iPhone 7"
