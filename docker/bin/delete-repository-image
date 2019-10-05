@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+while [[ $1 == -* ]]; do
+  case "$1" in
+    -a | --auth)
+        shift
+        AUTH=$1
+        shift
+        ;;
+    -b | --baseurl)
+        shift
+        BASE_URL=$1
+        shift
+        ;;
+     *)
+       ;;
+  esac
+done
+
+BASE_URL=${BASE_URL:-"http://registry.micrantha.com:5000"}
+IMAGE=${1%:*}
+HASH=${1#*:}
+
+if [ -z "$IMAGE" ] || [ -z "$HASH" ]; then
+  echo "Syntax: delete-repository-image [-a, --auth <user:pwd>, -b, --baseurl <base url>] <image>:<hash>"
+  exit 1
+fi
+
+if [ ! -z "$AUTH" ]; then
+  AUTH="-u ${AUTH}"
+fi
+
+ curl -X DELETE -H "Accept: application/vnd.docker.distribution.manifest.v2+json" ${AUTH} -v ${BASE_URL}/v2/${IMAGE}/manifests/sha256:${HASH}
+

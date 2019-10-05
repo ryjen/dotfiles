@@ -11,8 +11,6 @@ Plug 'junegunn/vim-emoji'
 
 Plug 'SirVer/ultisnips' | Plug 'honza/vim-snippets'
 
-Plug 'scrooloose/nerdtree'
-
 Plug 'Chiel92/vim-autoformat'
 
 Plug 'junegunn/goyo.vim'
@@ -26,8 +24,6 @@ Plug 'fatih/vim-go'
 Plug 'terryma/vim-multiple-cursors'
 
 Plug 'jeetsukumaran/vim-buffergator'
-
-Plug 'Valloric/YouCompleteMe', { 'do': 'python ./install.py --system-libclang --clang-completer --gocode-completer --racer-completer --tern-completer' }
 
 Plug 'rust-lang/rust.vim'
 
