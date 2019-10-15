@@ -18,7 +18,8 @@ help() {
 }
 
 REMOTE="origin"
-BRANCH="master"
+LOCAL_BRANCH="master"
+REMOTE_BRANCH="master"
 FORCE=0
 
 while :; do
@@ -43,7 +44,12 @@ while :; do
       ;;
     -b|--branch)
       if [ "$2" ]; then
-        BRANCH=$2
+        LOCAL_BRANCH=${2%%:*}
+        temp=${2#*:}
+        if [ ! -z "${temp}" ]; then
+          REMOTE_BRANCH=${temp}
+          FORCE=true
+        fi
         shift
       else
         die "Which branch?"
@@ -82,7 +88,7 @@ if [ ! -d "$FOLDER" ]; then
 fi
 
 echo ""
-read -p "Push subtree '$FOLDER' on branch '$BRANCH' to remote '$REMOTE'? [Y/n]" confirm
+read -p "Push subtree '$FOLDER' on branch '$LOCAL_BRANCH:$REMOTE_BRANCH' to remote '$REMOTE'? [Y/n]" confirm
 
 case $confirm in
   [nN]*)
@@ -92,11 +98,11 @@ esac
 
 if [ $FORCE ]; then
 
-  git push $REMOTE `git subtree split --prefix $FOLDER $BRANCH`:$BRANCH --force
+  git push $REMOTE `git subtree split --prefix $FOLDER $LOCAL_BRANCH`:$REMOTE_BRANCH --force
 
 else
 
-  git subtree push --prefix $FOLDER $REMOTE $BRANCH
+  git subtree push --prefix $FOLDER $REMOTE $LOCAL_BRANCH
 
 fi
 
