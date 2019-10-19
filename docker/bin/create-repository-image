@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+BUILD_ARGS=""
+
 while [[ $1 == -* ]]; do
   case "$1" in
     -f | --file)
@@ -10,6 +12,12 @@ while [[ $1 == -* ]]; do
     -r | --repository)
       shift
       REPOSITORY=$1
+      shift
+      ;;
+    --ssh-key)
+      shift
+      SSH_KEY=$(cat $1)
+      BUILD_ARGS="${BUILD_ARGS} --build-arg SSH_KEY"
       shift
       ;;
   esac
@@ -39,10 +47,11 @@ fi
 
 echo "Building ${IMAGE_SLUG} with ${DOCKER_FILE} in ${WORKING_DIR}"
 
-docker build -t ${IMAGE_SLUG} -f ${DOCKER_FILE} ${WORKING_DIR}
+docker build -t ${IMAGE_SLUG} -f ${DOCKER_FILE} ${BUILD_ARGS} ${WORKING_DIR}
 
 if [ ! -z "${REPOSITORY}" ]; then
   REMOTE_IMAGE="${REPOSITORY}/${IMAGE_SLUG}"
   docker tag ${IMAGE_SLUG} ${REMOTE_IMAGE}
   docker push ${REMOTE_IMAGE}
 fi
+
