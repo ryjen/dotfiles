@@ -5,7 +5,8 @@
 [core]
   editor = vim
   excludesfile = ~/.gitignore
-  pager = diff-so-fancy | less --tabs=4 -RFX
+  pager = less --tabs=4 -RFX
+  #pager = diff-so-fancy | less --tabs=4 -RFX
 
 # From there, sections are in alphabetic order
 
@@ -39,8 +40,10 @@
     cmd = meld "$LOCAL" "$BASE" "$REMOTE" --output "$MERGED"
 
 [pager]
-  diff = diff-so-fancy | less --tabs=1,5 -RFX
-  show = diff-so-fancy | less --tabs=1,5 -RFX
+  diff = less --tabs=1,5 -RFX
+  show = less --tabs=1,5 -RFX
+  #diff = diff-so-fancy | less --tabs=1,5 -RFX
+  #show = diff-so-fancy | less --tabs=1,5 -RFX
 
 [pull]
   rebase = true
@@ -54,3 +57,5 @@
 [credential]
   helper = cache --timeout=3600
 
+[url "ssh://git@git.micrantha.com:2222"]
+  insteadOf = "https://micrantha.com"

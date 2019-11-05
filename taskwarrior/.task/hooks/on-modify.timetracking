@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # EASY-INSTALL-ENTRY-SCRIPT: 'taskwarrior-time-tracking-hook==0.1.4','console_scripts','taskwarrior_time_tracking_hook'
 __requires__ = 'taskwarrior-time-tracking-hook==0.1.4'
 import re
