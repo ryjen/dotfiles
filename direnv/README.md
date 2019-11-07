@@ -1,0 +1,1 @@
+direnv for directory based shell variables
