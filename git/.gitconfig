@@ -30,10 +30,10 @@
 
 [mergetool]
   keepBackup = false
-  prompt = false
+	prompt = false
 
 [merge]
-  tool = vimdiff
+	tool = opendiff
   conflictstyle = diff3
 
 [mergetool "meld"]
@@ -59,3 +59,6 @@
 
 [url "ssh://git@git.micrantha.com:2222"]
   insteadOf = "https://micrantha.com"
+
+[merge "opendiff"]
+	cmd = /Users/ryjen/bin/git-opendiff-cmd

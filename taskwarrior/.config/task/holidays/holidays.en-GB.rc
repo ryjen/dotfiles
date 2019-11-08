@@ -1,7 +1,9 @@
-#!/usr/bin/env python
 ###############################################################################
+# International Holiday Data provided by Holidata.net
+# http://holidata.net/en-GB/2015.json
+# http://holidata.net/en-GB/2016.json
 #
-# Copyright 2015 - 2016, Paul Beckingham, Federico Hernandez.
+# Copyright 2006 - 2016, Paul Beckingham, Federico Hernandez.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,45 +27,35 @@
 #
 ###############################################################################
 
-import sys
-import json
-import os
-
-# Hook should extract all of the following for use as Timewarrior tags:
-#   UUID
-#   Project
-#   Tags
-#   Description
-#   UDAs
-
-# Make no changes to the task, simply observe.
-old = json.loads(sys.stdin.readline())
-new = json.loads(sys.stdin.readline())
-print(json.dumps(new))
-
-# Extract attributes for use as tags.
-tags = [new['description']]
-
-if 'project' in new:
-    project = new['project']
-    tags.append(project)
-    if '.' in project:
-        tags.extend([tag for tag in project.split('.')])
-
-if 'tags' in new:
-    tags.extend(new['tags'])
-
-combined = ' '.join(['"%s"' % tag for tag in tags]).encode('utf-8').strip()
-
-# Started task.
-if 'start' in new and not 'start' in old:
-    os.system('timew start ' + combined.decode() + ' :yes')
-
-# Stopped task.
-elif not 'start' in new and 'start' in old:
-    os.system('timew stop ' + combined.decode() + ' :yes')
-
-# Any task that is active, with a non-pending status should not be tracked.
-elif 'start' in new and new['status'] != 'pending':
-    os.system('timew stop ' + combined.decode() + ' :yes')
-
+holiday.en-GB1.name=New Year's Day
+holiday.en-GB1.date=20150101
+holiday.en-GB2.name=Good Friday
+holiday.en-GB2.date=20150403
+holiday.en-GB3.name=Easter Monday
+holiday.en-GB3.date=20150406
+holiday.en-GB4.name=Early May Bank Holiday
+holiday.en-GB4.date=20150504
+holiday.en-GB5.name=Spring Bank Holiday
+holiday.en-GB5.date=20150525
+holiday.en-GB6.name=August Bank Holiday
+holiday.en-GB6.date=20150831
+holiday.en-GB7.name=Christmas Day
+holiday.en-GB7.date=20151225
+holiday.en-GB8.name=Boxing Day
+holiday.en-GB8.date=20151226
+holiday.en-GB9.name=New Year's Day
+holiday.en-GB9.date=20160101
+holiday.en-GB10.name=Good Friday
+holiday.en-GB10.date=20160325
+holiday.en-GB11.name=Easter Monday
+holiday.en-GB11.date=20160328
+holiday.en-GB12.name=Early May Bank Holiday
+holiday.en-GB12.date=20160502
+holiday.en-GB13.name=Spring Bank Holiday
+holiday.en-GB13.date=20160530
+holiday.en-GB14.name=August Bank Holiday
+holiday.en-GB14.date=20160829
+holiday.en-GB15.name=Christmas Day
+holiday.en-GB15.date=20161225
+holiday.en-GB16.name=Boxing Day
+holiday.en-GB16.date=20161226

@@ -14,60 +14,28 @@
 data.location=~/.task
 
 # Sync
-taskd.certificate=~/.config/task/certs/private.certificate.pem
-taskd.key=~/.config/task/certs/private.key.pem
-taskd.ca=~/.config/task/certs/ca.cert.pem
-taskd.server=taskwarrior.inthe.am:53589
-taskd.credentials=inthe_am/c0der78/f8f8aa7e-84c3-443c-97be-b511a877689d
+
+include=~/.config/task/sync/index.rc
+
 taskd.trust=ignore hostname
 
 # Config
 journal.time=on
 
+
 # Color theme (uncomment one to use)
-#include /usr/share/taskwarrior/light-16.theme
-#include /usr/share/taskwarrior/light-256.theme
-#include /usr/share/taskwarrior/dark-16.theme
-#include /usr/share/taskwarrior/dark-256.theme
-#include /usr/share/taskwarrior/dark-red-256.theme
-#include /usr/share/taskwarrior/dark-green-256.theme
-#include /usr/share/taskwarrior/dark-blue-256.theme
-#include /usr/share/taskwarrior/dark-violets-256.theme
-#include /usr/share/taskwarrior/dark-yellow-green.theme
-#include /usr/share/taskwarrior/dark-gray-256.theme
-#include /usr/share/taskwarrior/dark-gray-blue-256.theme
-include /usr/share/taskwarrior/solarized-dark-256.theme
-#include /usr/share/taskwarrior/solarized-light-256.theme
-#include /usr/share/taskwarrior/no-color.theme
+
+include ~/.config/task/themes/index.rc
 
 # UDA
-uda.intheamtrelloboardid.type=string
-uda.intheamtrelloboardid.label=Inthe.AM Trello Board ID
-uda.intheamtrellolistid.type=string
-uda.intheamtrellolistid.label=Inthe.AM Trello List ID
-uda.intheamtrellodescription.type=string
-uda.intheamtrellodescription.label=Inthe.AM Trello Description
-uda.intheamtrelloid.type=string
-uda.intheamtrelloid.label=Inthe.AM Trello Object ID
-uda.intheamoriginalemailsubject.type=string
-uda.intheamoriginalemailsubject.label=Inthe.AM E-mail Subject
-uda.intheammergedfrom.type=string
-uda.intheammergedfrom.label=Inthe.AM Duplicate Tasks Merged
-uda.intheamtrellourl.type=string
-uda.intheamtrellourl.label=Inthe.AM Trello URL
-uda.intheamoriginalemailid.type=numeric
-uda.intheamoriginalemailid.label=Inthe.AM E-mail ID
-uda.intheamattachments.type=string
-uda.intheamattachments.label=Inthe.AM Attachments
-uda.intheamduplicateof.type=string
-uda.intheamduplicateof.label=Inthe.AM Duplicate of Task
-uda.intheamtrellolistname.type=string
-uda.intheamtrellolistname.label=Inthe.AM Trello List Name
 
-uda.totalactivetime.type=duration
-uda.totalactivetime.label=Total active time
-uda.totalactivetime.values=''
+include ~/.config/task/uda/index.rc
 
 # Reports
-report.list.labels=ID,Active,Age,D,P,Project,Tags,R,Sch,Due,Until,Description,Time,Urg
-report.list.columns=id,start.age,entry.age,depends.indicator,priority,project,tags,recur.indicator,scheduled.countdown,due,until.remaining,description.count,totalactivetime,urgency
+
+include ~/.config/task/reports/index.rc
+
+# Holidays
+
+include ~/.config/task/holidays/holidays.en-CA.rc
+

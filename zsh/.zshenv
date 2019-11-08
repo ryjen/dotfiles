@@ -2,8 +2,15 @@
 # be available to other programs.
 
 export VISUAL=subl
-export PAGER=more
-export EDITOR=vim
+export PAGER=less
+
+type nvim > /dev/null
+
+if [ $? -eq 0 ]; then
+  export EDITOR=nvim
+else
+  export EDITOR=vim
+fi
 
 export PATH=$PATH:$HOME/bin:/usr/local/bin
 
