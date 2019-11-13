@@ -15,8 +15,6 @@ echo "  installing asdf plugins"
 # add the plugin.
 cat $DIR/Plugins | xargs -L 1 $DIR/add-plugin
 
-source $HOME/.asdf/plugins/nodejs/bin/import-release-team-keyring
-
 cat $DIR/Plugins | xargs -L 1 $DIR/install-plugin
 
 

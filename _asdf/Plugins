@@ -6,7 +6,7 @@ golang
 gradle
 java https://github.com/skotchpine/asdf-java.git
 lua
-mongodb
+mongodb https://github.com/sylph01/asdf-mongodb.git
 mysql
 nodejs
 postgres

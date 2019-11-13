@@ -1,8 +1,8 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env sh
+
+export NODEJS_CHECK_SIGNATURES="no"
 
 plugin=$1
-
-#skip plugin name
 shift
 
 if [[ $# -gt 0 ]]; then
@@ -11,7 +11,7 @@ if [[ $# -gt 0 ]]; then
 fi
 
 # dont match these versions
-version_excludes='stackless|pyston|pypy|miniconda|micropython|jython|ironpython|anaconda|activepython|\-dev|\-rc[-0-9]?'
+version_excludes='stackless|pyston|pypy|miniconda|micropython|jython|ironpython|anaconda|activepython|\-dev|\-rc[-0-9]?|truffleruby|ree|rbx|mruby|maglev|jruby|\-preview[0-9]?'
 
 # get the latest version
 version=$(asdf list-all $plugin | egrep -v "${version_excludes}" | tail -1);
