@@ -1,0 +1,4 @@
+#!/usr/bin/env zsh
+
+asdf plugin-add $1 $2
+

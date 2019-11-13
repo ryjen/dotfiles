@@ -1,0 +1,17 @@
+#!/usr/bin/env zsh
+
+DIR=${0:a:h}
+
+type apt-get > /dev/null
+
+if [[ $? -ne 0 ]]; then
+  echo "'apt-get' is required at this time"
+fi
+
+# install file packages
+dpkg -i bat_0.11.0_amd64.deb
+
+# install required programs for this repo
+cat $DIR/required.txt | xargs apt-get -qy install
+
+

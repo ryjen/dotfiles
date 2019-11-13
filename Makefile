@@ -11,7 +11,6 @@ docker \
 editor \
 fortune \
 git \
-golang \
 gopass \
 gpg \
 htop \
@@ -22,10 +21,7 @@ micro \
 mutt \
 ncdu \
 perl \
-pip \
 prettyping \
-python \
-rust \
 taskwarrior \
 thefuck \
 tmux \
