@@ -52,7 +52,7 @@
   default = simple
 
 [rebase]
-    autoStash = true
+  autoStash = true
 
 [credential]
   helper = cache --timeout=3600

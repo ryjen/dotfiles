@@ -1,6 +1,6 @@
 type byobu-tmux >/dev/null 2>&1
 
-if [[ $? -eq 0 ]] && [ -z "$TMUX" ]; then 
+if [[ $? -eq 0 ]] && [ -z "$TMUX" ]; then
   exec byobu-tmux
 fi
 

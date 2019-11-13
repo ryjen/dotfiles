@@ -1,0 +1,18 @@
+#!/usr/bin/env zsh
+
+DIR=${0:a:h}
+
+type brew > /dev/null
+
+if [[ $? -ne 0 ]]; then
+  /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+fi
+
+# install taps
+brew tap homebrew/cask
+
+# install required programs for this repo
+cat $DIR/Required | xargs brew install
+
+cat $DIR/Casks | xargs brew cask install
+
