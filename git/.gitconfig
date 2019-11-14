@@ -11,7 +11,7 @@
 # From there, sections are in alphabetic order
 
 [alias]
-  co = "!f() { git checkout \"$@\" && git stash list | grep \"$1:\"; }; f"
+  co = checkout
   last = log -1 HEAD
   st = status
   uncommit = reset --soft HEAD~

@@ -5,7 +5,7 @@ export NODEJS_CHECK_SIGNATURES="no"
 plugin=$1
 shift
 
-if [[ $# -gt 0 ]]; then
+if [ $# -gt 0 ]; then
   #skip url
   shift
 fi

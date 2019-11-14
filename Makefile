@@ -1,7 +1,6 @@
 
 CONFIGS := android asdf \
 attic bat \
-byobu \
 cheat \
 clang-format \
 coreutils \

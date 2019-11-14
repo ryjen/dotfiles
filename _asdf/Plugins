@@ -1,17 +1,9 @@
-cmake
-direnv
 elixir
 erlang
 golang
-gradle
 java https://github.com/skotchpine/asdf-java.git
 lua
-mongodb https://github.com/sylph01/asdf-mongodb.git
-mysql
 nodejs
-postgres
 python https://github.com/danhper/asdf-python.git 2.7.17
 ruby
 rust
-sqlite
-swift
