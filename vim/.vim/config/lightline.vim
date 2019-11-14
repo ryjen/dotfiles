@@ -1,7 +1,7 @@
 
 " lightline {{{
 let g:lightline = {}
-let g:lightline.colorscheme = 'deepspace'
+let g:lightline.colorscheme = 'solarized'
 let g:lightline.active = {
     \     'left': [['mode', 'paste'], ['fugitive'], ['filename_active']],
     \     'right': [['lineinfo', 'error', 'warning'], ['fileinfo'], ['filetype']]
