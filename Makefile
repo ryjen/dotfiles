@@ -44,7 +44,7 @@ else
     detected_OS := $(patsubst MINGW%,MSYS,$(detected_OS))
 endif
 
-all: setup defaults install configs
+all: setup defaults install packages configs
 
 .PHONY: setup
 setup:
@@ -70,6 +70,15 @@ endif
 .PHONY: configs
 configs: $(TARGETS)
 	@echo "Done."
+
+.PHONY: packages
+packages:
+	@echo "  installing asdf plugins..."
+	@_asdf/install
+	@echo "  installing yarn packages..."
+	@_yarn/install
+	@echo "  installing python packages..."
+	@_pip/install
 
 .PHONY: install
 install:
