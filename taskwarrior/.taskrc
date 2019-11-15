@@ -15,15 +15,12 @@ data.location=~/.task
 
 # Sync
 
-include=~/.config/task/sync/index.rc
-
-taskd.trust=ignore hostname
+include ~/.config/task/sync/index.rc
 
 # Config
 journal.time=on
 
-
-# Color theme (uncomment one to use)
+# Color theme
 
 include ~/.config/task/themes/index.rc
 

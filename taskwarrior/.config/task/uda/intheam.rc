@@ -1,5 +1,5 @@
 
-:uda.intheamtrelloboardid.type=string
+uda.intheamtrelloboardid.type=string
 uda.intheamtrelloboardid.label=Inthe.AM Trello Board ID
 uda.intheamtrellolistid.type=string
 uda.intheamtrellolistid.label=Inthe.AM Trello List ID
