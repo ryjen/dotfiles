@@ -15,8 +15,7 @@ fi
 export PATH=$PATH:$HOME/bin:/usr/local/bin
 
 # load zsh config files
-
-autoload -Uz compinit && compinit
+#autoload -Uz compinit && compinit
 
 env_config_files=(~/.zsh/**/*.zshenv(N))
 if test ! -z "$env_config_files" ;
@@ -26,4 +25,7 @@ if test ! -z "$env_config_files" ;
       source $file
     done
 fi
+
+# remove dups in path
+typeset -U PATH
 

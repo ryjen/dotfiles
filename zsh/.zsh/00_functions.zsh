@@ -26,7 +26,7 @@ function command_exists() {
 }
 
 function ssh() {
-	/usr/bin/ssh -t "$@" tmux -f .tmux.conf new-session -A -s $(USER)-session
+	/usr/bin/ssh -t "$@" tmux new-session -A -s ${USER}-session
 }
 
 function psql_history() {

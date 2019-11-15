@@ -16,3 +16,6 @@ cat $DIR/Required | xargs brew install
 
 cat $DIR/Casks | xargs brew cask install
 
+# additional setup
+byobu-enable
+

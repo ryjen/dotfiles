@@ -126,3 +126,7 @@ source $HOME/.vim/config/netw.vim
 
 source $HOME/.vim/config/ale.vim
 
+" cursor line colour
+hi CursorLine   cterm=NONE ctermbg=darkred ctermfg=white guibg=darkred guifg=white
+
+

@@ -1,6 +1,9 @@
 
-CONFIGS := android asdf \
-attic bat \
+CONFIGS := \
+android \
+asdf \
+attic \
+bat \
 cheat \
 clang-format \
 coreutils \

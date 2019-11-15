@@ -14,4 +14,6 @@ sudo dpkg -i $DIR/bat_0.11.0_amd64.deb
 # install required programs for this repo
 cat $DIR/required.txt | xargs sudo apt-get -qy install
 
+# additional setup
+byobu-enable
 
