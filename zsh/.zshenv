@@ -1,7 +1,6 @@
 # .zshenv is always sourced, define here exported variables that should
 # be available to other programs.
 
-export VISUAL=subl
 export PAGER=less
 
 type nvim > /dev/null

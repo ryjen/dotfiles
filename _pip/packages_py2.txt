@@ -12,3 +12,4 @@ spotify-ripper-morgaroth
 subliminal
 Unidecode
 virtualenv
+taskwarrior-time-tracking-hook

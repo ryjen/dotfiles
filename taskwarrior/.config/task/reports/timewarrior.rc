@@ -1,4 +1,0 @@
-
-report.list.labels=ID,Active,Age,D,P,Project,Tags,R,Sch,Due,Until,Description,Time,Urg
-
-report.list.columns=id,start.age,entry.age,depends.indicator,priority,project,tags,recur.indicator,scheduled.countdown,due,until.remaining,description.count,totalactivetime,urgency
