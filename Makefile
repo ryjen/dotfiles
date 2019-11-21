@@ -97,6 +97,7 @@ endif
 
 %.conf: %
 	@echo "  installing $? configuration..."
+	@stow $?
 ifeq ($(detected_OS),Darwin)
 	@if [ -d "$?/@macos" ]; then \
 		echo "  installing $? macos configuration..."; \

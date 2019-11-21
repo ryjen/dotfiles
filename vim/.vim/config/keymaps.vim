@@ -22,3 +22,13 @@ noremap <C-P> :set spell spelllang=en_ca<CR>
 noremap <leader>p :set spell spelllang=en_ca<CR>
 
 noremap <leader>k :bn<CR>
+
+" for vimdiff
+if &diff
+    noremap <space>   ]cz.
+    noremap <S-space> [cz.
+    noremap <leader>R  :diffg RE<CR>
+    noremap <leader>B  :diffg BA<CR>
+    noremap <leader>L  :diffg LO<CR>
+endif
+
