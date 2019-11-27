@@ -11,6 +11,9 @@ else
   export EDITOR=vim
 fi
 
+export VISUAL=$EDITOR
+export GIT_EDITOR=$EDITOR
+
 export PATH=$PATH:$HOME/bin:/usr/local/bin
 
 # load zsh config files
