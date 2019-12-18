@@ -5,7 +5,10 @@ Plug 'tpope/vim-sensible'
 
 Plug 'junegunn/vim-easy-align'
 
-Plug 'wincent/command-t', { 'do': 'cd ruby/command-t/ext/command-t && ruby extconf.rb && make' }
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+Plug 'junegunn/fzf.vim'
+
+"Plug 'wincent/command-t', { 'do': 'cd ruby/command-t/ext/command-t && ruby extconf.rb && make' }
 
 Plug 'junegunn/vim-emoji'
 

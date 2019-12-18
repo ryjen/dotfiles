@@ -116,7 +116,7 @@ source $HOME/.vim/config/lightline.vim
 
 source $HOME/.vim/config/emoji.vim
 
-source $HOME/.vim/config/commandt.vim
+source $HOME/.vim/config/fzf.vim
 
 source $HOME/.vim/config/colemak.vim
 
