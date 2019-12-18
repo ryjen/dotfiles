@@ -25,7 +25,6 @@ ncdu \
 perl \
 prettyping \
 taskwarrior \
-thefuck \
 tmux \
 tmuxinator \
 tmuxp \
