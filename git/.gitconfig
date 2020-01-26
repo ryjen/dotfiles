@@ -5,11 +5,8 @@
 [core]
   editor = vim
   excludesfile = ~/.gitignore
-  pager = less --tabs=4 -RFX
-  #pager = diff-so-fancy | less --tabs=4 -RFX
-
-[sequence]
-  editor = vim
+  #pager = less --tabs=4 -RFX
+  pager = diff-so-fancy | less --tabs=4 -RFX
 
 # From there, sections are in alphabetic order
 
@@ -20,6 +17,9 @@
   uncommit = reset --soft HEAD~
   unstage = reset HEAD --
   lg = log --graph --abbrev-commit --decorate --date=relative --all
+
+[credential]
+  helper = cache --timeout=3600
 
 [difftool]
   prompt = false
@@ -36,17 +36,20 @@
 	prompt = false
 
 [merge]
-	tool = opendiff
+	tool = vimdiff
   conflictstyle = diff3
 
 [mergetool "meld"]
     cmd = meld "$LOCAL" "$BASE" "$REMOTE" --output "$MERGED"
 
+[mergetool "opendiff"]
+	cmd = /Users/ryjen/bin/git-opendiff-cmd
+
 [pager]
-  diff = less --tabs=1,5 -RFX
-  show = less --tabs=1,5 -RFX
-  #diff = diff-so-fancy | less --tabs=1,5 -RFX
-  #show = diff-so-fancy | less --tabs=1,5 -RFX
+  #diff = less --tabs=1,5 -RFX
+  #show = less --tabs=1,5 -RFX
+  diff = diff-so-fancy | less --tabs=1,5 -RFX
+  show = diff-so-fancy | less --tabs=1,5 -RFX
 
 [pull]
   rebase = true
@@ -57,11 +60,9 @@
 [rebase]
   autoStash = true
 
-[credential]
-  helper = cache --timeout=3600
+[sequence]
+  editor = vim
 
 [url "ssh://git@git.micrantha.com:2222"]
   insteadOf = "https://micrantha.com"
 
-[merge "opendiff"]
-	cmd = /Users/ryjen/bin/git-opendiff-cmd
