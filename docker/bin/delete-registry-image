@@ -17,7 +17,7 @@ while [[ $1 == -* ]]; do
   esac
 done
 
-BASE_URL=${BASE_URL:-"http://registry.micrantha.com:5000"}
+BASE_URL=${BASE_URL:-"https://registry.micrantha.com:5000"}
 IMAGE=${1%:*}
 HASH=${1#*:}
 
