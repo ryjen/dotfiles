@@ -3,8 +3,8 @@ report.todo.description=A list of project related items
 
 report.todo.filter=status:pending and (priority:H or priority:M)
 
-report.todo.labels=ID,P,Project,Tags,Description,Time,Urg
+report.todo.labels=ID,Dep,P,Project,Tags,Description,Time,Urg
 
-report.todo.columns=id,priority,project,tags,description.count,totalactivetime,urgency
+report.todo.columns=id,depends,priority,project,tags,description.count,totalactivetime,urgency
 
 report.todo.sort=project,id,totalactivetime,urgency,description

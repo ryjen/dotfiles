@@ -36,3 +36,11 @@ include ~/.config/task/reports/index.rc
 
 include ~/.config/task/holidays/holidays.en-CA.rc
 
+color.blocked=color10 on gray4
+color.blocking=color2 on gray4
+color.project.blog=blue
+color.project.fortunes=rgb550
+color.project.micrantha=magenta
+color.project.outermesh=cyan
+color.project.selfhosting=rgb420
+color.project.scouter=rgb114
