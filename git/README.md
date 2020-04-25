@@ -4,13 +4,14 @@
 
     ├── .config
     │   └── git
-    │       └── gitconfig.sec
+    │       └── user
     ├── .gitconfig
     ├── .gitignore
     └── bin
       ├── git-reset-author
+      ├── git-remove-submodule
       └── git-sub-push
 
-`.gitconfig` includes an external `~/.config/.gitconfig.sec`, allowing to have settings (credentials come to mind) specifics to each machine, cf [`@mac/.config/.gitconfig.sec.example`](https://github.com/Kraymer/F-dotfiles/blob/master/%40mac/.config/.gitconfig.sec.example).
+`.gitconfig` includes an external `~/.config/git/user`, allowing to have settings (credentials come to mind) specifics to each machine, cf [`.config/git/user.example`](https://github.com/Kraymer/F-dotfiles/blob/master/git/.config/git/user.example).
 
-`icdiff`<<https://github.com/jeffkaufman/icdiff>>  
+`icdiff`<<https://github.com/jeffkaufman/icdiff>>

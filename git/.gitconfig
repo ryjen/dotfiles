@@ -1,6 +1,6 @@
 # Local/private config goes in the include
 [include]
-  path = ~/.config/git/gitconfig.sec
+  path = ~/.config/git/user
 
 [core]
   editor = vim
@@ -63,6 +63,5 @@
 [sequence]
   editor = vim
 
-[url "ssh://git@git.micrantha.com:2222"]
-  insteadOf = "https://micrantha.com"
-
+[user]
+	useConfigOnly = true

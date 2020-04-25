@@ -9,9 +9,9 @@ while [[ $1 == -* ]]; do
       DOCKER_FILE=$1
       shift
       ;;
-    -r | --repository)
+    -r | --registry)
       shift
-      REPOSITORY=$1
+      REGISTRY=$1
       shift
       ;;
     --ssh-key)
@@ -35,8 +35,8 @@ function syntax() {
   echo ""
   echo "Options:"
   echo ""
-  echo "  -f, --file        <file>    the docker file relative to the working dir"
-  echo "  -r, --repository  <domain>  the remote repository base url"
+  echo "  -f, --file        <file>     the docker file relative to the working dir (defaults to 'Dockerfile')"
+  echo "  -r, --registry    <domain>   the remote registry base url. 'hub' can be specified"
   echo ""
 }
 
@@ -49,9 +49,13 @@ echo "Building ${IMAGE_SLUG} with ${DOCKER_FILE} in ${WORKING_DIR}"
 
 docker build -t ${IMAGE_SLUG} -f ${DOCKER_FILE} ${BUILD_ARGS} ${WORKING_DIR}
 
-if [ ! -z "${REPOSITORY}" ]; then
-  REMOTE_IMAGE="${REPOSITORY}/${IMAGE_SLUG}"
+if [ "${REGISTRY}" = "hub" ]; then
+  REMOTE_IMAGE="${IMAGE_SLUG}"
+elif [ ! -z "${REGISTRY}" ]; then
+  REMOTE_IMAGE="${REGISTRY}/${IMAGE_SLUG}"
   docker tag ${IMAGE_SLUG} ${REMOTE_IMAGE}
-  docker push ${REMOTE_IMAGE}
 fi
 
+if [ "${PUSH}" ]; then
+  docker push ${REMOTE_IMAGE}
+fi
