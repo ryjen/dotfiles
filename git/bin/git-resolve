@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+message="$@"
+branch=$(git symbolic-ref --short -q HEAD)
+
+git commit -aem "$message"
+
+[[ $? -eq 0 ]] && git push origin $branch
