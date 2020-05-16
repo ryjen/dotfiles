@@ -103,3 +103,9 @@ ifeq ($(detected_OS),Darwin)
 		cd $? && stow @macos && cd - >/dev/null; \
 	fi
 endif
+ifeq ($(detected_OS),Linux)
+	@if [ -d "$?/@linux" ]; then \
+		echo "  installing $? linux configuration..."; \
+		cd $? && stow @linux && cd - >/dev/null; \
+	fi
+endif

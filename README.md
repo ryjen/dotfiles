@@ -1,3 +1,7 @@
+DEPRECATION: being migrated and replaced with [ansible-dotfiles](https://github.com/ryjen/ansible-dotfiles)
+
+---
+
 These dotfiles are forked from _F-dotfiles_ which is an opiniated dotfiles organization scheme based on stow.
 
 Highest priorities are ease of maintenance and deployment on both Linux and OS X.\*
@@ -38,18 +42,19 @@ Install notes and requirements can also be listed.
 Quoting stow [documentation](https://www.gnu.org/software/stow/manual/html_node/Installing-Packages.html#Installing-Packages) :
 
 > if Stow can create a single symlink that points to an entire subtree within the package tree, it will choose to do that rather than create a directory in the target tree and populate it with symlinks.
+
 ### Secret files
 
-Secret files, ie files that should not be commited/published, must have *.sec* or */sec/* in their filepath to be ignored by the root `.gitignore` file.
-Each secret file should be accompagnied by an *.example* file that is commited instead, to illustrate the use.
+Secret files, ie files that should not be commited/published, must have _.sec_ or _/sec/_ in their filepath to be ignored by the root `.gitignore` file.
+Each secret file should be accompagnied by an _.example_ file that is commited instead, to illustrate the use.
 
-Keep your secret files as short as possible to limit their influence as it complicates deployments (as they cannot be just pulled from github). 
+Keep your secret files as short as possible to limit their influence as it complicates deployments (as they cannot be just pulled from github).
 
 See [example](https://github.com/ryjen/dotfiles/blob/master/%40macos/%40macbook/.config/.gitconfig.sec.example).
 
 ### Multi-platforms paths
 
-For example, let's say you want to store one config file as `~/.config/myapp/spam.conf` on Linux and as `~/Library/myapp/spam.conf` on macOS.  
+For example, let's say you want to store one config file as `~/.config/myapp/spam.conf` on Linux and as `~/Library/myapp/spam.conf` on macOS.
 
 Put the shared part of filepaths in a shared `_common` folder : `myapp/_common/myapp/spam.conf`  
 Then, create one subpackage per OS to host each specific directories structure and use symlink to bridge to `_common` files :  
