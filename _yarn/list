@@ -1,0 +1,6 @@
+#!/usr/bin/env zsh
+
+DIR=${0:a:h}
+
+cat $DIR/required.txt | ts "yarn-" | tr -d " " | sort
+

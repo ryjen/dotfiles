@@ -1,0 +1,15 @@
+#!/usr/bin/env zsh
+
+DIR=${0:a:h}
+
+type asdf > /dev/null
+
+if [[ $? -ne 0 ]]; then
+  exit 1
+fi
+
+# for each line in the plugins file...
+# add the plugin.
+cat $DIR/Plugins | cut -d " " -f1 | sort | ts "asdf-" | tr -d " "
+
+

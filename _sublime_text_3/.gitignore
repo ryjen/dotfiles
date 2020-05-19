@@ -1,5 +1,0 @@
-_common/Packages/User/*
-!_common/Packages/User/*settings
-
-@linux/.config/sublime-text-3/**/*
-!@linux/.config/sublime-text-3/Packages

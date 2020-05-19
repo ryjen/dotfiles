@@ -34,8 +34,6 @@ xml \
 yarn \
 zsh
 
-TARGETS := $(patsubst %,%.conf,$(CONFIGS))
-
 ifeq ($(OS),Windows_NT)     # is Windows_NT on XP, 2000, 7, Vista, 10...
     detected_OS := Windows
 else
@@ -45,7 +43,39 @@ else
     detected_OS := $(patsubst MINGW%,MSYS,$(detected_OS))
 endif
 
-all: setup defaults install packages configs
+ifeq ($(detected_OS),Darwin)
+	OS_FOLDER := "@macos"
+else
+ifeq ($(detected_OS),Linux)
+	OS_FOLDER := "@linux"
+else
+ifeq ($(detected_OS),Windows)
+	OS_FOLDER := "@windows"
+endif
+endif
+endif
+
+TARGETS := $(patsubst %,%.conf,$(CONFIGS))
+LISTABLE := $(patsubst %,%.list,$(CONFIGS))
+
+.PHONY: all
+all: help
+
+.PHONY: help
+help:
+	@echo "Commands:"
+	@echo "  list         list all installable items for your operating system"
+	@echo "  min          do a minimal install"
+	@echo "  full         do a full install"
+	@echo "  setup        setup stow"
+	@echo "  configs      all configurations"
+	@echo "  packages     install package manager packages"
+
+.PHONY: min
+min: setup configs
+
+.PHONY: full
+full: setup packages configs
 
 .PHONY: setup
 setup:
@@ -53,8 +83,19 @@ setup:
 	@./setup
 	@echo "  stow configured."
 
-.PHONY: defaults
-defaults:
+.PHONY: os
+os:
+	@if [ -d $(OS_FOLDER) ]; then \
+		echo "  installing base os configuration"; \
+		stow $(OS_FOLDER); \
+	fi
+
+.PHONY: configs
+configs: os $(TARGETS)
+	@echo "Done."
+
+.PHONY: packages
+packages:
 	@echo "Installing required programs..."
 	@echo "  installing terminals..."
 	@./_terminfo/install
@@ -67,13 +108,6 @@ ifeq ($(detected_OS),Linux)
 	@./_dpkg/install
 endif
 	@echo "  required programs installed."
-
-.PHONY: configs
-configs: $(TARGETS)
-	@echo "Done."
-
-.PHONY: packages
-packages:
 	@echo "  installing asdf plugins..."
 	@_asdf/install
 	@echo "  installing yarn packages..."
@@ -81,31 +115,31 @@ packages:
 	@echo "  installing python packages..."
 	@_pip/install
 
-.PHONY: install
-install:
-	@echo "Installing configurations..."
-# install OS specific
+.PHONY: list
+list: $(LISTABLE)
+	@./_terminfo/list
 ifeq ($(detected_OS),Darwin)
-	@echo "  installing default macos configuration..."
-	@stow @macos
+	@./_homebrew/list
 endif
 ifeq ($(detected_OS),Linux)
-	@echo "  installing default linux configuration..."
-	@stow @linux
+	@./_dpkg/list
 endif
+	@./_asdf/list
+	@./_yarn/list
+	@./_pip/list
 
 %.conf: %
 	@echo "  installing $? configuration..."
 	@stow $?
-ifeq ($(detected_OS),Darwin)
-	@if [ -d "$?/@macos" ]; then \
-		echo "  installing $? macos configuration..."; \
-		cd $? && stow @macos && cd - >/dev/null; \
+	@if [ -d "$?/$(OS_FOLDER)" ]; then \
+		echo "  installing $? os specific configuration..."; \
+		cd $? && stow $(OS_FOLDER) && cd - >/dev/null; \
 	fi
-endif
-ifeq ($(detected_OS),Linux)
-	@if [ -d "$?/@linux" ]; then \
-		echo "  installing $? linux configuration..."; \
-		cd $? && stow @linux && cd - >/dev/null; \
+
+%.list: %
+	@echo "config-$?"
+	@find $? -not -path "*/@*" -not -name "*.md" -not -name "*.example" -exec echo "  - {}" \;
+	@if [ -d "$?/$(OS_FOLDER)" ]; then \
+		echo "config-$?-$(detected_OS)" | tr '[:upper:]' '[:lower:]'; \
+		find "$?/$(OS_FOLDER)" -exec echo "  - {}" \;; \
 	fi
-endif

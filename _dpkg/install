@@ -6,6 +6,7 @@ type apt-get > /dev/null
 
 if [[ $? -ne 0 ]]; then
   echo "'apt-get' is required at this time"
+  exit 1
 fi
 
 # install file packages
