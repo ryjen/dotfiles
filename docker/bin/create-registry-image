@@ -51,9 +51,11 @@ docker build -t ${IMAGE_SLUG} -f ${DOCKER_FILE} ${BUILD_ARGS} ${WORKING_DIR}
 
 if [ "${REGISTRY}" = "hub" ]; then
   REMOTE_IMAGE="${IMAGE_SLUG}"
+  PUSH=1
 elif [ ! -z "${REGISTRY}" ]; then
   REMOTE_IMAGE="${REGISTRY}/${IMAGE_SLUG}"
   docker tag ${IMAGE_SLUG} ${REMOTE_IMAGE}
+  PUSH=1
 fi
 
 if [ "${PUSH}" ]; then
