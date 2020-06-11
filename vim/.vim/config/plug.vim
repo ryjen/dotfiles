@@ -7,8 +7,10 @@ Plug 'tpope/vim-sensible'
 " Align
 Plug 'junegunn/vim-easy-align'
 
-" Fast directory search
+" Fast fuzzy search
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+" Defaults for fzf search
+Plug 'junegunn/fzf.vim'
 
 " Formatting
 Plug 'Chiel92/vim-autoformat'
