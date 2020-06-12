@@ -1,19 +1,20 @@
 
 call plug#begin('~/.local/share/vim/plugged')
 
-" Sensible defaults
-Plug 'tpope/vim-sensible'
-
-" Align
-Plug 'junegunn/vim-easy-align'
-
 " Fast fuzzy search
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 " Defaults for fzf search
 Plug 'junegunn/fzf.vim'
 
-" Formatting
-Plug 'Chiel92/vim-autoformat'
+" Markdown extras and syntax
+Plug 'godlygeek/tabular'
+Plug 'gabrielelana/vim-markdown'
+
+" Sensible defaults
+Plug 'tpope/vim-sensible'
+
+" Align
+Plug 'junegunn/vim-easy-align'
 
 " distraction free writing
 Plug 'junegunn/goyo.vim'
@@ -60,8 +61,6 @@ Plug 'mxw/vim-jsx'
 " Lint engine for LSP
 Plug 'dense-analysis/ale'
 
-" Colemake remapping
-Plug 'jooize/vim-colemak'
 
 call plug#end()
 

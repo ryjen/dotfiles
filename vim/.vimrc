@@ -81,52 +81,17 @@ set showmode
 set title
 " Show the (partial) command as it’s being typed
 set showcmd
+" Start scrolling three lines before the horizontal window border
+set scrolloff=3
+
 " Use relative line numbers
 if exists("&relativenumber")
 	set relativenumber
 	au BufReadPost * set relativenumber
 endif
-" Start scrolling three lines before the horizontal window border
-set scrolloff=3
-
-" Strip trailing whitespace (,ss)
-function! StripWhitespace()
-	let save_cursor = getpos(".")
-	let old_query = getreg('/')
-	:%s/\s\+$//e
-	call setpos('.', save_cursor)
-	call setreg('/', old_query)
-endfunction
-
-source $HOME/.vim/config/keymaps.vim
-
-source $HOME/.vim/config/plug.vim
-
-source $HOME/.vim/config/multi-cursor.vim
-
-source $HOME/.vim/config/goyo.vim
-
-source $HOME/.vim/config/limelight.vim
-
-source $HOME/.vim/config/lsp.vim
-
-source $HOME/.vim/config/nvim.vim
-
-source $HOME/.vim/config/lightline.vim
-
-source $HOME/.vim/config/emoji.vim
-
-source $HOME/.vim/config/fzf.vim
-
-source $HOME/.vim/config/colemak.vim
-
-source $HOME/.vim/config/autoformat.vim
-
-source $HOME/.vim/config/netw.vim
-
-source $HOME/.vim/config/ale.vim
 
 " cursor line colour
-hi CursorLine   cterm=NONE ctermbg=darkred ctermfg=white guibg=darkred guifg=white
+hi CursorLine cterm=NONE ctermbg=darkgreen ctermfg=white guibg=darkgreen guifg=white
 
+source $HOME/.vim/config/plug.vim
 

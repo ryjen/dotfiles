@@ -1,5 +1,5 @@
 
-try
+if has("emoji")
   if emoji#available()
     let g:gitgutter_sign_added = emoji#for('small_blue_diamond')
     let g:gitgutter_sign_modified = emoji#for('small_orange_diamond')
@@ -8,6 +8,7 @@ try
 
     set completefunc=emoji#complete
   endif
-catch
-endtry
+else
+  echom "emoji plugin not available"
+endif
 

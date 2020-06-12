@@ -1,5 +1,5 @@
 
-noremap <leader>ss :call StripWhitespace()<CR>
+noremap <leader>ss :call misc#StripWhitespace()<CR>
 
 " Save a file as root (,W)
 noremap <leader>W :w !sudo tee % > /dev/null<CR>
@@ -11,17 +11,22 @@ noremap <Left> <nop>
 noremap <Right> <nop>
 
 " easy escape key
-nnoremap <leader><leader> <Esc>
-vnoremap <leader><leader> <Esc>gV
-onoremap <leader><leader> <Esc>
-cnoremap <leader><leader> <C-C><Esc>
-inoremap <leader><leader> <Esc>`^
+nnoremap <Tab><Tab> <Esc>
+vnoremap <Tab><Tab> <Esc>gV
+onoremap <Tab><Tab> <Esc>
+cnoremap <Tab><Tab> <C-C><Esc>
+inoremap <Tab><Tab> <Esc>`^
 
 " start spell checker
 noremap <C-P> :set spell spelllang=en_ca<CR>
 noremap <leader>p :set spell spelllang=en_ca<CR>
 
-noremap <leader>k :bn<CR>
+noremap <leader>k :bp<CR>
+noremap <leader>m :bn<CR>
+noremap <leader>K :tabp<CR>
+noremap <leader>M :tabn<CR>
+noremap <leader>x :bd<CR>
+noremap <leader>X :tabclose<CR>
 
 " for vimdiff
 if &diff
@@ -31,4 +36,3 @@ if &diff
     noremap <leader>B  :diffg BA<CR>
     noremap <leader>L  :diffg LO<CR>
 endif
-
