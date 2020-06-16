@@ -26,7 +26,7 @@ Plug 'junegunn/limelight.vim'
 Plug 'altercation/vim-colors-solarized'
 
 " golang tools
-Plug 'fatih/vim-go'
+Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 
 " multi-cursor edits
 Plug 'terryma/vim-multiple-cursors'
@@ -42,6 +42,10 @@ Plug 'prabirshrestha/async.vim'
 
 " language server support
 Plug 'prabirshrestha/vim-lsp'
+Plug 'mattn/vim-lsp-settings'
+
+Plug 'prabirshrestha/asyncomplete.vim'
+Plug 'prabirshrestha/asyncomplete-lsp.vim'
 
 " status line
 Plug 'itchyny/lightline.vim'
