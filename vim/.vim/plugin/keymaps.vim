@@ -11,11 +11,11 @@ noremap <Left> <nop>
 noremap <Right> <nop>
 
 " easy escape key
-nnoremap <Tab><Tab> <Esc>
-vnoremap <Tab><Tab> <Esc>gV
-onoremap <Tab><Tab> <Esc>
-cnoremap <Tab><Tab> <C-C><Esc>
-inoremap <Tab><Tab> <Esc>`^
+"nnoremap <Tab><Tab> <Esc>
+"vnoremap <Tab><Tab> <Esc>gV
+"onoremap <Tab><Tab> <Esc>
+"cnoremap <Tab><Tab> <C-C><Esc>
+"inoremap <Tab><Tab> <Esc>`^
 
 " start spell checker
 noremap <C-P> :set spell spelllang=en_ca<CR>
