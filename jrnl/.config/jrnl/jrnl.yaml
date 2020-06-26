@@ -1,0 +1,21 @@
+colors:
+  body: WHITE
+  date: GREEN
+  tags: MAGENTA
+  title: CYAN
+default_hour: 9
+default_minute: 0
+editor: nvim
+encrypt: true
+highlight: true
+indent_character: '|'
+journals:
+  academia: ~/Sync/jrnl/academia
+  default: ~/Sync/jrnl/default
+  micrantha: ~/Sync/jrnl/micrantha
+  work: ~/Sync/jrnl/work
+linewrap: 79
+tagsymbols: '@'
+template: false
+timeformat: '%Y-%m-%d %H:%M'
+version: v2.4.2

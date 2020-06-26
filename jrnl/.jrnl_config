@@ -7,7 +7,7 @@
   },
   "encrypt": true,
   "highlight": true,
-  "editor": "vim",
+  "editor": "nvim",
   "default_minute": 0,
   "default_hour": 9,
   "timeformat": "%Y-%m-%d %H:%M",
