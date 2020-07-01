@@ -10,6 +10,6 @@ if has_key(plugs, 'vim-multiple-cursors')
   let g:multi_cursor_prev_key            = '<C-p>'
   let g:multi_cursor_skip_key            = '<C-x>'
   let g:multi_cursor_quit_key            = '<Esc>'
-else 
+elseif !g:isSlim
   echom "multi cursor plugin not installed"
 endif

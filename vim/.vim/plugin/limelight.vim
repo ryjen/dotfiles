@@ -27,6 +27,6 @@ if has_key(plugs, 'limelight.vim')
 
   autocmd! User GoyoEnter Limelight
   autocmd! User GoyoLeave Limelight!
-else
+elseif !g:isSlim
   echom "limelight plugin not installed"
 endif

@@ -19,6 +19,6 @@ if has_key(plugs, 'fzf.vim')
   " Advanced customization using Vim function
   inoremap <expr> <c-x><c-k> fzf#vim#complete#word({'left': '15%'})
 
-else
+elseif !g:isSlim
   echom "fzf plugin not installed"
 endif

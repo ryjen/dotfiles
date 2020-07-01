@@ -1,40 +1,70 @@
 
 call plug#begin('~/.local/share/vim/plugged')
 
-Plug 'tpope/vim-sensible'
-
-Plug 'junegunn/vim-easy-align'
-
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+" Fast fuzzy search
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+" Defaults for fzf search
 Plug 'junegunn/fzf.vim'
 
-Plug 'Chiel92/vim-autoformat'
+" Markdown extras and syntax
+Plug 'godlygeek/tabular'
+Plug 'gabrielelana/vim-markdown'
 
+" Sensible defaults
+Plug 'tpope/vim-sensible'
+
+" Align
+Plug 'junegunn/vim-easy-align'
+
+" distraction free writing
+Plug 'junegunn/goyo.vim'
+
+" extra focus by limiting syntax highlighting
+Plug 'junegunn/limelight.vim'
+
+" solarized color scheme
 Plug 'altercation/vim-colors-solarized'
 
+" golang tools
+Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
+
+" multi-cursor edits
 Plug 'terryma/vim-multiple-cursors'
 
+" a list of buffers
 Plug 'jeetsukumaran/vim-buffergator'
 
+" rust support
+Plug 'rust-lang/rust.vim'
+
+" async job api
 Plug 'prabirshrestha/async.vim'
 
-Plug 'christoomey/vim-tmux-navigator'
+" language server support
+Plug 'prabirshrestha/vim-lsp'
+Plug 'mattn/vim-lsp-settings'
 
-Plug 'tpope/vim-obsession'
+Plug 'prabirshrestha/asyncomplete.vim'
+Plug 'prabirshrestha/asyncomplete-lsp.vim'
 
-Plug 'tpope/vim-unimpaired'
+" status line
+Plug 'itchyny/lightline.vim'
 
-Plug 'tpope/vim-fugitive'
-
+" change surrounding tags on text (cs)
 Plug 'tpope/vim-surround'
 
-Plug 'airblade/vim-gitgutter'
-
+" a list of tags in file
 Plug 'majutsushi/tagbar'
 
-Plug 'edkolev/tmuxline.vim'
+" JS syntax
+Plug 'pangloss/vim-javascript'
 
-Plug 'jooize/vim-colemak'
+" React JSX Syntax
+Plug 'mxw/vim-jsx'
+
+" Lint engine for LSP
+Plug 'dense-analysis/ale'
+
 
 call plug#end()
 

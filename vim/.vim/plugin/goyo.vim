@@ -3,6 +3,6 @@ if has_key(plugs, 'goyo.vim')
 
   nnoremap <Leader>G :Goyo<CR>
   xnoremap <Leader>G :Goto<CR>
-else
+elseif !g:isSlim
   echom "goyo plugin not installed"
 endif

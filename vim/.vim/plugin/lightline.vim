@@ -42,6 +42,6 @@ if has_key(plugs, 'lightline.vim')
 
   au BufEnter,CursorHold * if ryjen#lightline#ShouldRefresh() | call lightline#update() | endif
   " }}}
-else
+elseif !g:isSlim
   echom "lightline plugin not installed"
 endif
