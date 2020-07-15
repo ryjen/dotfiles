@@ -18,8 +18,9 @@ noremap <Right> <nop>
 "inoremap <Tab><Tab> <Esc>`^
 
 " start spell checker
-noremap <C-P> :set spell spelllang=en_ca<CR>
-noremap <leader>p :set spell spelllang=en_ca<CR>
+noremap <leader>P :set spell spelllang=en_ca<CR>
+noremap <leader>p ]s<CR>
+noremap <leader>z z=<CR>
 
 noremap <leader>k :bp<CR>
 noremap <leader>m :bn<CR>

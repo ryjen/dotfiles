@@ -3,7 +3,7 @@ function gh() {
 
   local url="https://api.github.com"
 
-  local options=(-H "Authorization: token ${GITHUB_API_TOKEN})
+  local options=(-H "Authorization: token ${GITHUB_API_TOKEN}")
 
   while [[ $1 == -* ]]; do
     options+=($1)

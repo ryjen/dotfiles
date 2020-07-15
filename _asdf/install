@@ -15,4 +15,6 @@ cat $DIR/Plugins | xargs -L 1 $DIR/add-plugin
 
 cat $DIR/Plugins | xargs -L 1 $DIR/install-plugin
 
+cat $DIR/Binaries | xargs -I {} bash -c '{}'
+
 
