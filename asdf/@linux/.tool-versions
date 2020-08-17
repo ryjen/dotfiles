@@ -6,5 +6,5 @@ lua 5.3.5
 nodejs 14.5.0
 python 3.8.1 2.7.17
 rust 1.40.0
-ruby 2.6.5
+ruby 2.7.1
 yarn 1.22.4

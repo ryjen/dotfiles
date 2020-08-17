@@ -11,17 +11,10 @@ noremap <Down> <nop>
 noremap <Left> <nop>
 noremap <Right> <nop>
 
-" easy escape key
-"nnoremap <Tab><Tab> <Esc>
-"vnoremap <Tab><Tab> <Esc>gV
-"onoremap <Tab><Tab> <Esc>
-"cnoremap <Tab><Tab> <C-C><Esc>
-"inoremap <Tab><Tab> <Esc>`^
-
 " start spell checker
 noremap <C-P> :set spell spelllang=en_ca<CR>
 noremap <leader>P :set spell spelllang=en_ca<CR>
-noremap <leader>p z=<CR>
+noremap <leader>p z=
 
 noremap <leader>k :bp<CR>
 noremap <leader>m :bn<CR>
