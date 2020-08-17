@@ -1,0 +1,24 @@
+#!/usr/bin/env sh
+
+INP=$1
+
+EXT=${1##*.}
+
+OUTP=$2
+
+OUTEXT=${2##*.}
+
+if [ -z "$EXT" ]; then 
+  EXT="md"
+  INP="${INP}.${EXT}"
+fi
+
+if [ ! -f "$INP" ] || [ -z "${OUTP}" ] || [ -z "${OUTEXT}" ] || [ "$EXT" != "md" ]; then  
+  echo "Usage: $(basename $0) <infile>.md <outfile>.<ext> [pandoc arguments]"
+  exit 1
+fi
+
+
+shift 2
+
+pandoc $INP -o $OUTP --template eisvogel --highlight-style pygments --pdf-engine=xelatex $@
