@@ -1,0 +1,32 @@
+
+name: cocoflo
+root: ~/Source/cocoflo
+
+# require mysql service
+on_project_start: service mysql start
+
+on_project_stop: service mysql stop
+
+# use python virtual env
+pre_window: source bin/activate
+
+tmux_command: byobu
+
+startup_window: editor
+
+windows:
+  - editor: vim
+  - services:
+      layout: tiled
+      panes:
+        - admin:
+          - cd admin
+          - yarn start
+        - frontend:
+          - cd frontend
+          - yarn start
+        - backend:
+          - cd backend
+          - ./startenv
+        - database:
+          - mysql fsj
