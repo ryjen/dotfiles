@@ -10,3 +10,7 @@ if has("nvim")
 else
   echom "using regular vim, consider using nvim"
 endif
+
+" cursor line colour
+hi CursorLine cterm=NONE ctermbg=darkgreen ctermfg=white guibg=darkgreen guifg=white
+

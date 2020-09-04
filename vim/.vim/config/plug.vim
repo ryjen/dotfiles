@@ -67,14 +67,18 @@ if !g:isSlim
   Plug 'prabirshrestha/vim-lsp'
   Plug 'mattn/vim-lsp-settings'
 
+  " autocompletion
   Plug 'prabirshrestha/asyncomplete.vim'
   Plug 'prabirshrestha/asyncomplete-lsp.vim'
+
+  " confgure lsp for python
+  Plug 'ryanolsonx/vim-lsp-python'
 
   " status line
   Plug 'itchyny/lightline.vim'
 
   " Lint engine for LSP
-  Plug 'dense-analysis/ale'
+  " Plug 'dense-analysis/ale'
 
 endif
 

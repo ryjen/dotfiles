@@ -2,7 +2,6 @@ syntax enable
 set background=dark
 colorscheme solarized
 let g:solarized_termtrans=1
-
 " Use true colour
 set termguicolors
 " Make Vim more useful
@@ -89,9 +88,6 @@ if exists("&relativenumber")
 	set relativenumber
 	au BufReadPost * set relativenumber
 endif
-
-" cursor line colour
-hi CursorLine cterm=NONE ctermbg=darkgreen ctermfg=white guibg=darkgreen guifg=white
 
 source $HOME/.vim/config/plug.vim
 

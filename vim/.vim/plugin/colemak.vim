@@ -146,6 +146,14 @@ onoremap r i
 "nnoremap g; ge|xnoremap g; ge|onoremap g; ge|
 " Folds, etc.
 "nnoremap ; z|xnoremap ; z|
+" remap folding with f
+nnoremap fz zf
+nnoremap fd zd
+nnoremap fc zc
+nnoremap fC zM
+nnoremap fo zo
+nnoremap fO zR
+nnoremap fa za
 
 " Map ; to :
 nnoremap ; :|xnoremap ; :|
