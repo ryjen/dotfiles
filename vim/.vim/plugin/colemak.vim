@@ -76,10 +76,10 @@ noremap <silent> <M-y> :simalt y<CR>|noremap <silent> <M-z> :simalt z<CR>|
 
 " Turbo navigation mode
 " Modified to work with counts, see :help complex-repeat
-nnoremap <silent> N @='5n'<CR>|xnoremap <silent> N @='5n'<CR>|onoremap N 5h|
-nnoremap <silent> U @='5u'<CR>|xnoremap <silent> U @='5u'<CR>|onoremap U 5k|
-nnoremap <silent> E @='5e'<CR>|xnoremap <silent> E @='5e'<CR>|onoremap E 5j|
-nnoremap <silent> I @='5i'<CR>|xnoremap <silent> I @='5i'<CR>|onoremap I 5l|
+nnoremap <silent> N @='5h'<CR>|xnoremap <silent> N @='5h'<CR>|onoremap N 5h|
+nnoremap <silent> U @='3k'<CR>|xnoremap <silent> U @='3k'<CR>|onoremap U 3k|
+nnoremap <silent> E @='3j'<CR>|xnoremap <silent> E @='3j'<CR>|onoremap E 3j|
+nnoremap <silent> I @='5l'<CR>|xnoremap <silent> I @='5l'<CR>|onoremap I 5l|
 inoremap <M-N> <C-o>5h|cnoremap <M-N> <Left><Left><Left><Left><Left>|
 inoremap <M-U> <C-o>5k|cnoremap <M-U> <Up><Up><Up><Up><Up>|
 inoremap <M-E> <C-o>5j|cnoremap <M-E> <Down><Down><Down><Down><Down>|

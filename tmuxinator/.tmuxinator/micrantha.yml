@@ -54,12 +54,13 @@ windows:
         - fortunes:
           - cd fortunes/service/web
             # todo: live reload
-          - go run ./cmd/fortunes -port 5555
+          - PORT=5555 modd
         - web:
           - cd web
             # todo: live reload
-          - go run ./cmd/micrantha -port 6666
+          - PORT=6666 modd
         - scouter:
           - cd scouter/service
-          - go run ./cmd/scouter -port 7777
+          - PORT=7777 modd
         - psql garden
+  - lab: ssh labratory

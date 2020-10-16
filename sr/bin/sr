@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 ##
 # display how to use this command
@@ -14,7 +14,7 @@ function usage() {
 
 # A top secret separator for sed command
 # ascii chart - information separator one
-SEP=$(echo "\x1F")
+SEP=$(echo -n "~")
 
 ##
 # validate user input
