@@ -5,7 +5,8 @@ if [ -d "$HOME/.tmux/plugins/tpm" ]; then
 fi
 
 ## no plugin manager, install if able
-if [ command_exists git ] && [ network_connected ]; then
+type git >/dev/null
+if [ $? -eq 0 ]; then
   git clone https://github.com/tmux-plugins/tpm $HOME/.tmux/plugins/tpm
 fi
 
