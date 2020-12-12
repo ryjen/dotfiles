@@ -43,7 +43,7 @@
     cmd = meld "$LOCAL" "$BASE" "$REMOTE" --output "$MERGED"
 
 [mergetool "opendiff"]
-	cmd = /Users/ryjen/bin/git-opendiff-cmd
+	cmd = git-opendiff
 
 [pager]
   #diff = less --tabs=1,5 -RFX
