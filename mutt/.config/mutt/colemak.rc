@@ -1,0 +1,15 @@
+
+bind generic,pager j search-next
+bind generic n next-entry
+bind generic e previous-entry
+
+bind index,pager j edit-or-view-raw-message
+bind index,pager n next-undeleted
+bind index,pager e previous-undeleted
+
+
+bind pager + mark-as-new
+bind pager N next-entry
+bind pager E previous-entry
+
+

@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+
+if [ -z "$ANDROID_HOME" ]; then
+  echo "Please define ANDROID_HOME first"
+  exit 1
+fi
+
+function boot_emulator {
+  local PWD=$(pwd)
+
+  cd $ANDROID_HOME/tools
+
+  if [ -z "$1" ]; then
+    echo "Please specify an AVD to launch.  For example: @Nexus.  Available AVDs are:"
+    echo ""
+    ./emulator -list-avds
+    echo ""
+    return 1
+  fi
+
+  ./emulator $@ &
+
+  cd $PWD
+
+  return 0
+}
+
+function log_emulator {
+  adb logcat $@
+}
+
+CMD="$1"
+
+shift
+
+case "$CMD" in
+  boot)
+    echo "Booting android emulator..."
+    boot_emulator $@
+    ;;
+  log)
+    echo "Logging emulator..."
+    log_emulator $@
+    ;;
+  *)
+    echo "Syntax: $0 boot|log"
+    exit 1
+    ;;
+esac
+
+exit 0

@@ -1,0 +1,108 @@
+# Author: Ryan Jennings <ryan@micrantha.com>
+# Description:
+#   Pushes a subtree folder on a branch to a remote.  Useful for deploying generated content in a project.
+#!/bin/sh
+
+die() {
+  printf '%s\n', "$1" >&2
+  exit 1
+}
+
+help() {
+  echo "Syntax: git sub-push <folder>\n"
+  echo "Options:\n"
+  echo "\t-r, --remote  : Sets the remote repository url to deploy to. Defaults to 'origin'."
+  echo "\t-b, --branch  : Sets the branch to deploy with. Defaults to 'master'."
+  echo "\t-f, --force   : Force pushes the deploy."
+  echo "\t-h, --help    : Prints this help message.\n"
+}
+
+REMOTE="origin"
+LOCAL_BRANCH="master"
+REMOTE_BRANCH="master"
+FORCE=0
+
+while :; do
+  case $1 in
+    -h|-\?|--help)
+      help
+      exit 1
+      ;;
+    -r|--remote)
+      if [ "$2" ]; then
+        REMOTE=$2
+        shift
+      else
+        die "Which remote?"
+      fi
+      ;;
+    --remote=?*)
+      REMOTE=${1#*=}
+      ;;
+    --remote=)
+      die "Which remote?"
+      ;;
+    -b|--branch)
+      if [ "$2" ]; then
+        LOCAL_BRANCH=${2%%:*}
+        temp=${2#*:}
+        if [ ! -z "${temp}" ]; then
+          REMOTE_BRANCH=${temp}
+          FORCE=true
+        fi
+        shift
+      else
+        die "Which branch?"
+      fi
+      ;;
+    --branch=?*)
+      BRANCH=${1#*=}
+      ;;
+    --branch=)
+      die "Which branch?"
+      ;;
+    -f|--force)
+      FORCE=1
+      ;;
+    --)
+      shift
+      break
+      ;;
+    -?*)
+      printf 'WARN: Unknown option (ignored): %s\n' "$1" >&2
+      ;;
+    *)
+      break
+      ;;
+
+  esac
+
+  shift
+done
+
+FOLDER=$1
+
+if [ ! -d "$FOLDER" ]; then
+  help
+  exit 1
+fi
+
+echo ""
+read -p "Push subtree '$FOLDER' on branch '$LOCAL_BRANCH:$REMOTE_BRANCH' to remote '$REMOTE'? [Y/n]" confirm
+
+case $confirm in
+  [nN]*)
+    exit 1
+    ;;
+esac
+
+if [ $FORCE ]; then
+
+  git push $REMOTE `git subtree split --prefix $FOLDER $LOCAL_BRANCH`:$REMOTE_BRANCH --force
+
+else
+
+  git subtree push --prefix $FOLDER $REMOTE $LOCAL_BRANCH
+
+fi
+

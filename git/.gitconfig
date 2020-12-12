@@ -1,0 +1,67 @@
+# Local/private config goes in the include
+[include]
+  path = ~/.config/git/user
+
+[core]
+  editor = vim
+  excludesfile = ~/.gitignore
+  #pager = less --tabs=4 -RFX
+  pager = diff-so-fancy | less --tabs=4 -RFX
+
+# From there, sections are in alphabetic order
+
+[alias]
+  co = checkout
+  last = log -1 HEAD
+  st = status
+  uncommit = reset --soft HEAD~
+  unstage = reset HEAD --
+  lg = log --graph --abbrev-commit --decorate --date=relative --all
+
+[credential]
+  helper = cache --timeout=3600
+
+[difftool]
+  prompt = false
+
+[gui]
+    # Remove `git gui` pop-up warning
+  gcwarning = false
+
+[help]
+  autocorrect = 1
+
+[mergetool]
+  keepBackup = false
+	prompt = false
+
+[merge]
+	tool = vimdiff
+  conflictstyle = diff3
+
+[mergetool "meld"]
+    cmd = meld "$LOCAL" "$BASE" "$REMOTE" --output "$MERGED"
+
+[mergetool "opendiff"]
+	cmd = /Users/ryjen/bin/git-opendiff-cmd
+
+[pager]
+  #diff = less --tabs=1,5 -RFX
+  #show = less --tabs=1,5 -RFX
+  diff = diff-so-fancy | less --tabs=1,5 -RFX
+  show = diff-so-fancy | less --tabs=1,5 -RFX
+
+[pull]
+  rebase = true
+
+[push]
+  default = simple
+
+[rebase]
+  autoStash = true
+
+[sequence]
+  editor = vim
+
+[user]
+	useConfigOnly = true

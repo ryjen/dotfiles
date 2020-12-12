@@ -1,0 +1,46 @@
+# [Created by task 2.5.1 10/8/2018 19:32:06]
+# Taskwarrior program configuration file.
+# For more documentation, see http://taskwarrior.org or try 'man task', 'man task-color',
+# 'man task-sync' or 'man taskrc'
+
+# Here is an example of entries that use the default, override and blank values
+#   variable=foo   -- By specifying a value, this overrides the default
+#   variable=      -- By specifying no value, this means no default
+#   #variable=foo  -- By commenting out the line, or deleting it, this uses the default
+
+# Use the command 'task show' to see all defaults and overrides
+
+# Files
+data.location=~/.task
+
+# Sync
+
+include ~/.config/task/sync/index.rc
+
+# Config
+journal.time=on
+
+# Color theme
+
+include ~/.config/task/themes/index.rc
+
+# UDA
+
+include ~/.config/task/uda/index.rc
+
+# Reports
+
+include ~/.config/task/reports/index.rc
+
+# Holidays
+
+include ~/.config/task/holidays/holidays.en-CA.rc
+
+color.blocked=color10 on gray4
+color.blocking=color2 on gray4
+color.project.blog=blue
+color.project.fortunes=rgb550
+color.project.micrantha=magenta
+color.project.outermesh=cyan
+color.project.selfhosting=rgb420
+color.project.scouter=rgb114
