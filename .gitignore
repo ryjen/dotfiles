@@ -3,13 +3,11 @@
 *.sec*
 sec.conf
 .DS_Store
-/bin/
 !README.md
 *.log
 !*example
 
 taskwarrior/.config/task/certs/*
-vim/.vim/plugged/*
 
 *.key
 *.kbx
@@ -19,3 +17,4 @@ trustdb.gpg
 *.swp
 *.swo
 mutt/.config/mutt/aliases.txt
+git/.config/git/user
