@@ -1,0 +1,16 @@
+#!/usr/bin/env zsh
+
+DIR=${0:a:h}
+
+type apt-get > /dev/null
+
+if [[ $? -ne 0 ]]; then
+  exit 1
+fi
+
+echo "dpkg-bat"
+
+# install required programs for this repo
+cat $DIR/required.txt | sort | ts "dpkg-" | tr -d " "
+
+

@@ -1,0 +1,12 @@
+#!/usr/bin/env zsh
+
+DIR=${0:a:h}
+
+type tic > /dev/null
+
+if [[ $? -ne 0 ]]; then
+  exit 1
+fi
+
+echo terminfo-xterm-256color-italic
+echo terminfo-tmux-256color

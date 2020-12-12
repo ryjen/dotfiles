@@ -1,13 +1,5 @@
 ZSH_DEFAULT_THEME_DIR="$HOME/.oh-my-zsh/custom/themes/powerlevel9k"
 
-if ! [[ -d $ZSH_DEFAULT_THEME_DIR ]] &&type git > /dev/null; then
-    echo "Downloading oh-my-zsh default theme..."
-    $(git clone https://github.com/bhilburn/powerlevel9k.git $ZSH_DEFAULT_THEME_DIR)
-    if ! [[ $? -eq 0 ]]; then
-        echo "Unable download theme"
-    fi
-fi
-
 
 # Set name of the theme to load.
 # Optionally, if you set this to "random", it'll load a random theme each

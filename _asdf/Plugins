@@ -1,0 +1,9 @@
+elixir
+erlang
+golang
+java https://github.com/skotchpine/asdf-java.git
+lua
+nodejs
+python https://github.com/danhper/asdf-python.git 2.7.17
+ruby
+rust

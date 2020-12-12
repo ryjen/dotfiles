@@ -1,0 +1,16 @@
+#!/usr/bin/env zsh
+
+DIR=${0:a:h}
+
+type brew > /dev/null
+
+if [[ $? -ne 0 ]]; then
+  exit 1
+fi
+
+# install required programs for this repo
+cat $DIR/Required | sort | ts "brew-" | tr -d " "
+
+cat $DIR/Casks | sort | ts "brew-cask-" | tr -d " "
+
+

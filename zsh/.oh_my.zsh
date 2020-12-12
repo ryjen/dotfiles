@@ -13,3 +13,13 @@ source $HOME/.oh_my_theme.zsh
 source $HOME/.oh_my_plugins.zsh
 
 source $ZSH_INIT
+
+if [ ! -d $ZSH_CUSTOM/plugins/fzf-tab ]; then
+  git clone https://github.com/Aloxaf/fzf-tab $ZSH_CUSTOM/plugins/fzf-tab
+fi
+
+if [ ! -d $ZSH_DEFAULT_THEME_DIR ]; then
+  git clone https://github.com/bhilburn/powerlevel9k.git $ZSH_DEFAULT_THEME_DIR
+fi
+
+

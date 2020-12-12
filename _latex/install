@@ -1,0 +1,8 @@
+#!/usr/bin/env zsh
+
+DIR=${0:a:h}
+
+tlmgr update --self
+
+tlmgr install $(cat $DIR/required.txt | xargs)
+

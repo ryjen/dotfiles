@@ -1,0 +1,20 @@
+#!/usr/bin/env zsh
+
+DIR=${0:a:h}
+
+type asdf > /dev/null
+
+if [[ $? -ne 0 ]]; then
+  echo "'asdf' command not found"
+  exit 1
+fi
+
+# for each line in the plugins file...
+# add the plugin.
+cat $DIR/Plugins | xargs -L 1 $DIR/add-plugin
+
+cat $DIR/Plugins | xargs -L 1 $DIR/install-plugin
+
+cat $DIR/Binaries | xargs -I {} bash -c '{}'
+
+

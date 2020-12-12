@@ -1,0 +1,11 @@
+direnv
+byobu
+ctags
+git
+fortune-mod
+golang
+gopass
+gpg
+htop
+libzip-dev
+libffi-dev

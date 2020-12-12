@@ -1,0 +1,31 @@
+#!/usr/bin/env zsh
+
+DIR=${0:a:h}
+
+type pip2 > /dev/null
+
+FOUND=0
+
+if [[ $? -eq 0 ]]; then
+  FOUND=$(($FOUND + 1))
+fi
+
+type pip3 > /dev/null
+
+if [[ $? -eq 0 ]]; then
+  FOUND=$(($FOUND + 2))
+fi
+
+case "$FOUND" in
+  1)
+    cat $DIR/required_py2.txt | sort | ts "pip2-" | tr -d " "
+    ;;
+  2)
+    cat $DIR/required_py3.txt | sort | ts "pip3-" | tr -d " "
+    ;;
+  3)
+    cat $DIR/required_py2.txt $DIR/required_py3.txt | sort | uniq | ts "pip-" | tr -d " "
+    ;;
+esac
+
+

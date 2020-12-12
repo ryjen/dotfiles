@@ -1,0 +1,51 @@
+#!/usr/bin/env sh
+
+function usage() {
+  echo "Usage: $(basename $0) <input file> [output file]"
+  echo ""
+  echo "  (default output is <file>_opt.<ext>)"
+}
+
+function opt_jpg() {
+   convert $1 -sampling-factor 4:2:0 -strip [-resize WxH] [-quality N] [-interlace JPEG] [-colorspace Gray/sRGB] $2
+}
+
+function opt_png() {
+  convert $1 -strip $2
+}
+
+
+if [ ! -f "$1" ]; then
+  usage;
+  exit 1
+fi
+
+IN_FILE=$1
+
+IN_EXT="${1##*.}"
+
+IN_NAME="${1%.*}"
+
+
+if [ ! -z "$2" ]; then
+  OUT_FILE="$2"
+else
+  OUT_FILE="${IN_NAME}_opt.${IN_EXT}"
+fi
+
+
+case "${IN_EXT}" in
+  jpg | jpeg)
+     opt_jpg $IN_FILE $OUT_FILE
+     ;;
+  gif)
+     opt_png $IN_FILE $OUT_FILE
+     ;;
+  png)
+     opt_png $IN_FILE $OUT_FILE
+     ;;
+  *)
+    usage;
+    exit 1
+    ;;
+esac

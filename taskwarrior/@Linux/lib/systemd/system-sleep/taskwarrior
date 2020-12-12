@@ -1,0 +1,37 @@
+#!/bin/sh
+
+# taskwarrior stop/resume active tasks
+
+LOG_FILE=/tmp/taskwarrior.systemd.log
+TASKS_FILE=/tmp/taskwarrior.systemd.tasks
+
+save_active_tasks() {
+  TIDS=$(task +ACTIVE ids | xargs)
+  if [ -z "${TIDS}" ]; then
+    return 0
+  fi
+  echo ${TIDS}>${TASKS_FILE}
+  OUT=$(task ${TIDS} stop 2>&1)
+  if [ $? -ne 0 ]; then 
+    echo ${OUT} >> ${LOG_FILE}
+  fi
+}
+
+restore_active_tasks() {
+  TIDS=$(cat ${TASKS_FILE} 2>/dev/null | xargs)
+  if [ -z "${TIDS}" ]; then
+    return 0
+  fi
+  OUT=$(task ${TIDS} start 2>&1)
+  if [ $? -eq 0 ]; then 
+    rm ${TASKS_FILE}
+  else 
+    echo ${OUT} >> ${LOG_FILE}
+  fi
+}
+
+case $1 in
+    pre) save_active_tasks  ;;
+    post) restore_active_tasks  ;;
+esac
+

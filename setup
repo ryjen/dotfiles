@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+type stow &> /dev/null
+
+if [[ $? -eq 1 ]]; then
+  echo "Please install stow!"
+  exit 1
+fi
+
+grep $HOME $HOME/.stowrc
+
+if [[ $? -ne 0 ]]; then
+  echo "--target=$HOME" >> $HOME/.stowrc
+fi
+
+stow stow
+

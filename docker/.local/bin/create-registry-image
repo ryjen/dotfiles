@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+
+BUILD_ARGS=""
+
+while [[ $1 == -* ]]; do
+  case "$1" in
+    -f | --file)
+      shift
+      DOCKER_FILE=$1
+      shift
+      ;;
+    -r | --registry)
+      shift
+      REGISTRY=$1
+      shift
+      ;;
+    --ssh-key)
+      shift
+      SSH_KEY=$(cat $1)
+      BUILD_ARGS="${BUILD_ARGS} --build-arg SSH_KEY"
+      shift
+      ;;
+  esac
+done
+
+DOCKER_FILE=${DOCKER_FILE:-Dockerfile}
+IMAGE_SLUG="$1"
+
+shift
+
+WORKING_DIR=${1:-.}
+
+function syntax() {
+  echo "Syntax: $(basename $0) [<options>] <image> [working dir]"
+  echo ""
+  echo "Options:"
+  echo ""
+  echo "  -f, --file        <file>     the docker file relative to the working dir (defaults to 'Dockerfile')"
+  echo "  -r, --registry    <domain>   the remote registry base url. 'hub' can be specified"
+  echo ""
+}
+
+if [ -z "${IMAGE_SLUG}" ]; then
+  syntax
+  exit 1
+fi
+
+echo "Building ${IMAGE_SLUG} with ${DOCKER_FILE} in ${WORKING_DIR}"
+
+docker build -t ${IMAGE_SLUG} -f ${DOCKER_FILE} ${BUILD_ARGS} ${WORKING_DIR}
+
+if [ "${REGISTRY}" = "hub" ]; then
+  REMOTE_IMAGE="${IMAGE_SLUG}"
+  PUSH=1
+elif [ ! -z "${REGISTRY}" ]; then
+  REMOTE_IMAGE="${REGISTRY}/${IMAGE_SLUG}"
+  docker tag ${IMAGE_SLUG} ${REMOTE_IMAGE}
+  PUSH=1
+fi
+
+if [ "${PUSH}" ]; then
+  docker push ${REMOTE_IMAGE}
+fi
