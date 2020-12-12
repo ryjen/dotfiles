@@ -13,3 +13,9 @@ source $HOME/.oh_my_theme.zsh
 source $HOME/.oh_my_plugins.zsh
 
 source $ZSH_INIT
+
+if ! [[ -d $ZSH_DEFAULT_THEME_DIR ]] && type git > /dev/null; then
+    echo "Downloading oh-my-zsh default theme..."
+    $(git clone https://github.com/bhilburn/powerlevel9k.git $ZSH_DEFAULT_THEME_DIR)
+fi
+
