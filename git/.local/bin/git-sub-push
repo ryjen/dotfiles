@@ -10,11 +10,11 @@ die() {
 
 help() {
   echo "Syntax: git sub-push <folder>\n"
-  echo "Options:\n"
-  echo "\t-r, --remote  : Sets the remote repository url to deploy to. Defaults to 'origin'."
-  echo "\t-b, --branch  : Sets the branch to deploy with. Defaults to 'master'."
-  echo "\t-f, --force   : Force pushes the deploy."
-  echo "\t-h, --help    : Prints this help message.\n"
+  echo -e "Options:\n"
+  echo -e "\t-r, --remote  : Sets the remote repository url to deploy to. Defaults to 'origin'."
+  echo -e "\t-b, --branch  : Sets the branch to deploy with. Defaults to 'master'."
+  echo -e "\t-f, --force   : Force pushes the deploy."
+  echo -e "\t-h, --help    : Prints this help message.\n"
 }
 
 REMOTE="origin"
