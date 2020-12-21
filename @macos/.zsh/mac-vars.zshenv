@@ -3,4 +3,5 @@
 
 PATH=$PATH:/usr/local/sbin
 
+export HOMEBREW_NO_ANALYTICS=1
 
