@@ -1,0 +1,21 @@
+#command
+y     back-line
+i     forw-line
+Y     back-line-force
+I     forw-line-force
+u     back-scroll
+e     forw-scroll
+l     back-screen
+n     forw-screen
+j     back-window
+h     forw-window
+
+'     repeat-search
+"     reverse-search
+
+:j    prev-file
+:h    next-file
+
+#env
+LESS = -RNX --mouse
+LESSCHARSET = utf8

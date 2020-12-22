@@ -5,8 +5,7 @@
 [core]
   editor = vim
   excludesfile = ~/.gitignore
-  #pager = less --tabs=4 -RFX
-  pager = diff-so-fancy | less --tabs=4 -RFX
+  pager = bat -p
 
 # From there, sections are in alphabetic order
 
@@ -46,10 +45,8 @@
 	cmd = git-opendiff
 
 [pager]
-  #diff = less --tabs=1,5 -RFX
-  #show = less --tabs=1,5 -RFX
-  diff = diff-so-fancy | less --tabs=1,5 -RFX
-  show = diff-so-fancy | less --tabs=1,5 -RFX
+  diff = bat -p
+  show = bat -p
 
 [pull]
   rebase = true
