@@ -27,15 +27,16 @@ packages=(
 
 # check all installed
 # TODO: do this only once and unlink
-pacman -Qs ${packages[@]} 2>&1 >/dev/null
+pacman -Q ${packages[@]} 2>&1 >/dev/null
 
 if [ $? -ne 0 ]; then
   echo "Installing system packages"
   sudo pacman -S ${packages[@]}
 
-  if [ $? -eq 0 ]; then
-    rm -f ${(%):-%N}
+  if [ $? -ne 0 ]; then
+    exit 1
   fi
 fi
 
+rm -f ${(%):-%N}
 
