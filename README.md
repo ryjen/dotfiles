@@ -1,7 +1,7 @@
 
 # dotfiles
 
-my dotfiles for the perfect yellow submarine with a periscope to the real world.
+dotfiles for a perfect yellow submarine with a periscope and radar.
 
 ## manager
 
@@ -14,5 +14,9 @@ And a [GNU Make](https://www.gnu.org/software/make/) for simple setup tasks.
  1. `main` branch for shared configuration
  2. sub branches for OS or Package Manager configurations
  3. minimal as possible, kept in sync
- 4. folders prefixed with `@` are ignored by stow
+ 4. stow and git ignore manage meta files
+
+## desired
+
+ 1. insert env variables into files
 
