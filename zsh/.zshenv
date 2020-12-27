@@ -1,20 +1,8 @@
 # .zshenv is always sourced, define here exported variables that should
 # be available to other programs.
 
-export PAGER=less
-
-type nvim > /dev/null
-
-if [ $? -eq 0 ]; then
-  export EDITOR=nvim
-else
-  export EDITOR=vim
-fi
-
-export VISUAL=$EDITOR
-export GIT_EDITOR=$EDITOR
-
 export PATH=$PATH:$HOME/.local/bin:/usr/local/bin
+export PAGER="less -R"
 
 # load zsh config files
 #autoload -Uz compinit && compinit
