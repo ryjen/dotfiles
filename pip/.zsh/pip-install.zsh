@@ -4,6 +4,7 @@ function install_python3_packages() {
   python3_packages=(
     jrnl
     pyls
+    taskwarrior-time-tracking-hook
   )
 
   not_installed=()
