@@ -1,6 +1,6 @@
 {
     "alt-speed-down": 50,
-    "alt-speed-enabled": false,
+    "alt-speed-enabled": true,
     "alt-speed-time-begin": 540,
     "alt-speed-time-day": 127,
     "alt-speed-time-enabled": false,
@@ -12,13 +12,13 @@
     "blocklist-url": "http://john.bitsurge.net/public/biglist.p2p.gz",
     "cache-size-mb": 4,
     "dht-enabled": true,
-    "download-dir": "~/Downloads/torrents",
+    "download-dir": "$HOME/Downloads/torrents",
     "download-queue-enabled": true,
     "download-queue-size": 5,
     "encryption": 2,
     "idle-seeding-limit": 30,
     "idle-seeding-limit-enabled": false,
-    "incomplete-dir": "~/Downloads/.incomplete",
+    "incomplete-dir": "$HOME/Downloads/.incomplete",
     "incomplete-dir-enabled": true,
     "lpd-enabled": false,
     "message-level": 1,
@@ -65,6 +65,6 @@
     "umask": 18,
     "upload-slots-per-torrent": 14,
     "utp-enabled": true,
-    "watch-dir": "~/Downloads",
+    "watch-dir": "$HOME/Downloads",
     "watch-dir-enabled": true
 }
