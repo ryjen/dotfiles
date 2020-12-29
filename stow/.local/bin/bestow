@@ -1,0 +1,76 @@
+#!/usr/bin/env python
+
+import subprocess
+import os
+import yaml
+import sys
+
+bestow_store = os.path.join(os.getenv("HOME"), ".local", "bestow")
+
+
+def msg(args):
+    sys.stderr.write(args)
+    sys.stderr.write("\n")
+
+
+def load_meta_data(pkg):
+    fname = os.path.join(pkg, "bestow.yml")
+
+    if not os.path.isfile(fname):
+        return None
+
+    with open(fname, "r") as fp:
+        return yaml.load(fp)
+
+
+def parse_template(filename):
+
+    template, filext = os.path.splitext(filename)
+
+    if filext != ".tmpl":
+        return filename
+
+    msg("bestowing template {}".format(filename))
+
+    with open(filename, "r") as f:
+        with open(template, "w") as t:
+            line = f.readline()
+            while line:
+                line = os.path.expandvars(line)
+                t.write(line)
+                line = f.readline()
+
+
+def before(ctx, pkg):
+
+    for dirpath, dirs, files in os.walk(pkg):
+        for filename in files:
+            fname = os.path.join(dirpath, filename)
+            fname = parse_template(fname)
+
+
+def stow_options(ctx):
+    opts = []
+    return opts
+
+
+def bestow(packages):
+
+    ctx = {}
+
+    for pkg in packages:
+        before(ctx, pkg)
+
+    opts = stow_options(ctx)
+
+    args = ["stow", *opts, *packages]
+
+    return subprocess.call(args)
+
+
+def main():
+    sys.exit(bestow(sys.argv[1:]))
+
+
+if __name__ == "__main__":
+    sys.exit(bestow(sys.argv[1:]))
