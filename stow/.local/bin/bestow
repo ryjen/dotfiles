@@ -1,0 +1,159 @@
+#!/usr/bin/env python
+
+import subprocess
+from os import path, getenv, walk, symlink, makedirs, sep
+import yaml
+import sys
+
+bestow_store = path.join(getenv("HOME"), ".local", "bestow")
+bestow_meta_file = "bestow.yml"
+
+
+def msg(args):
+    sys.stderr.write(args)
+    sys.stderr.write("\n")
+
+
+def load_yaml(filename):
+    with open(filename, "r") as f:
+        return yaml.load(f, Loader=yaml.FullLoader)
+
+
+def copy_open_file(i, o):
+    """ copy open files by line, respecting environment variables"""
+    line = i.readline()
+    while line:
+        line = path.expandvars(line)
+        o.write(line)
+        line = i.readline()
+
+
+def copy_file(i, o):
+    with open(i, "r") as r:
+        with open(o, "w") as w:
+            copy_open_file(r, w)
+
+
+def link_file(r, w):
+    symlink(r, w, path.isdir(w))
+
+
+class Action(object):
+    def __init__(self, package, values):
+        self.values = values
+        self.package = package
+
+    def input(self):
+        if "input" not in self.values:
+            return None
+
+        value = self.values["input"]
+
+        if path.isabs(value):
+            return value, path.basename(value)
+
+        return path.join(self.package, value), value
+
+    def outputs(self):
+        if "output" not in self.values:
+            return None
+        for output in self.values["output"]:
+            if path.isabs(output):
+                yield output, path.basename(output)
+            else:
+                yield path.join(self.package, output), output
+
+    def on_files(self, mutator):
+        inpath, src = self.input()
+        if not path.isfile(inpath):
+            return
+        for outpath, dest in self.outputs():
+            if outpath.endswith(sep):
+                makedirs(outpath, exist_ok=True)
+                outpath = path.join(outpath, src)
+            elif path.isdir(outpath):
+                outpath = path.join(outpath, src)
+            msg("BESTOW: {} {} -> {}".format(self.type(),
+                inpath, dest))
+            mutator(inpath, outpath)
+
+    def link_files(self):
+        self.on_files(link_file)
+
+    def copy_files(self):
+        self.on_files(copy_file)
+
+    def type(self):
+        if "type" not in self.values:
+            return "copy"
+        return self.values["type"]
+
+    def process(self):
+
+        actions = {
+            "copy": self.copy_files,
+            "link": self.link_files
+        }
+
+        actions[self.type()]()
+
+
+class Meta(object):
+    def __init__(self, dirname, filename):
+        self.package = dirname
+        self.filename = filename
+        self.filepath = path.join(dirname, filename)
+        self.values = []
+
+    def process(self):
+        if self.filename != bestow_meta_file:
+            return
+
+        self.values = load_yaml(self.filepath)
+
+        for action in self.actions():
+            action.process()
+
+    def actions(self):
+        for action in self.values:
+            yield Action(self.package, action)
+
+
+class Context(object):
+    def __init__(self, arguments):
+        self.value = ["stow", *arguments]
+
+    def add(self, val):
+        self.value.append(val)
+
+    def executable(self):
+        return self.value
+
+
+def process(ctx, arg):
+
+    if not path.isdir(arg):
+        return
+
+    for dirpath, dirs, files in walk(arg):
+        for filename in files:
+            meta = Meta(dirpath, filename)
+            meta.process()
+
+
+def bestow(parameters):
+
+    ctx = Context(parameters)
+
+    for param in parameters:
+        process(ctx, param)
+
+    return subprocess.call(ctx.executable())
+
+
+def main():
+    sys.exit(bestow(sys.argv[1:]))
+
+
+if __name__ == "__main__":
+    sys.exit(bestow(sys.argv[1:]))

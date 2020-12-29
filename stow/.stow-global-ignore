@@ -6,4 +6,5 @@
 .*.example
 ^/@.*
 _.*
+bestow.yml
 README.*
