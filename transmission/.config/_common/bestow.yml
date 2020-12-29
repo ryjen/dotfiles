@@ -1,0 +1,7 @@
+
+- input: settings.json
+  output: 
+    - ../transmission/
+    - ../transmission-cli/
+    - ../transmission-daemon/
+  copy: true
