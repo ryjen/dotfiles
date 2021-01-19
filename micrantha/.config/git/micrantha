@@ -1,0 +1,3 @@
+[url "git+ssh://git@gitlab.com/micrantha"]
+  insteadOf = https://micrantha.com
+  insteadOf = git+ssh://micrantha.com

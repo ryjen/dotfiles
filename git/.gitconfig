@@ -2,6 +2,9 @@
 [include]
 	path = ~/.config/git/user
 
+[include]
+  path = ~/.config/git/micrantha
+
 [core]
   editor = vim
   excludesfile = ~/.gitignore
@@ -24,7 +27,7 @@
   prompt = false
 
 [gui]
-    # Remove `git gui` pop-up warning
+  # Remove `git gui` pop-up warning
   gcwarning = false
 
 [help]
@@ -39,7 +42,7 @@
   conflictstyle = diff3
 
 [mergetool "meld"]
-    cmd = meld "$LOCAL" "$BASE" "$REMOTE" --output "$MERGED"
+  cmd = meld "$LOCAL" "$BASE" "$REMOTE" --output "$MERGED"
 
 [mergetool "opendiff"]
 	cmd = git-opendiff
@@ -61,4 +64,22 @@
   editor = vim
 
 [user]
-	useConfigOnly = true
+  useConfigOnly = true
+
+[init]
+  defaultBranch = main
+
+[filter "lfs"]
+  clean = git-lfs clean -- %f
+  smudge = git-lfs smudge -- %f
+  process = git-lfs filter-process
+  required = true
+
+[sendemail]
+  smtpserver = smtp.gmail.com
+  smtpuser = rybertjen@gmail.com
+  smtpencryption = tls
+  smtpserverport = 587
+  smtpPass = dwsmxyqofulfnhmr
+  annotate = yes
+
