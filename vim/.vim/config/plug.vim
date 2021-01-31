@@ -1,11 +1,7 @@
 
 
 if !exists('g:isSlim')
-  if -1 != index(["micrantha.com", "labratory"], hostname())
-    let g:isSlim = 1
-  else
-    let g:isSlim = 0
-  endif
+  let g:isSlim = 0
 endif
 
 call plug#begin('~/.local/share/vim/plugged')
