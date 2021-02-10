@@ -44,6 +44,9 @@ if !g:isSlim
   " golang tools
   Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 
+  " dart syntax
+  Plug 'dart-lang/dart-vim-plugin'
+
   " a list of buffers
   Plug 'jeetsukumaran/vim-buffergator'
 
