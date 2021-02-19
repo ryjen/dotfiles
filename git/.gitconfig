@@ -67,16 +67,10 @@
   defaultBranch = main
 
 [filter "lfs"]
-  clean = git-lfs clean -- %f
-  smudge = git-lfs smudge -- %f
-  process = git-lfs filter-process
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
   required = true
 
 [sendemail]
-  smtpserver = smtp.gmail.com
-  smtpuser = rybertjen@gmail.com
-  smtpencryption = tls
-  smtpserverport = 587
-  smtpPass = dwsmxyqofulfnhmr
   annotate = yes
-

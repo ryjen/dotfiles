@@ -15,6 +15,7 @@ noremap <Right> <nop>
 noremap <C-P> :set spell spelllang=en_ca<CR>
 noremap <leader>P :set spell spelllang=en_ca<CR>
 noremap <leader>p z=
+noremap <leader>g zg
 
 noremap <leader>k :bp<CR>
 noremap <leader>m :bn<CR>
