@@ -57,8 +57,13 @@ if !g:isSlim
   " JS syntax
   Plug 'pangloss/vim-javascript'
 
+  " Typescript
+  Plug 'leafgarland/typescript-vim'
+  Plug 'styled-components/vim-styled-components', { 'branch': 'main' }
+
   " React JSX Syntax
   Plug 'mxw/vim-jsx'
+  Plug 'peitalin/vim-jsx-typescript'
 
   " rust support
   Plug 'rust-lang/rust.vim'
