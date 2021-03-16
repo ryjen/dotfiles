@@ -1,11 +1,11 @@
 export DISABLE_AUTO_TITLE='true'
 
-function ssh() {
-	/usr/bin/ssh -t "$@" tmux new-session -A -s ${USER}-session
-}
-
-function rawssh() {
-  /usr/bin/ssh $@
+function shmux() {
+  local options
+  if [ -n $BYOBU_TTY ] && [ $BYOBU_BACKEND = "tmux" ]; then
+    options="set -g status off"
+  fi
+	/usr/bin/ssh -t "$@" tmux new-session -x - -y - -A -s ${USER}-session; $options
 }
 
 if [ ! -d "$HOME/.tmux/plugins/tpm" ]; then
