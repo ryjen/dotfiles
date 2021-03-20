@@ -1,4 +1,4 @@
-ASDF_DIR="/usr/local/src/vendor/asdf"
+ASDF_DIR="${HOME}/.local/src/vendor/asdf"
 ASDF_VERSION="v0.8.0"
 
 if [ ! -d $ASDF_DIR ]; then
