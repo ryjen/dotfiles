@@ -1,4 +1,4 @@
-type yay 2>&1 /dev/null
+type yay >/dev/null
 
 if [ $? -ne 0 ]; then
   exit
