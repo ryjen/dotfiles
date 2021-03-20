@@ -14,9 +14,15 @@ setup:
 
 install: setup $(PACKAGES)
 
+uninstall: $(patsubst %.pkg,%.rmpkg,$(PACKAGES))
+
 motd:
 	@sudo cp motd /etc/motd
 
 %.pkg:
 	@echo "installing $*"
 	@stow $*
+
+%.rmpkg:
+	@echo "uninstall $*"
+	@stow -D $*
