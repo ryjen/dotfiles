@@ -1,6 +1,13 @@
 .PHONY: setup motd install
 
-PACKAGES ?= $(sort $(patsubst %/,%.pkg,$(dir $(wildcard */))))
+# packages that must be installed before others
+REQUIRED := stow.pkg
+
+# a list of packages to install, can be set by user
+PACKAGES ?= $(sort $(dir $(wildcard */)))
+
+# a list of packages as makefile targets
+PACKAGE_TARGETS := $(filter-out $(REQUIRED), $(patsubst %/, %.pkg, $(PACKAGES)))
 
 all:
 	@echo "Commands:"
@@ -15,9 +22,9 @@ all:
 setup:
 	@echo "--target=$(HOME)" > $(HOME)/.stowrc
 
-install: setup $(PACKAGES)
+install: setup $(REQUIRED) $(PACKAGE_TARGETS)
 
-uninstall: $(patsubst %.pkg,%.rmpkg,$(PACKAGES))
+uninstall: $(patsubst %.pkg, %.rmpkg, $(PACKAGE_TARGETS) $(REQUIRED))
 
 motd:
 	@sudo cp motd /etc/motd
