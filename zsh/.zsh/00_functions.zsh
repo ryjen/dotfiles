@@ -6,6 +6,10 @@ function TRAPALRM() {  # don't clear completion items on reset prompt
     fi
 }
 
+function change_theme() {
+  bash -c  "$(wget -qO- https://git.io/vQgMr)"
+}
+
 function connected() {
   type nc 2>&1 >/dev/null
   if [ $? -ne 0 ]; then

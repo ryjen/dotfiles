@@ -7,6 +7,15 @@ let g:lsp_settings = {
     \     ],
     \ },
 \ }
+
+if executable('sourcekit-lsp')
+    au User lsp_setup call lsp#register_server({
+        \ 'name': 'sourcekit-lsp',
+        \ 'cmd': {server_info->['sourcekit-lsp']},
+        \ 'whitelist': ['swift'],
+        \ })
+endif
+
 nnoremap ld :LspDefinition<CR>
 nnoremap lh :LspHover<CR>
 nnoremap lf :LspDocumentFormat<CR>
