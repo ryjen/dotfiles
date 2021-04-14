@@ -80,6 +80,9 @@ if !g:isSlim
   " status line
   Plug 'itchyny/lightline.vim'
 
+  " swift lang
+  Plug 'keith/swift.vim'
+
   " Lint engine for LSP
   " Plug 'dense-analysis/ale'
 
