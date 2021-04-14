@@ -8,7 +8,7 @@ if has("nvim")
   " Prefer Neovim terminal insert mode to normal mode.
   autocmd BufEnter term://* startinsert
 else
-  echom "using regular vim, consider using nvim"
+  " echom "using regular vim, consider using nvim"
 endif
 
 " cursor line colour
