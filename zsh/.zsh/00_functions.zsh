@@ -6,8 +6,16 @@ function TRAPALRM() {  # don't clear completion items on reset prompt
     fi
 }
 
-function change_theme() {
-  bash -c  "$(wget -qO- https://git.io/vQgMr)"
+function change-theme() {
+  $HOME/.zsh/change-theme.bash $@
+}
+
+function light-theme() {
+  change-theme 65
+}
+
+function dark-theme() {
+  change-theme 64
 }
 
 function connected() {
