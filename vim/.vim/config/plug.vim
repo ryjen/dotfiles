@@ -83,6 +83,9 @@ if !g:isSlim
   " swift lang
   Plug 'keith/swift.vim'
 
+  " elixir
+  Plug 'elixir-editors/vim-elixir'
+
   " Lint engine for LSP
   " Plug 'dense-analysis/ale'
 
