@@ -28,6 +28,5 @@ setopt INC_APPEND_HISTORY SHARE_HISTORY  # adds history incrementally and share 
 setopt NO_BG_NICE       # don't nice background tasks
 setopt NO_CASE_GLOB     # Case insensitive globbing
 setopt NO_LIST_BEEP
-export TERMINAL="xfce4-terminal"
 
 DISABLE_UNTRACKED_FILES_DIRTY="true" # makes repository status check for large repositories much faster
