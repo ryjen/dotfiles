@@ -1,9 +1,5 @@
-#!/bin/sh
+#!/usr/bin/env sh
 
-# An example hook script to verify what is about to be pushed.  Called by "git
-# push" after it has checked the remote status, but before anything has been
-# pushed.  If this script exits with a non-zero status nothing will be pushed.
-#
 # This hook is called with the following parameters:
 #
 # $1 -- Name of the remote to which the push is being done
@@ -52,22 +48,10 @@ function check_work_in_progress() {
   done
 }
 
-function check_submodules() {
-  if [ ! -f .gitmodules ]; then 
-    return 0
-  fi 
-
-  git submodule foreach git push
-
-  return $?
-}
-
-if test check_work_in_progress != 0; then 
+if test check_work_in_progress != 0; then
   exit 1
 fi
 
-if test check_submodules != 0; then 
-  exit 1
-fi
+echo >&2 "No WIP commits"
 
 exit 0

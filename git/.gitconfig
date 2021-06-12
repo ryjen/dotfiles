@@ -14,11 +14,22 @@
 
 [alias]
   co = checkout
+  cob = checkout -b
   last = log -1 HEAD
   st = status
+  save = commit -a
+  wtc = !curl -s whatthecommit.com/index.txt
+  coji = !gitmoji
+  aliases = config --get-regex alias
+  loga = log --pretty=format:'%C(yellow)%h %<(24)%C(red)%ad %<(18)%C(green)%an %C(reset)%s' --date=local --max-count=10
+  undo = reset HEAD~1 --mixed
+  correct = reset --hard
   uncommit = reset --soft HEAD~
+  done = push origin HEAD
   unstage = reset HEAD --
   lg = log --graph --abbrev-commit --decorate --date=relative --all
+  del = branch -D
+  br = branch --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(contents:subject) %(color:green)(%(committerdate:relative)) [%(authorname)]' --sort=-committerdate
 
 [credential]
   helper = cache --timeout=3600
@@ -65,7 +76,7 @@
 
 [init]
   defaultBranch = main
-  templateDir = ~/.config/git/templates
+  templateDir = ~/.config/git/project
 
 [filter "lfs"]
 	clean = git-lfs clean -- %f
@@ -75,3 +86,6 @@
 
 [sendemail]
   annotate = yes
+
+[commit]
+  template = ~/.config/git/commit-message
