@@ -1,6 +1,12 @@
 
 
-noremap <leader>ss :call misc#StripWhitespace()<CR>
+noremap <leader>ss :call ryjen#misc#StripWhitespace()<CR>
+
+set list listchars=trail:.,extends:>
+autocmd FileWritePre * call ryjen#misc#StripWhitespace()
+autocmd FileAppendPre * call ryjen#misc#StripWhitespace()
+autocmd FilterWritePre * call ryjen#misc#StripWhitespace()
+autocmd BufWritePre * call ryjen#misc#StripWhitespace()
 
 " Save a file as root (,W)
 noremap <leader>W :w !sudo tee % > /dev/null<CR>
