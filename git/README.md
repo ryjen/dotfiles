@@ -1,17 +1,11 @@
 ## [`git`](https://git-scm.com/)
 
-> Git commands are sometimes weird, and I use my shell history/auto-completions abundantly to circumvent that rather than using a porcelain layer over git.
+You will have to copy `.config/git/user.example` to `.config/git/user` and modify for you
 
-    ├── .config
-    │   └── git
-    │       └── user
-    ├── .gitconfig
-    ├── .gitignore
-    └── bin
-      ├── git-reset-author
-      ├── git-remove-submodule
-      └── git-sub-push
+The default template for git projects is at `.config/git/project`
 
-`.gitconfig` includes an external `~/.config/git/user`, allowing to have settings (credentials come to mind) specifics to each machine, cf [`.config/git/user.example`](https://github.com/Kraymer/F-dotfiles/blob/master/git/.config/git/user.example).
+`git init` will have hooks by default `.config/git/project/hooks`
 
-`icdiff`<<https://github.com/jeffkaufman/icdiff>>
+You can install git hooks in an existing project with `git hooks install`
+
+Default commit message template is at `.config/git/commit-message`

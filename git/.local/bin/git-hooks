@@ -13,8 +13,10 @@ function help() {
   echo ""
   echo "Commands:"
   echo ""
-  echo "  install    adds hooks to project"
-  echo "  uninstall  removes hooks"
+  echo "  install    adds default hooks to project"
+  echo "  uninstall  removes default hooks"
+  echo "  add        adds custom hooks"
+  echo "  remove     removes custom hooks"
   echo ""
 }
 
@@ -30,24 +32,100 @@ function install() {
   assert_repo
 
   cd ${SHARED_HOOKS_DIR}
-  stow --no-folding --verbose=1 -t "${LOCAL_HOOKS_DIR}" -S hooks
+  stow --no-folding -t "${LOCAL_HOOKS_DIR}" -S hooks
   cd - >/dev/null
 }
 
 function uninstall() {
   assert_repo
 
-  for hook in ${SHARE_HOOKS_DIR}/*; do
-    stow -d ${SHARED_HOOKS_DIR} -t ${LOCAL_HOOKS_DIR} -D $(basename $hook)
-  done
+  cd ${SHARED_HOOKS_DIR}
+  stow --no-folding -t ${LOCAL_HOOKS_DIR} -D hooks
+  cd - >/dev/null
+}
+
+function validate_hook_type() {
+  if [ -e "${LOCAL_HOOKS_DIR}/${1}" ]; then
+    return 0
+  fi
+
+  echo "No such hook type."
+  echo ""
+  echo "Valid types are: $(find .git/hooks -maxdepth 1 -type l | cut -d'/' -f3 | xargs )"
+  echo ""
+  exit 1
+}
+
+function add_hook() {
+  assert_repo
+
+  ftype=$1
+
+  validate_hook_type $ftype
+
+  if [ $? -ne 0 ]; then
+    exit 1
+  fi
+
+  hookd="${LOCAL_HOOKS_DIR}/${ftype}.d"
+
+  if [ ! -d ${hookd} ]; then
+    mkdir -p $hookd
+  fi
+
+  fname=$2
+
+  fpath="${hookd}/${fname}"
+
+  if [ -e $fpath ]; then
+    echo "Hook already exists, try removing it first."
+    exit 1
+  fi
+
+  if [ -f $fname ]; then
+    cp $fname $fpath
+  else
+    ${EDITOR} ${fpath}
+  fi
+}
+
+function remove_hook() {
+  assert_repo
+
+  ftype=$1
+
+  validate_hook_type $ftype
+
+  hookd="${LOCAL_HOOKS_DIR}/${ftype}.d"
+
+  if [ ! -d ${hookd} ]; then
+    mkdir -p $hookd
+  fi
+
+  fname=$2
+
+  fpath="${hookd}/${fname}"
+
+  if [ ! -f ${fpath} ]; then
+    echo "Hook does not exist"
+    exit 1
+  fi
+
+  rm ${fpath}
 }
 
 case "$CMD" in
   install|i)
-    install
+    install $@
     ;;
   uninstall|u)
-    uninstall
+    uninstall $@
+    ;;
+  add|a)
+    add_hook $@
+    ;;
+  remove|r)
+    remove_hook $@
     ;;
   *)
     help
