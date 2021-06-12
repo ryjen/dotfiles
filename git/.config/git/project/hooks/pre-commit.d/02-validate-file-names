@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
-source .git/hooks/functions
-source .git/hooks/variables
+source .git/hooks/scripts/functions
+source .git/hooks/scripts/variables
 
 # If you want to allow non-ASCII filenames set this variable to true.
 allownonascii=$(git config --type=bool hooks.allownonascii)
