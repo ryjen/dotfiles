@@ -1,17 +1,15 @@
 #!/usr/bin/env sh
 
-function check_submodules() {
-  if [ ! -f .gitmodules ]; then
-    return 0
-  fi
+if [ ! -f .gitmodules ]; then
+  exit 0
+fi
 
-  echo >&2 "Pushing submodules"
+source .git/hooks/functions
 
-  git submodule foreach git push
+git submodule foreach git push
 
-  return $?
-}
-
-if test check_submodules != 0; then
-  exit 1
+if [ $? -eq 0 ]; then
+  pass "Submodules pushed"
+else
+  fail "Submodules not pushed"
 fi
