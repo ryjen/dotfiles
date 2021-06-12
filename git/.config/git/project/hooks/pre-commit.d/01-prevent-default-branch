@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
-source .git/hooks/functions
-source .git/hooks/variables
+source .git/hooks/scripts/functions
+source .git/hooks/scripts/variables
 
 if [ "$CURRENT_BRANCH" = "${DEFAULT_BRANCH}" ]; then
   fail << EOF
