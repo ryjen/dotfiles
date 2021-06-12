@@ -10,3 +10,23 @@ function fail() {
   printf "\x1B[1;31m✖\x1B[0m %s\n" "$@"
   exit 1
 }
+
+function failsafe() {
+  printf "\x1B[1;31m✖\x1B[0m %s\n" "$@"
+}
+
+commit_files() {
+
+  if [ $# -eq 0 ] ; then
+      echo $(git diff-index --name-only --diff-filter=ACM --cached HEAD --)
+      exit 0
+  fi
+
+  extensions=''
+  for extension in "$@"
+  do
+    extensions="${extensions}(${extension})|"
+  done
+  regex="\.(${extensions%?})$"
+  echo $(git diff-index --name-only --diff-filter=ACM --cached HEAD -- | grep -P "$regex")
+}
