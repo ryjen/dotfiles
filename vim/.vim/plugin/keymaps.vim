@@ -2,7 +2,8 @@
 
 noremap <leader>ss :call ryjen#misc#StripWhitespace()<CR>
 
-set list listchars=trail:.,extends:>
+set list listchars=tab:»\ ,extends:›,precedes:‹,nbsp:·,trail:·
+
 autocmd FileWritePre * call ryjen#misc#StripWhitespace()
 autocmd FileAppendPre * call ryjen#misc#StripWhitespace()
 autocmd FilterWritePre * call ryjen#misc#StripWhitespace()
