@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+
+source .git/hooks/functions
+source .git/hooks/variables
+
+if [ "$CURRENT_BRANCH" = "${DEFAULT_BRANCH}" ]; then
+  fail << EOF
+    Direct commits to the default branch are not allowed.
+
+    Try checking out a feature or fix branch then merging.
+EOF
+else
+  pass "Branch is not default"
+fi

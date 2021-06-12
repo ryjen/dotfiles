@@ -1,0 +1,1 @@
+alias bc='bc -l'
