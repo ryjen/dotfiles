@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+
+source .git/hooks/scripts/functions
+
+ERROR=0
+for file in ${commit_files}; do
+  if grep -Erls "^<<<<<<< |^>>>>>>>" $file >/dev/null ; then
+    failsafe $file
+    ERROR=1
+  fi
+done
+
+if [ $ERROR -eq 0 ]; then
+  pass "No merge markers found"
+else
+  fail "Merge markers found"
+fi
