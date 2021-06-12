@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+
+CMD=$1
+
+shift
+
+SHARED_HOOKS_DIR="${HOME}/.config/git/project"
+REPO_DIR="${PWD}/.git"
+LOCAL_HOOKS_DIR="${REPO_DIR}/hooks"
+
+function help() {
+  echo "Syntax: git hooks <command> [args]"
+  echo ""
+  echo "Commands:"
+  echo ""
+  echo "  install    adds hooks to project"
+  echo "  uninstall  removes hooks"
+  echo ""
+}
+
+function assert_repo() {
+  if [ ! -d $REPO_DIR ]; then
+    echo "No git repository here."
+    exit 1
+  fi
+  mkdir -p $LOCAL_HOOKS_DIR >/dev/null
+}
+
+function install() {
+  assert_repo
+
+  cd ${SHARED_HOOKS_DIR}
+  stow --no-folding --verbose=1 -t "${LOCAL_HOOKS_DIR}" -S hooks
+  cd - >/dev/null
+}
+
+function uninstall() {
+  assert_repo
+
+  for hook in ${SHARE_HOOKS_DIR}/*; do
+    stow -d ${SHARED_HOOKS_DIR} -t ${LOCAL_HOOKS_DIR} -D $(basename $hook)
+  done
+}
+
+case "$CMD" in
+  install|i)
+    install
+    ;;
+  uninstall|u)
+    uninstall
+    ;;
+  *)
+    help
+    ;;
+esac

@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+
+if git rev-parse --verify HEAD >/dev/null 2>&1
+then
+	CURRENT_HEAD=HEAD
+else
+	# Initial commit: diff against an empty tree object
+	CURRENT_HEAD=$(git hash-object -t tree /dev/null)
+fi
+
+DEFAULT_BRANCH=$(git config init.defaultbranch)
+CURRENT_BRANCH=`git symbolic-ref --short HEAD`
+
+export CURRENT_HEAD DEFAULT_BRANCH CURRENT_BRANCH

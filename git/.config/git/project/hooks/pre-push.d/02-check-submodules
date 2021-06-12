@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+
+if [ ! -f .gitmodules ]; then
+  exit 0
+fi
+
+source .git/hooks/functions
+
+git submodule foreach git push
+
+if [ $? -eq 0 ]; then
+  pass "Submodules pushed"
+else
+  fail "Submodules not pushed"
+fi
