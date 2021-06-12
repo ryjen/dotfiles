@@ -4,7 +4,7 @@ if [ ! -f .gitmodules ]; then
   exit 0
 fi
 
-source .git/hooks/functions
+source .git/hooks/scripts/functions
 
 git submodule foreach git push
 
