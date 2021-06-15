@@ -1,0 +1,218 @@
+# This script simplifies the process of booting a simulator from the
+# command line.
+#!/usr/bin/env bash
+
+DEVICE=${DEVICE:-"iPhone 7"}
+RUNTIME=${RUNTIME:-"iOS"}
+SCHEME=${SCHEME:-""}
+PROJECT_PATH=${PROJECT_PATH:-"."}
+OUTPUT_PATH=${OUTPUT_PATH:-"/tmp/DerivedData"}
+APP_NAME=${APP_NAME:-""}
+
+function error() {
+  printf "$1\n" >&2
+}
+
+# print a message and exit with an error code
+function die() {
+  errror $1
+  exit 1
+}
+
+# shows help for this script
+function help() {
+  echo ""
+  echo "Syntax: ios-poser boot|log|install"
+  echo ""
+  echo "  Boot Options:"
+  echo "    --device,-d     Specifies which device to use. Defaults to iPhone 7."
+  echo "    --runtime,-r    Specifies which runtime to use.  Defaults to iOS."
+  echo ""
+  echo "  Install Options:"
+  echo "    --scheme,-s     Specifies the project to build and install."
+  echo "    --project,-p    Specifies the path to the project source. Defaults to current directory."
+  echo "    --app,-a        Specifies the app name from the project build.  Defaults to automatically trying to determine."
+  echo ""
+  echo "  List Options:"
+  echo "    --list-devices  Lists which devices are available to boot."
+  echo "    --list-runtimes Lists which runtimes are available to boot."
+  echo ""
+}
+
+# lists a simplified view of the available devices
+function list_devices() {
+    echo "Available Devices:"
+  xcrun simctl list devices available | cut -d '(' -f1 | uniq | egrep -v Unavailable
+}
+
+# lists a simplified view of the available runtimes
+function list_runtimes() {
+  echo "Available iOS Runtimes:"
+  xcrun simctl list runtimes | grep iOS | cut -d ' ' -f2
+  echo ""
+  echo "Available tvOS Runtimes:"
+  xcrun simctl list runtimes | grep tvOS | cut -d ' ' -f2
+  echo ""
+  echo "Available watchOS Runtimes:"
+  xcrun simctl list runtimes | grep watchOS | cut -d ' ' -f2
+}
+
+###### Logic
+
+# boots the selected device and opens the UI
+function boot_sim() {
+  xcrun simctl boot "$DEVICE"
+  [ $? -eq 0 ] && open "/Applications/Xcode.app/Contents/Developer/Applications/Simulator.app"
+}
+
+# starts logging on booted devices
+function log_device() {
+  xcrun simctl spawn booted log stream — level=debug
+}
+
+# tests that a device has booted
+function test_device() {
+  $(xcrun simctl getenv booted TEST)
+  return [[ $? == 0 ]]
+}
+
+# builds and installs the specified project
+function install_app() {
+  if [ -z "$SCHEME" ]; then
+    die "You must specify a scheme to build and install"
+  fi
+
+  if [ -z "$PROJECT_PATH" ]; then
+    die "You must specify a path to the project to run"
+  fi
+
+  if [ -z "$APP_NAME" ]; then
+    die "You must specify the project app name"
+  fi
+
+  cd $PROJECT_PATH
+
+  if [ -d "$SCHEME.xcworkspace" ]; then
+    WS="-workspace $SCHEME.xcworkspace"
+  fi
+
+  APP_PATH="$OUTPUT_PATH/$SCHEME"
+
+  xcodebuild build build -scheme "$SCHEME" -derivedDataPath $APP_PATH $WS CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
+
+  [ $? -eq 0 ] && xcrun simctl install booted "$APP_PATH/Build/Products/Debug-iphoneos/$APP_NAME"
+
+  [ $? -eq 0 ] && xcrun simctl launch booted "$SCHEME"
+
+  cd -
+}
+
+###### Parse Options
+
+while :; do
+  case $1 in
+  --device | -d)
+    if [ -z "$2" ]; then
+      list_devices
+      die "Which device?"
+    fi
+    DEVICE=$2
+    shift
+    ;;
+  --device=?*)
+    DEVICE=${1#*=}
+    ;;
+  --device=|--devices)
+    list_devices
+    die "Which device?"
+    ;;
+  --runtime | -r)
+    if [ -z "$2" ]; then
+      list_runtimes
+      die "Which runtime?"
+    fi
+    RUNTIME=$2
+    shift
+    ;;
+  --runtime=?*)
+    RUNTIME=${1#*=}
+    ;;
+  --runtime=)
+    list_runtimes
+    die "Which runtime?"
+    ;;
+  --app | -a)
+    if [ -z "$2" ]; then
+      die "Which app name?"
+    fi
+    APP_NAME="$2"
+    shift
+    ;;
+  --app=?*)
+    APP_NAME=${1#*=}
+    ;;
+  --scheme | -s)
+    if [ -z "$2" ]; then
+      die "Which scheme?"
+    fi
+    SCHEME=$2
+    shift
+    ;;
+  --scheme=?*)
+    SCHEME=${1#*=}
+    ;;
+  --project | -p)
+    if [ -z "$2" ]; then
+      die "Which project path?"
+    fi
+    PROJECT_PATH=$2
+    shift
+    ;;
+  --project=?*)
+    PROJECT_PATH=${1#*=}
+    ;;
+  --list-devices)
+    list_devices
+    exit 1
+    ;;
+  --list-runtimes)
+    list_runtimes
+    exit 1
+    ;;
+  --)
+    shift
+    break
+    ;;
+  -?*)
+    error "WARN: Unknown option (ignored): $1"
+    ;;
+  *)
+    break
+    ;;
+  esac
+
+  shift
+done
+
+CMD=$1
+shift
+
+case "$CMD" in
+boot)
+  echo "Booting simulator..."
+  boot_sim
+  ;;
+log)
+  echo "Logging simulator..."
+  log_device
+  ;;
+install)
+  install_app
+  ;;
+*)
+  help
+  exit 1
+  ;;
+esac
+
+exit 0
