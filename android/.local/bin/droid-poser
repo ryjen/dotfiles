@@ -6,10 +6,17 @@ if [ -z "$ANDROID_HOME" ]; then
 fi
 
 
+function run_emulator() {
+  # have to use some directory libs
+  cd $ANDROID_HOME/tools
+  ./emulator $@
+  cd - >/dev/null
+}
+
 function list_emulators {
     echo "Available AVDs are:"
     echo ""
-    ./emulator -list-avds
+    run_emulator -list-avds
     echo ""
 }
 
@@ -21,12 +28,7 @@ function boot_emulator {
     return 1
   fi
 
-  // have to use some directory libs
-  cd $ANDROID_HOME/tools
-
-  ./emulator -avd $@ >/dev/null &
-
-  cd -
+  run_emulator -avd $@ 2>/dev/null &
 
   return 0
 }
@@ -52,7 +54,7 @@ case "$CMD" in
     log_emulator $@
     ;;
   *)
-    echo "Syntax: $(basename 0) list|boot|log"
+    echo "Syntax: $(basename $0) list|boot|log"
     exit 1
     ;;
 esac
