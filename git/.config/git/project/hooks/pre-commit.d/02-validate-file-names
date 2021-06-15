@@ -3,6 +3,8 @@
 source .git/hooks/scripts/functions
 source .git/hooks/scripts/variables
 
+h1 "Validate file names"
+
 # If you want to allow non-ASCII filenames set this variable to true.
 allownonascii=$(git config --type=bool hooks.allownonascii)
 

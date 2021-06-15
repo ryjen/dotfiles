@@ -6,6 +6,8 @@ fi
 
 source .git/hooks/scripts/functions
 
+h1 "Sync submodules"
+
 git submodule foreach git push
 
 if [ $? -eq 0 ]; then
