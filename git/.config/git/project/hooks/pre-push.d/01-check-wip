@@ -20,6 +20,8 @@ source .git/hooks/scripts/functions
 remote="$1"
 url="$2"
 
+h1 "Check for work in progress"
+
 zero=$(git hash-object --stdin </dev/null | tr '[0-9a-f]' '0')
 
 while read local_ref local_oid remote_ref remote_oid
