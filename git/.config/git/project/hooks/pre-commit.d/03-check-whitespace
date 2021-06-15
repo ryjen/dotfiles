@@ -1,10 +1,16 @@
 #!/usr/bin/env sh
 
 source .git/hooks/scripts/variables
+source .git/hooks/scripts/functions
+
+h1 "Check whitespace"
 
 # If there are whitespace errors, print the offending file names and fail.
 git diff-index --check --cached $CURRENT_HEAD --
 
 if [ $? -ne 0 ]; then
+  fail "Invalid whitespace found"
   exit 1
 fi
+
+pass "No trailing whitespace"
