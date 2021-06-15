@@ -2,6 +2,8 @@
 
 source .git/hooks/scripts/functions
 
+h1 "Check merge markers"
+
 ERROR=0
 for file in ${commit_files}; do
   if grep -Erls "^<<<<<<< |^>>>>>>>" $file >/dev/null ; then
