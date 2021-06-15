@@ -8,6 +8,7 @@ autocmd FileWritePre * call ryjen#misc#StripWhitespace()
 autocmd FileAppendPre * call ryjen#misc#StripWhitespace()
 autocmd FilterWritePre * call ryjen#misc#StripWhitespace()
 autocmd BufWritePre * call ryjen#misc#StripWhitespace()
+autocmd FileType go let b:noStripWhitespace=1
 
 " Save a file as root (,W)
 noremap <leader>W :w !sudo tee % > /dev/null<CR>

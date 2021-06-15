@@ -5,22 +5,28 @@ if [ -z "$ANDROID_HOME" ]; then
   exit 1
 fi
 
-function boot_emulator {
-  local PWD=$(pwd)
 
-  cd $ANDROID_HOME/tools
-
-  if [ -z "$1" ]; then
-    echo "Please specify an AVD to launch.  For example: @Nexus.  Available AVDs are:"
+function list_emulators {
+    echo "Available AVDs are:"
     echo ""
     ./emulator -list-avds
     echo ""
+}
+
+function boot_emulator {
+
+  if [ -z "$1" ]; then
+    echo "Please specify an AVD to launch.  For example: Nexus"
+    list_emulators
     return 1
   fi
 
-  ./emulator $@ &
+  // have to use some directory libs
+  cd $ANDROID_HOME/tools
 
-  cd $PWD
+  ./emulator -avd $@ >/dev/null &
+
+  cd -
 
   return 0
 }
@@ -34,6 +40,9 @@ CMD="$1"
 shift
 
 case "$CMD" in
+  list)
+    list_emulators
+    ;;
   boot)
     echo "Booting android emulator..."
     boot_emulator $@
@@ -43,7 +52,7 @@ case "$CMD" in
     log_emulator $@
     ;;
   *)
-    echo "Syntax: $0 boot|log"
+    echo "Syntax: $(basename 0) list|boot|log"
     exit 1
     ;;
 esac
