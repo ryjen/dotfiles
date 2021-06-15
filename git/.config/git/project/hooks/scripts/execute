@@ -11,3 +11,5 @@ for hook in ${DIR}/*; do
     exit 1
   fi
 done
+
+echo ""

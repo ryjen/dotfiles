@@ -3,12 +3,10 @@
 source .git/hooks/scripts/functions
 source .git/hooks/scripts/variables
 
-if [ "$CURRENT_BRANCH" = "${DEFAULT_BRANCH}" ]; then
-  fail << EOF
-    Direct commits to the default branch are not allowed.
+h1 "Prevent default branch"
 
-    Try checking out a feature or fix branch then merging.
-EOF
+if [ "$CURRENT_BRANCH" = "${DEFAULT_BRANCH}" ]; then
+   fail "Direct commits to the default branch are not allowed."
 else
   pass "Branch is not default"
 fi
