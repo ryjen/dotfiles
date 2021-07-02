@@ -1,24 +1,15 @@
-alias git-log-since-rlz='git log --oneline --pretty=format:"%h%x09%an%x09%s" --no-merges `git describe --abbrev=0 --tags --always`..HEAD'
 
-# Print all commits that modified files matching given pattern
-#   $1 filename pattern
-function git_commits_on_files() {
-    for REV in `git rev-list master --abbrev-commit`
-    do
-      FILEPATH=`git diff-tree --no-commit-id --name-only --abbrev -r $REV | grep $1`
-      echo "$REV $FILEPATH" | grep $1
-    done
-}
+GIT_CONF_HOME="${HOME}/.config/git"
 
-function git_filesize() {
-  git log $1 | grep "^commit" | cut -f2 -d" " | while read hash; do
-     echo -n "$hash -- "
-     git show $hash:$1 | wc -c
-  done
-}
+[ -d ${GIT_CONF_HOME} ] || exit 0
 
-function git_prompt_info() {
-  ref=$(git symbolic-ref HEAD 2> /dev/null) || return
-  echo "$ZSH_THEME_GIT_PROMPT_PREFIX${ref#refs/heads/}${ZSH_THEME_GIT_PROMPT_SUFFIX}"
-}
+GIT_CONFD="${GIT_CONF_HOME}/conf.d"
+
+GIT_CONFD_INCLUDES="${GIT_CONF_HOME}/includes.conf"
+
+echo "" > ${GIT_CONFD_INCLUDES}
+
+for c in ${GIT_CONFD}/*; do
+  git config --file ${GIT_CONFD_INCLUDES} --add include.path ${c}
+done
 

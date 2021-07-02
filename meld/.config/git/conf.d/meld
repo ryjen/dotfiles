@@ -1,0 +1,5 @@
+[merge]
+  guitool = meld
+
+[mergetool "meld"]
+  cmd = meld "$LOCAL" "$BASE" "$REMOTE" --output "$MERGED"
