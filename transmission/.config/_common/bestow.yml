@@ -1,8 +1,0 @@
-version: "0.0.1"
-templates:
-  - file: settings.json
-    location: ../transmission/
-  - file: settings.json
-    location: ../transmission-cli/
-  - file: settings.json
-    location: ../transmission-daemon/
