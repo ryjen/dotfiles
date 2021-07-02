@@ -1,0 +1,5 @@
+[sequence]
+  editor = vim
+
+[core]
+  editor = vim
