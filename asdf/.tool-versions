@@ -1,7 +1,8 @@
-golang 1.14.3
-java openjdk-11.0.1
-lua 5.3.5
-rust 1.43.0
-ruby 2.7.1
-yarn 1.22.4
-nodejs 13.14.0
+golang 1.16.4 system
+lua 5.3.5 system
+rust 1.43.0 system
+python 3.9.5 system
+ruby system
+yarn 1.22.4 system
+nodejs 13.14.0 system
+swift system
