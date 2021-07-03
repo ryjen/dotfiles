@@ -1,4 +1,19 @@
-ZSH_DEFAULT_THEME_DIR="$HOME/.oh-my-zsh/custom/themes/powerlevel9k"
+OMZ_HOME="${HOME}/.oh-my-zsh"
+OMZ_INIT="${HOME}/.oh-my-zsh/oh-my-zsh.sh"
+
+[ -e ${OMZ_INIT} ] || exit 0
+
+source $OMZ_INIT
+
+zstyle :omz:plugins:keychain agents gpg,ssh
+zstyle :omz:plugins:keychain options --quiet
+zstyle :omz:plugins:ssh-agent agent-forwarding on
+
+ZSH_THEME_GIT_PROMPT_CACHE=1
+
+plugins=(ssh-agent last-working-dir taskwarrior autojump command-not-found colored-man-pages docker gpg-agent gnu-utils emoji sudo yarn react-native ansible colemak git-extras git-flow git-prompt extract encode64 gitignore golang keychain)
+
+ZSH_DEFAULT_THEME_DIR="${OMZ_HOME}/custom/themes/powerlevel9k"
 
 # Set name of the theme to load.
 # Optionally, if you set this to "random", it'll load a random theme each
