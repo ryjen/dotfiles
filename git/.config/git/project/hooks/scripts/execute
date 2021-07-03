@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 
-DIR="$0.d"
+DIR="${GIT_DIR}/$0.d"
 
 [ -d ${DIR} ] || exit 0
 
