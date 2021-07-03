@@ -1,4 +1,5 @@
-OMZ_INIT=${HOME}/.oh-my-zsh/oh-my-zsh.sh
+ZSH="${HOME}/.oh-my-zsh"
+OMZ_INIT="${ZSH}/oh-my-zsh.sh"
 
 if ! [[ -f $OMZ_INIT ]]; then
   sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
