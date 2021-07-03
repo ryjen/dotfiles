@@ -4,7 +4,7 @@ yarn_packages=(
   appium
   gulp
   http-server
-  neo-vim
+  neovim
   node-gyp
 )
 
