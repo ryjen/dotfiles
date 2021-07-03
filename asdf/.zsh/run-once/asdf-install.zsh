@@ -1,7 +1,7 @@
 ASDF_DIR="${HOME}/.local/src/vendor/asdf"
 ASDF_VERSION="v0.8.1"
 
-type_exists git
+type git 2>&1 >/dev/null
 
 [ $? -eq 0 ] || exit 0
 
