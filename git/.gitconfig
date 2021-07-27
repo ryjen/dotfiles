@@ -6,6 +6,7 @@
   excludesfile = ~/.gitignore
 
 [alias]
+  wip = !git add --all; git ci -m WIP
   co = checkout
   cob = checkout -b
   last = log -1 HEAD
