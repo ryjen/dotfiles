@@ -40,26 +40,30 @@ if !g:isSlim
   " async job api
   Plug 'prabirshrestha/async.vim'
 
-  if has('nvim-0.5')
-    " language server support
-    Plug 'neovim/nvim-lspconfig'
-    Plug 'kabouzeid/nvim-lspinstall'
-
+  if has('nvim-0.5.0')
     " better syntax highlighting
     Plug 'nvim-treesitter/nvim-treesitter', { 'do': ':TSUpdate' }
-    Plug 'nvim-treesitter/playground'
+    "  Plug 'nvim-treesitter/playground'
+    "
+    " TODO: replace language syntax plugins
+  endif
+
+  "if has('nvim-0.5')
+    " language server support
+    " Plug 'neovim/nvim-lspconfig'
+    " Plug 'kabouzeid/nvim-lspinstall'
 
     " autocompletion
-    Plug 'hrsh7th/nvim-compe'
+    " Plug 'hrsh7th/nvim-compe'
 
     " dependencies
-    Plug 'nvim-lua/popup.nvim'
-    Plug 'nvim-lua/plenary.nvim'
+    " Plug 'nvim-lua/popup.nvim'
+    " Plug 'nvim-lua/plenary.nvim'
 
     " telescope
-    Plug 'nvim-telescope/telescope.nvim'
+    " Plug 'nvim-telescope/telescope.nvim'
 
-  else
+  "else
     " language server support
     Plug 'prabirshrestha/vim-lsp'
     Plug 'mattn/vim-lsp-settings'
@@ -70,13 +74,16 @@ if !g:isSlim
 
     " confgure lsp for python
     " Plug 'ryanolsonx/vim-lsp-python'
-  endif
 
-  " Lint engine for LSP
-  " Plug 'dense-analysis/ale'
+    " Lint engine for LSP
+    Plug 'dense-analysis/ale'
+    Plug 'rhysd/vim-lsp-ale'
+  "endif
+
 
   " status line
   Plug 'itchyny/lightline.vim'
+
 
   "
   " LANGUAGE SUPPORT
@@ -127,8 +134,6 @@ endif
 
 " change surrounding tags on text (cs)
 "Plug 'tpope/vim-surround'
-
-
 
 
 call plug#end()
