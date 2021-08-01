@@ -40,3 +40,7 @@ if &diff
     noremap <leader>B  :diffg BA<CR>
     noremap <leader>L  :diffg LO<CR>
 endif
+
+" cursor line colour
+hi CursorLine cterm=NONE ctermbg=darkgreen ctermfg=white guibg=darkgreen guifg=white
+
