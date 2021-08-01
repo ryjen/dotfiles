@@ -4,6 +4,8 @@ source ~/.oh_my.zsh
 config_files=(~/.zsh/**/*.zsh(N))
 for file in ${config_files}
 do
-  source $file
+  if ! [[ $file =~ run-once ]]; then
+    source $file
+  fi
 done
 
