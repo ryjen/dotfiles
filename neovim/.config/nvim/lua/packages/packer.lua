@@ -8,6 +8,9 @@ return require('packer').startup(function()
  
   use 'jooize/vim-colemak'
 
+  use 'mfussenegger/nvim-dap'
+  use "Pocco81/DAPInstall.nvim"
+
   --- themes
   use 'altercation/vim-colors-solarized'
 
