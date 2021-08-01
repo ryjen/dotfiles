@@ -6,11 +6,11 @@ REQUIRED := stow.pkg
 # a list of packages to install, can be set by user
 PACKAGES ?= $(sort $(dir $(wildcard */)))
 
-MINIMAL_PACKAGES := coreutils git zsh ssh tmux neovim input
+MINIMAL_PACKAGES := stow coreutils git zsh ssh tmux neovim input vimdiff lsd
 
-BASIC_PACKAGES := taskwarrior asdf bat less ctags fzf gpg rsync fortune jrnl
+BASIC_PACKAGES := taskwarrior asdf bat less ctags fzf gpg rsync fortune jrnl byobu direnv docker golang oh-my-zsh
 
-EXTRA_PACKAGES := $(filter-out $(MINIMAL_PACKAGES) $(BASIC_PACKAGES), $(PACKAGES))
+EXTRA_PACKAGES := $(filter-out $(MINIMAL_PACKAGES) $(BASIC_PACKAGES), $(patsubst %/, %, $(PACKAGES)))
 
 # a list of packages as makefile targets
 PACKAGE_TARGETS := $(filter-out $(REQUIRED), $(patsubst %/, %.pkg, $(PACKAGES)))
@@ -74,7 +74,7 @@ show-config-prompt:
 
 show-config: show-config-prompt $(patsubst %.example, %.remind, $(CONFIGURE_FILES))
 	@echo ""
-	@echo "Use '$(MAKE) config' to copy and edit"
+	@echo "Use 'make config' to copy and edit"
 
 config: $(patsubst %.example, %.config, $(CONFIGURE_EXAMPLES))
 	@$(EDITOR) $(patsubst %.example, $(HOME)/%, $(CONFIGURE_FILES))
