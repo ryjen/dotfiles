@@ -8,7 +8,7 @@ PACKAGES ?= $(sort $(dir $(wildcard */)))
 
 MINIMAL_PACKAGES := stow coreutils git zsh ssh tmux neovim input vimdiff lsd
 
-BASIC_PACKAGES := taskwarrior asdf bat less ctags fzf gpg rsync fortune jrnl byobu direnv docker golang oh-my-zsh xmodmap
+BASIC_PACKAGES := taskwarrior asdf bat less ctags fzf gpg rsync fortune jrnl direnv docker golang oh-my-zsh xmodmap
 
 EXTRA_PACKAGES := $(filter-out $(MINIMAL_PACKAGES) $(BASIC_PACKAGES), $(patsubst %/, %, $(PACKAGES)))
 
