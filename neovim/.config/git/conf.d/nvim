@@ -1,0 +1,5 @@
+[sequence]
+  editor = nvim
+
+[core]
+  editor = nvim
