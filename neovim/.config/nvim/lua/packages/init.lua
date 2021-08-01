@@ -1,3 +1,5 @@
 require('packages.packer')
-
+require('packages.dap')
+require('packages.dap-install')
+require('packages.dap-ui')
 require('packages.telescope')
