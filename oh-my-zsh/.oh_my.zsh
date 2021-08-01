@@ -1,7 +1,7 @@
 ZSH="${HOME}/.oh-my-zsh"
 OMZ_INIT="${ZSH}/oh-my-zsh.sh"
 
-[ -e ${OMZ_INIT} ] || exit 0
+[ -e ${OMZ_INIT} ] || return 0
 
 zstyle :omz:plugins:keychain agents gpg,ssh
 zstyle :omz:plugins:keychain options --quiet

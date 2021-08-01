@@ -19,7 +19,7 @@ function install_python3_packages() {
     pip3 install ${not_installed[@]}
 
     if [ $? -ne 0 ]; then
-      exit 1
+      return 1
     fi
   fi
 }
@@ -41,7 +41,7 @@ function install_python2_packages() {
     pip2 install ${not_installed[@]}
 
     if [ $? -ne 0 ]; then
-      exit 1
+      return 1
     fi
   fi
 }
