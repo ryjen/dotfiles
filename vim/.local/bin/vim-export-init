@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-
-cd /tmp
-
-vim --not-a-term -c ':mkvimrc' -c ':q'
-
-cat -v /tmp/.vimrc
