@@ -6,7 +6,7 @@ REQUIRED := stow.pkg
 # a list of packages to install, can be set by user
 PACKAGES ?= $(sort $(dir $(wildcard */)))
 
-MINIMAL_PACKAGES := stow coreutils git zsh ssh tmux vim input vimdiff homebrew
+MINIMAL_PACKAGES := stow coreutils git zsh ssh tmux neovim input vimdiff homebrew
 
 BASIC_PACKAGES := taskwarrior asdf bat less ctags fzf gpg rsync fortune jrnl byobu direnv docker golang oh-my-zsh
 
