@@ -1,18 +1,12 @@
 # Local/private config goes in the include
 [include]
-	path = ~/.config/git/user
-
-[include]
-  path = ~/.config/git/micrantha
+	path = ~/.config/git/includes.conf
 
 [core]
-  editor = vim
   excludesfile = ~/.gitignore
-  pager = bat -p
-
-# From there, sections are in alphabetic order
 
 [alias]
+  wip = !git add --all; git ci -m WIP
   co = checkout
   cob = checkout -b
   last = log -1 HEAD
@@ -48,17 +42,6 @@
   keepBackup = false
 	prompt = false
 
-[merge]
-	tool = vimdiff
-  conflictstyle = diff3
-
-[mergetool "meld"]
-  cmd = meld "$LOCAL" "$BASE" "$REMOTE" --output "$MERGED"
-
-[pager]
-  diff = bat -p
-  show = bat -p
-
 [pull]
   rebase = true
 
@@ -67,9 +50,6 @@
 
 [rebase]
   autoStash = true
-
-[sequence]
-  editor = vim
 
 [user]
   useConfigOnly = true
