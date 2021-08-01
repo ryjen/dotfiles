@@ -6,9 +6,9 @@ REQUIRED := stow.pkg
 # a list of packages to install, can be set by user
 PACKAGES ?= $(sort $(dir $(wildcard */)))
 
-MINIMAL_PACKAGES := coreutils git zsh ssh tmux vim input
+MINIMAL_PACKAGES := coreutils git zsh ssh tmux neovim input
 
-BASIC_PACKAGES := taskwarrior asdf bat less ctags fzf gpg rsync xmodmap fortune jrnl
+BASIC_PACKAGES := taskwarrior asdf bat less ctags fzf gpg rsync fortune jrnl
 
 EXTRA_PACKAGES := $(filter-out $(MINIMAL_PACKAGES) $(BASIC_PACKAGES), $(PACKAGES))
 
