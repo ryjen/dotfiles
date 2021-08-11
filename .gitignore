@@ -17,5 +17,3 @@ trustdb.gpg
 *.swp
 *.swo
 mutt/.config/mutt/aliases.txt
-git/.config/git/user
-
