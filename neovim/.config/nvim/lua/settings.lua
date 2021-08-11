@@ -12,7 +12,6 @@ cmd 'filetype plugin indent on'
 --- theme
 utils.opt('o', 'background', 'dark')
 vim.g.solarized_termtrans = 1
-cmd 'colorscheme solarized'
 
 utils.opt('o', 'gdefault', true)
 utils.opt('o', 'termguicolors', true)
