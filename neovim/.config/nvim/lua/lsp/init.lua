@@ -61,12 +61,23 @@ local on_attach = function(client, bufnr)
     end
 end
 
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+capabilities.textDocument.completion.completionItem.snippetSupport = true
+capabilities.textDocument.completion.completionItem.resolveSupport = {
+  properties = {
+    'documentation',
+    'detail',
+    'additionalTextEdits',
+  }
+}
+
 lsp_install.setup()
 
 local servers = lsp_install.installed_servers()
 for _, server in pairs(servers) do
   nvim_lsp[server].setup{
     on_attach = on_attach,
+    capabilities = capabilities,
     flags = {
       debounce_text_changes = 150,
     }
