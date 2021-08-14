@@ -43,6 +43,7 @@ utils.opt('o', 'incsearch', true)
 utils.opt('o', 'mouse', 'a')
 utils.opt('o', 'title', true)
 utils.opt('o', 'scrolloff', 3)
+utils.opt('o', 'completeopt', "menuone,noselect")
 
 cmd 'hi CursorLine cterm=NONE ctermbg=darkgreen ctermfg=white guibg=darkgreen guifg=white'
 
