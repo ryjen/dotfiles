@@ -8,6 +8,9 @@ return require('packer').startup(function()
   use 'kabouzeid/nvim-lspinstall' 
   use 'nvim-lua/completion-nvim'
 
+  -- autocompletion
+  use 'hrsh7th/nvim-compe'
+
   -- default keyboard layout
   use 'jooize/vim-colemak'
 
