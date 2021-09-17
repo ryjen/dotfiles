@@ -24,6 +24,12 @@
   lg = log --graph --abbrev-commit --decorate --date=relative --all
   del = branch -D
   br = branch --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(contents:subject) %(color:green)(%(committerdate:relative)) [%(authorname)]' --sort=-committerdate
+	cleanup-merged = "!f(){ git fetch && git branch --merged | grep -v '* ' | xargs git branch --delete; };f"
+	workon = "!f(){ git fetch && git checkout -b \"$1\" $(git symbolic-ref refs/remotes/origin/HEAD | sed \"s@^refs/remotes/@@\"); };f"
+	changelog = log origin..HEAD --format='* %s%n%w(,4,4)%+b'
+	amend = commit --amend --reuse-message=HEAD
+	glg = log --oneline --decorate --all --graph
+	refresh = "!f(){ git fetch && git stash && git rebase $(git symbolic-ref refs/remotes/origin/HEAD | sed \"s@^refs/remotes/@@\") && git stash pop; };f"
 
 [credential]
   helper = cache --timeout=3600
