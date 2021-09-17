@@ -10,11 +10,14 @@ utils.map('n', '<C-n>', '5j')
 utils.map('n', '<C-e>', '5k')
 utils.map('n', '<C-i>', '5l')
 
+utils.map('n', '<leader>t', ':NvimTreeToggle<CR>')
+
 --- start spell checker
 utils.map('n', '<C-P>', ':set spell spelllang=en_ca<CR>')
-utils.map('n', '<leader>P', ':set spell spelllang=en_ca<CR>')
-utils.map('n', '<leader>p', 'z=')
-utils.map('n', '<leader>g', 'zg')
+utils.map('n', '<leader>zP', ':set spell spelllang=en_ca<CR>')
+utils.map('n', '<leader>zp', 'z=')
+utils.map('n', '<leader>zg', 'zg')
+utils.map('n', '<leader>zw', 'zw')
 
 utils.map('n', '<leader>k', ':bp<CR>')
 utils.map('n', '<leader>m', ':bn<CR>')
