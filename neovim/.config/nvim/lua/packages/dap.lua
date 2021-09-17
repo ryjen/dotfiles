@@ -1,6 +1,8 @@
 local utils = require("utils")
 local dap_install = require("dap-install")
 
+require("dapui").setup()
+
 local opts = { noremap=true, silent=true }
 local cmd = vim.cmd
 local fn = vim.fn
@@ -14,6 +16,7 @@ cmd("command! DapBreakOn lua require'dap'.set_breakpoint(fn.input('Breakpoint co
 cmd("command! DapLogPoint lua require'dap'.set_breakpoint(nil, nil, fn.input('Log point message: '))<CR>")
 cmd("command! DapRepl lua require'dap'.repl.open()<CR>")
 cmd("command! DapRun lua require'dap'.run_last()<CR>")
+cmd("command! DapUI lua require'dapui'.toggle()<CR>")
 
 
 utils.map( "n", "<leader>dc", ":DapContinue<CR>", opts)
@@ -24,10 +27,11 @@ utils.map( "n", "<leader>db", ":DapBreak<CR>", opts)
 utils.map( "n", "<leader>dB", ":DapBreakOn<CR>", opts)
 utils.map( "n", "<leader>dp", ":DapLogPoint<CR>", opts)
 utils.map( "n", "<leader>dr", ":DapRun<CR>", opts)
+utils.map( "n", "<leader>du", ":DapUI<CR>", opts)
 
 dap_install.setup({
-	installation_path = "/tmp/test_dap_install/",
-  --verbosely_call_debuggers = true,
+	installation_path = fn.stdpath("data") .. "/dap-install/",
+  verbosely_call_debuggers = false,
 })
 
 local dap_api = require("dap-install.api.debuggers")
