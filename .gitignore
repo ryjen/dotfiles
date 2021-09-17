@@ -17,3 +17,5 @@ trustdb.gpg
 *.swp
 *.swo
 mutt/.config/mutt/aliases.txt
+
+.pypirc
