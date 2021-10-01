@@ -18,7 +18,9 @@ packages=(
   pinentry
   ranger
   stow
+  task
   tmux
+  timew
   xclip
   zsh
   yubico-pam
