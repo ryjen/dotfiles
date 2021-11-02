@@ -80,6 +80,7 @@ brew_packages=(
   yubico-piv-tool
   zsh
   zsh-autosuggestions
+  zsh-autocompletions
 )
 
 brew install ${brew_packages[@]}
