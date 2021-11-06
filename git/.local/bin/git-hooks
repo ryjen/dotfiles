@@ -13,6 +13,7 @@ function help() {
   echo ""
   echo "Commands:"
   echo ""
+  echo "  list       list installed hooks"
   echo "  install    adds default hooks to project"
   echo "  uninstall  removes default hooks"
   echo "  add        adds custom hooks"
@@ -28,20 +29,71 @@ function assert_repo() {
   mkdir -p $LOCAL_HOOKS_DIR >/dev/null
 }
 
+function asset_stow() {
+  type stow >/dev/null 2>&1
+  if [ $? -ne 0 ]; then
+    echo "GNU stow command is required, install with a package manager first."
+    exit 1
+  fi
+}
+
+function list_hooks() {
+
+  echo "Shared Hooks:"
+  echo ""
+
+  for hookType in ${SHARED_HOOKS_DIR}/hooks/*.d; do
+    echo "  $(basename ${hookType%.d}):"
+    for hook in ${hookType}/*; do
+      echo "    $(basename $hook)"
+    done
+    echo ""
+  done
+
+  if [ ! -d $LOCAL_HOOKS_DIR ]; then
+    return 0
+  fi
+
+  echo ""
+  echo "Custom Hooks:"
+  echo ""
+
+  for hookType in ${LOCAL_HOOKS_DIR}/*.d; do
+    if [ ! -d $hookType ]; then 
+      continue
+    fi
+
+    echo "  $(basename ${hookType%.d}):"
+    for hook in ${hookType}/*; do
+      if [ -L "$hook" ]; then
+        continue
+      fi
+      echo "    $(basename $hook)"
+    done
+    echo ""
+  done
+}
+
 function install() {
   assert_repo
+  assert_stow
 
   cd ${SHARED_HOOKS_DIR}
   stow --no-folding -t "${LOCAL_HOOKS_DIR}" -S hooks
   cd - >/dev/null
+
+  echo "Shared hooks installed."
 }
 
 function uninstall() {
   assert_repo
+  assert_stow
 
   cd ${SHARED_HOOKS_DIR}
   stow --no-folding -t ${LOCAL_HOOKS_DIR} -D hooks
   cd - >/dev/null
+
+  echo "Shared hooks uninstalled."
 }
 
 function validate_hook_type() {
@@ -84,9 +136,11 @@ function add_hook() {
 
   if [ -f $fname ]; then
     cp $fname $fpath
+    echo "Hook installed"
   else
     ${EDITOR} ${fpath}
   fi
+
 }
 
 function remove_hook() {
@@ -112,6 +166,7 @@ function remove_hook() {
   fi
 
   rm ${fpath}
+  echo "Hook removed."
 }
 
 case "$CMD" in
@@ -126,6 +181,9 @@ case "$CMD" in
     ;;
   remove|r)
     remove_hook $@
+    ;;
+  list|l)
+    list_hooks $@
     ;;
   *)
     help
