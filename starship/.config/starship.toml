@@ -2,4 +2,4 @@ format = "$character"
 
 right_format = "$all"
 
-command_timeout = 900
+command_timeout = 950
