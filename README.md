@@ -8,24 +8,27 @@ Expects [ZSH](https://zsh.org) as the default user shell (`chsh $(which zsh)`).
 
 Uses [GNU Stow](https://www.gnu.org/software/stow/) for creating symlinks to the home directory.
 
-And a [GNU Make](https://www.gnu.org/software/make/) for simple setup tasks.
+And [GNU Make](https://www.gnu.org/software/make/) for simple setup tasks.
 
 ## Why?
 
 #### Why maintain dotfile configurations?
 
-Portability between different systems and ensuring a consistent work environment in a terminal.
+Portabile and consistent work environments between different systems, virtual machines and containers.
+
+Save time setting up system packages and configurations.
 
 #### Why change the default user shell?
 
-By keeping the system default shell
-(typically BASH) and using a different user shell (ZSH)
+Besides personal preference for functionality
 
-loading dotfiles configuration is less likely to happen from a system script (unless specified by a shebang)
+by keeping the system default shell (typically BASH) and using a different user shell (ZSH)
 
-while maintaining the current environment variables.
+you can potentially avoid loading user dotfiles configuration running a system script
 
-## principles
+while still maintaining the current environment variables.
+
+## Principles
 
 1. `main` branch for shared configuration
 2. sub branches for OS or Package Manager configurations (see `macos`, `linux` or `pacman`) kept in sync with merges
@@ -36,12 +39,21 @@ while maintaining the current environment variables.
 
 ## Known issues
 
-* neovim 0.5.0 lua configuration requires some manual restarting or config 
+* neovim 0.5.0 lua configuration requires some manual restarting or config
 
 ## TODO
 
-* debian based branch
-* allow insert env variables into stowed files:
+* debian/ubuntu based branch
+* lightweight branch for containers
+
+## Ideas
+
+* possibly a branch per package, with main,system,user integration branches. This could keep the disk space of the repo
+to a minimum with sparse clones and remote merges.
+  1. workflow would be to create a branch for your needs `ubuntu-container`
+  2. merge packages you need `git merge installer; git merge stow; git merge apt; git merge zsh`
+  3. install/stow `make install` or `stow apt`
+* allow insert current env variables into some stowed files:
   1. setup install location for modules `mkdir -p .install/module`
   2. ignore install location in repository `echo ".install" >> .gitignore`
   3. create module files from current environment `cat module/file | envsubst > .install/module/file`
