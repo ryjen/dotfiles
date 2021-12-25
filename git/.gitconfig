@@ -30,6 +30,7 @@
 	amend = commit --amend --reuse-message=HEAD
 	glg = log --oneline --decorate --all --graph
 	refresh = "!f(){ git fetch && git stash && git rebase $(git symbolic-ref refs/remotes/origin/HEAD | sed \"s@^refs/remotes/@@\") && git stash pop; };f"
+	fixup = rebase -i HEAD~2
 
 [credential]
   helper = cache --timeout=3600
