@@ -1,13 +1,13 @@
 local nvim_lsp = require("lspconfig")
 local lsp_install = require("lspinstall")
 
-local format_async = function(err, _, result, _, bufnr)
+local format_async = function(err, result, ctx, _)
     if err ~= nil or result == nil then return end
-    if not vim.api.nvim_buf_get_option(bufnr, "modified") then
+    if not vim.api.nvim_buf_get_option(ctx.bufnr, "modified") then
         local view = vim.fn.winsaveview()
-        vim.lsp.util.apply_text_edits(result, bufnr)
+        vim.lsp.util.apply_text_edits(result, ctx.bufnr)
         vim.fn.winrestview(view)
-        if bufnr == vim.api.nvim_get_current_buf() then
+        if ctx.bufnr == vim.api.nvim_get_current_buf() then
             vim.api.nvim_command("noautocmd :update")
         end
     end
