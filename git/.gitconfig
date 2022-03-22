@@ -6,11 +6,13 @@
   excludesfile = ~/.gitignore
 
 [alias]
+  ff = flow feature
   wip = !git add --all; git ci -m WIP
   co = checkout
   cob = checkout -b
   last = log -1 HEAD
   st = status
+  stash = stash -u
   save = commit -a
   wtc = !curl -s whatthecommit.com/index.txt
   coji = !gitmoji
@@ -33,7 +35,7 @@
 	fixup = rebase -i HEAD~2
 
 [credential]
-  helper = cache --timeout=3600
+	helper = osxkeychain
 
 [difftool]
   prompt = false

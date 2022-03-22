@@ -97,7 +97,7 @@ function uninstall() {
 }
 
 function validate_hook_type() {
-  if [ -e "${LOCAL_HOOKS_DIR}/${1}" ]; then
+  if [ ! -z "$1" ] && [ -e "${LOCAL_HOOKS_DIR}/${1}" ]; then
     return 0
   fi
 
@@ -127,6 +127,11 @@ function add_hook() {
 
   fname=$2
 
+  if [ -z "$fname" ]; then
+    echo "Specify a file name"
+    exit 1
+  fi
+
   fpath="${hookd}/${fname}"
 
   if [ -e $fpath ]; then
@@ -141,6 +146,7 @@ function add_hook() {
     ${EDITOR} ${fpath}
   fi
 
+  chmod 755 ${fpath}
 }
 
 function remove_hook() {
