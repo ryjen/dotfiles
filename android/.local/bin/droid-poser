@@ -53,8 +53,12 @@ case "$CMD" in
     echo "Logging emulator..."
     log_emulator $@
     ;;
+  fingerprint)
+    echo "Sending fingerprint"
+    adb $@ -e emu finger touch 222bbb222
+    ;;
   *)
-    echo "Syntax: $(basename $0) list|boot|log"
+    echo "Syntax: $(basename $0) list|boot|log|fingerprint"
     exit 1
     ;;
 esac
