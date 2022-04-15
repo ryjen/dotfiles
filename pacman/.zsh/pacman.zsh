@@ -7,10 +7,12 @@ packages=(
   cowsay
   docker
   docker-compose
+  direnv
   fzf
   git
   jq
   jrnl
+  lolcat
   make
   neovim
   yarn
@@ -18,6 +20,7 @@ packages=(
   pinentry
   ranger
   stow
+  starship
   task
   tmux
   timew
