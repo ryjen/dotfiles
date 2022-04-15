@@ -1,5 +1,5 @@
 local nvim_lsp = require("lspconfig")
-local lsp_install = require("lspinstall")
+local lsp_install = require("nvim-lsp-installer")
 
 local format_async = function(err, result, ctx, _)
     if err ~= nil or result == nil then return end
@@ -15,18 +15,7 @@ end
 
 vim.lsp.handlers["textDocument/formatting"] = format_async
 
-
-local capabilities = vim.lsp.protocol.make_client_capabilities()
-capabilities.textDocument.completion.completionItem.snippetSupport = true
-capabilities.textDocument.completion.completionItem.resolveSupport = {
-  properties = {
-    'documentation',
-    'detail',
-    'additionalTextEdits',
-  }
-}
-
-lsp_install.setup()
+---lsp_install.setup()
 
 function goimports(timeout_ms)
     local context = { only = { "source.organizeImports" } }
@@ -105,14 +94,24 @@ local on_attach = function(client, bufnr)
     end
 end
 
-local servers = lsp_install.installed_servers()
-for _, server in pairs(servers) do
-  nvim_lsp[server].setup{
-    on_attach = on_attach,
-    capabilities = capabilities,
-    flags = {
-      debounce_text_changes = 150,
-    }
-  }
-end
+---local capabilities = vim.lsp.protocol.make_client_capabilities()
+---capabilities.textDocument.completion.completionItem.snippetSupport = true
+---capabilities.textDocument.completion.completionItem.resolveSupport = {
+---  properties = {
+---    'documentation',
+---    'detail',
+---    'additionalTextEdits',
+---  }
+---}
+
+---local servers = lsp_install.installed_servers()
+---for _, server in pairs(servers) do
+---  nvim_lsp[server].setup{
+---    on_attach = on_attach,
+---    capabilities = capabilities,
+---    flags = {
+---      debounce_text_changes = 150,
+---    }
+---  }
+---end
 

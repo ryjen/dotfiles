@@ -5,7 +5,7 @@ return require('packer').startup(function()
 
   -- language server protocol
   use 'neovim/nvim-lspconfig'
-  use 'kabouzeid/nvim-lspinstall' 
+  use 'williamboman/nvim-lsp-installer' 
   use 'nvim-lua/completion-nvim'
 
   -- autocompletion
