@@ -10,6 +10,8 @@ packages=(
   direnv
   fzf
   git
+  git-delta
+  git-interactive-rebase-tool
   jq
   jrnl
   lolcat
