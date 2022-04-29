@@ -59,7 +59,7 @@ case "$CMD" in
     ;;
   killemu)
     echo "Killing emulators"
-    kill -9 $(ps ax | grep emulator | cut -d' ' -f1)
+    kill -9 $(ps ax | grep Android | grep emulator | cut -d' ' -f1)
     ;;
   *)
     echo "Syntax: $(basename $0) list|boot|log|fingerprint|killemu <args>"
