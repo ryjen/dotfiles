@@ -4,7 +4,7 @@ CMD=$1
 
 shift
 
-SHARED_HOOKS_DIR="${HOME}/.config/git/project"
+SHARED_HOOKS_DIR="${HOME}/.local/share/git"
 REPO_DIR="${PWD}/.git"
 LOCAL_HOOKS_DIR="${REPO_DIR}/hooks"
 
