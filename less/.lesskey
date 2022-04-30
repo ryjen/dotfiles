@@ -14,5 +14,5 @@ z     forw-window
 :h    next-file
 
 #env
-LESS = -RNX --mouse
+LESS = -RX --mouse
 LESSCHARSET = utf8
