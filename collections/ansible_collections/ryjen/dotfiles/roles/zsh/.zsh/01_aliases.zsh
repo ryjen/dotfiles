@@ -8,3 +8,5 @@ alias -s conf=vim
 
 alias weather='curl http://wttr.in/vancouver'
 
+alias services='systemctl list-units --type=service'
+

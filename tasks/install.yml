@@ -1,0 +1,23 @@
+- name: Install basic packages
+  include_role: 
+    name: "{{ item }}"
+  loop: "{{ basic_packages }}"
+  tags:
+    - packages
+    - basic
+
+- name: Install default packages
+  include_role: 
+    name: "{{ item }}"
+  loop: "{{ default_packages }}"
+  tags:
+    - packages
+    - default
+
+- name: Install extra packages
+  include_role: 
+    name: "{{ item }}"
+  loop: "{{ extra_packages }}"
+  tags:
+    - packages
+    - extra

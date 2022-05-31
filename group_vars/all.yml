@@ -1,0 +1,68 @@
+stow_root: "{{ ansible_env.HOME }}/.local/share/dotfiles"
+
+basic_packages:
+  - stow
+  - coreutils
+  - git
+  - zsh
+  - ssh
+  - tmux
+  - neovim
+  - input
+  - vimdiff
+  - lsd
+
+default_packages:
+  - taskwarrior
+  - asdf
+  - bat
+  - less
+  - ctags
+  - fzf
+  - gpg
+  - rsync
+  - fortune
+  - jrnl
+  - direnv
+  - docker
+  - golang
+  - oh-my-zsh
+  - xmodmap
+
+extra_packages:
+  - aerc
+  - android
+  - aws
+  - bc
+  - delta
+  - dict
+  - editor
+  - fd
+  - ffmpeg
+  - flutter
+  - htop
+  - idea
+  - irtool
+  - k8s
+  - micrantha
+  - mutt
+  - ncdu
+  - nmap
+  - pacman
+  - pandoc
+  - percol
+  - perl
+  - pip
+  - podman
+  - postgres
+  - prettyping
+  - rust
+  - starship
+  - taskell
+  - transmission
+  - utils
+  - vim
+  - weechat
+  - xml
+  - yarn
+  - yubikey
