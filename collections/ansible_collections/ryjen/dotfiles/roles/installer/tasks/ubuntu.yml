@@ -1,0 +1,19 @@
+
+- name: Enable ubuntu universe repository
+  apt_repository:
+    repo: "{{ item }}"
+    state: present
+  become: true
+  loop:
+    - "deb http://archive.ubuntu.com/ubuntu/ {{ ansible_distribution_release }} universe"
+    - "deb http://archive.ubuntu.com/ubuntu/ {{ ansible_distribution_release }}-updates universe"
+    - "deb http://security.ubuntu.com/ubuntu/ {{ ansible_distribution_release }}-security universe"
+  when: ansible_distribution == "Ubuntu"
+
+- name: Install ubuntu packages
+  apt:
+    name: "{{ packages }}"
+    update_cache: yes
+    state: present
+  become: true
+  when: ansible_distribution == "Ubuntu"

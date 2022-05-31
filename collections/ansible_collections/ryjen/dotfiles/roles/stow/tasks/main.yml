@@ -1,0 +1,25 @@
+
+- name: Install stow | role
+  include_role: 
+    name: installer
+  vars:
+    packages: stow
+
+- name: Configure stow | template
+  template:
+    src: "stowrc.j2"
+    dest: "{{ ansible_env.HOME }}/.stowrc"
+  vars:
+    target_dir: "{{ ansible_env.HOME }}"
+
+- name: Copy files to stow root | copy
+  copy:
+    src: files/
+    dest: "{{ stow_root }}/stow"
+
+- name: Stow self | command
+  command: stow -R stow
+  args:
+    chdir: "{{ stow_root }}"
+  register: result
+  changed_when: result.stderr is search("LINK:")

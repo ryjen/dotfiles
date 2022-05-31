@@ -1,0 +1,20 @@
+---
+- name: Bootstrap local development environment
+  hosts: all
+
+  collections:
+    - community.general
+    - ryjen.dotfiles
+
+  tasks:
+    - name: Setup system
+      include_tasks: tasks/setup.yml
+      tags:
+        - setup
+        - system
+  
+    - name: Install software packages
+      include_tasks: tasks/install.yml
+      tags:
+        - setup
+        - install
