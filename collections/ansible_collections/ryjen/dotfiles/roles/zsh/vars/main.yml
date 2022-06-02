@@ -1,4 +1,2 @@
 ---
 # vars file for zsh
-
-stow_root: "{{ ansible_env.HOME }}/.local/lib/dotfiles"

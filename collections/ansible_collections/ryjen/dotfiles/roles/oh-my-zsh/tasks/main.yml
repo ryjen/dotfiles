@@ -1,0 +1,11 @@
+---
+
+- name: Install oh-my-zsh
+  include_role:
+    name: installer
+  vars:
+    system: oh-my-zsh
+    dotfiles: oh-my-zsh
+    stow: oh-my-zsh
+
+

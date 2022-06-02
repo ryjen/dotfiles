@@ -1,0 +1,15 @@
+---
+
+- name: Install tmux
+  include_role:
+    name: installer
+  vars:
+    system: tmux
+    dotfiles: tmux
+    stow: tmux
+
+- name: Install tmux plugin manager
+  include_role:
+    name: installer
+  vars:
+    system: tmux-plugin-manager

@@ -1,0 +1,9 @@
+---
+
+- name: Install starship
+  include_role:
+    name: installer
+  vars:
+    system: starship
+    dotfiles: starship
+    stow: starship
