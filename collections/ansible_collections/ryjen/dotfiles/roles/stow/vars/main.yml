@@ -1,0 +1,2 @@
+
+stow_root: "{{ ansible_env.HOME }}/.local/share/dotfiles"
