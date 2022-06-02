@@ -1,10 +1,15 @@
 ---
-# tasks file for installer
 - include_tasks: ubuntu.yml
+  vars:
+    package: "{{ system.ubuntu | default(system.name) | default(omit) }}"
   when: ansible_distribution == 'Ubuntu'
 
 - include_tasks: macos.yml
+  vars:
+    package: "{{ system.macos | default(system.name) | default(omit) }}"
   when: ansible_distribution == "MacOSX"
 
 - include_tasks: arch.yml
+  vars:
+    package: "{{ system.arch | default(system.name) | default(omit) }}"
   when: ansible_distribution == "Archlinux"
