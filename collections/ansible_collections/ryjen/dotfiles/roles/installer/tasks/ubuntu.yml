@@ -8,11 +8,11 @@
     - "deb http://archive.ubuntu.com/ubuntu/ {{ ansible_distribution_release }} universe"
     - "deb http://archive.ubuntu.com/ubuntu/ {{ ansible_distribution_release }}-updates universe"
     - "deb http://security.ubuntu.com/ubuntu/ {{ ansible_distribution_release }}-security universe"
-  when: ansible_distribution == "Ubuntu"
+  when: ansible_distribution == "Ubuntu" and ubuntu_universe is defined
 
 - name: Install ubuntu packages
   apt:
-    name: "{{ packages }}"
+    name: "{{ system.ubuntu | default(system) }}"
     update_cache: yes
     state: present
   become: true

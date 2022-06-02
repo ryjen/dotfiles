@@ -2,8 +2,6 @@
 config_files=(~/.zsh/**/*.zsh(N))
 for file in ${config_files}
 do
-  if ! [[ $file =~ run-once ]]; then
-    source $file
-  fi
+  source $file
 done
 

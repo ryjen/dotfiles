@@ -3,7 +3,12 @@
   include_role: 
     name: installer
   vars:
-    packages: stow
+    system: stow
+
+- name: Ensure stow path exists
+  file:
+    path: "{{ stow_root }}/stow"
+    state: directory
 
 - name: Configure stow | template
   template:
@@ -15,11 +20,10 @@
 - name: Copy files to stow root | copy
   copy:
     src: files/
-    dest: "{{ stow_root }}/stow"
+    dest: "{{ stow_root }}/stow/"
 
-- name: Stow self | command
-  command: stow -R stow
-  args:
-    chdir: "{{ stow_root }}"
-  register: result
-  changed_when: result.stderr is search("LINK:")
+- name: Stow self | role
+  include_role:
+    name: installer
+  vars:
+    stow: stow

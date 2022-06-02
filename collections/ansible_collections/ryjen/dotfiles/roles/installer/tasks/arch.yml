@@ -1,6 +1,6 @@
 - name: Install arch user repository
   community.general.pacman:
-    name: "{{ packages }}"
+    name: "{{ system.arch | default(system) }}"
     update_cache: yes
     state: present
   become: true
