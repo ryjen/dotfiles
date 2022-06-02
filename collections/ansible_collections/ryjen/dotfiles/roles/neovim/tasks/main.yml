@@ -1,0 +1,18 @@
+---
+
+- name: Install Neovim
+  include_role:
+    name: installer
+  vars:
+    system: neovim
+    dotfiles: neovim
+    stow: neovim
+
+- name: Check Neovim Packer directory
+  stat:
+    path: "{{ neovim_packer_install_dir }}"
+  register: packer
+
+- name: Install Neovim Packer
+  command: "git clone --depth 1 https://github.com/wbthomason/packer.nvim {{ neovim_packer_install_dir }}"
+  when: not packer.stat.exists

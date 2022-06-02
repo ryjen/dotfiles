@@ -1,0 +1,16 @@
+---
+
+- name: Install git
+  include_role:
+    name: installer
+  vars:
+    system: git
+    dotfiles: git
+    stow: git
+
+- name: Configure git user
+  template:
+    src: templates/user.j2
+    dest: "{{ stow_root }}/git/.config/git/conf.d/user"
+  when: git_user is defined
+
