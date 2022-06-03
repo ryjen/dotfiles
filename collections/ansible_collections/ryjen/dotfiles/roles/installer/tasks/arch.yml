@@ -1,7 +1,7 @@
-- name: Install arch user repository
+- name: Install arch packages
   community.general.pacman:
-    name: "{{ package }}"
+    name: "{{ item | default(items) }}"
     update_cache: yes
     state: present
   become: true
-  when: ansible_distribution == "Archlinux" and package is defined
+  when: item is defined or items is defined

@@ -1,0 +1,12 @@
+---
+- name: Check for exist install ubuntu install
+  stat:
+    path: "{{ ansible_env.HOME }}/.oh-my-zsh"
+  register: install
+
+- name: Install oh-my-zsh for ubuntu
+  shell: sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+  register: result
+  failed_when: result.rc != 0
+  when: not install.stat.exists
+

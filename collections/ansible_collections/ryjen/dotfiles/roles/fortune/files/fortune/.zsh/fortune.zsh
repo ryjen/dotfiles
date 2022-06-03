@@ -3,9 +3,9 @@ if type_exists fortune; then
 
   if type_exists cowsay; then
     if type_exists lolcat; then
-      fortune -s | cowsay -f small | lolcat
+      fortune -s | cowsay -f www | lolcat
     else
-      fortune -s | cowsay -f small
+      fortune -s | cowsay -f www
     fi
   else
     if type_exists lolcat; then
