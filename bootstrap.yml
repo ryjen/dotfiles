@@ -2,6 +2,9 @@
 - name: Bootstrap local development environment
   hosts: all
 
+  vars_files:
+    - vault.yml
+
   collections:
     - community.general
     - ryjen.dotfiles

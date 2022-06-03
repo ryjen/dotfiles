@@ -4,6 +4,12 @@
   include_role:
     name: installer
   vars:
-    system: starship
-    dotfiles: starship
-    stow: starship
+    name: starship
+    package:
+      ubuntu: curl
+
+- name: Install starship on ubuntu
+  shell: curl -sS https://starship.rs/install.sh | sh -s -- -f
+  register: result
+  failed_when: result.rc != 0
+  when: ansible_distribution == "Ubuntu"

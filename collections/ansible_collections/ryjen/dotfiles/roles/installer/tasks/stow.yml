@@ -1,5 +1,7 @@
 - name: Stow packages
-  command: "stow {{ stow }}"
+  vars:
+    item: "{{ stow | default(name) }}"
+  command: "stow {{ item }}"
   args:
     chdir: "{{ stow_root }}"
   register: result
