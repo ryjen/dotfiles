@@ -4,7 +4,9 @@
   include_role:
     name: installer
   vars:
-    name: git
+    system: git
+    dotfiles: git
+    stow: git
 
 - name: Configure git user
   template:

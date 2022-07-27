@@ -4,11 +4,12 @@
   include_role:
     name: installer
   vars:
-    name: tmux
+    system: tmux
+    dotfiles: tmux
+    stow: tmux
 
 - name: Install tmux plugin manager
   include_role:
     name: installer
   vars:
-    package:
-      arch: tmux-plugin-manager
+    system: tmux-plugin-manager

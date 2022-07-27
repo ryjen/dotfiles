@@ -4,7 +4,7 @@
   include_role:
     name: installer
   vars:
-    package: 
+    system: 
       arch: lsd
       macos: lsd
     dotfiles: lsd

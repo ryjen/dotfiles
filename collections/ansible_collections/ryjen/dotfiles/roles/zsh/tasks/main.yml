@@ -4,7 +4,9 @@
   include_role:
     name: installer
   vars:
-    name: zsh
+    system: zsh
+    dotfiles: zsh
+    stow: zsh
 
 - name: Set zsh as default shell
   become: yes
@@ -12,4 +14,10 @@
   command: chsh -s /bin/zsh {{ ansible_env.USER }}
   register: zsh_for_user
   failed_when: zsh_for_user.rc >= 1
+  changed_when: zsh_for_user.rc == 0
 
+- name: Install files
+  include_role:
+    name: installer
+  vars:
+    stow: zsh

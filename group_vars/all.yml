@@ -1,12 +1,19 @@
 stow_root: "{{ ansible_env.HOME }}/.local/share/dotfiles"
 
-skip_packages:
-  - oh-my-zsh
-  - xmodmap
-  - aerc
-  - mutt
-  - fd
-  - vim
+mac_packages:
+  - bat
+  - byobu
+  - cowsay
+  - direnv
+  - fortune
+  - fzf
+  - gnupg
+  - lolcat
+  - lsd
+  - neovim
+  - starship
+  - stow
+  - zsh-completions
 
 basic_packages:
   - stow
@@ -19,7 +26,6 @@ basic_packages:
   - input
   - vimdiff
   - lsd
-  - starship
 
 default_packages:
   - taskwarrior
@@ -66,6 +72,7 @@ extra_packages:
   - postgres
   - prettyping
   - rust
+  - starship
   - taskell
   - transmission
   - utils

@@ -1,0 +1,8 @@
+---
+- name: Install bat
+  include_role:
+    name: installer
+  vars:
+    system: bat
+    dotfiles: bat
+    stow: bat
