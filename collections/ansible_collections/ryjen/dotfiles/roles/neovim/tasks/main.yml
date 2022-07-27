@@ -4,7 +4,9 @@
   include_role:
     name: installer
   vars:
-    name: neovim
+    system: neovim
+    dotfiles: neovim
+    stow: neovim
 
 - name: Check Neovim Packer directory
   stat:

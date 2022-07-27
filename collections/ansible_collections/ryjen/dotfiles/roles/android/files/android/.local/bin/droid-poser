@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+
+type emulator 2>&1 >/dev/null
+
+if [ $? -ne 0 ]; then
+  echo "Please put the emulator tool in your path (Typically \$ANDROID_SDK_HOME/emulator/)"
+  exit 1
+fi
+
+function run_emulator() {
+  # have to use some directory libs
+  emulator $@
+  cd - >/dev/null
+}
+
+function list_emulators {
+    echo "Available AVDs are:"
+    echo ""
+    run_emulator -list-avds
+    echo ""
+}
+
+function boot_emulator {
+
+  if [ -z "$1" ]; then
+    echo "Please specify an AVD to launch.  For example: Nexus"
+    list_emulators
+    return 1
+  fi
+
+  run_emulator -avd $@ 2>/dev/null &
+
+  return 0
+}
+
+function log_emulator {
+  adb logcat $@
+}
+
+CMD="$1"
+
+shift
+
+case "$CMD" in
+  list)
+    list_emulators
+    ;;
+  boot)
+    echo "Booting android emulator..."
+    boot_emulator $@
+    ;;
+  log)
+    echo "Logging emulator..."
+    log_emulator $@
+    ;;
+  fingerprint)
+    echo "Sending fingerprint"
+    adb $@ -e emu finger touch 222bbb222
+    ;;
+  killemu)
+    echo "Killing emulators"
+    kill -9 $(ps ax | grep Android | grep emulator | cut -d' ' -f1)
+    ;;
+  *)
+    echo "Syntax: $(basename $0) list|boot|log|fingerprint|killemu <args>"
+    exit 1
+    ;;
+esac
+
+exit 0

@@ -1,15 +1,8 @@
 
-- debug:
-   var: item
-- debug:
-   var: items
-
 - name: Install ubuntu packages
   apt:
-    pkg: "{{ item | default(items) }}"
+    name: "{{ package }}"
     update_cache: yes
     state: present
   become: true
-  when: item is defined or items is defined
-
-
+  when: ansible_distribution == "Ubuntu" and package is defined

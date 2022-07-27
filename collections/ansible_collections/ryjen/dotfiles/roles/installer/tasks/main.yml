@@ -1,10 +1,10 @@
 
 - include_tasks: system.yml
-  when: package is defined or packages is defined or name is defined
+  when: system is defined
 
 - include_tasks: dotfiles.yml
-  when: dotfiles is defined or name is defined
+  when: dotfiles is defined
 
 - include_tasks: stow.yml
-  when: stow is defined or name is defined
+  when: stow is defined
 

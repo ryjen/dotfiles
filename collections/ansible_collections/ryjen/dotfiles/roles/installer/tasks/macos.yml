@@ -1,7 +1,7 @@
----
+
 - name: Install MacOS packages
   community.general.homebrew: 
-    name: "{{ item | default(items) }}"
+    name: "{{ package }}"
     state: present
-  when: item is defined or items is defined
+  when: ansible_distribution == "MacOSX" and package is defined
 

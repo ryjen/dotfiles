@@ -1,11 +1,2 @@
 ---
-- name: Install fortune and cowsay
-  include_role:
-    name: installer
-  vars:
-    packages:
-      - fortune-mod
-      - cowsay
-      - lolcat
-    dotfiles: fortune
-    stow: fortune
+# tasks file for fortune

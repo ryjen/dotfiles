@@ -1,9 +1,7 @@
 ---
+
 - name: Copy dotfiles
-  vars:
-    item: "{{ dotfiles | default(name) }}"
   copy:
-    src: "files/{{ item }}/"
-    dest: "{{ stow_root }}/{{ item }}/"
-  when: item is defined
+    src: "files/{{ dotfiles }}/"
+    dest: "{{ stow_root }}/{{ dotfiles }}/"
 
