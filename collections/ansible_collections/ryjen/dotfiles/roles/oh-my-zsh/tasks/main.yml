@@ -4,10 +4,11 @@
   include_role:
     name: installer
   vars:
-    package: 
+    system: 
       arch: oh-my-zsh
       ubuntu: curl
-    name: oh-my-zsh
+    dotfiles: oh-my-zsh
+    stow: oh-my-zsh
 
 - include_tasks: manual.yml
   when: ansible_distribution == "Ubuntu"

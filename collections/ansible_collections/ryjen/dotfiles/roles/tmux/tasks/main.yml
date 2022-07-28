@@ -4,12 +4,16 @@
   include_role:
     name: installer
   vars:
-    system: tmux
-    dotfiles: tmux
-    stow: tmux
+    name: tmux
+
+- name: Install byobu
+  include_role:
+    name: installer
+  vars:
+    package: byobu
 
 - name: Install tmux plugin manager
   include_role:
     name: installer
   vars:
-    system: tmux-plugin-manager
+    package: tmux-plugin-manager

@@ -5,44 +5,20 @@
 
 Vagrant.require_version '>= 2.1.4'
 
-# setup a docker provider
-def configure_docker(node)
-  node.image = 'ubuntu'
-  #node.has_ssh = true
-end
-
-# setup providers
-def configure_providers(node)
-  node.vm.provider :docker do |docker|
-    configure_docker(docker)
-  end
-end
-
-# configure a guest box
-def configure_guest(node, name, index)
-  #node.vm.hostname = name
-  #node.vm.box = 'hashicorp/bionic64'
-  #node.vm.box_check_update = true
-  #node.vm.synced_folder '.', '/vagrant'
-  configure_providers(node)
-end
-
 Vagrant.configure(2) do |config|
-  config.vm.hostname = "ubuntu"
-  config.vm.synced_folder ".", "/vagrant"
 
-  config.vm.provider "docker" do |d, override|
-    override.vm.box = nil
-    d.image = "rofrano/vagrant-provider:ubuntu"
-    d.remains_running = true
-    d.has_ssh = true
-    d.privileged = true
-    d.volumes = ["/sys/fs/cgroup:/sys/fs/cgroup:rw"]
-    d.create_args = ["--cgroupns=host"]
+  config.vm.define "dotfiles-test" do |node|
+    node.vm.hostname = "dotfiles-test"
+    node.vm.synced_folder ".", "/vagrant"
+    node.vm.box = nil
+
+    node.vm.provider "docker" do |guest|
+      guest.image = "rofrano/vagrant-provider:ubuntu"
+      guest.remains_running = true
+      guest.has_ssh = true
+      guest.privileged = true
+      guest.volumes = ["/sys/fs/cgroup:/sys/fs/cgroup:rw"]
+      guest.create_args = ["--cgroupns=host"]
+    end
   end
-  #name = "dotfiles-test"
-
-  #config.vm.define name do |node|
-  #  configure_guest(node, name, 1)
-  #end
 end
