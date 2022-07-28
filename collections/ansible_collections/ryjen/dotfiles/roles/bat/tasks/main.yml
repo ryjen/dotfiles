@@ -3,6 +3,13 @@
   include_role:
     name: installer
   vars:
-    system: bat
-    dotfiles: bat
-    stow: bat
+    name: bat
+
+
+- name: Update alternatives on ubuntu
+  community.general.alternatives:
+    name: bat
+    path: /usr/bin/batcat
+    link: /usr/bin/cat
+  become: true
+  when: ansible_distribution == 'Ubuntu'

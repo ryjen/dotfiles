@@ -4,6 +4,17 @@
   include_role:
     name: installer
   vars:
-    system: starship
+    package: starship 
+  when: ansible_distribution != 'Ubuntu'
+
+- name: Install starship
+  shell: curl -sS https://starship.rs/install.sh | sh -s -- -f
+  become: true
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Configure starship
+  include_role:
+    name: installer
+  vars:
     dotfiles: starship
     stow: starship

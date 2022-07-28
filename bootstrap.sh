@@ -5,11 +5,15 @@ case "$1" in
     shift
     ansible-playbook -i inventory/test bootstrap.yml --ask-become-pass $@
     ;;
-  help)
-    echo "Syntax: $(basename $0) [test | help]"
-    ;;
-  *) 
+  install) 
     ansible-playbook -i inventory bootstrap.yml --ask-become-pass $@
+    ;;
+  *)
+    echo "Syntax: $(basename $0) <command>"
+    echo ""
+    echo "  test    : test installation in vagrant machine"
+    echo "  install : install on current local machine"
+    echo ""
     ;;
 esac
 

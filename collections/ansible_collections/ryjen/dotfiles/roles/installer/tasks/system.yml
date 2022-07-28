@@ -1,15 +1,9 @@
 ---
 - include_tasks: ubuntu.yml
-  vars:
-    package: "{{ system.ubuntu | default(system.name) | default(omit) }}"
-  when: ansible_distribution == 'Ubuntu'
+  when: ansible_distribution == 'Ubuntu' and ubuntu_package
 
 - include_tasks: macos.yml
-  vars:
-    package: "{{ system.macos | default(system.name) | default(omit) }}"
-  when: ansible_distribution == "MacOSX"
+  when: ansible_distribution == "MacOSX" and macos_package
 
 - include_tasks: arch.yml
-  vars:
-    package: "{{ system.arch | default(system.name) | default(omit) }}"
-  when: ansible_distribution == "Archlinux"
+  when: ansible_distribution == "Archlinux" and arch_package

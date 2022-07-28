@@ -1,31 +1,16 @@
 stow_root: "{{ ansible_env.HOME }}/.local/share/dotfiles"
 
-mac_packages:
-  - bat
-  - byobu
-  - cowsay
-  - direnv
-  - fortune
-  - fzf
-  - gnupg
-  - lolcat
-  - lsd
-  - neovim
-  - starship
-  - stow
-  - zsh-completions
+install_default_packages: no
+install_extra_packages: no
 
 basic_packages:
   - stow
-  - coreutils
   - git
   - zsh
-  - ssh
   - tmux
   - neovim
-  - input
-  - vimdiff
   - lsd
+  - starship
 
 default_packages:
   - taskwarrior
@@ -34,35 +19,39 @@ default_packages:
   - less
   - ctags
   - fzf
+  - ssh
   - gpg
   - rsync
   - fortune
+  - lolcat
+  - cowsay
   - jrnl
   - direnv
   - docker
-  - golang
-  - oh-my-zsh
-  - xmodmap
 
 extra_packages:
   - aerc
   - android
   - aws
   - bc
+  - coreutils
   - delta
   - dict
   - editor
   - fd
   - ffmpeg
   - flutter
+  - golang
   - htop
   - idea
+  - input
   - irtool
   - k8s
   - micrantha
   - mutt
   - ncdu
   - nmap
+  - oh-my-zsh
   - pacman
   - pandoc
   - percol
@@ -77,7 +66,9 @@ extra_packages:
   - transmission
   - utils
   - vim
+  - vimdiff
   - weechat
   - xml
+  - xmodmap
   - yarn
   - yubikey

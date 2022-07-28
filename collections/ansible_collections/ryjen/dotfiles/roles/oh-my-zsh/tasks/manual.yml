@@ -5,7 +5,7 @@
   register: install
 
 - name: Install oh-my-zsh for ubuntu
-  shell: sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+  command: /usr/bin/sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
   register: result
   failed_when: result.rc != 0
   when: not install.stat.exists

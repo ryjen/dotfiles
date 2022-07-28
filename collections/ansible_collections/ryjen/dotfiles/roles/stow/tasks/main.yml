@@ -3,12 +3,7 @@
   include_role: 
     name: installer
   vars:
-    system: stow
-
-- name: Ensure stow path exists
-  file:
-    path: "{{ stow_root }}/stow"
-    state: directory
+    package: stow
 
 - name: Configure stow | template
   template:
@@ -20,7 +15,7 @@
 - name: Copy files to stow root | copy
   copy:
     src: files/
-    dest: "{{ stow_root }}/stow/"
+    dest: "{{ stow_root }}/"
 
 - name: Stow self | role
   include_role:
