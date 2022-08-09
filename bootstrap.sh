@@ -1,12 +1,18 @@
 #!/usr/bin/env bash
 
-case "$1" in
+CMD="$1"
+shift
+
+case "$CMD" in
   test)
-    shift
-    ansible-playbook -i inventory/test bootstrap.yml --ask-become-pass $@
+    vagrant up
+    ansible-playbook -i inventory/test bootstrap.yml $@
     ;;
-  install) 
-    ansible-playbook -i inventory bootstrap.yml --ask-become-pass $@
+  deploy)
+    ansible-playbook -i inventory/micrantha bootstrap.yml $@
+    ;;
+  install)
+    ansible-playbook -i inventory bootstrap.yml $@
     ;;
   *)
     echo "Syntax: $(basename $0) <command>"
