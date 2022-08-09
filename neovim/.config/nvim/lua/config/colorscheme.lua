@@ -1,5 +1,4 @@
-local utils = require('utils')
-local cmd = vim.cmd
-utils.opt('o', 'termguicolors', true)
-cmd 'colorscheme solarized'
+local utils = require('config.utils')
+utils.opt('termguicolors', true)
+vim.cmd 'colorscheme solarized'
 
