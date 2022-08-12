@@ -1,9 +1,13 @@
 local utils = require('config.utils')
 
-utils.map('i', '<Tab><Tab>', '<Esc>')
+local unmap = vim.api.nvim_del_keymap
+
+utils.map({'i', 'o'}, '<Tab><Tab>', '<Esc>')
+utils.map({'i', 'o'}, '<Leader><Tab>', '<Esc>')
 utils.map('v', '<Tab><Tab>', '<Esc>gV')
-utils.map('o', '<Tab><Tab>', '<Esc>')
+utils.map('v', '<Leader><Tab>', '<Esc>gV')
 utils.map('n', '<Tab><Tab>', '<C-I>')
+utils.map('n', '<Leader><Tab>', '<C-I>')
 
 --- faster navigation with CTRL
 local modes = {'n', 'v'}
@@ -29,4 +33,3 @@ utils.map('n', '<leader>M', ':tabn<CR>')
 utils.map('n', '<leader>x', ':bd<CR>')
 utils.map('n', '<leader>X', ':tabclose<CR>')
 
-utils.map('n', '<leader><leader>', '<Cmd>Telescope frecency theme=get_dropdown<CR>')
