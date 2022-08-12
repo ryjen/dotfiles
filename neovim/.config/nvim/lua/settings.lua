@@ -7,7 +7,7 @@ local cmd = vim.cmd
 local fn = vim.fn
 local indent = 2
 
-g.mapleader = [[ ]]
+g.mapleader = [[,]]
 g.maplocalleader = [[,]]
 g.solarized_termtrans = 0
 
@@ -49,8 +49,8 @@ opt('binary', true, buffer)
 opt('endofline', false, buffer)
 
 opt('number', true, window)
-opt('relativenumber', true, window)
-opt('cursorline', true, window)
+opt('relativenumber', true)
+opt('cursorline', true)
 
 cmd 'hi CursorLine cterm=NONE ctermbg=darkgreen ctermfg=white guibg=darkgreen guifg=white'
 
