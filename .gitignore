@@ -8,6 +8,7 @@ sec.conf
 !*example
 
 taskwarrior/.config/task/certs/*
+neovim/.config/nvim/plugin/packer_compiled.lua
 
 *.key
 *.kbx
