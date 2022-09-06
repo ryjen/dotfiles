@@ -79,10 +79,10 @@ local function init()
 	})
 
 	-- file tree
-	-- use {
-	--  'kyazdani42/nvim-tree.lua',
-	--  requires = 'kyazdani42/nvim-web-devicons'
-	--}
+	use({
+		"kyazdani42/nvim-tree.lua",
+		requires = "kyazdani42/nvim-web-devicons",
+	})
 
 	-- line endings and space indicators
 	-- use "lukas-reineke/indent-blankline.nvim"
@@ -146,7 +146,7 @@ local function init()
 		"danymat/neogen",
 		requires = "nvim-treesitter",
 		config = [[require('config.neogen')]],
-		keys = { "<localleader>d", "<localleader>df", "<localleader>dc" },
+		keys = { "<leader>d", "<leader>df", "<leader>dc" },
 	})
 
 	-- Post-install/update hook with neovim command
