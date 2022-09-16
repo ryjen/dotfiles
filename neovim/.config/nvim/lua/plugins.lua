@@ -24,6 +24,8 @@ local function init()
 
 	use("lewis6991/impatient.nvim")
 
+	use("fidian/hexmode")
+
 	-- Completion
 	use({
 		"hrsh7th/nvim-cmp",
@@ -140,7 +142,13 @@ local function init()
 			run = "make",
 		},
 	})
-
+	use({
+		"ThePrimeagen/refactoring.nvim",
+		requires = {
+			{ "nvim-lua/plenary.nvim" },
+			{ "nvim-treesitter/nvim-treesitter" },
+		},
+	})
 	-- Documentation
 	use({
 		"danymat/neogen",
