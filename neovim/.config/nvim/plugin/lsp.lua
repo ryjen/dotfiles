@@ -96,7 +96,7 @@ null_ls.setup({
 		null_diag.php,
 		null_diag.pylint,
 		null_diag.revive,
-		null_diag.semgrep,
+		--null_diag.semgrep,
 		null_diag.write_good.with({ filetypes = { "markdown", "tex" } }),
 		null_fmt.clang_format,
 		null_fmt.cmake_format,
