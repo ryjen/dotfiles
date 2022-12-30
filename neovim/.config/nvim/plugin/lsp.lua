@@ -32,12 +32,12 @@ local function on_attach(client)
 	buf_keymap(0, "n", "<leader>rn", "<cmd>lua vim.lsp.buf.rename()<CR>", keymap_opts)
 	buf_keymap(0, "n", "gr", '<cmd>lua require"telescope.builtin".lsp_references()<CR>', keymap_opts)
 	buf_keymap(0, "n", "gA", "<cmd>lua vim.lsp.buf.code_action()<CR>", keymap_opts)
-	buf_keymap(0, "v", "gA", "<cmd>lua vim.lsp.buf.range_code_action()<CR>", keymap_opts)
+	buf_keymap(0, "v", "gA", "<cmd>lua vim.lsp.buf.code_action()<CR>", keymap_opts)
 	buf_keymap(0, "n", "]e", "<cmd>lua vim.diagnostic.goto_next { float = true }<cr>", keymap_opts)
 	buf_keymap(0, "n", "[e", "<cmd>lua vim.diagnostic.goto_prev { float = true }<cr>", keymap_opts)
 
 	if client.server_capabilities.documentFormattingProvider then
-		buf_keymap(0, "n", "<leader>f", "<cmd>lua vim.lsp.buf.formatting()<cr>", keymap_opts)
+		buf_keymap(0, "n", "<leader>f", "<cmd>lua vim.lsp.buf.format { async = true }<cr>", keymap_opts)
 	end
 	cmd("augroup lsp_aucmds")
 	if client.server_capabilities.documentHighlightProvider then
@@ -51,7 +51,8 @@ local function on_attach(client)
 			buffer = bufnr,
 			callback = function()
 				-- on 0.8, you should use vim.lsp.buf.format({ bufnr = bufnr }) instead
-				lsp.buf.formatting_sync()
+				--lsp.buf.formatting_sync()
+				lsp.buf.format({ bufner = bufnr })
 			end,
 		})
 	end
@@ -77,7 +78,7 @@ null_ls.setup({
 		null_diag.selene,
 		null_diag.shellcheck,
 		--null_diag.teal,
-		null_diag.vale,
+		--null_diag.vale,
 		null_diag.ansiblelint,
 		null_diag.checkmake,
 		null_diag.clang_check,
@@ -102,7 +103,7 @@ null_ls.setup({
 		null_fmt.cmake_format,
 		null_fmt.isort,
 		null_fmt.djlint,
-		null_fmt.eslint,
+		null_fmt.eslint_d,
 		null_fmt.gofmt,
 		null_fmt.jq,
 		null_fmt.markdownlint,

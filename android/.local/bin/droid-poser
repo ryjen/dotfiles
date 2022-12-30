@@ -6,10 +6,7 @@ if [ -z "$ANDROID_HOME" ]; then
 fi
 
 function run_emulator() {
-	# have to use some directory libs
-	cd $ANDROID_HOME/emulator
-	./emulator $@
-	cd - >/dev/null
+	"${ANDROID_HOME}/emulator/emulator" "$@"
 }
 
 function list_emulators {
@@ -27,13 +24,23 @@ function boot_emulator {
 		return 1
 	fi
 
-	run_emulator -avd $@ 2>/dev/null &
+	run_emulator -avd "$@" 2>/dev/null &
 
 	return 0
 }
 
 function log_emulator {
-	adb logcat $@
+	adb logcat "$@"
+}
+
+function screen_capture {
+	local FK
+	FK=$(date +"%y%m%d%I%m%s")
+	local F1=${1:-"/sdcard/Pictures/${FK}.png"}
+	local F2=${2:-"${FK}.png"}
+	adb shell screencap -p "$F1"
+	adb pull "$F1" "$F2"
+	adb shell rm "$F1"
 }
 
 CMD="$1"
