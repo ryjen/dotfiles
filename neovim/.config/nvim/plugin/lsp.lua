@@ -88,7 +88,7 @@ null_ls.setup({
 		--null_diag.cspell,
 		null_diag.curlylint,
 		null_diag.djlint,
-		null_diag.editorconfig_checker,
+		--null_diag.editorconfig_checker,
 		null_diag.eslint,
 		null_diag.ktlint,
 		null_diag.markdownlint,
