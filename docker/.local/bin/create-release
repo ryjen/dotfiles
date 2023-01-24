@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+if ! git diff --quiet; then
+	echo "Commit local changes before making a release"
+	exit 1
+fi
+
+IMAGE_TAG=$(git describe --tags --abbrev=0)
+
+if [ $? -ne 0 ]; then
+	echo "No tag specified and no git repository"
+	exit 1
+fi
+
+IMAGE_TAG="v$(semver -i "${IMAGE_TAG}")"
+
+if [ $? -ne 0 ]; then
+	echo "Could not increment version"
+fi
+
+create-registry-image --push --version "$IMAGE_TAG" "$@"
+
+if [ $? -eq 0 ]; then
+	git tag "$IMAGE_TAG"
+fi
