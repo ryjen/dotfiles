@@ -123,7 +123,7 @@ null_ls.setup({
 		null_fmt.black,
 		null_act.eslint,
 		null_act.shellcheck,
-		null_act.refactoring.with({ filetypes = { "javascript", "typescript", "lua", "python", "c", "cpp" } }),
+		null_act.refactoring, --.with({ filetypes = { "javascript", "typescript", "lua", "python", "c", "cpp" } }),
 	},
 	on_attach = on_attach,
 })
