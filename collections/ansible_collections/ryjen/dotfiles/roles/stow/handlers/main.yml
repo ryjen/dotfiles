@@ -1,0 +1,8 @@
+---
+- name: Handling stow configuration
+  template:
+    src: "stowrc.j2"
+    dest: "{{ ansible_env.HOME }}/.stowrc"
+  vars:
+    target_dir: "{{ ansible_env.HOME }}"
+  listen: "configure present"

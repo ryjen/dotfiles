@@ -1,13 +1,12 @@
 ---
-
 - name: Install starship
   include_role:
     name: installer
   vars:
-    package: starship 
+    package: starship
   when: ansible_distribution != 'Ubuntu'
 
-- name: Install starship
+- name: Install starship for ubuntu
   shell: curl -sS https://starship.rs/install.sh | sh -s -- -f
   become: true
   when: ansible_distribution == 'Ubuntu'
@@ -17,4 +16,3 @@
     name: installer
   vars:
     dotfiles: starship
-    stow: starship

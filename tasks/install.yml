@@ -1,15 +1,28 @@
 ---
+- name: Configure install
+  set_fact:
+    install_state: present
+
 - name: Install basic packages
-  include_role: 
+  include_role:
     name: "{{ item }}"
+    apply:
+      tags:
+        - "{{ item }}"
+        - install
   loop: "{{ basic_packages }}"
   tags:
     - packages
     - basic
+    - install
 
 - name: Install default packages
-  include_role: 
+  include_role:
     name: "{{ item }}"
+    apply:
+      tags:
+        - "{{ item }}"
+        - install
   loop: "{{ default_packages }}"
   when: install_default_packages
   tags:
@@ -17,11 +30,14 @@
     - default
 
 - name: Install extra packages
-  include_role: 
+  include_role:
     name: "{{ item }}"
+    apply:
+      tags:
+        - "{{ item }}"
+        - install
   loop: "{{ extra_packages }}"
   when: install_extra_packages
   tags:
     - packages
     - extra
-

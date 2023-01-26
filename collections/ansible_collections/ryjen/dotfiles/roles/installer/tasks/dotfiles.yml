@@ -1,7 +1,0 @@
----
-- name: Copy dotfiles
-  copy:
-    src: "files/{{ copy_directory }}/"
-    dest: "{{ stow_root }}/{{ copy_directory }}/"
-  when: copy_directory
-

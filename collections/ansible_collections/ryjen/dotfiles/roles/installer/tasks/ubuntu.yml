@@ -1,8 +1,8 @@
 ---
-- name: Install ubuntu packages
+- name: "Ensure {{ ubuntu_package }} is {{ install_state }} with apt"
   apt:
     name: "{{ ubuntu_package }}"
     update_cache: yes
-    state: present
+    state: "{{ install_state }}"
   become: true
   when: ansible_distribution == "Ubuntu" and ubuntu_package

@@ -1,15 +1,12 @@
 ---
-
 - name: Install oh-my-zsh
   include_role:
     name: installer
   vars:
-    system: 
+    system:
       arch: oh-my-zsh
       ubuntu: curl
     dotfiles: oh-my-zsh
-    stow: oh-my-zsh
 
 - include_tasks: manual.yml
   when: ansible_distribution == "Ubuntu"
-

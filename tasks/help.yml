@@ -1,0 +1,8 @@
+---
+- name: Show help
+  debug:
+    msg:
+      - "Specify tags to operate:"
+      - " -t setup      : setup system"
+      - " -t install    : install dotfiles"
+      - " -t uninstall  : uninstall dotfiles"

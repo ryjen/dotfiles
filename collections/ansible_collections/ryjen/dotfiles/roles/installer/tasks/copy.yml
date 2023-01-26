@@ -1,0 +1,12 @@
+---
+- name: "Copy dotfiles for {{ dotfiles_directory }}"
+  copy:
+    src: "files/{{ dotfiles_directory }}/"
+    dest: "{{ dotfiles_root }}/{{ dotfiles_directory }}/"
+  when: install_state == "present"
+
+- name: "Remove dotfiles for {{ dotfiles_directory }}"
+  file:
+    path: "{{ dotfiles_root }}/{{ dotfiles_directory }}/"
+    state: "{{ install_state }}"
+  when: install_state == "absent"
