@@ -1,8 +1,30 @@
 ---
+- name: "Ensure system packages are {{ install_state }}"
+  import_tasks: system.yml
 
-- include_tasks: system.yml
+- name: "Ensure files are {{ install_state }}"
+  import_tasks: install_files.yml
+  when: install_state == "present"
+  tags:
+    - never
+    - install
 
-- include_tasks: dotfiles.yml
+- name: "Ensure files are {{ install_state }}"
+  import_tasks: uninstall_files.yml
+  when: install_state == "absent"
+  tags:
+    - never
+    - uninstall
 
-- include_tasks: stow.yml
+- name: "Notify handlers of {{ notify }}"
+  assert:
+    quiet: true
+    that: true
+  changed_when: notify is not undefined
+  when: notify is not undefined
+  notify:
+    - "{{ notify }}"
 
+- name: Flush handlers
+  meta: flush_handlers
+  when: notify is not undefined

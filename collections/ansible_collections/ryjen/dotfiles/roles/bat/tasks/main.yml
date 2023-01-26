@@ -5,11 +5,11 @@
   vars:
     name: bat
 
-
-- name: Update alternatives on ubuntu
+- name: Update cat alternatives on ubuntu for bat
   community.general.alternatives:
     name: bat
     path: /usr/bin/batcat
-    link: /usr/bin/cat
+    link: /usr/bin/bat
+    priority: "10"
   become: true
   when: ansible_distribution == 'Ubuntu'

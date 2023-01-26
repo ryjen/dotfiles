@@ -1,0 +1,6 @@
+---
+- name: Install cowsay
+  include_role:
+    name: installer
+  vars:
+    package: cowsay

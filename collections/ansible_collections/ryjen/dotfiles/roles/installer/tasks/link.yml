@@ -1,0 +1,16 @@
+---
+- name: "Link {{ dotfiles_directory }} dotfiles"
+  command: "stow {{ dotfiles_directory }}"
+  args:
+    chdir: "{{ dotfiles_root }}"
+  register: result
+  changed_when: result.stderr is search("LINK:")
+  when: install_state == "present"
+
+- name: "Unlink {{ dotfiles_directory }} dotfiles"
+  command: "stow -D {{ dotfiles_directory }}"
+  args:
+    chdir: "{{ dotfiles_root }}"
+  register: result
+  changed_when: result.stderr is search("UNLINK:")
+  when: install_state == "absent"

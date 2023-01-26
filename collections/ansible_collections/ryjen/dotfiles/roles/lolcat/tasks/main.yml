@@ -1,0 +1,6 @@
+---
+- name: Install lolcat
+  include_role:
+    name: installer
+  vars:
+    package: lolcat

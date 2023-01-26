@@ -1,5 +1,4 @@
 ---
-
 - name: Install zsh
   include_role:
     name: installer
@@ -21,9 +20,3 @@
     system:
       macos: zsh-completions
       arch: zsh-completions
-
-- name: Install files
-  include_role:
-    name: installer
-  vars:
-    stow: zsh

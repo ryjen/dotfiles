@@ -1,7 +1,0 @@
-- name: Stow packages
-  command: "stow {{ stow_directory }}"
-  args:
-    chdir: "{{ stow_root }}"
-  register: result
-  changed_when: result.stderr is search("LINK:")
-  when: stow_directory

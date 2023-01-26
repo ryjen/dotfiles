@@ -1,0 +1,42 @@
+---
+- name: Configure uninstall
+  set_fact:
+    install_state: absent
+
+- name: Uninstall basic packages
+  include_role:
+    name: "{{ item }}"
+    apply:
+      tags:
+        - "{{ item }}"
+        - uninstall
+  loop: "{{ basic_packages }}"
+  tags:
+    - packages
+    - basic
+
+- name: Uninstall default packages
+  include_role:
+    name: "{{ item }}"
+    apply:
+      tags:
+        - "{{ item }}"
+        - uninstall
+  loop: "{{ default_packages }}"
+  when: install_default_packages
+  tags:
+    - packages
+    - default
+
+- name: Uninstall extra packages
+  include_role:
+    name: "{{ item }}"
+    apply:
+      tags:
+        - "{{ item }}"
+        - uninstall
+  loop: "{{ extra_packages }}"
+  when: install_extra_packages
+  tags:
+    - packages
+    - extra

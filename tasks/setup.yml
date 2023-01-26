@@ -1,5 +1,5 @@
 ---
-- name: Setup motd | copy
+- name: Setup motd
   copy:
     src: files/motd
     dest: /etc/motd

@@ -1,9 +1,9 @@
 ---
-- include_tasks: ubuntu.yml
+- import_tasks: ubuntu.yml
   when: ansible_distribution == 'Ubuntu' and ubuntu_package
 
-- include_tasks: macos.yml
+- import_tasks: macos.yml
   when: ansible_distribution == "MacOSX" and macos_package
 
-- include_tasks: arch.yml
+- import_tasks: arch.yml
   when: ansible_distribution == "Archlinux" and arch_package

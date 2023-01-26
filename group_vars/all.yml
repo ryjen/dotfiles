@@ -1,7 +1,8 @@
-stow_root: "{{ ansible_env.HOME }}/.local/share/dotfiles"
+#make sure roles have defaults for now
+#dotfiles_root: "{{ ansible_env.HOME }}/.local/share/dotfiles"
 
-install_default_packages: no
-install_extra_packages: no
+install_default_packages: yes
+install_extra_packages: yes
 
 basic_packages:
   - stow
@@ -32,6 +33,7 @@ default_packages:
 extra_packages:
   - aerc
   - android
+  - ansible
   - aws
   - bc
   - coreutils
@@ -51,7 +53,6 @@ extra_packages:
   - mutt
   - ncdu
   - nmap
-  - oh-my-zsh
   - pacman
   - pandoc
   - percol
@@ -72,3 +73,6 @@ extra_packages:
   - xmodmap
   - yarn
   - yubikey
+
+unused_packages:
+  - oh-my-zsh
