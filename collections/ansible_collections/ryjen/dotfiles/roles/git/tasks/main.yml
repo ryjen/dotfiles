@@ -5,6 +5,11 @@
   vars:
     name: git
 
+- name: Ensure git conf.d directory exists
+  file:
+    path: "{{ dotfiles_root }}/git/.config/git/conf.d/"
+    state: directory
+
 - name: Configure git user
   template:
     src: templates/user.j2
