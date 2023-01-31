@@ -1,1 +1,0 @@
-export GOPRIVATE="micrantha.com"
