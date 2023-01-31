@@ -1,0 +1,19 @@
+---
+- name: Install stow on system
+  include_role:
+    name: installer
+  vars:
+    package: stow
+
+- name: Generate stow configuration
+  template:
+    src: "stowrc.j2"
+    dest: "{{ ansible_env.HOME }}/.stowrc"
+  vars:
+    target_dir: "{{ ansible_env.HOME }}"
+
+- name: Configure stow
+  include_role:
+    name: installer
+  vars:
+    dotfiles: stow

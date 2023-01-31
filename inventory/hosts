@@ -1,7 +1,5 @@
 [local]
-
-install
-uninstall
+localhost
 
 [local:vars]
 ansible_connection=local

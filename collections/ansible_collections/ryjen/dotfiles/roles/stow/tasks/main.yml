@@ -1,13 +1,14 @@
 ---
-- name: Configure system
-  include_role:
-    name: installer
-  vars:
-    package: stow
-    notify: "configure {{ install_state }}"
+- name: Install stow
+  import_tasks: install.yml
+  when: install_state == "present"
+  tags:
+    - never
+    - install
 
-- name: Stow self
-  include_role:
-    name: installer
-  vars:
-    dotfiles: stow
+- name: Uninstall stow
+  import_tasks: uninstall.yml
+  when: install_state == "absent"
+  tags:
+    - never
+    - uninstall

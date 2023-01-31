@@ -3,10 +3,10 @@
 case "$1" in
 test)
 	shift
-	ansible-playbook -i inventory/test bootstrap.yml --ask-become-pass "$@"
+	ansible-playbook -i inventory/test bootstrap.yml "$@"
 	;;
 install)
-	ansible-playbook -i inventory bootstrap.yml --ask-become-pass "$@"
+	ansible-playbook -i inventory bootstrap.yml "$@"
 	;;
 *)
 	echo "Syntax: $(basename "$0") <command>"
