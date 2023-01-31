@@ -1,16 +1,23 @@
 ---
-- name: "Ensure system packages are {{ install_state }}"
-  import_tasks: system.yml
+- name: Run install
+  block:
+    - name: "Ensure system packages are {{ install_state }}"
+      import_tasks: system.yml
 
-- name: "Ensure files are {{ install_state }}"
-  import_tasks: install_files.yml
+    - name: "Ensure files are {{ install_state }}"
+      import_tasks: files.yml
   when: install_state == "present"
   tags:
     - never
     - install
 
-- name: "Ensure files are {{ install_state }}"
-  import_tasks: uninstall_files.yml
+- name: Run uninstall
+  block:
+    - name: "Ensure files are {{ install_state }}"
+      import_tasks: files.yml
+
+    - name: "Ensure system packages are {{ install_state }}"
+      import_tasks: system.yml
   when: install_state == "absent"
   tags:
     - never

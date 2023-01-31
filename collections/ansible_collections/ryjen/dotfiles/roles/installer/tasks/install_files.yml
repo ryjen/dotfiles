@@ -1,6 +1,0 @@
----
-- import_tasks: copy.yml
-  when: dotfiles_directory
-
-- import_tasks: link.yml
-  when: dotfiles_directory

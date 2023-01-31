@@ -1,7 +1,5 @@
 [testing]
-
-install
-uninstall
+vagrant
 
 [testing:vars]
 ansible_host=localhost

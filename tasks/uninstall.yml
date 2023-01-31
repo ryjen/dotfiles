@@ -10,7 +10,7 @@
       tags:
         - "{{ item }}"
         - uninstall
-  loop: "{{ basic_packages }}"
+  loop: "{{ basic_packages | reverse }}"
   tags:
     - packages
     - basic
@@ -22,7 +22,7 @@
       tags:
         - "{{ item }}"
         - uninstall
-  loop: "{{ default_packages }}"
+  loop: "{{ default_packages | reverse }}"
   when: install_default_packages
   tags:
     - packages
@@ -35,7 +35,7 @@
       tags:
         - "{{ item }}"
         - uninstall
-  loop: "{{ extra_packages }}"
+  loop: "{{ extra_packages | reverse }}"
   when: install_extra_packages
   tags:
     - packages

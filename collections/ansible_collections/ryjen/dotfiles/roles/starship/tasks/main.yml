@@ -1,18 +1,14 @@
 ---
 - name: Install starship
-  include_role:
-    name: installer
-  vars:
-    package: starship
-  when: ansible_distribution != 'Ubuntu'
+  import_tasks: install.yml
+  when: install_state == "present"
+  tags:
+    - never
+    - install
 
-- name: Install starship for ubuntu
-  shell: curl -sS https://starship.rs/install.sh | sh -s -- -f
-  become: true
-  when: ansible_distribution == 'Ubuntu'
-
-- name: Configure starship
-  include_role:
-    name: installer
-  vars:
-    dotfiles: starship
+- name: Uninstall starship
+  import_tasks: uninstall.yml
+  when: install_state == "absent"
+  tags:
+    - never
+    - uninstall
