@@ -1,0 +1,10 @@
+---
+- name: "Ensure pass is {{ install_state }}"
+  include_role:
+    name: installer
+  vars:
+    package: pass
+
+- name: Initialize pass
+  command: "pass init {{ gpg_key }}"
+  when: install_state == "present"

@@ -1,2 +1,8 @@
 ---
 # tasks file for android
+- name: Install android
+  include_role:
+    name: installer
+  vars:
+    package: android-studio
+    dotfiles: android

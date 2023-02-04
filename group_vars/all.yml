@@ -1,10 +1,15 @@
 #make sure roles have defaults for now
 #dotfiles_root: "{{ ansible_env.HOME }}/.local/share/dotfiles"
 
-install_default_packages: yes
-install_extra_packages: yes
+gpg_key: 0CDC76D5C109D17AAA6A71FAD5A34F776D49C905
+
+install_default_packages: no
+install_extra_packages: no
 
 basic_packages:
+  - ansible
+
+basic_packages2:
   - stow
   - git
   - zsh
@@ -12,6 +17,7 @@ basic_packages:
   - neovim
   - lsd
   - starship
+  - gpg
 
 default_packages:
   - taskwarrior
@@ -21,7 +27,6 @@ default_packages:
   - ctags
   - fzf
   - ssh
-  - gpg
   - rsync
   - fortune
   - lolcat
@@ -31,48 +36,11 @@ default_packages:
   - docker
 
 extra_packages:
-  - aerc
   - android
   - ansible
   - aws
-  - bc
-  - coreutils
-  - delta
-  - dict
-  - editor
-  - fd
-  - ffmpeg
-  - flutter
   - golang
-  - htop
-  - idea
-  - input
-  - irtool
-  - k8s
   - micrantha
-  - mutt
   - ncdu
   - nmap
-  - pacman
-  - pandoc
-  - percol
-  - perl
-  - pip
-  - podman
-  - postgres
-  - prettyping
-  - rust
   - starship
-  - taskell
-  - transmission
-  - utils
-  - vim
-  - vimdiff
-  - weechat
-  - xml
-  - xmodmap
-  - yarn
-  - yubikey
-
-unused_packages:
-  - oh-my-zsh

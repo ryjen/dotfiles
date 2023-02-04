@@ -1,0 +1,19 @@
+---
+- name: "Ensure gpg is {{ install_state }}"
+  include_role:
+    name: installer
+  vars:
+    name: gnupg
+
+- name: Set permissions
+  file:
+    path: "{{ ansible_env.HOME }}/.gnupg"
+    mode: g-rxw,o-rxw
+
+- name: Import gpg key
+  command: "gpg --keyserver hkps://keyserver.ubuntu.com --receive-keys {{ gpg_key }}"
+  when: install_state == "present"
+
+- name: Remove gpg key
+  command: "gpg --delete-keys {{ gpg_key }}"
+  when: install_state == "absent"
