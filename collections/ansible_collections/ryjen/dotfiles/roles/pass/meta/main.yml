@@ -1,6 +1,6 @@
 galaxy_info:
   author: Ryan Jennings
-  description: installs and configures ansible
+  description: installs and configures pass
 
   license: license (GPL-2.0-or-later, MIT, etc)
 
@@ -22,5 +22,3 @@ galaxy_info:
 
 dependencies:
   - gpg
-  - pinentry
-  - pass

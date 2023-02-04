@@ -1,6 +1,6 @@
 galaxy_info:
   author: Ryan Jennings
-  description: installs and configures ansible
+  description: installs and configures Gnu Privacy Guard
 
   license: license (GPL-2.0-or-later, MIT, etc)
 
@@ -21,6 +21,5 @@ galaxy_info:
     - dotfiles
 
 dependencies:
-  - gpg
   - pinentry
-  - pass
+  - stow

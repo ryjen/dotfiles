@@ -3,6 +3,7 @@
   copy:
     src: "files/{{ dotfiles_directory }}/"
     dest: "{{ dotfiles_root }}/{{ dotfiles_directory }}/"
+    mode: preserve
   when: install_state == "present"
 
 - name: "Remove dotfiles for {{ dotfiles_directory }}"
