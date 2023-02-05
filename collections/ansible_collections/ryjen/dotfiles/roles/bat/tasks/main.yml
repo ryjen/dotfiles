@@ -1,5 +1,5 @@
 ---
-- name: Install bat
+- name: "Ensure bat is {{ install_state }}"
   include_role:
     name: installer
   vars:
@@ -12,4 +12,4 @@
     link: /usr/bin/bat
     priority: "10"
   become: true
-  when: ansible_distribution == 'Ubuntu'
+  when: ansible_distribution == 'Ubuntu' and install_state == 'present'

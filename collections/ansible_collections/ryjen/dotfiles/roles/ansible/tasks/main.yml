@@ -4,7 +4,3 @@
     name: installer
   vars:
     name: ansible
-
-- name: Generate vault pass
-  command: "pass generate ansible-vault-password"
-  when: install_state == "present"

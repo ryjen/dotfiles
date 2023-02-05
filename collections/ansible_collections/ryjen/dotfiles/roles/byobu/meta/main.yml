@@ -21,4 +21,4 @@ galaxy_info:
     - dotfiles
 
 dependencies:
-  - bat
+  - tmux

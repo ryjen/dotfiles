@@ -1,9 +1,8 @@
 ---
-- name: Install lsd
+- name: "Ensure lsd is {{ install_state }}"
   include_role:
     name: installer
   vars:
     system:
       arch: lsd
       macos: lsd
-    dotfiles: lsd

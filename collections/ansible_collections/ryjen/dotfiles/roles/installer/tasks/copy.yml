@@ -1,9 +1,19 @@
 ---
-- name: "Copy dotfiles for {{ dotfiles_directory }}"
-  copy:
-    src: "files/{{ dotfiles_directory }}/"
-    dest: "{{ dotfiles_root }}/{{ dotfiles_directory }}/"
-    mode: preserve
+- block:
+    - name: "Create directory for {{ dotfiles_directory }}"
+      file:
+        path: "{{ dotfiles_root }}/{{ dotfiles_directory }}"
+        state: directory
+
+    - name: "Copy dotfiles for {{ dotfiles_directory }}"
+      copy:
+        src: "{{ pkg }}"
+        dest: "{{ dotfiles_root }}/{{ dotfiles_directory }}/.{{ pkg | basename }}"
+        mode: preserve
+      with_fileglob:
+        - "files/dotfiles/*"
+      loop_control:
+        loop_var: pkg
   when: install_state == "present"
 
 - name: "Remove dotfiles for {{ dotfiles_directory }}"

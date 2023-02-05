@@ -1,0 +1,7 @@
+---
+- name: "Ensure fortune cookies are {{ install_state }}"
+  include_role:
+    name: installer
+  vars:
+    package: fortune-mod
+    dotfiles: fortunes

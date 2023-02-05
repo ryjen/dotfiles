@@ -1,3 +1,0 @@
-#!/usr/bin/env sh
-export "DISPLAY=":0"
-su -u $USER -c '/usr/bin/xdg-screensaver lock'
