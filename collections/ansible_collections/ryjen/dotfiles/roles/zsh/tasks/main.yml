@@ -1,5 +1,5 @@
 ---
-- name: Install zsh
+- name: "Ensure zsh is {{ install_state }}"
   include_role:
     name: installer
   vars:
@@ -12,8 +12,9 @@
   register: zsh_for_user
   failed_when: zsh_for_user.rc >= 1
   changed_when: zsh_for_user.rc == 0
+  when: install_state == 'present'
 
-- name: Install zsh completions
+- name: "Ensure zsh completions are {{ install_state }}"
   include_role:
     name: installer
   vars:

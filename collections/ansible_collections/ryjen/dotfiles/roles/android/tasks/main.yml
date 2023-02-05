@@ -1,8 +1,10 @@
 ---
 # tasks file for android
-- name: Install android
+- name: "Ensure android is {{ install_state }}"
   include_role:
     name: installer
   vars:
-    package: android-studio
+    system:
+      macos: android-studio
+      arch: android-studio
     dotfiles: android

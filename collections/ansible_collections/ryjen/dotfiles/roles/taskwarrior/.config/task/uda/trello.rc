@@ -1,5 +1,0 @@
-# UDAs
-uda.trelloid.type=string
-uda.trelloid.label=Trello ID
-uda.trellolistname.type=string
-uda.trellolistname.label=Trello List Name

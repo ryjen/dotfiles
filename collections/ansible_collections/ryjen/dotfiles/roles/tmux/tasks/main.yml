@@ -1,18 +1,6 @@
 ---
-- name: Install tmux
+- name: "Ensure tmux is {{ install_state }}"
   include_role:
     name: installer
   vars:
     name: tmux
-
-- name: Install byobu
-  include_role:
-    name: installer
-  vars:
-    package: byobu
-
-- name: Install tmux plugin manager
-  include_role:
-    name: installer
-  vars:
-    package: tmux-plugin-manager

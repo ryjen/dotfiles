@@ -21,4 +21,5 @@ galaxy_info:
     - dotfiles
 
 dependencies:
-  - bat
+  - cowsay
+  - lolcat

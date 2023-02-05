@@ -20,7 +20,4 @@ galaxy_info:
   galaxy_tags:
     - dotfiles
 
-dependencies:
-  - gpg
-  - pinentry
-  - pass
+dependencies: []

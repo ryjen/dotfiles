@@ -1,7 +1,0 @@
-data.location=~/.task
-taskd.certificate=~/.config/task/certs/rybertjen/private.certificate.pem
-taskd.key=~/.config/task/certs/rybertjen/private.key.pem
-taskd.ca=~/.config/task/certs/rybertjen/ca.cert.pem
-taskd.server=inthe.am:53589
-taskd.credentials=inthe_am/rybertjen/7565bd62-1489-4fc3-ab5f-14b4cb4c7d84
-taskd.trust=ignore hostname
