@@ -10,10 +10,10 @@ Vagrant.configure(2) do |config|
   config.vm.define "dotfiles-test" do |node|
     node.vm.hostname = "dotfiles-test"
     node.vm.synced_folder ".", "/vagrant"
-    node.vm.box = nil
 
-    node.vm.provider "docker" do |guest|
-      guest.image = "rofrano/vagrant-provider:ubuntu"
+    node.vm.provider "docker" do |guest, override|
+      override.vm.box = nil
+      guest.image = "rofrano/vagrant-provider:ubuntu-22.04"
       guest.remains_running = true
       guest.has_ssh = true
       guest.privileged = true

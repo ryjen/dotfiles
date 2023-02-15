@@ -7,13 +7,10 @@
 
     - name: "Copy dotfiles for {{ dotfiles_directory }}"
       copy:
-        src: "{{ pkg }}"
-        dest: "{{ dotfiles_root }}/{{ dotfiles_directory }}/.{{ pkg | basename }}"
+        src: "files/dotfiles/"
+        dest: "{{ dotfiles_root }}/{{ dotfiles_directory }}/"
         mode: preserve
-      with_fileglob:
-        - "files/dotfiles/*"
-      loop_control:
-        loop_var: pkg
+
   when: install_state == "present"
 
 - name: "Remove dotfiles for {{ dotfiles_directory }}"
