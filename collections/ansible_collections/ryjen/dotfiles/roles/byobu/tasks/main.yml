@@ -3,4 +3,4 @@
   include_role:
     name: installer
   vars:
-    package: byobu
+    name: byobu

@@ -1,12 +1,14 @@
 ---
-- name: Install files
-  block:
-    - import_tasks: copy.yml
-    - import_tasks: link.yml
-  when: dotfiles_directory and install_state == "present"
+- block:
+    - name: Install files
+      block:
+        - import_tasks: copy.yml
+        - import_tasks: link.yml
+      when: install_state == "present"
 
-- name: Uninstall files
-  block:
-    - import_tasks: link.yml
-    - import_tasks: copy.yml
-  when: dotfiles_directory and install_state == "absent"
+    - name: Uninstall files
+      block:
+        - import_tasks: link.yml
+        - import_tasks: copy.yml
+      when: install_state == "absent"
+  when: dotfiles_directory and dotfiles_directory != None

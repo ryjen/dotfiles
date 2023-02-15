@@ -4,5 +4,24 @@
     name: installer
   vars:
     system:
-      arch: lsd
       macos: lsd
+      arch: lsd
+    dotfiles: lsd
+
+- block:
+    - name: "Ensure lsd is {{ install_state }} on ubuntu"
+      apt:
+        deb: "https://github.com/Peltoche/lsd/releases/download/0.23.1/lsd_0.23.1_amd64.deb"
+        state: "{{ install_state }}"
+      become: true
+
+    - name: Update ls alternatives on ubuntu for lsd
+      community.general.alternatives:
+        name: lsd
+        path: /usr/bin/lsd
+        link: /usr/bin/ls
+        priority: "10"
+      become: true
+      when: install_state == 'present'
+
+  when: ansible_distribution == 'Ubuntu'

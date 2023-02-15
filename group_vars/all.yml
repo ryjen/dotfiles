@@ -17,12 +17,14 @@ basic_packages:
   - gpg
   - pinentry
   - pass
+  - input
 
 default_packages:
   - bat
   - fzf
   - fortunes
   - direnv
+  - docker
 
 extra_packages:
   - android

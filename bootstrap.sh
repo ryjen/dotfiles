@@ -6,7 +6,11 @@ test)
 	ansible-playbook -i inventory/test bootstrap.yml "$@"
 	;;
 install)
-	ansible-playbook -i inventory bootstrap.yml "$@"
+	ansible-playbook -i inventory bootstrap.yml -t install "$@"
+	;;
+
+uninstall)
+	ansible-playbook -i inventory bootstrap.yml -t uninstall "$@"
 	;;
 *)
 	echo "Syntax: $(basename "$0") <command>"
