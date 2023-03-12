@@ -1,23 +1,24 @@
 #!/usr/bin/env bash
 
-case "$1" in
-test)
-	shift
-	ansible-playbook -i inventory/test bootstrap.yml "$@"
-	;;
-install)
-	ansible-playbook -i inventory bootstrap.yml -t install "$@"
-	;;
+CMD=$1
+shift
 
-uninstall)
-	ansible-playbook -i inventory bootstrap.yml -t uninstall "$@"
+case "$CMD" in
+test)
+	ansible-playbook -i inventory/test/hosts install.yml "$@"
+	;;
+init)
+	ansible-playbook -i inventory/hosts install.yml --ask-vault-pass -t basic "$@"
+	;;
+*)
+	ansible-playbook -i inventory/hosts $CMD.yml "$@"
 	;;
 *)
 	echo "Syntax: $(basename "$0") <command>"
 	echo ""
 	echo "  test    : test installation in vagrant machine"
-	echo "  install : install on current local machine"
-	echo "  uninstall : uninstall on current local machine"
+	echo "  init    : install on a new system"
+	echo "  <play>  : run a playbook"
 	echo ""
 	;;
 esac

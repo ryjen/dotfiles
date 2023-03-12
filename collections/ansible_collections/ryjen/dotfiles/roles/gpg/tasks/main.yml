@@ -19,10 +19,22 @@
 
     - name: Import gpg key
       command: "gpg --keyserver hkps://keyserver.ubuntu.com --receive-keys {{ gpg_key }}"
-      when: gpg_key is defined
+      when: gpg_key is defined and gpg_import_file is undefined
+
+    - name: Import gpg key
+      command: "gpg --import {{ gpg_import_file }}"
+      when: gpg_import_file
 
   when: install_state == "present"
 
-- name: Remove gpg key
-  command: "gpg --delete-keys {{ gpg_key }}"
-  when: gpg_key is defined and install_state == "absent"
+- block:
+
+  - name: Remove gpg key
+    command: "gpg --delete-keys {{ gpg_key }}"
+    when: gpg_key is defined and gpg_import_file is undefined
+
+  - name: Remove gpg key
+    command: "gpg --delete-secret-keys {{ gpg_key }}"
+    when: gpg_key is defined and gpg_import_file is defined
+
+  when: install_state == "absent"

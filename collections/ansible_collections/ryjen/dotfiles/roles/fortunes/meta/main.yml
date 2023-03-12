@@ -20,6 +20,4 @@ galaxy_info:
   galaxy_tags:
     - dotfiles
 
-dependencies:
-  - cowsay
-  - lolcat
+dependencies: []

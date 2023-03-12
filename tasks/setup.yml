@@ -4,3 +4,15 @@
     src: files/motd
     dest: /etc/motd
   become: true
+  tags:
+    - never
+    - install
+
+- name: Remove motd
+  file:
+    path: /etc/motd
+    state: absent
+  become: true
+  tags:
+    - never
+    - uninstall

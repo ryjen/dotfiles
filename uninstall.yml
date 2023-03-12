@@ -1,0 +1,66 @@
+---
+- name: Uninstall
+  hosts: all
+
+  vars_files: vault.yml
+
+  collections:
+    - community.general
+    - ryjen.dotfiles
+
+  pre_tasks:
+    - name: Configure uninstall
+      set_fact:
+        install_state: absent
+      tags:
+        - always
+
+  tasks:
+    - name: Setup system
+      import_tasks: tasks/setup.yml
+
+  roles:
+    - role: android
+      tags: [ android, extra, all]
+    - role: ansible
+      tags: [ ansible, extra, all]
+    - role: docker
+      tags: [ docker, extra, all]
+    - role: cowsay
+      tags: [ cowsay, default, all]
+    - role: direnv
+      tags: [ direnv, default, all]
+    - role: fortunes
+      tags: [ fortunes, default, all]
+    - role: fzf
+      tags: [ fzf, default, all]
+    - role: lolcat
+      tags: [ lolcat, default, all]
+    - role: lsd
+      tags: [ lsd, default, all]
+    - role: tmux
+      tags: [ tmux, default, all]
+    - role: bat
+      tags: [ bat, default, all]
+    - role: byobu
+      tags: [ byobu, default, all]
+    - role: neovim
+      tags: [ neovim, default, all]
+    - role: pass
+      tags: [ pass, default, all]
+    - role: pinentry
+      tags: [ pinentry, default, all]
+    - role: oh-my-zsh
+      tags: [ oh-my-zsh, default, all]
+    - role: git
+      tags: [ git, basic, all]
+    - role: gpg
+      tags: [ gpg, basic, all]
+    - role: zsh
+      tags: [ zsh, basic, all]
+    - role: input
+      tags: [ input, basic, all]
+    - role: starship
+      tags: [ starship, basic, all]
+    - role: stow
+      tags: [ always, stow, basic, system, all]
