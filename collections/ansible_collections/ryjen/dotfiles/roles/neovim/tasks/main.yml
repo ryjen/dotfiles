@@ -5,6 +5,13 @@
   vars:
     name: neovim
 
+- name: "Ensure neovim dependecies are {{ install_state }}"
+  include_role:
+    name: installer
+  vars:
+    package: "{{ item }}"
+  with_items: "{{ neovim_util_packages }}"
+
 - block:
     - name: Check Neovim Packer directory
       stat:

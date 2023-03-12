@@ -1,51 +1,70 @@
-local utils = require('utils')
+local utils = require("config.utils")
+local opt = utils.opt
+local autocmd = utils.autocmd
 
+local g = vim.g
 local cmd = vim.cmd
 local fn = vim.fn
 local indent = 2
 
-vim.g.mapleader = ','
+g.mapleader = [[,]]
+g.maplocalleader = [[,]]
+g.solarized_termtrans = 0
 
-cmd 'syntax enable'
-cmd 'filetype plugin indent on'
+cmd("syntax enable")
+cmd("filetype plugin indent on")
 
---- theme
-utils.opt('o', 'background', 'dark')
-vim.g.solarized_termtrans = 1
+local buffer = { o, bo }
+local window = { o, wo }
 
-utils.opt('o', 'gdefault', true)
-utils.opt('o', 'termguicolors', true)
-utils.opt('b', 'expandtab', true)
-utils.opt('b', 'shiftwidth', indent)
-utils.opt('b', 'smartindent', true)
-utils.opt('b', 'tabstop', indent)
-utils.opt('o', 'hidden', true)
-utils.opt('o', 'ignorecase', true)
-utils.opt('o', 'scrolloff', 4 )
-utils.opt('o', 'shiftround', true)
-utils.opt('o', 'smartcase', true)
-utils.opt('o', 'splitbelow', true)
-utils.opt('o', 'splitright', true)
-utils.opt('o', 'wildmode', 'list:longest')
-utils.opt('w', 'number', true)
-utils.opt('w', 'relativenumber', true)
-utils.opt('o', 'clipboard','unnamed,unnamedplus')
-utils.opt('b', 'binary', true)
-utils.opt('b', 'endofline', false)
-utils.opt('w', 'cursorline', true)
-utils.opt('b', 'tabstop', indent)
-utils.opt('b', 'expandtab', true)
-utils.opt('o', 'softtabstop', 0)
-utils.opt('o', 'shiftwidth', indent)
---utils.opt('o', 'lcs', 'tab:▸,trail:·,eol:¬,nbsp:_')
-utils.opt('o', 'hlsearch', true)
-utils.opt('o', 'incsearch', true)
-utils.opt('o', 'mouse', 'a')
-utils.opt('o', 'title', true)
-utils.opt('o', 'scrolloff', 3)
-utils.opt('o', 'completeopt', "menuone,noselect")
+opt("background", "dark")
+opt("gdefault", true)
+opt("termguicolors", true)
+opt("hidden", true)
+opt("ignorecase", true)
+opt("scrolloff", 4)
+opt("shiftround", true)
+opt("smartcase", true)
+opt("splitbelow", true)
+opt("splitright", true)
+opt("wildmode", "list:longest")
+opt("clipboard", "unnamed,unnamedplus")
+opt("softtabstop", 0)
+opt("shiftwidth", indent)
+--opt('lcs', 'tab:▸,trail:·,eol:¬,nbsp:_')
+opt("hlsearch", true)
+opt("incsearch", true)
+opt("mouse", "a")
+opt("title", true)
+opt("scrolloff", 3)
+opt("completeopt", "menuone,noselect")
 
-cmd 'hi CursorLine cterm=NONE ctermbg=darkgreen ctermfg=white guibg=darkgreen guifg=white'
+opt("expandtab", true, buffer)
+opt("smartindent", true, buffer)
+opt("tabstop", indent, buffer)
+opt("shiftwidth", indent, buffer)
+opt("tabstop", indent, buffer)
+opt("expandtab", true, buffer)
+opt("binary", true, buffer)
+opt("endofline", false, buffer)
+
+opt("number", true, window)
+opt("relativenumber", true)
+opt("cursorline", true)
+
+cmd("hi CursorLine cterm=NONE ctermbg=darkgreen ctermfg=white guibg=darkgreen guifg=white")
+
+--autocmd('start_screen', [[VimEnter * ++once lua require('start').start()]], true)
+--autocmd(
+--  'syntax_aucmds',
+--  [[Syntax * syn match extTodo "\<\(NOTE\|HACK\|BAD\|TODO\):\?" containedin=.*Comment.* | hi! link extTodo Todo]],
+--  true
+--)
+--autocmd('misc_aucmds', {
+--  [[BufWinEnter * checktime]],
+--  [[TextYankPost * silent! lua vim.highlight.on_yank()]],
+--  [[FileType qf set nobuflisted ]],
+--}, true)
 
 -- Highlight on yank
-vim.cmd 'au TextYankPost * lua vim.highlight.on_yank {on_visual = false}'
+--vim.cmd 'au TextYankPost * lua vim.highlight.on_yank {on_visual = false}'
