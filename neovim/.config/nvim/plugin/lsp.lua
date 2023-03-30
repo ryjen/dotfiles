@@ -7,6 +7,7 @@ local cmd = vim.cmd
 local buf_keymap = vim.api.nvim_buf_set_keymap
 local lspconfig = require("lspconfig")
 local null_ls = require("null-ls")
+local lsp_signature = require("lsp_signature")
 
 vim.api.nvim_command("hi link LightBulbFloatWin YellowFloat")
 vim.api.nvim_command("hi link LightBulbVirtualText YellowFloat")
@@ -18,11 +19,11 @@ lsp.handlers["textDocument/publishDiagnostics"] = lsp.with(lsp.diagnostic.on_pub
 	underline = true,
 })
 
-require("lsp_signature").setup({ bind = true, handler_opts = { border = "single" } })
+lsp_signature.setup({ bind = true, handler_opts = { border = "single" } })
 local keymap_opts = { noremap = true, silent = true }
 
-local function on_attach(client)
-	require("lsp_signature").on_attach({ bind = true, handler_opts = { border = "single" } })
+local function on_attach(client, bufnr)
+	lsp_signature.on_attach({ bind = true, handler_opts = { border = "single" } })
 	buf_keymap(0, "n", "gD", "<cmd>lua vim.lsp.buf.declaration()<CR>", keymap_opts)
 	buf_keymap(0, "n", "gd", '<cmd>lua require"telescope.builtin".lsp_definitions()<CR>', keymap_opts)
 	buf_keymap(0, "n", "K", "<cmd>lua vim.lsp.buf.hover()<CR>", keymap_opts)
@@ -52,7 +53,7 @@ local function on_attach(client)
 			callback = function()
 				-- on 0.8, you should use vim.lsp.buf.format({ bufnr = bufnr }) instead
 				--lsp.buf.formatting_sync()
-				lsp.buf.format({ bufner = bufnr })
+				lsp.buf.format({ bufnr = bufnr })
 			end,
 		})
 	end
@@ -64,6 +65,8 @@ local function on_attach(client)
 end
 
 lspconfig.util.default_config = vim.tbl_extend("force", lspconfig.util.default_config, { on_attach = on_attach })
+
+lspconfig.kotlin_language_server.setup({ on_attach = on_attach })
 
 -- null-ls setup
 local null_fmt = null_ls.builtins.formatting
