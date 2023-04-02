@@ -102,7 +102,7 @@ null_ls.setup({
 		null_diag.revive,
 		--null_diag.semgrep,
 		null_diag.write_good.with({ filetypes = { "markdown", "tex" } }),
-		null_fmt.clang_format,
+		null_fmt.astyle.with({ extra_args = { "--style=allman", "--indent-namespaces" } }),
 		null_fmt.cmake_format,
 		null_fmt.isort,
 		null_fmt.djlint,
