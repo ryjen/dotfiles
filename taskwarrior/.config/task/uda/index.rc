@@ -1,6 +1,0 @@
-
-include ~/.config/task/uda/intheam.rc
-include ~/.config/task/uda/trello.rc
-include ~/.config/task/uda/timetracking.rc
-include ~/.config/task/uda/progress.rc
-
