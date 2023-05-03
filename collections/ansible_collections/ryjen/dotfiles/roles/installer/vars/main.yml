@@ -1,0 +1,6 @@
+---
+ubuntu_package: "{{ system.ubuntu | default(package) | default(name) | default(None) }}"
+macos_package: "{{ system.macos | default(package) | default(name) | default(None) }}"
+arch_package: "{{ system.arch | default(package) | default(name) | default(None) }}"
+
+dotfiles_directory: "{{ dotfiles | default(name) | default(None) }}"

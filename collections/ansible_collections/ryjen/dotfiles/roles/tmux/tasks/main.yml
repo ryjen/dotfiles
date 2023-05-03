@@ -1,0 +1,6 @@
+---
+- name: "Ensure tmux is {{ install_state }}"
+  include_role:
+    name: installer
+  vars:
+    name: tmux

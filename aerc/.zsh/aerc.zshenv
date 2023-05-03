@@ -1,1 +1,0 @@
-alias mail=aerc

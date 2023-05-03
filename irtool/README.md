@@ -1,1 +1,0 @@
-interactive-rebase-tool

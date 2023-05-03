@@ -1,0 +1,25 @@
+galaxy_info:
+  author: Ryan Jennings
+  description: installs and configures Gnu Privacy Guard
+
+  license: license (GPL-2.0-or-later, MIT, etc)
+
+  min_ansible_version: 2.1
+
+  platforms:
+    - name: Archlinux
+      versions:
+        - all
+    - name: MacOSX
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+
+  galaxy_tags:
+    - dotfiles
+
+dependencies:
+  - pinentry
+  - stow

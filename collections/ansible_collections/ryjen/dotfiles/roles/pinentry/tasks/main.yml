@@ -1,0 +1,8 @@
+---
+- name: "Ensure pinentry is {{ install_state }}"
+  include_role:
+    name: installer
+  vars:
+    system:
+      ubuntu: pinentry-curses
+    package: pinentry

@@ -1,0 +1,28 @@
+---
+- name: Bootstrap local development environment
+  hosts: all
+
+  vars_files: vault.yml
+
+  collections:
+    - community.general
+    - ryjen.dotfiles
+
+  tasks:
+    - name: Setup system
+      include_tasks: tasks/setup.yml
+      tags:
+        - never
+        - setup
+        - system
+
+    - name: Run installer
+      include_tasks: tasks/main.yml
+      tags:
+        - never
+        - install
+        - uninstall
+
+    - name: Help
+      include_tasks: tasks/help.yml
+      when: install_state is undefined

@@ -1,0 +1,12 @@
+---
+- name: "Ensure oh-my-zsh is {{ install_state }}"
+  include_role:
+    name: installer
+  vars:
+    system:
+      arch: oh-my-zsh
+      ubuntu: curl
+    dotfiles: oh-my-zsh
+
+- include_tasks: manual.yml
+  when: install_state == 'present' and ansible_distribution == "Ubuntu"

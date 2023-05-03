@@ -1,0 +1,3 @@
+#!/usr/bin/env sh
+
+pass show ansible-vault-password

@@ -1,0 +1,5 @@
+---
+- name: "Ensure {{ macos_package }} is {{ install_state }} with homebrew"
+  community.general.homebrew:
+    name: "{{ macos_package }}"
+    state: "{{ install_state }}"

@@ -1,0 +1,7 @@
+---
+- name: "Ensure {{ arch_package}} is {{ install_state }} with pacman"
+  community.general.pacman:
+    name: "{{ arch_package }}"
+    update_cache: yes
+    state: "{{ install_state }}"
+  become: true

@@ -1,0 +1,12 @@
+---
+- name: Install software packages
+  import_tasks: tasks/install.yml
+  tags:
+    - never
+    - install
+
+- name: Uninstall software packages
+  import_tasks: tasks/uninstall.yml
+  tags:
+    - never
+    - uninstall

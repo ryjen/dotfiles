@@ -1,8 +1,0 @@
-
-set pgp_encrypt_only_command="pgpewrap gpg --batch --quiet --no-verbose --output - --encrypt --textmode --armor --always-trust --encrypt-to [REDACTED GPG ID] -- -r %r -- %f"
-
-set pgp_sign_as=[REDACTED GPG ID]
-
-set pgp_encrypt_sign_command="pgpewrap gpg --passphrase-fd 0 --batch --quiet --no-verbose --textmode --output - --encrypt --sign %?a?-u %a? --armor --always-trust --encrypt-to [REDACTED_GPG_ID] -- -r %r -- %f"
-
-

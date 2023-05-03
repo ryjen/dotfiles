@@ -1,1 +1,0 @@
-export XML_CATALOG_FILES=$HOME/.xml/catalog.xml

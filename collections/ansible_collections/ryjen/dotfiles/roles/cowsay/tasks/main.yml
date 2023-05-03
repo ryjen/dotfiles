@@ -1,0 +1,6 @@
+---
+- name: "Ensure cowsay is {{ install_state }}"
+  include_role:
+    name: installer
+  vars:
+    package: cowsay

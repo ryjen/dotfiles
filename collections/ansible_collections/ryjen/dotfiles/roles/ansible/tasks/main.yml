@@ -1,0 +1,6 @@
+---
+- name: "Ensure ansible is {{ install_state }}"
+  include_role:
+    name: installer
+  vars:
+    name: ansible

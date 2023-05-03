@@ -1,0 +1,15 @@
+---
+- name: "Ensure bat is {{ install_state }}"
+  include_role:
+    name: installer
+  vars:
+    name: bat
+
+- name: Update cat alternatives on ubuntu for bat
+  community.general.alternatives:
+    name: bat
+    path: /usr/bin/batcat
+    link: /usr/bin/bat
+    priority: "10"
+  become: true
+  when: ansible_distribution == 'Ubuntu' and install_state == 'present'

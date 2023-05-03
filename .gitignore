@@ -20,3 +20,4 @@ trustdb.gpg
 mutt/.config/mutt/aliases.txt
 
 .pypirc
+.vagrant

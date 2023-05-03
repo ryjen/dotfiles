@@ -1,0 +1,24 @@
+---
+- name: "Ensure neovim is {{ install_state }}"
+  include_role:
+    name: installer
+  vars:
+    name: neovim
+
+- block:
+    - name: Check Neovim Packer directory
+      stat:
+        path: "{{ neovim_packer_install_dir }}"
+      register: packer
+
+    - name: Install Neovim Packer
+      command: "git clone --depth 1 https://github.com/wbthomason/packer.nvim {{ neovim_packer_install_dir }}"
+      when: not packer.stat.exists
+
+  when: install_state == 'present'
+
+- name: Uninstall Neovim Packer
+  file:
+    path: "{{ neovim_packer_install_dir }}"
+    state: absent
+  when: install_state == 'absent'

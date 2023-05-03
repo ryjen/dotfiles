@@ -1,0 +1,14 @@
+---
+- name: Install stow
+  import_tasks: install.yml
+  when: install_state == "present"
+  tags:
+    - never
+    - install
+
+- name: Uninstall stow
+  import_tasks: uninstall.yml
+  when: install_state == "absent"
+  tags:
+    - never
+    - uninstall

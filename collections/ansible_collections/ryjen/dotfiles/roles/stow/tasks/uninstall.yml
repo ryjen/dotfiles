@@ -1,0 +1,19 @@
+---
+- name: Unconfigure stow
+  include_role:
+    name: installer
+  vars:
+    dotfiles: stow
+  tags:
+    - uninstall
+
+- name: Removing generated configuration
+  file:
+    path: "{{ ansible_env.HOME }}/.stowrc"
+    state: absent
+
+- name: Uninstall stow from system
+  include_role:
+    name: installer
+  vars:
+    package: stow

@@ -1,0 +1,23 @@
+---
+- name: "Ensure zsh is {{ install_state }}"
+  include_role:
+    name: installer
+  vars:
+    name: zsh
+
+- name: Set zsh as default shell
+  become: yes
+  become_user: root
+  command: chsh -s /bin/zsh {{ ansible_env.USER }}
+  register: zsh_for_user
+  failed_when: zsh_for_user.rc >= 1
+  changed_when: zsh_for_user.rc == 0
+  when: install_state == 'present'
+
+- name: "Ensure zsh completions are {{ install_state }}"
+  include_role:
+    name: installer
+  vars:
+    system:
+      macos: zsh-completions
+      arch: zsh-completions
