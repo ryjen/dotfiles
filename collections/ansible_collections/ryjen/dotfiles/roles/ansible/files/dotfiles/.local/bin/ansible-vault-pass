@@ -1,3 +1,11 @@
 #!/usr/bin/env sh
 
-pass show ansible-vault-pass
+if ! type pass 2>&1 1>/dev/null; then
+	echo "UNIX pass command not installed, manual password required." >&2
+	exit 1
+fi
+
+if ! pass show ansible-vault-password 2>/dev/null; then
+	echo "UNIX pass command failed, manual password required." >&2
+	exit 1
+fi

@@ -56,7 +56,7 @@
     - role: lsd
       tags: [ lsd, default, all]
     - role: oh-my-zsh
-      tags: [ oh-my-zsh, default, all]
+      tags: [ oh-my-zsh, default, never]
     - role: android
       tags: [ android, extra, all]
     - role: ansible

@@ -6,6 +6,16 @@
     name: gnupg
 
 - block:
+
+    - name: "Get pinentry full path"
+      command: "which pinentry"
+      register: pinentry_path
+      ignore_errors: true
+
+    - name: "Set pinentry full path fact"
+      set_fact:
+        pinentry_path: "{{ pinentry_path.stdout }}"
+ 
     - name: Set permissions
       file:
         path: "{{ ansible_env.HOME }}/.gnupg"
@@ -17,12 +27,18 @@
         src: gpg.conf.j2
         dest: "{{ ansible_env.HOME }}/.gnupg/gpg.conf"
 
+    - name: Generate agent config
+      template:
+        src: gpg-agent.conf.j2
+        dest: "{{ ansible_env.HOME }}/.gnupg/gpg-agent.conf"
+      when: pinentry_path
+
     - name: Import gpg key
       command: "gpg --keyserver hkps://keyserver.ubuntu.com --receive-keys {{ gpg_key }}"
       when: gpg_key is defined and gpg_import_file is undefined
 
     - name: Import gpg key
-      command: "gpg --import {{ gpg_import_file }}"
+      command: "gpg --import --batch --yes {{ gpg_import_file }}"
       when: gpg_import_file
 
   when: install_state == "present"

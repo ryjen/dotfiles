@@ -3,4 +3,11 @@
   include_role:
     name: installer
   vars:
-    name: byobu
+    package: byobu
+
+- name: "Ensure byobu config in zprofile is {{ install_state }}"
+  lineinfile:
+    path: "{{ ansible_env.HOME }}/.zprofile"
+    line: "_byobu_sourced=1 . /usr/bin/byobu-launch 2>/dev/null || true"
+    create: yes
+    state: "{{ install_state }}"

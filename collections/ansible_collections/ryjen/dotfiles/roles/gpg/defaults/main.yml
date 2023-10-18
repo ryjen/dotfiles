@@ -1,2 +1,3 @@
 gpg_key:
 gpg_import_file:
+pinentry_path:

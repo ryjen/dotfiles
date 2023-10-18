@@ -6,3 +6,4 @@
     system:
       ubuntu: pinentry-curses
     package: pinentry
+

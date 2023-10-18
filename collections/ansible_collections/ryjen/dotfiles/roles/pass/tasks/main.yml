@@ -5,6 +5,24 @@
   vars:
     package: pass
 
-- name: Initialize pass
-  command: "pass init {{ gpg_key }}"
+- name: "Ensure pexpect is {{ install_state }}"
+  pip:
+    name: pexpect
+    state: "{{ install_state }}"
+
+- block:
+
+      - name: Initialize pass
+        command: "pass init {{ gpg_key }}"
+
+
+      - name: Initialize vault pass
+        expect:
+          command: "pass insert ansible-vault-password"
+          responses:
+            "Enter password for ansible-vault-password": "{{ ansible_vault_password }}"
+            "Retype password for ansible-vault-password": "{{ ansible_vault_password }}"
+        when: ansible_vault_password
+
   when: install_state == "present"
+
