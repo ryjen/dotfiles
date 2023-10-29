@@ -3,24 +3,22 @@
 CMD=$1
 shift
 
-ARGS="${@:-"-t basic"}"
-
 case "$CMD" in
 test)
-	ansible-playbook -i inventory/test/hosts --ask-vault-pass install.yml "$ARGS"
+	ansible-playbook -i inventory/test/hosts install.yml --ask-vault-pass "$@"
 	;;
-install)
-	ansible-playbook -i inventory/hosts install.yml --ask-vault-pass "${ARGS}"
+init)
+	ansible-playbook -i inventory/hosts install.yml --ask-vault-pass -t basic "$@"
 	;;
-uninstall)
-	ansible-playbook -i inventory/hosts --ask-vault-pass $CMD.yml "$ARGS"
+install | uninstall)
+	ansible-playbook -i inventory/hosts "$CMD".yml --ask-vault-pass "$@"
 	;;
 *)
 	echo "Syntax: $(basename "$0") <command>"
 	echo ""
-	echo "  test      : test installation in vagrant machine"
-	echo "  install   : add dotfiles to system"
-	echo "  uninstall : remove dotfiles from system"
+	echo "  test    : test installation in vagrant machine"
+	echo "  init    : install on a new system"
+	echo "  <play>  : run a playbook"
 	echo ""
 	;;
 esac

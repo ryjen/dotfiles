@@ -3,7 +3,5 @@
   include_role:
     name: installer
   vars:
-    system:
-      macos: fortune
     package: fortune-mod
     dotfiles: fortunes

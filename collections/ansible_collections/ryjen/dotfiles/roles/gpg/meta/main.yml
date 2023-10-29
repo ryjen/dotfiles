@@ -20,4 +20,6 @@ galaxy_info:
   galaxy_tags:
     - dotfiles
 
-dependencies: []
+dependencies:
+  - ryjen.dotfiles.pinentry
+  - ryjen.dotfiles.stow

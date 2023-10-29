@@ -167,7 +167,7 @@ local function init()
 		run = ":TSUpdate",
 	})
 
-	use({ "~/.tabby/src/clients/vim", as = "tabby", rtp = "clients/vim", enabled = true })
+	-- use({ "~/.tabby/src/clients/vim", as = "tabby", rtp = "clients/vim", enabled = true })
 
 	-- default keyboard layout
 	use("jooize/vim-colemak")

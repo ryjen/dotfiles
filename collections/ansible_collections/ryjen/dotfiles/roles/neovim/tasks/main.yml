@@ -5,7 +5,7 @@
   vars:
     name: neovim
 
-- name: "Ensure neovim dependecies are {{ install_state }}"
+- name: "Ensure neovim dependencies are {{ install_state }}"
   include_role:
     name: installer
   vars:
@@ -22,10 +22,15 @@
       command: "git clone --depth 1 https://github.com/wbthomason/packer.nvim {{ neovim_packer_install_dir }}"
       when: not packer.stat.exists
 
+    - name: Synchronize packer packages
+      command: "nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'"
+
   when: install_state == 'present'
 
-- name: Uninstall Neovim Packer
-  file:
-    path: "{{ neovim_packer_install_dir }}"
-    state: absent
+- block:
+    - name: Uninstall Neovim Packer
+      file:
+        path: "{{ neovim_packer_install_dir }}"
+        state: absent
+
   when: install_state == 'absent'

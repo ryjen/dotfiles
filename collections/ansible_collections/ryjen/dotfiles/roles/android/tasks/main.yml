@@ -6,4 +6,5 @@
   vars:
     system:
       macos: android-studio
+      arch: android-studio
     dotfiles: android

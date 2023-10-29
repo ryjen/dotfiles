@@ -1,0 +1,32 @@
+---
+- name: "Ensure taskwarrior is {{ install_state }}"
+  include_role:
+    name: installer
+  vars:
+    name: task
+
+- block:
+    - name: "Install systemd task sleep script"
+      copy:
+        src: "systemd/system-sleep/"
+        dest: "{{ systemd_sleep_dir }}/"
+      when: systemd_enabled == true
+
+    - name: "Install timewarrior"
+      pip:
+        name: taskwarrior-time-tracking-hook
+
+    - name: "Link time tracking hook"
+      file:
+        state: link
+        src: "{{ timewarrior_hook_src }}"
+        dest: "{{ task_hooks_dir }}/"
+
+  when: install_state == "present"
+
+- block:
+    - name: "Remove systemd sleep script"
+      file:
+        state: absent
+        path: "{{ systemd_sleep_dir }}/{{ task_sleep_script_name }}"
+  when: install_state == absent
