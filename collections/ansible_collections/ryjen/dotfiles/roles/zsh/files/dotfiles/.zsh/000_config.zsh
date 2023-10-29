@@ -3,7 +3,7 @@ export TMOUT=60  # refresh prompt every minute (thus updating PS1 'hour' compone
 # Completion system
 _comp_options+=(globdots)	# auto-complete dot files
 
-export LC_ALL="C.UTF-8"
+export LC_ALL="en_CA.UTF-8"
 
 # History
 export HISTFILE=~/.zsh_history
