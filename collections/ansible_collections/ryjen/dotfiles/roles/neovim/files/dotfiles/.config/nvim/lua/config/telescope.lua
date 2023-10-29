@@ -5,7 +5,7 @@ telescope.setup({
 		scroll_strategy = "cycle",
 	},
 	extensions = {
-		frecency = { workspaces = { micrantha = "~/.local/src/micrantha", ryjen = "~/.local/src/ryjen" } },
+		frecency = { workspaces = {} },
 		fzf = {
 			fuzzy = true,
 			override_generic_sorter = true,

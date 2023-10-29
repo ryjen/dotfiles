@@ -4,6 +4,7 @@
       file:
         path: "{{ dotfiles_root }}/git/.config/git/conf.d/"
         state: directory
+        mode: "0755"
 
     - name: Configure git user
       template:

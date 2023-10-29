@@ -28,4 +28,11 @@ Vagrant.configure(2) do |config|
     #  guest.create_args = ["--cgroupns=host"]
     #end
   end
+
+  config.vm.provision "ansible" do |ansible|
+    ansible.ask_vault_pass = true
+    ansible.playbook = 'install.yml'
+    ansible.inventory_path = 'inventory/test/hosts'
+    ansible.limit = 'testing'
+  end
 end

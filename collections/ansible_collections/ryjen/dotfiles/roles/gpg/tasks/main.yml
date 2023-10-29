@@ -28,13 +28,12 @@
   when: install_state == "present"
 
 - block:
+    - name: Remove gpg key
+      command: "gpg --delete-keys {{ gpg_key }}"
+      when: gpg_key is defined and gpg_import_file is undefined
 
-  - name: Remove gpg key
-    command: "gpg --delete-keys {{ gpg_key }}"
-    when: gpg_key is defined and gpg_import_file is undefined
-
-  - name: Remove gpg key
-    command: "gpg --delete-secret-keys {{ gpg_key }}"
-    when: gpg_key is defined and gpg_import_file is defined
+    - name: Remove gpg key
+      command: "gpg --delete-secret-keys {{ gpg_key }}"
+      when: gpg_key is defined and gpg_import_file is defined
 
   when: install_state == "absent"
