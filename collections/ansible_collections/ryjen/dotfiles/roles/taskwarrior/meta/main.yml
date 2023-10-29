@@ -1,6 +1,7 @@
 galaxy_info:
   author: Ryan Jennings
-  description: installs and configures Gnu Privacy Guard
+  description: Installs taskwarrior client configuration
+  company: Micrantha
 
   license: license (GPL-2.0-or-later, MIT, etc)
 
@@ -20,6 +21,4 @@ galaxy_info:
   galaxy_tags:
     - dotfiles
 
-dependencies:
-  - ryjen.dotfiles.pinentry
-  - ryjen.dotfiles.stow
+dependencies: []

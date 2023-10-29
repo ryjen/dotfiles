@@ -1,0 +1,5 @@
+---
+task_hooks_dir: "{{ ansible_env.HOME }}/.task/hooks"
+timewarrior_hook_src: "/usr/share/doc/timew/ext/on-modify.timewarrior"
+systemd_enabled: false
+systemd_sleep_dir: "/usr/lib/systemd/system-sleep"
