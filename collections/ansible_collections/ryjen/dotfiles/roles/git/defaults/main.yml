@@ -1,2 +1,5 @@
 ---
 dotfiles_root: "{{ ansible_env.HOME }}/.local/share/dotfiles"
+git_user: "[USER]"
+git_user_email: "[EMAIL]"
+git_user_pgp: ""

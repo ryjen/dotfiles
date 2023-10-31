@@ -8,4 +8,10 @@
   command: /usr/bin/sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
   register: result
   failed_when: result.rc != 0
-  when: not install.stat.exists
+  when: install_state == "present" and not install.stat.exists
+
+- name: Uninstall oh-my-zsh
+  file:
+    path: "{{ ansible_env.HOME }}/.oh-my-zsh"
+    state: absent
+  when: install_state == "absent" and install.stat.exists

@@ -3,4 +3,16 @@
   include_role:
     name: installer
   vars:
-    name: byobu
+    package: byobu
+
+- name: Update byobu launch configuration
+  set_fact:
+    byobu_launch_path: "/usr/local/bin/byobu-launch"
+  when: ansible_distribution == "MacOSX"
+
+- name: Ensure byobu configuration in profile is {{ install_state }}"
+  lineinfile:
+    path: "{{ ansible_env.HOME }}/.zprofile"
+    line: "_byobu_sourced=1 . {{ byobu_launch_path }} 2>/dev/null || true"
+    create: yes
+    state: "{{ install_state }}"

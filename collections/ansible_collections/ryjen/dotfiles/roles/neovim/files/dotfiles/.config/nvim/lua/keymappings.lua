@@ -15,6 +15,8 @@ utils.map("i", "<C-n>", "<Down>")
 utils.map("i", "<C-e>", "<Up>")
 utils.map("i", "<C-i>", "<Right>")
 
+utils.map("n", "<leader><CR>", "i<CR><Esc>")
+
 --- start spell checker
 utils.map("n", "<C-p>", ":set spell spelllang=en_ca<CR>")
 

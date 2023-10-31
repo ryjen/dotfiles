@@ -7,9 +7,6 @@
     - name: "Ensure files are {{ install_state }}"
       import_tasks: files.yml
   when: install_state == "present"
-  tags:
-    - never
-    - install
 
 - name: Run uninstall
   block:
@@ -19,9 +16,6 @@
     - name: "Ensure system packages are {{ install_state }}"
       import_tasks: system.yml
   when: install_state == "absent"
-  tags:
-    - never
-    - uninstall
 
 - name: "Notify handlers of {{ notify }}"
   assert:

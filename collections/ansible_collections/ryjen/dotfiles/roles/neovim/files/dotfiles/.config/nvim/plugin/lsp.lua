@@ -67,7 +67,25 @@ end
 lspconfig.util.default_config = vim.tbl_extend("force", lspconfig.util.default_config, { on_attach = on_attach })
 
 lspconfig.kotlin_language_server.setup({ on_attach = on_attach })
-
+lspconfig.dartls.setup({
+	cmd = { "dart", "language-server", "--protocol=lsp" },
+	filetypes = { "dart" },
+	init_options = {
+		closingLabels = true,
+		flutterOutline = true,
+		onlyAnalyzeProjectsWithOpenFiles = true,
+		outline = true,
+		suggestFromUnimportedLibraries = true,
+	},
+	-- root_dir = root_pattern("pubspec.yaml"),
+	settings = {
+		dart = {
+			completeFunctionCalls = true,
+			showTodos = true,
+		},
+	},
+	on_attach = on_attach,
+})
 -- null-ls setup
 local null_fmt = null_ls.builtins.formatting
 local null_diag = null_ls.builtins.diagnostics
@@ -78,7 +96,7 @@ null_ls.setup({
 		null_diag.cppcheck,
 		--null_diag.proselint,
 		null_diag.pylint,
-		null_diag.selene,
+		--null_diag.selene,
 		null_diag.shellcheck,
 		--null_diag.teal,
 		--null_diag.vale,
@@ -102,7 +120,7 @@ null_ls.setup({
 		null_diag.revive,
 		--null_diag.semgrep,
 		null_diag.write_good.with({ filetypes = { "markdown", "tex" } }),
-		null_fmt.clang_format,
+		null_fmt.astyle.with({ extra_args = { "--style=allman", "--indent-namespaces" } }),
 		null_fmt.cmake_format,
 		null_fmt.isort,
 		null_fmt.djlint,

@@ -1,2 +1,2 @@
 ---
-# vars file for taskwarrior
+task_sleep_script_name: "taskwarrior"

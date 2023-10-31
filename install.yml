@@ -1,0 +1,69 @@
+---
+- hosts: all
+
+  vars_files:
+    - vault/config.yml
+    - vault/gpg_key.yml
+
+  collections:
+    - community.general
+    - ryjen.dotfiles
+
+  pre_tasks:
+    - name: Configure install
+      set_fact:
+        install_state: present
+      tags:
+        - always
+
+  tasks:
+    - name: Configure system
+      import_tasks: tasks/setup.yml
+
+  roles:
+    - role: stow
+      tags: [stow, basic, system, all]
+    - role: git
+      tags: [git, basic, all]
+    - role: gpg
+      tags: [gpg, basic, all]
+    - role: zsh
+      tags: [zsh, basic, all]
+    - role: input
+      tags: [input, basic, all]
+    - role: starship
+      tags: [starship, basic, all]
+    - role: bat
+      tags: [bat, default, never]
+    - role: neovim
+      tags: [neovim, default, never]
+    - role: pass
+      tags: [pass, default, never]
+    - role: pinentry
+      tags: [pinentry, default, never]
+    - role: tmux
+      tags: [tmux, default, never]
+    - role: byobu
+      tags: [byobu, default, never]
+    - role: cowsay
+      tags: [cowsay, default, never]
+    - role: direnv
+      tags: [direnv, default, never]
+    - role: fortunes
+      tags: [fortunes, default, never]
+    - role: fzf
+      tags: [fzf, default, never]
+    - role: lolcat
+      tags: [lolcat, default, never]
+    - role: lsd
+      tags: [lsd, default, never]
+    - role: taskwarrior
+      tags: [taskwarrior, default, never]
+    - role: android
+      tags: [android, extra, never]
+    - role: ansible
+      tags: [ansible, extra, never]
+    - role: docker
+      tags: [docker, extra, never]
+    - role: oh-my-zsh
+      tags: [oh-my-zsh, extra, never]
