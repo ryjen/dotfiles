@@ -19,24 +19,22 @@ See documentation for [individual roles](collections/ansible_collections/ryjen/d
 
 Roles are divided into categories:
 
-- basic: minimum install
-- default: a few bells and whistles
-- extra: the full shebang
+- **basic**: minimum install
+- **default**: a few bells and whistles
+- **extra**: the full shebang
 
 Roles can be specified on the command line:
 
-`./bootstrap.sh install -t <role>'
+`./bootstrap.sh install -t <role>`
 
 ## Testing
 
 `vagrant up`
 
-`ansible-playbook -i inventory/test/hosts bootstrap.yml`
-
-or `./bootstrap.sh test -t <install|uninstall>`
+or `./bootstrap.sh --test <install|uninstall>`
 
 ## Deployment
 
-Define your inventory (example: inventory/server/hosts) and run:
+Define your inventory in `inventory/deploy/hosts` and run:
 
-`ansible-playbook -i inventory/server/hosts bootstrap.yml`
+`./bootstrap.sh --deploy <install|uninstall>`

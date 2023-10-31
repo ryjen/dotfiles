@@ -1,24 +1,42 @@
 #!/usr/bin/env bash
 
-CMD=$1
-shift
+
+HOSTS="inventory/hosts"
+
+while :; do
+  CMD=$1
+  shift
+  case "$CMD" in
+  --deploy | -d)
+	  HOSTS="inventory/deploy/hosts"
+	  ;;
+  --test | -t)
+	  HOSTS="inventory/test/hosts"
+	  ;;
+  --password | -p)
+	  ARGS="--ask-vault-password"
+	  ;;
+    *)
+      break
+      ;;
+    esac
+done
 
 case "$CMD" in
-test)
-	ansible-playbook -i inventory/test/hosts install.yml --ask-vault-pass "$@"
-	;;
-init)
-	ansible-playbook -i inventory/hosts install.yml --ask-vault-pass -t basic "$@"
-	;;
 install | uninstall)
-	ansible-playbook -i inventory/hosts "$CMD".yml --ask-vault-pass "$@"
+	ansible-playbook -i "$HOSTS" "$CMD".yml "$ARGS" "$@"
 	;;
 *)
-	echo "Syntax: $(basename "$0") <command>"
+	echo "Syntax: $(basename "$0") [options] <command>"
 	echo ""
-	echo "  test    : test installation in vagrant machine"
-	echo "  init    : install on a new system"
-	echo "  <play>  : run a playbook"
+	echo "  Options:"
+	echo "    --deploy   :  use deploy inventory"
+	echo "    --test     :  use test inventory"
+	echo "    --password :  ask vault password"
+	echo ""
+	echo "  Commands:"
+	echo "    install    :  install dotfiles"
+	echo "    uninstall  :  uninstall dotfiles"
 	echo ""
 	;;
 esac
