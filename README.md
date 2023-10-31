@@ -2,7 +2,7 @@
 
 for a perfect yellow submarine with a periscope and radar.
 
-![Yellow Submarine](https://imgur.com/a/No6SDGJ)
+![Yellow Submarine](https://i.ibb.co/9HGncjF/yellow-sub.jpg)
 
 ## Requirements
 
