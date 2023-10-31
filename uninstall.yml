@@ -17,43 +17,43 @@
       tags:
         - always
 
-  tasks:
-    - name: Setup system
-      import_tasks: tasks/setup.yml
-
   roles:
-    - role: android
-      tags: [android, extra, all]
-    - role: ansible
-      tags: [ansible, extra, all]
-    - role: docker
-      tags: [docker, extra, all]
-    - role: cowsay
-      tags: [cowsay, default, all]
-    - role: direnv
-      tags: [direnv, default, all]
-    - role: fortunes
-      tags: [fortunes, default, all]
-    - role: fzf
-      tags: [fzf, default, all]
-    - role: lolcat
-      tags: [lolcat, default, all]
-    - role: lsd
-      tags: [lsd, default, all]
-    - role: tmux
-      tags: [tmux, default, all]
-    - role: bat
-      tags: [bat, default, all]
-    - role: byobu
-      tags: [byobu, default, all]
-    - role: neovim
-      tags: [neovim, default, all]
-    - role: pass
-      tags: [pass, default, all]
-    - role: pinentry
-      tags: [pinentry, default, all]
     - role: oh-my-zsh
-      tags: [oh-my-zsh, default, all]
+      tags: [oh-my-zsh, extra, never]
+    - role: android
+      tags: [android, extra, never]
+    - role: ansible
+      tags: [ansible, extra, never]
+    - role: taskwarrior
+      tags: [taskwarrior, default, never]
+    - role: nerdfonts
+      tags: [nerdfonts, default, never]
+    - role: docker
+      tags: [docker, extra, never]
+    - role: cowsay
+      tags: [cowsay, default, never]
+    - role: direnv
+      tags: [direnv, default, never]
+    - role: fortunes
+      tags: [fortunes, default, never]
+    - role: fzf
+      tags: [fzf, default, never]
+    - role: lolcat
+      tags: [lolcat, default, never]
+    - role: lsd
+      tags: [lsd, default, never]
+    - role: tmux
+      tags: [tmux, default, never]
+    - role: bat
+      tags: [bat, default, never]
+    - role: byobu
+      tags: [byobu, default, never]
+    - role: neovim
+      tags: [neovim, default, never]
+    - role: pass
+      tags: [pass, default, never]
+    - role: pinentry
+      tags: [pinentry, default, never]
     - role: git
       tags: [git, basic, all]
     - role: gpg
@@ -65,4 +65,6 @@
     - role: starship
       tags: [starship, basic, all]
     - role: stow
-      tags: [always, stow, basic, system, all]
+      tags: [stow, basic, system, all]
+    - role: motd
+      tags: [motd, basic, system, all]

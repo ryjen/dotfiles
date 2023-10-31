@@ -16,11 +16,9 @@
       tags:
         - always
 
-  tasks:
-    - name: Configure system
-      import_tasks: tasks/setup.yml
-
   roles:
+    - role: motd
+      tags: [motd, basic, system, all]
     - role: stow
       tags: [stow, basic, system, all]
     - role: git
@@ -57,6 +55,8 @@
       tags: [lolcat, default, never]
     - role: lsd
       tags: [lsd, default, never]
+    - role: nerdfonts
+      tags: [nerdfonts, default, never]
     - role: taskwarrior
       tags: [taskwarrior, default, never]
     - role: android

@@ -1,0 +1,19 @@
+---
+- name: "Ensure nerdfonts {{ install_state }}"
+  block:
+    - set_fact:
+        font_install_path: "{{ ansible_env.HOME }}/Library/Fonts"
+      when: ansible_distribution == "MacOSX"
+
+    - command:
+        cmd: "curl -fLO https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/{{ item.dir }}/{{ item.file }}"
+        chdir: "{{ font_install_path }}"
+        creates: "{{ font_install_path }}/{{ item.file }}"
+      with_items: "{{ font_items }}"
+      when: install_state == "present"
+
+    - file:
+        path: "{{ font_install_path }}/{{ item.file }}"
+        state: "{{ install_state }}"
+      with_items: "{{ font_items }}"
+      when: install_state == "absent"

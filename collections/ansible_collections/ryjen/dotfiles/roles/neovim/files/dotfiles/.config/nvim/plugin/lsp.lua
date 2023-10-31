@@ -131,7 +131,7 @@ null_ls.setup({
 		null_fmt.perltidy,
 		null_fmt.ktlint,
 		null_fmt.sqlformat,
-		null_fmt.terrafmt,
+		--null_fmt.terrafmt,
 		null_fmt.trim_whitespace,
 		null_fmt.trim_newlines,
 		null_fmt.goimports,

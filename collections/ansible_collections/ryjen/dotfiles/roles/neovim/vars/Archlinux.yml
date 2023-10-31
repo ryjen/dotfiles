@@ -1,0 +1,5 @@
+neovim_util_packages:
+  - stylua
+  - markdownlint-cli
+  - vint
+  - shfmt

@@ -4,15 +4,11 @@
     src: files/motd
     dest: /etc/motd
   become: true
-  tags:
-    - never
-    - install
+  when: install_state == "present"
 
 - name: Remove motd
   file:
     path: /etc/motd
     state: absent
   become: true
-  tags:
-    - never
-    - uninstall
+  when: install_state == "absent"

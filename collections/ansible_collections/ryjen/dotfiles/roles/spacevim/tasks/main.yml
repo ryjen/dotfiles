@@ -1,7 +1,0 @@
-- name: Download spacevim
-  command: curl -sLf https://spacevim.org/install.sh | bash
-  when: install_states == "present"
-
-- name: Ensure spacevim is {{ install_state }}"
-  command: curl -sLf https://spacevim.org/install.sh | bash -s -- --uninstall
-  when: install_state == "absent"

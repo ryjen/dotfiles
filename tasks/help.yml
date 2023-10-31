@@ -1,8 +1,0 @@
----
-- name: Show help
-  debug:
-    msg:
-      - "Specify tags to operate. Use --list-tags to view."
-      - " -t install        : install all"
-      - " -t uninstall      : uninstall all"
-      - " -t install,<role> : install a specific role"

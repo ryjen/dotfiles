@@ -1,3 +1,2 @@
 ---
 neovim_packer_install_dir: "{{ ansible_env.HOME }}/.local/share/nvim/site/pack/packer/start/packer.nvim"
-neovim_util_packages: []
