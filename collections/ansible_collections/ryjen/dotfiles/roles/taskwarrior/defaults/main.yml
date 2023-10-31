@@ -1,5 +1,5 @@
 ---
 task_hooks_dir: "{{ ansible_env.HOME }}/.task/hooks"
-timewarrior_hook_src: "/usr/share/doc/timew/ext/on-modify.timewarrior"
+timewarrior_hook_src: "/usr/bin/taskwarrior_time_tracking_hook"
 systemd_enabled: false
 systemd_sleep_dir: "/usr/lib/systemd/system-sleep"

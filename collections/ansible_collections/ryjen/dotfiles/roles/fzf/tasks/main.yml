@@ -4,3 +4,14 @@
     name: installer
   vars:
     name: fzf
+
+- name: "Update fzf autocomplete path"
+  set_fact:
+    fzf_autocomplete_path: "/usr/local/Cellar/fzf/*/shell/*.zsh"
+  when: ansible_distribution == "MacOSX"
+
+- name: "Ensure fzf autocomplete is {{ install_state }}"
+  lineinfile:
+    path: "{{ ansible_env.HOME }}/.zsh/fzf.zsh"
+    line: "source {{ fzf_autocomplete_path }}"
+    state: "{{ install_state }}"

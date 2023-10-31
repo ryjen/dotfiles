@@ -1,7 +1,9 @@
 ---
 - hosts: all
 
-  vars_files: vault.yml
+  vars_files:
+    - vault/config.yml
+    - vault/gpg_key.yml
 
   collections:
     - community.general
@@ -20,46 +22,48 @@
 
   roles:
     - role: stow
-      tags: [ stow, basic, system, all ]
+      tags: [stow, basic, system, all]
     - role: git
-      tags: [ git, basic, all ]
+      tags: [git, basic, all]
     - role: gpg
-      tags: [ gpg, basic, all ]
+      tags: [gpg, basic, all]
     - role: zsh
-      tags: [ zsh, basic, all ]
+      tags: [zsh, basic, all]
     - role: input
-      tags: [ input, basic, all ]
+      tags: [input, basic, all]
     - role: starship
-      tags: [ starship, basic, all ]
+      tags: [starship, basic, all]
     - role: bat
-      tags: [ bat, default, all]
+      tags: [bat, default, never]
     - role: neovim
-      tags: [ neovim, default, all]
+      tags: [neovim, default, never]
     - role: pass
-      tags: [ pass, default, all]
+      tags: [pass, default, never]
     - role: pinentry
-      tags: [ pinentry, default, all]
+      tags: [pinentry, default, never]
     - role: tmux
-      tags: [ tmux, default, all]
+      tags: [tmux, default, never]
     - role: byobu
-      tags: [ byobu, default, all]
+      tags: [byobu, default, never]
     - role: cowsay
-      tags: [ cowsay, default, all]
+      tags: [cowsay, default, never]
     - role: direnv
-      tags: [ direnv, default, all]
+      tags: [direnv, default, never]
     - role: fortunes
-      tags: [ fortunes, default, all]
+      tags: [fortunes, default, never]
     - role: fzf
-      tags: [ fzf, default, all]
+      tags: [fzf, default, never]
     - role: lolcat
-      tags: [ lolcat, default, all]
+      tags: [lolcat, default, never]
     - role: lsd
-      tags: [ lsd, default, all]
-    - role: oh-my-zsh
-      tags: [ oh-my-zsh, default, all]
+      tags: [lsd, default, never]
+    - role: taskwarrior
+      tags: [taskwarrior, default, never]
     - role: android
-      tags: [ android, extra, all]
+      tags: [android, extra, never]
     - role: ansible
-      tags: [ ansible, extra, all]
+      tags: [ansible, extra, never]
     - role: docker
-      tags: [ docker, extra, all]
+      tags: [docker, extra, never]
+    - role: oh-my-zsh
+      tags: [oh-my-zsh, extra, never]

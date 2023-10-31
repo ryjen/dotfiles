@@ -1,5 +1,3 @@
-export TMOUT=60  # refresh prompt every minute (thus updating PS1 'hour' component)
-
 # Completion system
 _comp_options+=(globdots)	# auto-complete dot files
 

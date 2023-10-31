@@ -52,7 +52,7 @@ opt("number", true, window)
 opt("relativenumber", true)
 opt("cursorline", true)
 
-cmd("hi CursorLine cterm=NONE ctermbg=darkgreen ctermfg=white guibg=darkgreen guifg=white")
+cmd("hi CursorLine cterm=NONE ctermbg=darkgreen ctermfg=black guibg=darkgreen guifg=black")
 
 --autocmd('start_screen', [[VimEnter * ++once lua require('start').start()]], true)
 --autocmd(

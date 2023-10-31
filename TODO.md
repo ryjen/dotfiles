@@ -15,3 +15,10 @@
 - bottom (<https://github.com/ClementTsang/bottom>)
 - nerd fonts
 - treesitter cli (<https://github.com/tree-sitter/tree-sitter/blob/master/cli/README.md>)
+
+## Vim
+
+- stylua
+- markdownlint
+- terrafmt
+- vint
