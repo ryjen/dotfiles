@@ -12,10 +12,20 @@
         state: directory
         mode: g-rxw,o-rxw
 
+    - name: Configure pinentry path
+      set_fact:
+        pinentry_path: /usr/local/bin/pinentry-curses
+      when: ansible_distribution == 'MacOSX'
+
     - name: Generate config
       template:
         src: gpg.conf.j2
         dest: "{{ ansible_env.HOME }}/.gnupg/gpg.conf"
+
+    - name: Generate agent config
+      template:
+        src: gpg-agent.conf.j2
+        dest: "{{ ansible_env.HOME }}/.gnupg/gpg-agent.conf"
 
     - name: Import gpg key
       command: "gpg --keyserver hkps://keyserver.ubuntu.com --receive-keys {{ gpg_key }}"
