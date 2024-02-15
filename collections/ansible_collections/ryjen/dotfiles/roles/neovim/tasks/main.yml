@@ -26,7 +26,8 @@
       when: not packer.stat.exists
 
     - name: Synchronize packer packages
-      command: "nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'"
+      shell:
+        cmd: "nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'"
 
   when: install_state == 'present'
 
