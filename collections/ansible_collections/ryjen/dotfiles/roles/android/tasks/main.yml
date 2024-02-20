@@ -1,10 +1,21 @@
 ---
 # tasks file for android
-- name: "Ensure android is {{ install_state }}"
+- name: "Check for toolbox android studio installation"
+  stat:
+    path: "{{ ansible_env.HOME }}/Applications/Android Studio.app"
+  register: toolbox_install
+
+- name: "Ensure android studio is {{ install_state }}"
   include_role:
     name: installer
   vars:
     system:
       macos: android-studio
       arch: android-studio
+  when: not toolbox_install.stat.exists
+
+- name: "Ensure android is {{ install_state }}"
+  include_role:
+    name: installer
+  vars:
     dotfiles: android
