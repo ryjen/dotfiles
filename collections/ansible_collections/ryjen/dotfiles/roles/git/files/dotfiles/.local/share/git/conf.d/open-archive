@@ -1,0 +1,7 @@
+[user]
+  name = "Ryan Jennings"
+  email = "ryan@open-archive.org"
+  signingKey = 05C65B042D193DF08368A05186948D7B1EE714B1
+
+[commit]
+  gpgsign = true

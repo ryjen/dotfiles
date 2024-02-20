@@ -1,1 +1,7 @@
-../../../../.local/src/dotfiles/git/.local/share/git/conf.d/micrantha
+[user]
+  name = "Ryan Jennings"
+  email = ryan.jennings@micrantha.com
+  signingKey = CC38D90FE5A620CF050399CB3B2D2A54ABBCA1F5
+
+[commit]
+  gpgsign = true

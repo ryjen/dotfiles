@@ -43,6 +43,16 @@ function screen_capture {
 	adb shell rm "$F1"
 }
 
+function screen_record {
+	local FK
+	FK=$(date +"%y%m%d%I%m%s")
+	local F1=${1:-"/sdcard/Movies/${FK}.mp4"}
+	local F2=${2:-"${FK}.mp4"}
+	adb shell screenrecord --bugreport "$F1"
+	adb pull "$F1" "$F2"
+	adb shell rm "$F1"
+}
+
 CMD="$1"
 
 shift
@@ -53,19 +63,32 @@ list)
 	;;
 boot)
 	echo "Booting android emulator..."
-	boot_emulator $@
+	boot_emulator "$@"
+	;;
+
+reboot)
+	echo "Rebooting android emulator..."
+	boot_emulator "$@" "-no-snapshot-load"
 	;;
 log)
 	echo "Logging emulator..."
-	log_emulator $@
+	log_emulator "$@"
 	;;
 fingerprint)
 	echo "Sending fingerprint"
-	adb $@ -e emu finger touch 222bbb222
+	adb "$@" -e emu finger touch 222bbb222
 	;;
-killemu)
+reset)
 	echo "Killing emulators"
-	kill -9 $(ps ax | grep Android | grep emulator | cut -d' ' -f1)
+	adb emu kill
+	;;
+capture)
+	echo "Capturing emulator..."
+	screen_capture "$@"
+	;;
+record)
+	echo "Recording emulator..."
+	screen_record "$@"
 	;;
 talk | talkback)
 	echo "Starting talkback"
@@ -76,7 +99,7 @@ shutup | silence)
 	adb shell settings put secure enabled_accessibility_services com.android.talkback/com.google.android.marvin.talkback.TalkBackService
 	;;
 *)
-	echo "Syntax: $(basename "$0") list|boot|log|fingerprint|killemu|talk|silence <args>"
+	echo "Syntax: $(basename "$0") list|boot|reboot|log|fingerprint|reset|capture|talk|silence|record <args>"
 	exit 1
 	;;
 esac

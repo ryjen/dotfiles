@@ -1,0 +1,7 @@
+[user]
+  name = "Ryan Jennings"
+  email = "rybertjen@gmail.com"
+  signingKey = "0CDC76D5C109D17AAA6A71FAD5A34F776D49C905"
+
+[commit]
+  gpgsign = true
