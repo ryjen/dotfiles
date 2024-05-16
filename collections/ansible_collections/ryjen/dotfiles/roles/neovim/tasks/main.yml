@@ -25,9 +25,9 @@
       command: "git clone --depth 1 https://github.com/wbthomason/packer.nvim {{ neovim_packer_install_dir }}"
       when: not packer.stat.exists
 
-    - name: Synchronize packer packages
-      shell:
-        cmd: "nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'"
+#    - name: Synchronize packer packages
+#      shell:
+#        cmd: "nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'"
 
   when: install_state == 'present'
 

@@ -1,6 +1,0 @@
-[pager]
-  diff = bat -p
-  show = bat -p
-
-[core]
-  pager = bat -p

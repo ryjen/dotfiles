@@ -7,4 +7,4 @@
 
 - name: Initialize pass
   command: "pass init {{ gpg_key }}"
-  when: install_state == "present"
+  when: install_state == "present" and gpg_key != ""

@@ -1,7 +1,6 @@
-# load zsh config files
-config_files=(~/.zsh/**/*.zsh(N))
-for file in ${config_files}
-do
-  source $file
-done
-
+# Use powerline
+USE_POWERLINE="true"
+# Has weird character width
+# Example:
+#    is not a diamond
+HAS_WIDECHARS="false"

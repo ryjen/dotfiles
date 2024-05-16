@@ -5,6 +5,11 @@
         font_install_path: "{{ ansible_env.HOME }}/Library/Fonts"
       when: ansible_distribution == "MacOSX"
 
+    - file:
+        path: "{{ font_install_path }}"
+        state: directory
+      when: install_state == "present"
+
     - command:
         cmd: "curl -fLO https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/{{ item.dir }}/{{ item.file }}"
         chdir: "{{ font_install_path }}"

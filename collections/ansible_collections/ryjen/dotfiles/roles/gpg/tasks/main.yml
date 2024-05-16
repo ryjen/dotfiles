@@ -31,19 +31,11 @@
       command: "gpg --keyserver hkps://keyserver.ubuntu.com --receive-keys {{ gpg_key }}"
       when: gpg_key is defined
 
-    - name: Import gpg key
-      command: "echo -n '{{ gpg_private_key }}' | gpg --import -"
-      when: gpg_private_key is defined
-
   when: install_state == "present"
 
 - block:
     - name: Remove gpg key
       command: "gpg --delete-keys {{ gpg_key }}"
       when: gpg_key is defined
-
-    - name: Remove gpg key
-      command: "gpg --delete-secret-keys {{ gpg_key }}"
-      when: gpg_key is defined and gpg_private_key is defined
 
   when: install_state == "absent"

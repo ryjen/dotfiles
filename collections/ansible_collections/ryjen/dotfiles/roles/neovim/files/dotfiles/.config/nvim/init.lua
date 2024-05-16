@@ -1,4 +1,5 @@
-require("impatient")
+vim.loader.enable()
+
 local g = vim.g
 local cmd = vim.cmd
 
