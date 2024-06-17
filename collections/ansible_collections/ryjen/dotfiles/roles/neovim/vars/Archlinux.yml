@@ -3,3 +3,9 @@ neovim_util_packages:
   - markdownlint-cli
   - vint
   - shfmt
+  - checkmake
+  - texlive-binextra
+  - python-pylint
+  - editorconfig-checker
+  - prettier
+  - jq

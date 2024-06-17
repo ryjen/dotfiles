@@ -3,3 +3,8 @@ neovim_util_packages:
   - markdownlint-cli
   - vint
   - shfmt
+  - pylint
+  - editorconfig-checker
+  - semgrep
+  - prettier
+  - jq
