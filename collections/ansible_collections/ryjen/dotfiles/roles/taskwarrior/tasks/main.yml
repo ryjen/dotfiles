@@ -5,6 +5,12 @@
   vars:
     name: task
 
+- name: "Install timewarrior"
+  pip:
+    name: taskwarrior-time-tracking-hook
+    state: "{{ install_state }}"
+  when: timewarrior_enabled == true
+
 - block:
     - name: "Install systemd task sleep script"
       copy:
@@ -12,20 +18,12 @@
         dest: "{{ systemd_sleep_dir }}/"
       when: systemd_enabled == true
 
-    - name: "Install timewarrior"
-      pip:
-        name: taskwarrior-time-tracking-hook
-
-    - name: "Update timewarrior path"
-      set_fact:
-        timewarrior_hook_src: "/usr/local/bin/taskwarrior_time_tracking_hook"
-      when: ansible_distribution == "MacOSX"
-
     - name: "Link time tracking hook"
       file:
         state: link
         src: "{{ timewarrior_hook_src }}"
         dest: "{{ task_hooks_dir }}/on-modify.timetracking"
+      when: timewarrior_enabled == true
 
   when: install_state == "present"
 
@@ -34,4 +32,12 @@
       file:
         state: absent
         path: "{{ systemd_sleep_dir }}/{{ task_sleep_script_name }}"
+      when: systemd_enabled == true
+
+    - name: "Unlink time tracking hook"
+      file:
+        state: absent
+        src: "{{ task_hooks_dir }}/on-modify.timetracking"
+      when: timewarrior_enabled == true
+
   when: install_state == "absent"
