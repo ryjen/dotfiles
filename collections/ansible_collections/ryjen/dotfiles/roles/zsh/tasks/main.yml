@@ -1,4 +1,12 @@
 ---
+- name: "Prepare current zsh config"
+  include_tasks: setup.yml
+  loop:
+    - ".zshrc"
+    - ".zshenv"
+    - ".config/zsh/.zshrc"
+  when: install_state == "present"
+
 - name: "Ensure zsh is {{ install_state }}"
   include_role:
     name: installer
@@ -21,3 +29,15 @@
     system:
       macos: zsh-completions
       arch: zsh-completions
+
+- name: "Ensure manjaro specific zsh config"
+  copy:
+    src: manjaro
+    dest: "{{ ansible_env.HOME }}/.config/zsh/.zshrc"
+  when: install_state == "present" and ansible_os_family == "Manjaro"
+
+- name: "Ensure zsh config"
+  copy:
+    src: default
+    dest: "{{ ansible_env.HOME }}/.config/zsh/.zshrc"
+  when: install_state == "present" and ansible_os_family != "Manjaro"

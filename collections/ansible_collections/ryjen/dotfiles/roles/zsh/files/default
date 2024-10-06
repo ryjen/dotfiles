@@ -1,0 +1,6 @@
+# Source user config
+source ~/.zshrc
+
+# user-defined overrides
+[ -d ~/.config/zsh/config.d/ ] && source <(cat ~/.config/zsh/config.d/*)
+

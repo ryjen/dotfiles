@@ -6,10 +6,10 @@
         state: directory
 
     - name: "Copy dotfiles for {{ dotfiles_directory }}"
-      copy:
-        src: "files/dotfiles/"
+      synchronize:
+        src: "{{ ansible_parent_role_paths[0] }}/files/dotfiles/"
         dest: "{{ dotfiles_root }}/{{ dotfiles_directory }}/"
-        mode: preserve
+        delete: true
 
   when: install_state == "present"
 

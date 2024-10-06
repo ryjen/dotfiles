@@ -58,7 +58,7 @@
     - role: nerdfonts
       tags: [nerdfonts, default, never]
     - role: taskwarrior
-      tags: [taskwarrior, default, never]
+      tags: [taskwarrior, extra, never]
     - role: android
       tags: [android, extra, never]
     - role: ansible

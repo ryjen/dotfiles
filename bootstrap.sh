@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
 HOSTS="inventory/hosts"
-
+ARGS=()
 TAGS=""
+
 while [[ $# -gt 0 ]]; do
 	case "$1" in
 	--deploy)
@@ -25,11 +26,14 @@ while [[ $# -gt 0 ]]; do
 	shift
 done
 
-ARGS=()
 if [ -n "$TAGS" ]; then
 	ARGS+=(-t "${TAGS:1}" "$@")
 else
 	ARGS=("$@")
+fi
+
+if ! ./.bin/ansible-vault-pass >/dev/null; then
+  ARGS+=(--ask-vault-pass)
 fi
 
 case "$CMD" in

@@ -1,3 +1,4 @@
+
 ---
 - name: "Ensure fzf is {{ install_state }}"
   include_role:
@@ -12,6 +13,6 @@
 
 - name: "Ensure fzf autocomplete is {{ install_state }}"
   lineinfile:
-    path: "{{ ansible_env.HOME }}/.zsh/fzf.zsh"
+    path: "{{ ansible_env.HOME }}/.config/zsh/config.d/fzf"
     line: "source {{ fzf_autocomplete_path }}"
     state: "{{ install_state }}"

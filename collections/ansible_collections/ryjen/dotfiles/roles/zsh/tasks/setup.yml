@@ -1,0 +1,21 @@
+- name: "Check for current {{ item }}"
+  stat:
+    path: "{{ ansible_env.HOME }}/{{ item }}"
+  register: current
+
+- debug:
+    var: current.stat
+
+- name: "Backup current {{ item }}"
+  copy:
+    src: "{{ ansible_env.HOME }}/{{ item }}"
+    dest: "{{ ansible_env.HOME }}/{{ item }}.orig"
+    remote_src: yes
+  when: current.stat.exists
+
+- name: "Remove current {{ item }}"
+  file:
+    path: "{{ ansible_env.HOME }}/{{ item }}"
+    state: absent
+  when: current.stat.exists
+

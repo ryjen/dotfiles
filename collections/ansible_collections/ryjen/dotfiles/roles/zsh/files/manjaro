@@ -1,5 +1,3 @@
-# base config for oh my zsh
-source /usr/share/oh-my-zsh/zshrc
 
 #p10k instant prompt to make terminal open a bit snappier
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
@@ -10,7 +8,16 @@ fi
 source ~/.zshrc
 
 # fix for comment color on manjaro zsh theme
-#ZSH_HIGHLIGHT_STYLES[comment]='fg=blue'
+ZSH_HIGHLIGHT_STYLES[comment]='fg=blue'
+
+# Source manjaro-zsh-configuration
+if [[ -e /usr/share/zsh/manjaro-zsh-config ]]; then
+  source /usr/share/zsh/manjaro-zsh-config
+fi
+# Use manjaro zsh prompt
+if [[ -e /usr/share/zsh/manjaro-zsh-prompt ]]; then
+  source /usr/share/zsh/manjaro-zsh-prompt
+fi
 
 # user-defined overrides
 [ -d ~/.config/zsh/config.d/ ] && source <(cat ~/.config/zsh/config.d/*)
