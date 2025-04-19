@@ -4,6 +4,11 @@ HOSTS="inventory/hosts"
 ARGS=()
 TAGS=""
 
+if ! which ansible >/dev/null ; then 
+   echo "Install ansible first"
+   exit 1
+fi
+
 while [[ $# -gt 0 ]]; do
 	case "$1" in
 	--deploy)
