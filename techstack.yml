@@ -1,0 +1,81 @@
+repo_name: ryjen/dotfiles
+report_id: bb86f382517c711c36e28520ff485057
+version: 0.1
+repo_type: Public
+timestamp: '2024-02-29T19:36:32+00:00'
+requested_by: ryjen
+provider: github
+branch: main
+detected_tools_count: 6
+tools:
+- name: Lua
+  description: Powerful, fast, lightweight, embeddable scripting language
+  website_url: http://www.lua.org/
+  open_source: true
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Languages
+  image_url: https://img.stackshare.io/service/2118/128px-Lua-Logo.svg.png
+  detection_source_url: https://github.com/ryjen/dotfiles
+  detection_source: Repo Metadata
+- name: Ansible
+  description: Radically simple configuration-management, application deployment,
+    task-execution, and multi-node orchestration engine
+  website_url: http://www.ansible.com/
+  license: GPL-3.0
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Server Configuration and Automation
+  image_url: https://img.stackshare.io/service/663/ElOjna20.png
+  detection_source_url: https://github.com/ryjen/dotfiles/blob/main/ansible.cfg
+  detection_source: ansible.cfg
+  last_updated_by: Ryan Jennings
+  last_updated_on: 2023-02-15 04:35:13.000000000 Z
+- name: Git
+  description: Fast, scalable, distributed revision control system
+  website_url: http://git-scm.com/
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Version Control System
+  image_url: https://img.stackshare.io/service/1046/git.png
+  detection_source_url: https://github.com/ryjen/dotfiles
+  detection_source: Repo Metadata
+- name: Travis CI
+  description: A hosted continuous integration service for open source and private
+    projects
+  website_url: http://travis-ci.com/
+  open_source: false
+  hosted_saas: true
+  category: Build, Test, Deploy
+  sub_category: Continuous Integration
+  image_url: https://img.stackshare.io/service/460/Lu6cGu0z_400x400.png
+  detection_source_url: https://github.com/ryjen/dotfiles/blob/main/collections/ansible_collections/ryjen/dotfiles/roles/lsd/.travis.yml
+  detection_source: collections/ansible_collections/ryjen/dotfiles/roles/lsd/.travis.yml
+  last_updated_by: Ryan Jennings
+  last_updated_on: 2022-06-02 07:21:44.000000000 Z
+- name: Vagrant
+  description: A tool for building and distributing development environments
+  website_url: http://www.vagrantup.com/
+  license: MIT
+  open_source: true
+  hosted_saas: false
+  category: Build, Test, Deploy
+  sub_category: Virtual Machine Management
+  image_url: https://img.stackshare.io/service/768/150px-Vagrant.png
+  detection_source_url: https://github.com/ryjen/dotfiles/blob/main/Vagrantfile
+  detection_source: Vagrantfile
+  last_updated_by: Ryan Jennings
+  last_updated_on: 2023-10-29 08:02:55.000000000 Z
+- name: Shell
+  description: A shell is a text-based terminal, used for manipulating programs and
+    files. Shell scripts typically manage program execution.
+  website_url: https://en.wikipedia.org/wiki/Shell_script
+  open_source: false
+  hosted_saas: false
+  category: Languages & Frameworks
+  sub_category: Languages
+  image_url: https://img.stackshare.io/service/4631/default_c2062d40130562bdc836c13dbca02d318205a962.png
+  detection_source_url: https://github.com/ryjen/dotfiles
+  detection_source: Repo Metadata
