@@ -8,8 +8,13 @@
 
 - name: "Update fzf autocomplete path"
   set_fact:
-    fzf_autocomplete_path: "/usr/local/Cellar/fzf/*/shell/*.zsh"
+    fzf_autocomplete_path: "/opt/homebrew/Cellar/fzf/*/shell/*.zsh"
   when: ansible_distribution == "MacOSX"
+
+- name: "Update fzf autocomplete path"
+  set_fact:
+    fzf_autocomplete_path: "/usr/share/doc/fzf/examples/*.zsh"
+  when: ansible_distribution == "Ubuntu"
 
 - name: "Ensure fzf autocomplete is {{ install_state }}"
   lineinfile:
