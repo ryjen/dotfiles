@@ -3,9 +3,6 @@
     path: "{{ ansible_env.HOME }}/{{ item }}"
   register: current
 
-- debug:
-    var: current.stat
-
 - name: "Backup current {{ item }}"
   copy:
     src: "{{ ansible_env.HOME }}/{{ item }}"
@@ -18,4 +15,3 @@
     path: "{{ ansible_env.HOME }}/{{ item }}"
     state: absent
   when: current.stat.exists
-

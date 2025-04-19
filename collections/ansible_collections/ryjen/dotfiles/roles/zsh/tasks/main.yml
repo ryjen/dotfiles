@@ -29,12 +29,19 @@
     system:
       macos: zsh-completions
       arch: zsh-completions
+      ubuntu: zsh-autosuggestions
 
 - name: "Ensure manjaro specific zsh config"
   copy:
     src: manjaro
     dest: "{{ ansible_env.HOME }}/.config/zsh/.zshrc"
   when: install_state == "present" and ansible_os_family == "Manjaro"
+
+- name: "Ensure ubuntu specific zsh config"
+  copy:
+    src: ubuntu
+    dest: "{{ ansible_env.HOME }}/.config/zsh/config.d/zsh"
+  when: install_state == "present" and ansible_distribution == "Ubuntu"
 
 - name: "Ensure zsh config"
   copy:
