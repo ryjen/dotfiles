@@ -1,7 +1,7 @@
 use-agent
 
-{% if gpg_key is defined %}
+{% if gpg_key_id is defined %}
 
-trusted-key "{{ gpg_key }}"
+trusted-key "{{ gpg_key_id }}"
 
 {% endif %}

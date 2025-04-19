@@ -27,15 +27,19 @@
         src: gpg-agent.conf.j2
         dest: "{{ ansible_env.HOME }}/.gnupg/gpg-agent.conf"
 
-    - name: Import gpg key
-      command: "gpg --keyserver hkps://keyserver.ubuntu.com --receive-keys {{ gpg_key }}"
+    - name: Import gpg public key
+      command: "gpg --keyserver hkps://keyserver.ubuntu.com --receive-keys {{ gpg_key_id }}"
+      when: gpg_key_id is defined
+
+    - name: Import gpg key file
+      command: "echo {{ gpg_key }} | gpg --import"
       when: gpg_key is defined
 
   when: install_state == "present"
 
 - block:
     - name: Remove gpg key
-      command: "gpg --delete-keys {{ gpg_key }}"
-      when: gpg_key is defined
+      command: "gpg --delete-keys {{ gpg_key_id }}"
+      when: gpg_key_id is defined
 
   when: install_state == "absent"

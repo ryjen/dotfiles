@@ -1,3 +1,7 @@
 #!/usr/bin/env sh
 
-pass show ansible-vault-pass
+if type pass >/dev/null; then
+  pass show ansible-vault-pass
+else
+  exit 1
+fi

@@ -6,5 +6,5 @@
     package: pass
 
 - name: Initialize pass
-  command: "pass init {{ gpg_key }}"
-  when: install_state == "present" and gpg_key != ""
+  command: "pass init {{ gpg_key_id }}"
+  when: install_state == "present" and gpg_key_id != ""
