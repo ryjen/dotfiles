@@ -5,7 +5,6 @@ require("mason-lspconfig").setup()
 local lsp = vim.lsp
 local cmd = vim.cmd
 local buf_keymap = vim.api.nvim_buf_set_keymap
-local lspconfig = require("lspconfig")
 local null_ls = require("null-ls")
 local lsp_signature = require("lsp_signature")
 
@@ -60,32 +59,9 @@ local function on_attach(client, bufnr)
 	cmd(
 		'au CursorHold,CursorHoldI <buffer> lua require"nvim-lightbulb".update_lightbulb {sign = {enabled = false}, virtual_text = {enabled = true, text = ""}, float = {enabled = false, text = "", win_opts = {winblend = 100, anchor = "NE"}}}'
 	)
-	-- cmd 'au CursorHold,CursorHoldI <buffer> lua vim.diagnostic.open_float(0, { scope = "line" })'
 	cmd("augroup END")
 end
 
-lspconfig.util.default_config = vim.tbl_extend("force", lspconfig.util.default_config, { on_attach = on_attach })
-
-lspconfig.kotlin_language_server.setup({ on_attach = on_attach })
-lspconfig.dartls.setup({
-	cmd = { "dart", "language-server", "--protocol=lsp" },
-	filetypes = { "dart" },
-	init_options = {
-		closingLabels = true,
-		flutterOutline = true,
-		onlyAnalyzeProjectsWithOpenFiles = true,
-		outline = true,
-		suggestFromUnimportedLibraries = true,
-	},
-	-- root_dir = root_pattern("pubspec.yaml"),
-	settings = {
-		dart = {
-			completeFunctionCalls = true,
-			showTodos = true,
-		},
-	},
-	on_attach = on_attach,
-})
 -- null-ls setup
 local null_fmt = null_ls.builtins.formatting
 local null_diag = null_ls.builtins.diagnostics
