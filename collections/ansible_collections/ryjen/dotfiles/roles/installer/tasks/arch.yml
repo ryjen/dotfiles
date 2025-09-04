@@ -1,14 +1,16 @@
 ---
 - name: "Ensure {{ arch_package}} is {{ install_state }} with pacman"
-  block:
-    - community.general.pacman:
-        name: "{{ arch_package }}"
-        update_cache: yes
-        state: "{{ install_state }}"
-      become: true
-  rescue:
-    - kewlfft.aur.aur:
-        name: "{{ arch_package }}"
-        update_cache: yes
-        state: "{{ install_state }}"
-      become: true
+  community.general.pacman:
+    name: "{{ arch_package }}"
+    update_cache: yes
+    state: "{{ install_state }}"
+  become: true
+  ignore_errors: true
+  register: pm
+
+- name: "Ensure {{ arch_package }} is {{ install_state }} with AUR"
+  kewlfft.aur.aur:
+    name: "{{ arch_package }}"
+    update_cache: yes
+    state: "{{ install_state }}"
+  when: pm.failed

@@ -17,14 +17,14 @@
       import_tasks: system.yml
   when: install_state == "absent"
 
-- name: "Notify handlers of {{ notify }}"
+- name: "Notify handlers of {{ notify | default('nothing') }}"
   assert:
     quiet: true
     that: true
   changed_when: notify is not undefined
-  when: notify is not undefined
   notify:
     - "{{ notify }}"
+  when: notify is not undefined
 
 - name: Flush handlers
   meta: flush_handlers

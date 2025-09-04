@@ -14,6 +14,7 @@
   wdiff = diff --word-diff
   cob = checkout -b
   last = log -1 HEAD
+  lbr = for-each-ref --sort=-committerdate --format='%(refname:short)' refs/heads/ | head -n 1
   st = status
   fpush = push --force-with-lease
   stash = stash --all

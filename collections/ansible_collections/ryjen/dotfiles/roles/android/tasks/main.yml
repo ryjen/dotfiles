@@ -3,7 +3,7 @@
   include_role:
     name: installer
   vars:
-    system: android-studio
+    package: android-studio
 
 - name: "Ensure android config is {{ install_state }}"
   include_role:

@@ -1,9 +1,9 @@
 ---
 - import_tasks: ubuntu.yml
-  when: ansible_distribution == 'Ubuntu' and ubuntu_package
+  when: ansible_distribution == 'Ubuntu' and ubuntu_package is defined
 
 - import_tasks: macos.yml
-  when: ansible_distribution == "MacOSX" and macos_package
+  when: ansible_distribution == "MacOSX" and macos_package is defined
 
 - import_tasks: arch.yml
-  when: ansible_distribution == "Archlinux" and arch_package
+  when: ansible_distribution == "Archlinux" and arch_package is defined
