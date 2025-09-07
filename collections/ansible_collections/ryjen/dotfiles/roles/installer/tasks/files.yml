@@ -11,4 +11,4 @@
         - import_tasks: link.yml
         - import_tasks: copy.yml
       when: install_state == "absent"
-  when: dotfiles_directory and dotfiles_directory != None
+  when: dotfiles_directory is defined and dotfiles_directory != None

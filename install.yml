@@ -61,6 +61,10 @@
       tags: [taskwarrior, extra, never]
     - role: android
       tags: [android, extra, never]
+    - role: alacritty
+      tags: [alacritty, extra, never]
+    - role: continue
+      tags: [continue, extra, never]
     - role: ansible
       tags: [ansible, extra, never]
     - role: docker

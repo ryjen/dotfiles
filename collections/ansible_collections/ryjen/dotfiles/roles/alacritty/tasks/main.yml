@@ -3,4 +3,10 @@
   include_role:
     name: installer
   vars:
-    name: alacritty
+    package: alacritty
+
+- name: "Ensure alacritty config is {{ install_state }}"
+  include_role:
+    name: installer
+  vars:
+    dotfiles: alacritty

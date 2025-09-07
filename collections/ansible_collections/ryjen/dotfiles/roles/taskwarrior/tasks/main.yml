@@ -3,7 +3,7 @@
   include_role:
     name: installer
   vars:
-    name: task
+    package: task
 
 - name: "Install timewarrior"
   pip:
