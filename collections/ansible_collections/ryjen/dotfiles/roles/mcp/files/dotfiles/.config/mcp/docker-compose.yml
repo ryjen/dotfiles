@@ -1,0 +1,350 @@
+---
+
+services:
+  # =========================
+  # 🌐 MCP Gateway
+  # =========================
+  mcp-gateway:
+    image: docker/mcp-gateway:latest
+    container_name: mcp-gateway
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./adapters.yaml:/etc/mcp-gateway/adapters.yaml
+    depends_on:
+      - sequential-thinking
+      - filesystem
+      - arxiv-mcp
+      - local-rag-mcp
+      - taskwarrior-mcp
+      - mermaid-diagrams
+      - opentofu
+      - sysoperator
+      - conventional-commits
+      - shrimp-task-manager
+      - user-feedback-mcp
+      - hub-mcp
+      - postman-mcp
+      - kubectl-mcp
+      - gradle-mcp
+      - language-mcp
+      - editorconfig-mcp
+      - semgrep-mcp
+      - fetch-mcp
+      - src-to-kb
+      - pandoc-mcp
+      - piloty-mcp
+      - kaggle-mcp
+      - context-awesome
+      - summarizer-mcp
+      - chatsum-mcp
+      - mobsf-mcp
+      - ghidra-mcp
+      - mcp-scan
+      - calculator-mcp
+      - investor-agent
+      - docker-mcp
+      - token-optimizer-mcp
+
+  # =========================
+  # 🧠 Core MCP Utilities (official images on Docker Hub)
+  # =========================
+  sequential-thinking:   # reasoning / chain-of-thought
+    image: mcp/sequentialthinking:latest
+    restart: unless-stopped
+
+  filesystem:            # local filesystem access
+    image: mcp/filesystem:latest
+    volumes:
+      - /home/ryjen/Projects:/projects
+    restart: unless-stopped
+
+  arxiv-mcp:             # Arxiv papers
+    image: mcp/arxiv-mcp-server:latest
+    restart: unless-stopped
+
+  local-rag-mcp:         # retrieval-augmented generation
+    build:
+      context: .
+      dockerfile: Dockerfile.node-mcp
+      args:
+        REPO_URL: https://github.com/shinpr/mcp-local-rag.git
+    restart: unless-stopped
+
+  taskwarrior-mcp:       # Taskwarrior integration
+    build:
+      context: .
+      dockerfile: Dockerfile.node-mcp 
+      args:
+        REPO_URL: https://github.com/awwaiid/mcp-server-taskwarrior.git
+    volumes:
+      - ~/.task:/root/.task
+    restart: unless-stopped
+
+  mermaid-diagrams:      # diagram generation
+    build:
+      context: .
+      dockerfile: Dockerfile.node-mcp
+      args:
+        REPO_URL: https://github.com/hustcc/mcp-mermaid.git
+    command: npm run start:streamable
+    restart: unless-stopped
+
+  opentofu:              # infrastructure-as-code
+    build:
+      context: .
+      dockerfile: Dockerfile.node-mcp 
+      args:
+        REPO_URL: https://github.com/opentofu/opentofu-mcp-server.git
+    restart: unless-stopped
+
+  sysoperator:           # system operations helper
+    build:
+      context: .
+      dockerfile: Dockerfile.node-mcp
+      args:
+        REPO_URL: https://github.com/tarnover/mcp-sysoperator.git 
+    command: "npm build && npm start"
+    restart: unless-stopped
+
+  conventional-commits:  # commit message enforcement
+    image: ghcr.io/theoklitosbam7/mcp-git-commit-generator:latest
+    restart: unless-stopped
+
+  # =========================
+  # 📋 Task & Project Management (GitHub-only)
+  # =========================
+  shrimp-task-manager:
+    build:
+      context: .
+      dockerfile: Dockerfile.node-mcp
+      args:
+        REPO_URL: https://github.com/cjo4m06/mcp-shrimp-task-manager.git
+    command: node server.js
+    restart: unless-stopped
+
+  user-feedback-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.node-mcp
+      args:
+        REPO_URL: https://github.com/mrexodia/user-feedback-mcp.git
+    command: node index.js
+    restart: unless-stopped
+
+  # =========================
+  # 🔧 Developer Tools & Code Analysis
+  # =========================
+  hub-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.node-mcp
+      args:
+        REPO_URL: https://github.com/docker/hub-mcp.git
+    command: node server.js
+    restart: unless-stopped
+
+  postman-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.node-mcp
+      args:
+        REPO_URL: https://github.com/delano/postman-mcp-server.git
+    command: node index.js
+    restart: unless-stopped
+
+  kubectl-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.node-mcp
+      args:
+        REPO_URL: https://github.com/rohitg00/kubectl-mcp-server.git
+    command: node server.js
+    volumes:
+      - ~/.kube:/root/.kube
+    restart: unless-stopped
+
+  gradle-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.node-mcp
+      args:
+        REPO_URL: https://github.com/IlyaGulya/gradle-mcp-server.git
+    command: ./gradlew run
+    restart: unless-stopped
+
+  language-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.node-mcp
+      args:
+        REPO_URL: https://github.com/isaacphi/mcp-language-server.git
+    command: node index.js
+    restart: unless-stopped
+
+  editorconfig-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.node-mcp
+      args:
+        REPO_URL: https://github.com/neilberkman/editorconfig_mcp.git
+    command: node server.js
+    restart: unless-stopped
+
+  semgrep-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.python-mcp
+      args:
+        REPO_URL: https://github.com/semgrep/semgrep.git
+    working_dir: /app/cli/src/semgrep/mcp
+    command: python -m semgrep.mcp
+    restart: unless-stopped
+
+  # =========================
+  # 📚 Data & Knowledge Sources
+  # =========================
+  fetch-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.node-mcp
+      args:
+        REPO_URL: https://github.com/zcaceres/fetch-mcp.git
+    command: node index.js
+    restart: unless-stopped
+
+  src-to-kb:
+    build:
+      context: .
+      dockerfile: Dockerfile.node-mcp
+      args:
+        REPO_URL: https://github.com/vezlo/src-to-kb.git
+    command: node server.js
+    restart: unless-stopped
+
+  pandoc-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.python-mcp
+      args:
+        REPO_URL: https://github.com/vivekVells/mcp-pandoc.git
+    command: python main.py
+    restart: unless-stopped
+
+  piloty-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.node-mcp
+      args:
+        REPO_URL: https://github.com/yiwenlu66/PiloTY.git
+    command: node index.js
+    restart: unless-stopped
+
+  kaggle-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.node-mcp
+      args:
+        REPO_URL: https://github.com/arrismo/kaggle-mcp.git
+    command: node server.js
+    environment:
+      KAGGLE_USERNAME: your_username
+      KAGGLE_KEY: your_api_key
+    restart: unless-stopped
+
+  context-awesome:
+    build:
+      context: .
+      dockerfile: Dockerfile.node-mcp
+      args:
+        REPO_URL: https://github.com/bh-rat/context-awesome.git
+    command: node index.js
+    restart: unless-stopped
+
+  summarizer-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.node-mcp
+      args:
+        REPO_URL: https://github.com/0xshellming/mcp-summarizer.git
+    command: node index.js
+    restart: unless-stopped
+
+  chatsum-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.node-mcp
+      args:
+        REPO_URL: https://github.com/chatmcp/mcp-server-chatsum.git
+    command: node index.js
+    restart: unless-stopped
+
+  # =========================
+  # 🔒 Security & Reverse Engineering
+  # =========================
+  mobsf-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.node-mcp
+      args:
+        REPO_URL: https://github.com/pullkitsan/mobsf-mcp-server.git
+    environment:
+      MOBSF_API_KEY: key 
+      MOBSF_URL: url
+    restart: unless-stopped
+
+  ghidra-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.node-mcp
+      args:
+        REPO_URL: https://github.com/13bm/GhidraMCP.git
+    command: ./gradlew run
+    restart: unless-stopped
+
+  mcp-scan:
+    build:
+      context: .
+      dockerfile: Dockerfile.node-mcp
+      args:
+        REPO_URL: https://github.com/invariantlabs-ai/mcp-scan.git
+    command: node index.js
+    restart: unless-stopped
+
+  # =========================
+  # 💡 Miscellaneous Utilities
+  # =========================
+  calculator-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.node-mcp
+      args:
+        REPO_URL: https://github.com/avisangle/calculator-server.git
+    command: node index.js
+    restart: unless-stopped
+
+  investor-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile.python-mcp
+      args:
+        REPO_URL: https://github.com/ferdousbhai/investor-agent.git
+    command: uvx investor-agent
+    restart: unless-stopped
+
+  docker-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.node-mcp
+      args:
+        REPO_URL: https://github.com/QuantGeekDev/docker-mcp.git
+    command: node index.js
+    restart: unless-stopped
+
+  token-optimizer-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.node-mcp
+      args:
+        REPO_URL: https://github.com/ooples/token-optimizer-mcp.git
+    command: node index.js
