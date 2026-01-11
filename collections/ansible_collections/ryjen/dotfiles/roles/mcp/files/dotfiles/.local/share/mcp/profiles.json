@@ -1,0 +1,16 @@
+{
+  "servers": {
+    "skillz":               { "host": "skillz",               "port": 7001, "profiles": ["ai-tools", "all"] },
+    "sequential-thinking":  { "host": "sequential-thinking",  "port": 7002, "profiles": ["ai-tools", "all"] },
+    "memory-bank":          { "host": "memory-bank",          "port": 7003, "profiles": ["ai-tools", "all"] },
+    "conventional-commits": { "host": "conventional-commits", "port": 7005, "profiles": ["ai-tools", "all"] },
+
+    "mobile-mcp":           { "host": "mobile-mcp",           "port": 7004, "profiles": ["mobile", "all"] },
+
+    "filesystem":           { "host": "filesystem",           "port": 7006, "profiles": ["dev", "all"] },
+    "git":                  { "host": "git",                  "port": 7007, "profiles": ["dev", "all"] },
+    "browser":              { "host": "browser",              "port": 7008, "profiles": ["dev", "all"] },
+    "sqlite":               { "host": "sqlite",               "port": 7009, "profiles": ["dev", "all"] },
+    "shell":                { "host": "shell",                "port": 7010, "profiles": ["dev", "all"] }
+  }
+}

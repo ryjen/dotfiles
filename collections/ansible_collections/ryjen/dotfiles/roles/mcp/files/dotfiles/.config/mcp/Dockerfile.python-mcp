@@ -1,9 +1,0 @@
-FROM python:3.12
-# Install curl for downloading UVX
-RUN apt-get update && apt-get install -y curl
-# Install UVX
-RUN curl -sSL https://astral.sh/uv/install.sh | bash
-WORKDIR /app
-ARG REPO_URL
-RUN git clone $REPO_URL .
-RUN pip install .

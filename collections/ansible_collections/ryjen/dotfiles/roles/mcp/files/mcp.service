@@ -1,0 +1,14 @@
+[Unit]
+Description=MCP services
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+WorkingDirectory=/home/ryjen/.local/share/mcp
+ExecStart=/usr/bin/make up
+ExecStop=/usr/bin/make down
+
+[Install]
+WantedBy=multi-user.target

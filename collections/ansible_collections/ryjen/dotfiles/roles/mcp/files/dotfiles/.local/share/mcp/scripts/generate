@@ -1,0 +1,130 @@
+#!/usr/bin/env python3
+import json
+
+CONFIG_FILE = "mcp-config.json"
+COMPOSE_OUT = "docker-compose.yml"
+GATEWAY_OUT = "gateway.yml"
+
+
+def load_config():
+    with open(CONFIG_FILE, "r") as f:
+        return json.load(f)["services"]
+
+
+def q(s):
+    """Always quote command tokens for YAML safety."""
+    return f"\"{s}\""
+
+
+def write_compose(services):
+    with open(COMPOSE_OUT, "w") as f:
+        f.write("\nservices:\n")
+
+        for name, cfg in services.items():
+            f.write(f"  {name}:\n")
+
+            # image or dockerfile
+            if "image" in cfg:
+                f.write(f"    image: {cfg['image']}\n")
+            elif "dockerfile" in cfg:
+                f.write("    build:\n")
+                f.write("      context: .\n")
+                f.write(f"      dockerfile: {cfg['dockerfile']}\n")
+            else:
+                raise ValueError(f"Service {name} must define 'image' or 'dockerfile'")
+
+            # entrypoint = MCP server command
+            cmd = cfg["command"]
+            f.write("    entrypoint:\n")
+            for c in cmd:
+                f.write(f"      - {q(c)}\n")
+
+            f.write("    tty: true\n")
+
+            # healthcheck
+            f.write("    healthcheck:\n")
+            f.write("      test: [\"CMD\", \"sh\", \"-c\", \"echo '{}' | timeout 2 cat >/dev/null\"]\n")
+            f.write("      interval: 5s\n")
+            f.write("      timeout: 3s\n")
+            f.write("      retries: 5\n")
+
+            # optional working directory
+            if "workdir" in cfg:
+                f.write(f"    working_dir: {cfg['workdir']}\n")
+
+            # optional volumes
+            if "volumes" in cfg:
+                f.write("    volumes:\n")
+                for v in cfg["volumes"]:
+                    f.write(f"      - {v}\n")
+
+            # optional environment variables
+            if "env" in cfg:
+                f.write("    environment:\n")
+                for k, v in cfg["env"].items():
+                    f.write(f"      {k}: \"{v}\"\n")
+
+            # profiles (always include default)
+            f.write("    profiles:\n")
+            f.write("      - default\n")
+            for p in cfg["profiles"]:
+                f.write(f"      - {p}\n")
+
+        # gateway container
+        f.write("\n  mcp-gateway:\n")
+        f.write("    image: docker/mcp-gateway:latest\n")
+        f.write("    volumes:\n")
+        f.write("      - \"${MCP_VOLUMES_DIR}/gateway.yml:/app/gateway.yml\"\n")
+        f.write("    command: [\"--config\", \"/app/gateway.yml\"]\n")
+        f.write("    profiles:\n")
+        f.write("      - all\n")
+        f.write("      - dev\n")
+        f.write("      - ai-tools\n")
+        f.write("      - mobile\n")
+        f.write("      - automation\n")
+        f.write("      - infra\n")
+
+
+def write_gateway(services):
+    # collect all profiles
+    all_profiles = set()
+    for cfg in services.values():
+        for p in cfg["profiles"]:
+            all_profiles.add(p)
+
+    with open(GATEWAY_OUT, "w") as f:
+        f.write("version: 1\n\n")
+        f.write("gateway:\n")
+        f.write("  listen:\n")
+        f.write("    host: 0.0.0.0\n")
+        f.write("    port: 7999\n\n")
+
+        f.write("profiles:\n")
+        f.write("  active:\n")
+        for p in sorted(all_profiles):
+            f.write(f"    - {p}\n")
+
+        f.write("\nservers:\n")
+        for name, cfg in services.items():
+            f.write(f"  {name}:\n")
+            f.write("    transport: stdio\n")
+
+            # docker exec command
+            f.write("    command:\n")
+            f.write(f"      - {q('docker')}\n")
+            f.write(f"      - {q('exec')}\n")
+            f.write(f"      - {q('-i')}\n")
+            f.write(f"      - {q(name)}\n")
+            for c in cfg["command"]:
+                f.write(f"      - {q(c)}\n")
+
+
+def main():
+    services = load_config()
+    write_compose(services)
+    write_gateway(services)
+    print("Generated docker-compose.yml and gateway.yml")
+
+
+if __name__ == "__main__":
+    main()

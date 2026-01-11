@@ -1,0 +1,517 @@
+
+services:
+  skillz:
+    build:
+      context: .
+      dockerfile: Dockerfile.python
+    entrypoint:
+      - "uvx"
+      - "skillz"
+    tty: true
+    healthcheck:
+      test: ["CMD", "sh", "-c", "echo '{}' | timeout 2 cat >/dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    volumes:
+      - ${MCP_VOLUME_DIR}/skillz:/root/.skillz
+    profiles:
+      - default
+      - ai-tools
+      - all
+  sequential-thinking:
+    image: mcp/sequentialthinking:latest
+    entrypoint:
+      - "node"
+      - "dist/index.js"
+    tty: true
+    healthcheck:
+      test: ["CMD", "sh", "-c", "echo '{}' | timeout 2 cat >/dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    profiles:
+      - default
+      - ai-tools
+      - all
+  memory-bank:
+    build:
+      context: .
+      dockerfile: Dockerfile.node
+    entrypoint:
+      - "npx"
+      - "-y"
+      - "@allpepper/memory-bank-mcp"
+    tty: true
+    healthcheck:
+      test: ["CMD", "sh", "-c", "echo '{}' | timeout 2 cat >/dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    working_dir: /app/memory-bank
+    volumes:
+      - ${MCP_VOLUME_DIR}/memory-bank:/app/memory-bank
+    profiles:
+      - default
+      - ai-tools
+      - all
+  conventional-commits:
+    build:
+      context: .
+      dockerfile: Dockerfile.python
+    entrypoint:
+      - "uvx"
+      - "mcp-git-commit-generator"
+    tty: true
+    healthcheck:
+      test: ["CMD", "sh", "-c", "echo '{}' | timeout 2 cat >/dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    profiles:
+      - default
+      - ai-tools
+      - all
+  mobile-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.node
+    entrypoint:
+      - "npx"
+      - "-y"
+      - "@mobilenext/mobile-mcp@latest"
+    tty: true
+    healthcheck:
+      test: ["CMD", "sh", "-c", "echo '{}' | timeout 2 cat >/dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    profiles:
+      - default
+      - mobile
+      - all
+  filesystem:
+    image: mcp/filesystem:latest
+    entrypoint:
+      - "node"
+      - "/app/dist/index.js"
+      - "/workspace"
+    tty: true
+    healthcheck:
+      test: ["CMD", "sh", "-c", "echo '{}' | timeout 2 cat >/dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    working_dir: /workspace
+    volumes:
+      - ${MCP_VOLUME_DIR}/filesystem:/workspace
+    profiles:
+      - default
+      - dev
+      - all
+  playwright:
+    image: mcp/playwright:latest
+    entrypoint:
+      - "node"
+      - "cli.js"
+      - "--headless"
+      - "--browser"
+      - "chromium"
+      - "--no-sandbox"
+    tty: true
+    healthcheck:
+      test: ["CMD", "sh", "-c", "echo '{}' | timeout 2 cat >/dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    profiles:
+      - default
+      - dev
+      - all
+  sqlite:
+    image: mcp/sqlite-mcp-server:latest
+    entrypoint:
+      - "mcp-server-sqlite"
+    tty: true
+    healthcheck:
+      test: ["CMD", "sh", "-c", "echo '{}' | timeout 2 cat >/dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    working_dir: /db
+    volumes:
+      - ${MCP_VOLUME_DIR}/db:/db
+    profiles:
+      - default
+      - dev
+      - all
+  n8n:
+    image: mcp/n8n
+    entrypoint:
+      - "node"
+      - "dist/mcp/index.js"
+    tty: true
+    healthcheck:
+      test: ["CMD", "sh", "-c", "echo '{}' | timeout 2 cat >/dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    environment:
+      N8N_URL: "http://dubnium.tail4d84c.ts.net:5678"
+    profiles:
+      - default
+      - automation
+      - all
+  kubernetes:
+    image: mcp/kubernetes:latest
+    entrypoint:
+      - "node"
+      - "dist/index.js"
+    tty: true
+    healthcheck:
+      test: ["CMD", "sh", "-c", "echo '{}' | timeout 2 cat >/dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    volumes:
+      - ${MCP_VOLUME_DIR}/kube:/root/.kube
+    profiles:
+      - default
+      - infra
+      - all
+  arxiv:
+    image: mcp/arxiv-mcp-server:latest
+    entrypoint:
+      - "arxiv-mcp-server"
+    tty: true
+    healthcheck:
+      test: ["CMD", "sh", "-c", "echo '{}' | timeout 2 cat >/dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    profiles:
+      - default
+      - research
+      - all
+  local-rag:
+    build:
+      context: .
+      dockerfile: Dockerfile.python
+    entrypoint:
+      - "uvx"
+      - "git+https://github.com/nkapila6/mcp-local-rag"
+      - "local-rag"
+    tty: true
+    healthcheck:
+      test: ["CMD", "sh", "-c", "echo '{}' | timeout 2 cat >/dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    volumes:
+      - ${MCP_VOLUME_DIR}/local-rag:/data
+    environment:
+      LOCAL_RAG_DATA_DIR: "/data"
+    profiles:
+      - default
+      - ai-tools
+      - all
+  sysoperator:
+    build:
+      context: .
+      dockerfile: Dockerfile.node
+    entrypoint:
+      - "npx"
+      - "-y"
+      - "@iflow-mcp/mcp-sysoperator"
+    tty: true
+    healthcheck:
+      test: ["CMD", "sh", "-c", "echo '{}' | timeout 2 cat >/dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    profiles:
+      - default
+      - infra
+      - all
+  user-feedback:
+    build:
+      context: .
+      dockerfile: Dockerfile.python
+    entrypoint:
+      - "uvx"
+      - "git+https://github.com/mrexodia/user-feedback-mcp"
+      - "server.py"
+    tty: true
+    healthcheck:
+      test: ["CMD", "sh", "-c", "echo '{}' | timeout 2 cat >/dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    profiles:
+      - default
+      - automation
+      - ai-tools
+      - all
+  language-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.go
+    entrypoint:
+      - "go"
+      - "run"
+      - "github.com/isaacphi/mcp-language-server@latest"
+      - "--workspace"
+      - "/app"
+    tty: true
+    healthcheck:
+      test: ["CMD", "sh", "-c", "echo '{}' | timeout 2 cat >/dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    working_dir: /app
+    profiles:
+      - default
+      - dev
+      - all
+  editor-config:
+    build:
+      context: .
+      dockerfile: Dockerfile.node
+    entrypoint:
+      - "npx"
+      - "-y"
+      - "editorconfig-mcp-server"
+    tty: true
+    healthcheck:
+      test: ["CMD", "sh", "-c", "echo '{}' | timeout 2 cat >/dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    profiles:
+      - default
+      - dev
+      - all
+  fetch:
+    build:
+      context: .
+      dockerfile: Dockerfile.node
+    entrypoint:
+      - "npx"
+      - "-y"
+      - "mcp-fetch-server"
+    tty: true
+    healthcheck:
+      test: ["CMD", "sh", "-c", "echo '{}' | timeout 2 cat >/dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    profiles:
+      - default
+      - dev
+      - research
+      - all
+  src-to-kb:
+    build:
+      context: .
+      dockerfile: Dockerfile.node
+    entrypoint:
+      - "npx"
+      - "-y"
+      - "@vezlo/src-to-kb"
+      - "mcp"
+    tty: true
+    healthcheck:
+      test: ["CMD", "sh", "-c", "echo '{}' | timeout 2 cat >/dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    profiles:
+      - default
+      - dev
+      - all
+  pandoc:
+    build:
+      context: .
+      dockerfile: Dockerfile.python
+    entrypoint:
+      - "uvx"
+      - "mcp-pandoc"
+    tty: true
+    healthcheck:
+      test: ["CMD", "sh", "-c", "echo '{}' | timeout 2 cat >/dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    profiles:
+      - default
+      - dev
+      - all
+  piloty:
+    build:
+      context: .
+      dockerfile: Dockerfile.python
+    entrypoint:
+      - "uvx"
+      - "git+https://github.com/yiwenlu66/PiloTY"
+      - "piloty"
+    tty: true
+    healthcheck:
+      test: ["CMD", "sh", "-c", "echo '{}' | timeout 2 cat >/dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    profiles:
+      - default
+      - ai-tools
+      - all
+  kaggle:
+    build:
+      context: .
+      dockerfile: Dockerfile.python
+    entrypoint:
+      - "uvx"
+      - "--from"
+      - "git+https://github.com/54yyyu/kaggle-mcp"
+      - "kaggle-mcp"
+    tty: true
+    healthcheck:
+      test: ["CMD", "sh", "-c", "echo '{}' | timeout 2 cat >/dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    profiles:
+      - default
+      - ai-tools
+      - all
+  context-awesome:
+    build:
+      context: .
+      dockerfile: Dockerfile.node
+    entrypoint:
+      - "npx"
+      - "-y"
+      - "https://github.com/bh-rat/context-awesome"
+    tty: true
+    healthcheck:
+      test: ["CMD", "sh", "-c", "echo '{}' | timeout 2 cat >/dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    profiles:
+      - default
+      - ai-tools
+      - all
+  ghidra:
+    build:
+      context: .
+      dockerfile: Dockerfile.python
+    entrypoint:
+      - "uvx"
+      - "--from"
+      - "git+https://github.com/LaurieWired/GhidraMCP"
+      - "bridge_mcp_ghidra.py"
+      - "--transport"
+      - "sse"
+      - "--ghidra-server"
+      - "http://127.0.0.1:8080/"
+    tty: true
+    healthcheck:
+      test: ["CMD", "sh", "-c", "echo '{}' | timeout 2 cat >/dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    volumes:
+      - ${MCP_VOLUME_DIR}/ghidra:/ghidra
+    environment:
+      GHIDRA_SERVER: "http://127.0.0.1:9999/"
+    profiles:
+      - default
+      - dev
+      - security
+      - all
+  scan:
+    build:
+      context: .
+      dockerfile: Dockerfile.python
+    entrypoint:
+      - "uvx"
+      - "git+https://github.com/invariantlabs-ai/mcp-scan"
+      - "mcp-scan"
+    tty: true
+    healthcheck:
+      test: ["CMD", "sh", "-c", "echo '{}' | timeout 2 cat >/dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    profiles:
+      - default
+      - ai-tools
+      - security
+      - all
+  calculator:
+    build:
+      context: .
+      dockerfile: Dockerfile.go
+    entrypoint:
+      - "go"
+      - "run"
+      - "github.com/avisangle/calculator-server@latest"
+    tty: true
+    healthcheck:
+      test: ["CMD", "sh", "-c", "echo '{}' | timeout 2 cat >/dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    profiles:
+      - default
+      - ai-tools
+      - all
+  investor-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile.python
+    entrypoint:
+      - "uvx"
+      - "git+https://github.com/ferdousbhai/investor-agent"
+      - "investor-agent"
+    tty: true
+    healthcheck:
+      test: ["CMD", "sh", "-c", "echo '{}' | timeout 2 cat >/dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    profiles:
+      - default
+      - ai-tools
+      - all
+  token-optimizer-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.node
+    entrypoint:
+      - "npx"
+      - "-y"
+      - "token-optimizer-mcp"
+    tty: true
+    healthcheck:
+      test: ["CMD", "sh", "-c", "echo '{}' | timeout 2 cat >/dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    profiles:
+      - default
+      - ai-tools
+      - all
+
+  mcp-gateway:
+    image: docker/mcp-gateway:latest
+    volumes:
+      - "${MCP_VOLUMES_DIR}/gateway.yml:/app/gateway.yml"
+    command: ["--config", "/app/gateway.yml"]
+    profiles:
+      - all
+      - dev
+      - ai-tools
+      - mobile
+      - automation
+      - infra

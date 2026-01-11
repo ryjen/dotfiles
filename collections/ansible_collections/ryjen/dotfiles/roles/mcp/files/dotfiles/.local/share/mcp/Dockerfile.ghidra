@@ -1,0 +1,16 @@
+FROM python:3.11-slim
+
+# Install Java (required for Ghidra plugin communication)
+RUN apt-get update && apt-get install -y openjdk-17-jre-headless curl && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copy repo
+WORKDIR /app
+
+# Install Python deps
+RUN pip install -r requirements.txt
+
+# Expose MCP port
+EXPOSE 8081
+
+ENTRYPOINT ["python", "bridge_mcp_ghidra.py"]

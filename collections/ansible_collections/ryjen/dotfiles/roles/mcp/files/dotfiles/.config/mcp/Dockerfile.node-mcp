@@ -1,6 +1,0 @@
-FROM node:20
-WORKDIR /app
-ARG REPO_URL
-RUN git clone $REPO_URL .
-RUN npm install || true
-CMD ["npm", "start"]

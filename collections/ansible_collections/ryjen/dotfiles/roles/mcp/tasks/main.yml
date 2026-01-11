@@ -1,3 +1,21 @@
-#SPDX-License-Identifier: MIT-0
----
-# tasks file for mcp
+- name: "Ensure mcp is {{ install_state }}"
+  include_role:
+    name: installer
+  vars:
+    dotfiles: mcp
+
+- name: Copy MCP service file
+  copy:
+    src: mcp.service
+    dest: /etc/systemd/system/mcp.service
+    mode: 0644
+  become: true
+  notify: Reload systemd
+
+- name: Enable and start MCP service
+  systemd:
+    name: mcp.service
+    enabled: true
+    state: started
+  become: true
+
