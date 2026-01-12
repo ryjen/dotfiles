@@ -5,7 +5,29 @@
     chdir: "{{ dotfiles_root }}"
   register: result
   changed_when: result.stderr is search("LINK:")
-  when: install_state == "present"
+  when:
+    - install_state == "present"
+    - stow_target is not defined or stow_target | length == 0
+
+- name: "Ensure stow target exists"
+  file:
+    path: "{{ stow_target }}"
+    state: directory
+  when:
+    - install_state == "present"
+    - stow_target is defined
+    - stow_target | length > 0
+
+- name: "Link {{ dotfiles_directory }} dotfiles with target"
+  command: "stow --target {{ stow_target }} {{ dotfiles_directory }}"
+  args:
+    chdir: "{{ dotfiles_root }}"
+  register: result
+  changed_when: result.stderr is search("LINK:")
+  when:
+    - install_state == "present"
+    - stow_target is defined
+    - stow_target | length > 0
 
 - name: "Unlink {{ dotfiles_directory }} dotfiles"
   command: "stow -D {{ dotfiles_directory }}"
@@ -13,4 +35,17 @@
     chdir: "{{ dotfiles_root }}"
   register: result
   changed_when: result.stderr is search("UNLINK:")
-  when: install_state == "absent"
+  when:
+    - install_state == "absent"
+    - stow_target is not defined or stow_target | length == 0
+
+- name: "Unlink {{ dotfiles_directory }} dotfiles with target"
+  command: "stow -D --target {{ stow_target }} {{ dotfiles_directory }}"
+  args:
+    chdir: "{{ dotfiles_root }}"
+  register: result
+  changed_when: result.stderr is search("UNLINK:")
+  when:
+    - install_state == "absent"
+    - stow_target is defined
+    - stow_target | length > 0

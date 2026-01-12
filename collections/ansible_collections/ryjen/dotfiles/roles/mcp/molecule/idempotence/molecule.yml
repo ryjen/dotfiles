@@ -1,0 +1,23 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: docker
+platforms:
+  - name: mcp-ubuntu-idem
+    image: geerlingguy/docker-ubuntu2204-ansible:latest
+    privileged: true
+    command: /sbin/init
+    pre_build_image: true
+provisioner:
+  name: ansible
+ansible:
+  playbooks:
+    converge: converge.yml
+scenario:
+  test_sequence:
+    - dependency
+    - create
+    - converge
+    - idempotence
+    - destroy

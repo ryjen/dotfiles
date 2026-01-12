@@ -59,5 +59,10 @@ install | uninstall)
 	echo ""
 	echo "  Example: '$PROG install neovim' or $PROG uninstall -vv"
 	echo ""
+	echo "  Tag Groups:"
+	echo "    basic      :  minimal install"
+	echo "    default    :  default install"
+	echo "    extra      :  extra install"
+	echo "    ai         :  ai tools"
 	;;
 esac

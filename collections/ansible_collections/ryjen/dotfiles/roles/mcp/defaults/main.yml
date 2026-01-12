@@ -1,3 +1,294 @@
 #SPDX-License-Identifier: MIT-0
 ---
 # defaults file for mcp
+
+mcp_install_path: "{{ ansible_facts['env']['HOME'] }}/.local/share/mcp"
+mcp_volumes_path: "{{ mcp_install_path }}/volumes"
+mcp_docker_context_name: mcp
+mcp_docker_context_source: default
+mcp_manage_docker: true
+
+mcp_services_config:
+  skillz:
+    dockerfile: Dockerfile.python
+    profiles:
+    - ai-tools
+    - all
+    command:
+    - uvx
+    - skillz
+    volumes:
+    - "{{ mcp_volumes_path }}/skillz:/root/.skillz"
+  sequential-thinking:
+    image: mcp/sequentialthinking:latest
+    profiles:
+    - ai-tools
+    - all
+    command:
+    - node
+    - dist/index.js
+  memory-bank:
+    dockerfile: Dockerfile.node
+    profiles:
+    - ai-tools
+    - all
+    command:
+    - npx
+    - -y
+    - '@allpepper/memory-bank-mcp'
+    workdir: /app/memory-bank
+    volumes:
+    - "{{ mcp_volumes_path }}/memory-bank:/app/memory-bank"
+  conventional-commits:
+    dockerfile: Dockerfile.python
+    profiles:
+    - ai-tools
+    - all
+    command:
+    - uvx
+    - mcp-git-commit-generator
+  mobile-mcp:
+    dockerfile: Dockerfile.node
+    profiles:
+    - mobile
+    - all
+    command:
+    - npx
+    - -y
+    - '@mobilenext/mobile-mcp@latest'
+  filesystem:
+    image: mcp/filesystem:latest
+    profiles:
+    - dev
+    - all
+    command:
+    - node
+    - /app/dist/index.js
+    - /workspace
+    volumes:
+    - "{{ mcp_volumes_path }}/filesystem:/workspace"
+    workdir: /workspace
+  playwright:
+    image: mcp/playwright:latest
+    profiles:
+    - dev
+    - all
+    command:
+    - node
+    - cli.js
+    - --headless
+    - --browser
+    - chromium
+    - --no-sandbox
+  sqlite:
+    image: mcp/sqlite-mcp-server:latest
+    profiles:
+    - dev
+    - all
+    command:
+    - mcp-server-sqlite
+    workdir: /db
+    volumes:
+    - "{{ mcp_volumes_path }}/db:/db"
+  n8n:
+    image: mcp/n8n
+    profiles:
+    - automation
+    - all
+    command:
+    - node
+    - dist/mcp/index.js
+    env:
+      N8N_URL: http://dubnium.tail4d84c.ts.net:5678
+  kubernetes:
+    image: mcp/kubernetes:latest
+    profiles:
+    - infra
+    - all
+    command:
+    - node
+    - dist/index.js
+    volumes:
+    - "{{ mcp_volumes_path }}/kube:/root/.kube"
+  arxiv:
+    image: mcp/arxiv-mcp-server:latest
+    profiles:
+    - research
+    - all
+    command:
+    - arxiv-mcp-server
+  local-rag:
+    dockerfile: Dockerfile.python
+    profiles:
+    - ai-tools
+    - all
+    command:
+    - uvx
+    - git+https://github.com/nkapila6/mcp-local-rag
+    - local-rag
+    volumes:
+    - "{{ mcp_volumes_path }}/local-rag:/data"
+    env:
+      LOCAL_RAG_DATA_DIR: /data
+  sysoperator:
+    dockerfile: Dockerfile.node
+    profiles:
+    - infra
+    - all
+    command:
+    - npx
+    - -y
+    - '@iflow-mcp/mcp-sysoperator'
+  user-feedback:
+    dockerfile: Dockerfile.python
+    profiles:
+    - automation
+    - ai-tools
+    - all
+    command:
+    - uvx
+    - git+https://github.com/mrexodia/user-feedback-mcp
+    - server.py
+  language-server:
+    dockerfile: Dockerfile.langserve
+    profiles:
+    - dev
+    - all
+    workdir: /app
+    command:
+    - go
+    - run
+    - mcp-language-server
+    - --workspace
+    - /app
+    - --lsp
+    - gopls
+    - --lsp
+    - pyright-langserver
+    - --
+    - --stdio
+    - --lsp
+    - typescript-language-server
+    - --
+    - --stdio
+  editor-config:
+    dockerfile: Dockerfile.node
+    profiles:
+    - dev
+    - all
+    command:
+    - npx
+    - -y
+    - editorconfig-mcp-server
+  fetch:
+    dockerfile: Dockerfile.node
+    profiles:
+    - dev
+    - research
+    - all
+    command:
+    - npx
+    - -y
+    - mcp-fetch-server
+  src-to-kb:
+    dockerfile: Dockerfile.node
+    profiles:
+    - dev
+    - all
+    command:
+    - npx
+    - -y
+    - '@vezlo/src-to-kb'
+    - mcp
+  pandoc:
+    dockerfile: Dockerfile.python
+    profiles:
+    - dev
+    - all
+    command:
+    - uvx
+    - mcp-pandoc
+  piloty:
+    dockerfile: Dockerfile.python
+    profiles:
+    - ai-tools
+    - all
+    command:
+    - uvx
+    - git+https://github.com/yiwenlu66/PiloTY
+    - piloty
+  kaggle:
+    dockerfile: Dockerfile.python
+    profiles:
+    - ai-tools
+    - all
+    command:
+    - uvx
+    - --from
+    - git+https://github.com/54yyyu/kaggle-mcp
+    - kaggle-mcp
+  context-awesome:
+    dockerfile: Dockerfile.node
+    profiles:
+    - ai-tools
+    - all
+    command:
+    - npx
+    - -y
+    - https://github.com/bh-rat/context-awesome
+  ghidra:
+    dockerfile: Dockerfile.python
+    profiles:
+    - dev
+    - security
+    - all
+    command:
+    - uvx
+    - --from
+    - git+https://github.com/LaurieWired/GhidraMCP
+    - bridge_mcp_ghidra.py
+    - --transport
+    - sse
+    - --ghidra-server
+    - http://127.0.0.1:8080/
+    env:
+      GHIDRA_SERVER: http://127.0.0.1:9999/
+    volumes:
+    - "{{ mcp_volumes_path }}/ghidra:/ghidra"
+  scan:
+    dockerfile: Dockerfile.python
+    profiles:
+    - ai-tools
+    - security
+    - all
+    command:
+    - uvx
+    - git+https://github.com/invariantlabs-ai/mcp-scan
+    - mcp-scan
+  calculator:
+    dockerfile: Dockerfile.go
+    profiles:
+    - ai-tools
+    - all
+    command:
+    - go
+    - run
+    - github.com/avisangle/calculator-server@latest
+  investor-agent:
+    dockerfile: Dockerfile.python
+    profiles:
+    - ai-tools
+    - all
+    command:
+    - uvx
+    - git+https://github.com/ferdousbhai/investor-agent
+    - investor-agent
+  token-optimizer-mcp:
+    dockerfile: Dockerfile.node
+    profiles:
+    - ai-tools
+    - all
+    command:
+    - npx
+    - -y
+    - token-optimizer-mcp

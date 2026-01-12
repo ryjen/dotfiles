@@ -4,18 +4,80 @@
   vars:
     dotfiles: mcp
 
+- name: Check MCP docker context
+  command:
+    argv:
+      - docker
+      - context
+      - inspect
+      - "{{ mcp_docker_context_name }}"
+  register: mcp_docker_context_inspect
+  changed_when: false
+  failed_when: false
+  when: install_state == "present"
+
+- name: Create MCP docker context
+  command:
+    argv:
+      - docker
+      - context
+      - create
+      - "{{ mcp_docker_context_name }}"
+      - --from
+      - "{{ mcp_docker_context_source }}"
+  when:
+    - install_state == "present"
+    - mcp_docker_context_inspect.rc != 0
+
+- name: "Ensure docker compose config is {{ install_state }}"
+  template:
+    src: "docker-compose.yml.j2"
+    dest: "{{ mcp_install_path }}/docker-compose.yml"
+  when: install_state == "present"
+
+- name: "Ensure docker compose config is {{ install_state }}"
+  file:
+    path: "{{ mcp_install_path }}/docker-compose.yml"
+    state: "{{ install_state }}"
+  when: install_state == "absent"
+
+- name: "Ensure mcp gateway config is {{ install_state }}"
+  template:
+    src: "gateway.yml.j2"
+    dest: "{{ mcp_install_path }}/gateway.yml"
+  when: install_state == "present"
+
+- name: "Ensure mcp gateway config is {{ install_state }}"
+  file:
+    path: "{{ mcp_install_path }}/gateway.yml"
+    state: "{{ install_state }}"
+  when: install_state == "absent"
+
+- name: Disable the MCP service
+  systemd:
+    name: mcp.service
+    enabled: false
+  become: true
+  when: install_state == "absent"
+
 - name: Copy MCP service file
-  copy:
-    src: mcp.service
+  template:
+    src: mcp.service.j2
     dest: /etc/systemd/system/mcp.service
     mode: 0644
   become: true
   notify: Reload systemd
+  when: install_state == "present"
 
-- name: Enable and start MCP service
+- name: Remove MCP service file 
+  file:
+    path:
+    state: absent 
+  when: install_state == "absent"
+
+- name: Enable the MCP service
   systemd:
     name: mcp.service
     enabled: true
-    state: started
   become: true
-
+  when: install_state == "present"

@@ -6,7 +6,7 @@ Requires=docker.service
 [Service]
 Type=oneshot
 RemainAfterExit=true
-WorkingDirectory=/home/ryjen/.local/share/mcp
+WorkingDirectory={{ mcp_install_path }}
 ExecStart=/usr/bin/make up
 ExecStop=/usr/bin/make down
 

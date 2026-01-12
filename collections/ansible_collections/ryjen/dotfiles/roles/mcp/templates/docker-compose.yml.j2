@@ -1,0 +1,56 @@
+
+services:
+{% for name, cfg in mcp_services_config.items() %}
+  {{ name }}:
+{% if "image" in cfg %}
+    image: {{ cfg['image'] }}
+{% elif "dockerfile" in cfg %}
+    build:
+      context: .
+      dockerfile: {{ cfg['dockerfile'] }}
+{% else %}
+    # Service '{{ name }}' must define 'image' or 'dockerfile'
+{% endif %}
+    entrypoint:
+{% for c in cfg['command'] %}
+      - "{{ c }}"
+{% endfor %}
+    tty: true
+    healthcheck:
+      test: ["CMD", "sh", "-c", "echo '{}' | timeout 2 cat >/dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+{% if "workdir" in cfg %}
+    working_dir: {{ cfg['workdir'] }}
+{% endif %}
+{% if "volumes" in cfg %}
+    volumes:
+{% for v in cfg['volumes'] %}
+      - {{ v }}
+{% endfor %}
+{% endif %}
+{% if "env" in cfg %}
+    environment:
+{% for k, v in cfg["env"].items() %}
+      {{ k }}: "{{ v }}"
+{% endfor %}
+{% endif %}
+    profiles:
+      - default
+{% for p in cfg['profiles'] %}
+      - {{ p }}
+{% endfor %}
+{% endfor %}
+  mcp-gateway:
+    image: docker/mcp-gateway:latest
+    volumes:
+      - "${MCP_VOLUMES_DIR}/gateway.yml:/app/gateway.yml"
+    command: ["--config", "/app/gateway.yml"]
+    profiles:
+      - all
+      - dev
+      - ai-tools
+      - mobile
+      - automation
+      - infra

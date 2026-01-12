@@ -1,0 +1,9 @@
+#SPDX-License-Identifier: MIT-0
+---
+- import_playbook: roles/mcp/tests/test.yml
+  vars:
+    install_state: present
+
+- import_playbook: roles/mcp/tests/test.yml
+  vars:
+    install_state: absent

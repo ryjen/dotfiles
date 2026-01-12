@@ -1,9 +1,11 @@
+.PHONY: dev ai mobile all context up down restart logs ps clean help
 
 # -----------------------------------------
 # Makefile for MCP Server Profiles
 # -----------------------------------------
 
 COMPOSE = docker compose
+CONTEXT = mcp
 
 # Default target
 .DEFAULT_GOAL := help
@@ -13,42 +15,38 @@ COMPOSE = docker compose
 # -----------------------------------------
 
 dev:
-	$(COMPOSE) --profile dev up -d
+	$(COMPOSE) --context $(CONTEXT) --profile dev up -d
 
 ai:
-	$(COMPOSE) --profile ai-tools up -d
+	$(COMPOSE) --context $(CONTEXT) --profile ai-tools up -d
 
 mobile:
-	$(COMPOSE) --profile mobile up -d
+	$(COMPOSE) --context $(CONTEXT) --profile mobile up -d
 
 all:
-	$(COMPOSE) --profile all up -d
+	$(COMPOSE) --context $(CONTEXT) --profile all up -d
 
 # -----------------------------------------
 # Utility Commands
 # -----------------------------------------
 
-generate:
-	scripts/generate
-
-
 up: all
 
 down:
-	$(COMPOSE) down
+	$(COMPOSE) --context $(CONTEXT) --profile all down
 
 restart:
-	$(COMPOSE) down
-	$(COMPOSE) --profile all up -d
+	$(COMPOSE) --context $(CONTEXT) --profile all down
+	$(COMPOSE) --context $(CONTEXT) --profile all up -d
 
 logs:
-	$(COMPOSE) logs -f
+	$(COMPOSE) --context $(CONTEXT) --profile all logs -f
 
-ps:
-	$(COMPOSE) ps
+ps: context
+	$(COMPOSE) --context $(CONTEXT) --profile all ps
 
 clean:
-	$(COMPOSE) down -v
+	$(COMPOSE) --context $(CONTEXT) --profile all down -v
 
 # -----------------------------------------
 # Help

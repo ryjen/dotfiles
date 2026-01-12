@@ -54,6 +54,10 @@
       tags: [pass, default, never]
     - role: pinentry
       tags: [pinentry, default, never]
+    - role: mcp
+      tags: [mcp, ai, never]
+    - role: opencode
+      tags: [opencode, ai, never]
     - role: git
       tags: [git, basic, all]
     - role: gpg

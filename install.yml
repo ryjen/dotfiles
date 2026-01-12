@@ -31,6 +31,10 @@
       tags: [input, basic, all]
     - role: starship
       tags: [starship, basic, all]
+    - role: mcp
+      tags: [mcp, ai, never]
+    - role: opencode
+      tags: [opencode, ai, never]
     - role: bat
       tags: [bat, default, never]
     - role: neovim
