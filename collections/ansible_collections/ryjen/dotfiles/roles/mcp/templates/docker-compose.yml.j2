@@ -45,7 +45,7 @@ services:
   mcp-gateway:
     image: docker/mcp-gateway:latest
     volumes:
-      - "${MCP_VOLUMES_DIR}/gateway.yml:/app/gateway.yml"
+      - "{{ mcp_install_path }}/gateway.yml:/app/gateway.yml"
     command: ["--config", "/app/gateway.yml"]
     profiles:
       - all

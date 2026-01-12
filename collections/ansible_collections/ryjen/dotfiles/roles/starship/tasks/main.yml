@@ -6,8 +6,9 @@
       when: install_state == "present"
 
     - name: Uninstall starship from ubuntu
-      shell: sh -c 'rm "$(command -v 'starship')"'
+      shell: 'rm -f "$(command -v starship)"'
       become: true
+      failed_when: false
       when: install_state == "absent"
 
   when: ansible_distribution == 'Ubuntu'

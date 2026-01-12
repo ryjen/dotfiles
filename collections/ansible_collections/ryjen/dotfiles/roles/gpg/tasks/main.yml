@@ -32,7 +32,8 @@
       when: gpg_key_id is defined
 
     - name: Import gpg key file
-      command: "echo {{ gpg_key }} | gpg --import"
+      shell: "echo '{{ gpg_key }}' | gpg --import"
+      no_log: true
       when: gpg_key is defined
 
   when: install_state == "present"

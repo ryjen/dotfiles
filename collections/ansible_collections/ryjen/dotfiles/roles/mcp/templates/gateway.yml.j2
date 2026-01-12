@@ -2,7 +2,7 @@ version: 1
 
 gateway:
   listen:
-    host: 0.0.0.0
+    host: 127.0.0.1
     port: 7999
 
 {% set all_profiles = mcp_services_config.values() | map(attribute='profiles') | sum(start=[]) %}

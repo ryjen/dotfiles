@@ -57,6 +57,7 @@
   systemd:
     name: mcp.service
     enabled: false
+    daemon_reload: true
   become: true
   when: install_state == "absent"
 
@@ -71,13 +72,16 @@
 
 - name: Remove MCP service file 
   file:
-    path:
-    state: absent 
+    path: /etc/systemd/system/mcp.service
+    state: absent
+  become: true
+  notify: Reload systemd
   when: install_state == "absent"
 
 - name: Enable the MCP service
   systemd:
     name: mcp.service
     enabled: true
+    daemon_reload: true
   become: true
   when: install_state == "present"

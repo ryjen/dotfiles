@@ -7,3 +7,6 @@
 - import_playbook: roles/mcp/tests/test.yml
   vars:
     install_state: absent
+
+- import_playbook: roles/gpg/tests/test.yml
+- import_playbook: roles/starship/tests/test.yml

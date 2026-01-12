@@ -59,17 +59,25 @@
       when: install_state == "absent"
 
     - block:
-      - name: Read MCP docker-compose config
-        slurp:
-          src: "{{ mcp_install_path }}/docker-compose.yml"
-        register: mcp_compose_slurp
-        when: mcp_compose_stat.stat.exists
+        - name: Read MCP docker-compose config
+          slurp:
+            src: "{{ mcp_install_path }}/docker-compose.yml"
+          register: mcp_compose_slurp
+          when: mcp_compose_stat.stat.exists
 
-      - name: Assert MCP docker-compose includes gateway
-        assert:
-          that:
-            - "'mcp-gateway:' in (mcp_compose_slurp.content | b64decode)"
-        when: mcp_compose_stat.stat.exists
+        - name: Assert MCP docker-compose includes gateway
+          assert:
+            that:
+              - "(mcp_compose_slurp.content | b64decode) is search('mcp-gateway:')"
+          when: mcp_compose_stat.stat.exists
+
+        - name: Assert MCP docker-compose uses local gateway config path
+          assert:
+            that:
+              - >-
+                (mcp_compose_slurp.content | b64decode
+                | regex_search('{{ mcp_install_path }}/gateway.yml:/app/gateway.yml')) is not none
+          when: mcp_compose_stat.stat.exists
       when: install_state == "present"
 
     - name: Check MCP systemd unit
@@ -82,3 +90,37 @@
         that:
           - mcp_service_stat.stat.exists
           - mcp_service_stat.stat.mode == "0644"
+      when: install_state == "present"
+
+    - name: Assert MCP systemd unit is absent
+      assert:
+        that:
+          - not mcp_service_stat.stat.exists
+      when: install_state == "absent"
+
+    - block:
+        - name: Read MCP gateway config
+          slurp:
+            src: "{{ mcp_install_path }}/gateway.yml"
+          register: mcp_gateway_slurp
+          when: mcp_gateway_stat.stat.exists
+
+        - name: Assert MCP gateway binds to loopback
+          assert:
+            that:
+              - "(mcp_gateway_slurp.content | b64decode) is search('host: 127.0.0.1')"
+          when: mcp_gateway_stat.stat.exists
+
+        - name: Read MCP systemd unit
+          slurp:
+            src: /etc/systemd/system/mcp.service
+          register: mcp_service_slurp
+          when: mcp_service_stat.stat.exists
+
+        - name: Assert MCP systemd unit uses docker compose
+          assert:
+            that:
+              - "(mcp_service_slurp.content | b64decode) is search('docker compose up -d')"
+              - "(mcp_service_slurp.content | b64decode) is search('docker compose down')"
+          when: mcp_service_stat.stat.exists
+      when: install_state == "present"

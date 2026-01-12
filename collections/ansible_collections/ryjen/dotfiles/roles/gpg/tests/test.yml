@@ -1,0 +1,22 @@
+#SPDX-License-Identifier: MIT-0
+---
+- hosts: localhost
+  tasks:
+    - name: Read gpg role tasks
+      slurp:
+        src: "{{ playbook_dir }}/../tasks/main.yml"
+      register: gpg_tasks
+
+    - name: Assert gpg key import uses shell
+      assert:
+        that:
+          - >-
+            (gpg_tasks.content | b64decode
+            | regex_search('(?s)- name: Import gpg key file.*\\n\\s*shell:')) is not none
+
+    - name: Assert gpg key import is not logged
+      assert:
+        that:
+          - >-
+            (gpg_tasks.content | b64decode
+            | regex_search('(?s)- name: Import gpg key file.*\\n\\s*shell:.*\\n\\s*no_log: true')) is not none
