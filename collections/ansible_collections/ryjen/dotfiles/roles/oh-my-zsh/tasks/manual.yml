@@ -4,10 +4,12 @@
     path: "{{ ansible_env.HOME }}/.oh-my-zsh"
   register: install
 
-- name: Install oh-my-zsh from curl script
-  command: /usr/bin/sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-  register: result
-  failed_when: result.rc != 0
+- name: Install oh-my-zsh from git
+  git:
+    repo: https://github.com/ohmyzsh/ohmyzsh.git
+    dest: "{{ ansible_env.HOME }}/.oh-my-zsh"
+    version: "{{ oh_my_zsh_version }}"
+    depth: 1
   when: install_state == "present" and not install.stat.exists
 
 - name: Uninstall oh-my-zsh

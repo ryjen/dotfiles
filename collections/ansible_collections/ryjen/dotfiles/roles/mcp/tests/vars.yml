@@ -1,4 +1,0 @@
-dotfiles_root: /tmp/mcp-dotfiles-root
-stow_target: /tmp/mcp-stow-target
-mcp_install_path: /tmp/mcp-stow-target/.local/share/mcp
-mcp_manage_docker: false

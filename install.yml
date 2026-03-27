@@ -35,6 +35,8 @@
       tags: [mcp, ai, never]
     - role: opencode
       tags: [opencode, ai, never]
+    - role: agents
+      tags: [agents, ai, never]
     - role: bat
       tags: [bat, default, never]
     - role: neovim
@@ -68,10 +70,10 @@
     - role: alacritty
       tags: [alacritty, extra, never]
     - role: continue
-      tags: [continue, extra, never]
+      tags: [continue, ai, never]
     - role: ansible
       tags: [ansible, extra, never]
     - role: docker
       tags: [docker, extra, never]
     - role: oh-my-zsh
-      tags: [oh-my-zsh, extra, never]
+      tags: [oh-my-zsh, never]

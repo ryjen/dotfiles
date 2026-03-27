@@ -10,10 +10,31 @@
         state: directory
       when: install_state == "present"
 
-    - command:
-        cmd: "curl -fLO https://github.com/ryanoasis/nerd-fonts/raw/HEAD/patched-fonts/{{ item.dir }}/{{ item.file }}"
-        chdir: "{{ font_install_path }}"
-        creates: "{{ font_install_path }}/{{ item.file }}"
+    - file:
+        path: "{{ nerdfonts_extract_dir }}"
+        state: directory
+      when: install_state == "present"
+
+    - name: Download nerd fonts archive
+      get_url:
+        url: "{{ nerdfonts_release_url }}"
+        dest: "/tmp/{{ nerdfonts_release_asset }}"
+        mode: "0644"
+        checksum: "sha256:{{ nerdfonts_release_sha256 }}"
+      when: install_state == "present"
+
+    - name: Extract nerd fonts archive
+      unarchive:
+        src: "/tmp/{{ nerdfonts_release_asset }}"
+        dest: "{{ nerdfonts_extract_dir }}"
+        remote_src: true
+      when: install_state == "present"
+
+    - name: Install nerd fonts
+      copy:
+        src: "{{ nerdfonts_extract_dir }}/{{ item.file }}"
+        dest: "{{ font_install_path }}/{{ item.file }}"
+        mode: "0644"
       with_items: "{{ font_items }}"
       when: install_state == "present"
 

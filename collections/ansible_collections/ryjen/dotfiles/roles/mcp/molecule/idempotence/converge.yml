@@ -1,7 +1,0 @@
----
-- name: Converge
-  hosts: all
-  become: true
-  roles:
-    - role: ryjen.dotfiles.docker
-    - role: ryjen.dotfiles.mcp

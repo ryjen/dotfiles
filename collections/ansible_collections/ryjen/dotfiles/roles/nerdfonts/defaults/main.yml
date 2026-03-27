@@ -1,0 +1,6 @@
+---
+nerdfonts_version: "v3.4.0"
+nerdfonts_release_asset: "JetBrainsMono.zip"
+nerdfonts_release_url: "https://github.com/ryanoasis/nerd-fonts/releases/download/{{ nerdfonts_version }}/{{ nerdfonts_release_asset }}"
+nerdfonts_release_sha256: "76f05ff3ace48a464a6ca57977998784ff7bdbb65a6d915d7e401cd3927c493c"
+nerdfonts_extract_dir: "/tmp/nerdfonts-{{ nerdfonts_version }}"

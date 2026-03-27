@@ -4,7 +4,7 @@
     name: installer
   vars:
     system:
-      package: curl
+      package: git
     dotfiles: oh-my-zsh
 
 - include_tasks: manual.yml

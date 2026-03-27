@@ -22,7 +22,11 @@
       register: packer
 
     - name: Install Neovim Packer
-      command: "git clone --depth 1 https://github.com/wbthomason/packer.nvim {{ neovim_packer_install_dir }}"
+      git:
+        repo: https://github.com/wbthomason/packer.nvim
+        dest: "{{ neovim_packer_install_dir }}"
+        version: "{{ neovim_packer_version }}"
+        depth: 1
       when: not packer.stat.exists
 
     - name: Synchronize packer packages

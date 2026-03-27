@@ -1,0 +1,6 @@
+---
+starship_version: "1.24.2"
+starship_linux_target: "x86_64-unknown-linux-gnu"
+starship_release_asset: "starship-{{ starship_linux_target }}.tar.gz"
+starship_release_url: "https://github.com/starship/starship/releases/download/v{{ starship_version }}/{{ starship_release_asset }}"
+starship_release_sha256: "3f12f61883ff324c1dbe7b885fa125d5490960e5cad6a12eeaa34695ec1b5744"

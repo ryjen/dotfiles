@@ -32,7 +32,9 @@
       when: gpg_key_id is defined
 
     - name: Import gpg key file
-      shell: "echo '{{ gpg_key }}' | gpg --import"
+      shell: gpg --import
+      args:
+        stdin: "{{ gpg_key }}"
       no_log: true
       when: gpg_key is defined
 

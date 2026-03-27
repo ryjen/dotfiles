@@ -58,6 +58,8 @@
       tags: [mcp, ai, never]
     - role: opencode
       tags: [opencode, ai, never]
+    - role: agents
+      tags: [agents, ai, never]
     - role: git
       tags: [git, basic, all]
     - role: gpg
