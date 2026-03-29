@@ -1,0 +1,25 @@
+{
+  ...
+}:
+{
+  imports = [
+    ./alacritty.nix
+    ./ansible.nix
+    ./bat.nix
+    ./byobu.nix
+    ./cowsay.nix
+    ./direnv.nix
+    ./fortunes.nix
+    ./fzf.nix
+    ./git.nix
+    ./gpg.nix
+    ./lsd.nix
+    ./lolcat.nix
+    ./pass.nix
+    ./pinentry.nix
+    ./starship.nix
+    ./taskwarrior.nix
+    ./tmux.nix
+    ./zsh.nix
+  ];
+}
