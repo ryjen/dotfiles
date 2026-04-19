@@ -58,7 +58,7 @@
 
   # Declaratively symlink the config from the repo into the home directory
   xdg.configFile."nvim" = {
-    source = ../../collections/ansible_collections/ryjen/dotfiles/roles/neovim/files/dotfiles/.config/nvim;
+    source = ../../files/home/.config/nvim;
     recursive = true;
   };
 }

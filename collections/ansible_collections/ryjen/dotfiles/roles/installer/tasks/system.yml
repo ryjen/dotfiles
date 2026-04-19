@@ -1,9 +1,0 @@
----
-- import_tasks: ubuntu.yml
-  when: ansible_distribution == 'Ubuntu' and ubuntu_package is defined and ubuntu_package is not none
-
-- import_tasks: macos.yml
-  when: ansible_distribution == "MacOSX" and macos_package is defined and macos_package is not none
-
-- import_tasks: arch.yml
-  when: ansible_distribution == "Archlinux" and arch_package is defined and arch_package is not none

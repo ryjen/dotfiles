@@ -1,88 +1,54 @@
 # Nix Bootstrap
 
-This is the first incremental Nix scaffold for the repository. It does not replace the current Ansible path yet.
+This repository is now Nix-first. Use `flake.nix` for both system and user config.
 
 ## Included
 
 - `flake.nix`
-- one placeholder NixOS host at `hosts/nixos/`
-- one Home Manager user entrypoint at `home/ryjen/home.nix`
-- one shared NixOS fonts module for JetBrainsMono Nerd Font
-- shared Home Manager modules for:
-  - alacritty
-  - ansible
-  - bat
-  - byobu
-  - cowsay
-  - direnv
-  - fortune
-  - fzf
-  - git
-  - gpg
-  - lsd
-  - lolcat
-  - pass
-  - pinentry
-  - starship
-  - taskwarrior
-  - tmux
-  - zsh
+- NixOS host config at `hosts/nixos/`
+- Home Manager user config at `home/ryjen/home.nix`
+- shared NixOS modules in `modules/nixos/`
+- shared Home Manager modules in `modules/home/`
+- static Home Manager files in `files/home/`
+- static system files in `files/system/`
 
-## Current Intent
+## First Use
 
-This scaffold is intentionally narrow. It covers the planned `basic` migration slice and leaves the rest of the repo unchanged.
+1. Replace `hosts/nixos/hardware-configuration.nix` with generated hardware config for the target machine.
+2. Review identity values in `modules/home/git.nix`.
+3. Copy `secrets.yaml.example` to `secrets.yaml`, fill values, and encrypt with `sops`.
+4. Initialize `pass` manually once GPG setup is in place.
+5. Run `agents-update` after Home Manager switch to install external agent skills.
 
-It is safe to continue using:
+## Commands
 
-- `./bootstrap.sh install`
-- `./bootstrap.sh uninstall`
-- the existing Ansible inventories and role tests
-
-## Before First Real NixOS Use
-
-1. Replace `hosts/nixos/hardware-configuration.nix` with the generated hardware config from the target machine.
-2. Replace placeholder identity values in `modules/home/git.nix`.
-3. Choose a secret strategy for GPG material before trying to fully replace the current Ansible vault path.
-4. Decide whether `hosts/nixos/` should be renamed to the real machine hostname.
-5. Initialize `pass` manually once the target GPG key setup is in place.
-6. Revisit `taskwarrior` hook automation separately if you still want timewarrior or sleep-script integration.
-
-## Expected Commands
-
-Evaluate the NixOS config:
+Evaluate the flake:
 
 ```bash
 nix flake show
+nix flake check --no-build
 ```
 
-Build the Home Manager activation package:
+Build Home Manager activation:
 
 ```bash
 nix build .#homeConfigurations.ryjen@nixos.activationPackage
 ```
 
-Build the NixOS system derivation:
+Build NixOS system:
 
 ```bash
 nix build .#nixosConfigurations.nixos.config.system.build.toplevel
 ```
 
-Switch Home Manager directly on a non-NixOS Linux host:
+Switch Home Manager:
 
 ```bash
 home-manager switch --flake .#ryjen@nixos
 ```
 
-Switch the NixOS machine once the host is real:
+Switch NixOS:
 
 ```bash
 sudo nixos-rebuild switch --flake .#nixos
 ```
-
-## Not Included Yet
-
-- secrets management with `sops-nix` or `agenix`
-- Neovim migration
-- Docker migration
-- host-specific overrides
-- optional tooling such as Android and agent packages

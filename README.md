@@ -1,113 +1,69 @@
 # dotfiles
 
-for a perfect yellow submarine with a periscope and radar.
+Nix-first dotfiles for NixOS and Home Manager.
 
-![Yellow Submarine](https://i.ibb.co/9HGncjF/yellow-sub.jpg)
+## Layout
 
-## Design
+- `flake.nix` defines the NixOS and Home Manager entrypoints.
+- `hosts/nixos/` contains the current NixOS host config.
+- `home/ryjen/home.nix` is the user Home Manager entrypoint.
+- `modules/nixos/` contains system modules.
+- `modules/home/` contains user modules.
+- `files/home/` contains static user config files managed by Home Manager.
+- `files/system/` contains static system files used by NixOS modules.
 
-1. A folder to contain the source of truth ($HOME/.local/share/dotfiles)
-2. System installer for packages, templating, customizations, secrets, and other tasks (ansible)
-3. GNU Stow to link the source of truth to appropriate locations
-4. Categorize the installation for use cases
-5. Best effort to support uninstalling
-6. Leverages reuse
+## Commands
 
-
-### Installation
-
-Several events may occur during installation:
-
-1. Will use system packages when it can (homebrew, apt, pacman, winget, etc).
-2. Will prompt for secrets in a vault to configure when needed (gpg).
-3. Leverages variables and templating for customizations. 
-4. Defaults to local, supports remote configurations.
-
-### Uninstallation
-
-Best efforts are made to support uninstallation by design.
-
-1. Reverses package installs
-2. Unlinks configurations from source of truth
-
-## Requirements
-
-Python and [Ansible](https://docs.ansible.com/ansible/latest/index.html) on a local or remote machine.
-
-### Windows 
-
-Windows users must use WSL for ansible.  From there you can target the Windows host with WinRM
-
-## Usage
-
-The bootstrap script attempts to simplify the commands.
-
-Install on local machine `./bootstrap.sh install`
-Uninstall on local machine `./bootstrap.sh uninstall`
-
-### Nix (Experimental)
-
-The repository is currently migrating to Nix. You can use Flakes to manage the environment on both NixOS and non-NixOS Linux systems. See [docs/nix-bootstrap.md](docs/nix-bootstrap.md) for full setup details.
-
-#### Prerequisites
-
-Ensure Nix is installed and Flakes are enabled. If you see errors about "experimental features," run:
-```bash
-mkdir -p ~/.config/nix
-echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
-```
-
-#### Install on non-NixOS (Home Manager)
-
-To apply the user configuration (dotfiles and packages) on a standard Linux distribution:
-
-```bash
-# If home-manager is not installed, bootstrap it with:
-nix run --extra-experimental-features 'nix-command flakes' github:nix-community/home-manager -- switch --flake ".#ryjen@nixos"
-
-# Once installed, you can just use:
-home-manager switch --flake ".#ryjen@nixos"
-```
-
-#### Install on NixOS
-
-To apply the full system configuration:
-
-```bash
-sudo nixos-rebuild switch --flake ".#nixos"
-```
-
-#### View available configurations
+View flake outputs:
 
 ```bash
 nix flake show
 ```
 
-## What's included?
+Check evaluation:
 
-See documentation for [individual roles](collections/ansible_collections/ryjen/dotfiles/roles) of programs and configurations.
+```bash
+nix flake check --no-build
+```
 
-Roles are divided into categories via tags:
+Apply Home Manager:
 
-- **basic**: minimum install
-- **default**: a few more bells and whistles
-- **extra**: the full shebang
+```bash
+home-manager switch --flake .#ryjen@nixos
+```
 
-`./bootstrap.sh install -t '<basic|default|extra>'`
+Apply NixOS:
 
-Individual roles are also tags and can be specified on the command line:
+```bash
+sudo nixos-rebuild switch --flake .#nixos
+```
 
-`./bootstrap.sh install -t <role>`
+Build Home Manager activation package:
 
-## Testing
+```bash
+nix build .#homeConfigurations.ryjen@nixos.activationPackage
+```
 
-`vagrant up`
+Build NixOS system derivation:
 
-or `./bootstrap.sh --test <install|uninstall>`
+```bash
+nix build .#nixosConfigurations.nixos.config.system.build.toplevel
+```
 
-## Deployment
+## Secrets
 
-Define your inventory in `inventory/deploy/hosts` and run:
+Secrets use `sops-nix`. Copy `secrets.yaml.example` to `secrets.yaml`, fill values, then encrypt with `sops`.
 
-`./bootstrap.sh --deploy <install|uninstall>`
+## Agent Skills
 
+Agent and Codex config is intentionally minimal:
+
+- `files/home/.agents/.skill-lock.json`
+- `files/home/.codex/config.toml`
+- `files/home/.codex/rules/default.rules`
+
+Run this after Home Manager switch to install or update skills from GitHub:
+
+```bash
+agents-update
+```

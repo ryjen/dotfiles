@@ -1,35 +1,45 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-- `install.yml`, `uninstall.yml`, and `test.yml` are the top-level Ansible playbooks that drive installs, removals, and role tests.
-- `roles/` contains the Ansible roles (mirrored under `collections/ansible_collections/ryjen/dotfiles/roles/` for collection usage).
-- `inventory/` holds host files (`hosts`, `deploy/hosts`, `test/hosts`) and `group_vars/` contains shared vars.
-- `vault/` stores encrypted or example secrets referenced by playbooks.
+
+- `flake.nix` defines NixOS and Home Manager outputs.
+- `hosts/nixos/` contains the current NixOS host configuration.
+- `home/ryjen/home.nix` is the user Home Manager entrypoint.
+- `modules/nixos/` contains system-level modules.
+- `modules/home/` contains user-level modules.
+- `files/home/` contains static files linked into `$HOME`.
+- `files/system/` contains static files used by NixOS modules.
 
 ## Build, Test, and Development Commands
-- `./bootstrap.sh install` — install dotfiles on the local machine.
-- `./bootstrap.sh uninstall` — uninstall and unlink dotfiles.
-- `./bootstrap.sh install -t <basic|default|extra>` — run a tag group (example: `./bootstrap.sh install -t default`).
-- `./bootstrap.sh install -t <role>` — run a single role (example: `./bootstrap.sh install -t neovim`).
-- `./bootstrap.sh --test install` / `./bootstrap.sh --test uninstall` — run against the test inventory.
-- `ansible-playbook -i inventory/test/hosts test.yml` — run role tests directly.
-- `nix flake show` — view the Nix flake outputs and available configurations.
-- `home-manager switch --flake .#ryjen@nixos` — apply Home Manager configuration (Linux).
-- `sudo nixos-rebuild switch --flake .#nixos` — apply NixOS system configuration.
+
+- `nix flake show` - view flake outputs.
+- `nix flake check --no-build` - evaluate all flake outputs.
+- `home-manager switch --flake .#ryjen@nixos` - apply Home Manager config.
+- `sudo nixos-rebuild switch --flake .#nixos` - apply NixOS system config.
+- `nix build .#homeConfigurations.ryjen@nixos.activationPackage` - build Home Manager activation.
+- `nix build .#nixosConfigurations.nixos.config.system.build.toplevel` - build NixOS system derivation.
 
 ## Coding Style & Naming Conventions
-- Ansible YAML uses 2-space indentation; avoid tabs.
-- Keep task names imperative and specific (example: `Ensure mcp gateway config is present`).
-- Templates live in each role’s `templates/` directory and use Jinja2 naming (e.g., `*.j2`).
+
+- Nix files use 2-space indentation.
+- Keep modules small and scoped to one concern.
+- Static files should live under `files/home/` or `files/system/`, not inside modules.
+- Prefer Home Manager and NixOS module options over activation scripts.
+- Use activation scripts only when config cannot be expressed declaratively.
 
 ## Testing Guidelines
-- Role tests live under `roles/<role>/tests/` and are aggregated in `test.yml`.
-- Add new role tests to `test.yml` so they run in CI and via `bootstrap.sh --test`.
+
+- Run `nix flake check --no-build` after module edits.
+- Run the relevant `nix build` command when touching package sets or module imports.
+- Run `home-manager switch --flake .#ryjen@nixos` before claiming user config works.
 
 ## Commit & Pull Request Guidelines
-- Commits follow Conventional Commits (`feat: ...`, `fix: ...`, optional scope like `feat(mcp): ...`).
-- PRs should include: what changed, how to test (commands run), and any config or inventory updates.
+
+- Commits follow Conventional Commits (`feat: ...`, `fix: ...`, optional scope like `feat(nix): ...`).
+- PRs should include: what changed, how to test, and any host or secret migration notes.
 
 ## Security & Configuration Tips
-- Secrets are loaded from `vault/config.yml` and `vault/gpg_key.yml`; keep real secrets encrypted and out of git history.
-- Use the provided vault password helper in `.bin/ansible-vault-pass` when available; otherwise expect a vault prompt.
+
+- Secrets use `sops-nix`; keep real `secrets.yaml` encrypted.
+- Do not commit Codex auth, caches, histories, SQLite state, or runtime logs.
+- Keep agent skills updatable with `agents-update`; do not vendor full external skill repos unless needed.

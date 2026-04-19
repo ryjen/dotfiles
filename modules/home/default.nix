@@ -7,7 +7,6 @@
     ./agents.nix
     ./alacritty.nix
     ./android.nix
-    ./ansible.nix
     ./bat.nix
     ./byobu.nix
     ./common.nix

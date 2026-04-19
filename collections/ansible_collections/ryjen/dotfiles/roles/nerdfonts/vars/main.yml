@@ -1,5 +1,0 @@
----
-font_items:
-  - dir: JetBrainsMono/Ligatures/Regular
-    file: JetBrainsMonoNerdFont-Regular.ttf
-font_install_path: "{{ ansible_env.HOME }}/.local/share/fonts"

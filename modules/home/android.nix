@@ -6,11 +6,11 @@
   ];
 
   # Android-specific zsh config
-  xdg.configFile."zsh/config.d/android".source = ../../collections/ansible_collections/ryjen/dotfiles/roles/android/files/dotfiles/.config/zsh/config.d/android;
+  xdg.configFile."zsh/config.d/android".source = ../../files/home/.config/zsh/config.d/android;
 
   # Android control script
   home.file.".local/bin/droidctl" = {
-    source = ../../collections/ansible_collections/ryjen/dotfiles/roles/android/files/dotfiles/.local/bin/droidctl;
+    source = ../../files/home/.local/bin/droidctl;
     executable = true;
   };
 }

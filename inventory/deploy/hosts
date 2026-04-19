@@ -1,5 +1,0 @@
-[deploy]
-192.168.1.78
-
-[deploy:vars]
-ansible_connection=ssh

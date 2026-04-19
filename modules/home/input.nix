@@ -1,4 +1,4 @@
 { ... }:
 {
-  home.file.".inputrc".source = ../../collections/ansible_collections/ryjen/dotfiles/roles/input/files/dotfiles/.inputrc;
+  home.file.".inputrc".source = ../../files/home/.inputrc;
 }

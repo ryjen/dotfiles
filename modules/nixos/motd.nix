@@ -1,4 +1,4 @@
 { ... }:
 {
-  users.motd = builtins.readFile ../../collections/ansible_collections/ryjen/dotfiles/roles/motd/files/motd;
+  users.motd = builtins.readFile ../../files/system/motd;
 }

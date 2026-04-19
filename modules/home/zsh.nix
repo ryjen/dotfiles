@@ -60,7 +60,6 @@
       bindkey "^[[B" down-line-or-beginning-search
 
       # extra variables
-      export DISABLE_UNTRACKED_FILES_DIRTY="true"
       export GPG_TTY=$(tty)
 
       # fortune

@@ -1,7 +1,0 @@
-#!/usr/bin/env sh
-
-if type pass >/dev/null; then
-  pass show ansible-vault-pass
-else
-  exit 1
-fi

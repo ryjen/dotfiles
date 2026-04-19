@@ -1,5 +1,0 @@
-#make sure roles have defaults for now
-dotfiles_root: "{{ ansible_facts['env']['HOME'] }}/.local/share/dotfiles"
-stow_target: "{{ ansible_facts['env']['HOME'] }}"
-
-gpg_key_id: 0CDC76D5C109D17AAA6A71FAD5A34F776D49C905
