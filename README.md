@@ -45,6 +45,44 @@ The bootstrap script attempts to simplify the commands.
 Install on local machine `./bootstrap.sh install`
 Uninstall on local machine `./bootstrap.sh uninstall`
 
+### Nix (Experimental)
+
+The repository is currently migrating to Nix. You can use Flakes to manage the environment on both NixOS and non-NixOS Linux systems. See [docs/nix-bootstrap.md](docs/nix-bootstrap.md) for full setup details.
+
+#### Prerequisites
+
+Ensure Nix is installed and Flakes are enabled. If you see errors about "experimental features," run:
+```bash
+mkdir -p ~/.config/nix
+echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
+```
+
+#### Install on non-NixOS (Home Manager)
+
+To apply the user configuration (dotfiles and packages) on a standard Linux distribution:
+
+```bash
+# If home-manager is not installed, bootstrap it with:
+nix run --extra-experimental-features 'nix-command flakes' github:nix-community/home-manager -- switch --flake ".#ryjen@nixos"
+
+# Once installed, you can just use:
+home-manager switch --flake ".#ryjen@nixos"
+```
+
+#### Install on NixOS
+
+To apply the full system configuration:
+
+```bash
+sudo nixos-rebuild switch --flake ".#nixos"
+```
+
+#### View available configurations
+
+```bash
+nix flake show
+```
+
 ## What's included?
 
 See documentation for [individual roles](collections/ansible_collections/ryjen/dotfiles/roles) of programs and configurations.

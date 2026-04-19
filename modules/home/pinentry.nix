@@ -4,6 +4,6 @@
 }:
 {
   home.packages = [
-    pkgs.pinentry-curses
+    pkgs.pinentry-gtk2
   ];
 }

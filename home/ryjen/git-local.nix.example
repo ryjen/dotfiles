@@ -1,0 +1,11 @@
+# Copy to git-local.nix (gitignored) and set your default Git identity for repos
+# that are not matched by conditional includes in modules/home/git.nix (e.g. micrantha).
+{
+  ...
+}:
+{
+  programs.git = {
+    userName = "Your Name";
+    userEmail = "you@example.com";
+  };
+}

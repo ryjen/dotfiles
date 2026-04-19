@@ -1,15 +1,28 @@
 {
-  lib,
   ...
 }:
 {
   programs.git = {
     enable = true;
-    userName = lib.mkDefault "[USER]";
-    userEmail = lib.mkDefault "[EMAIL]";
+    ignores = [
+      "*~"
+      "*.bak"
+      "*.log"
+      "**/.claude/settings.local.json"
+    ];
     includes = [
-      { path = "~/.config/git/includes.conf"; }
       { path = "~/.config/git/local.conf"; }
+      {
+        condition = "gitdir:~/**/micrantha/**";
+        contents = {
+          user = {
+            name = "Ryan Jennings";
+            email = "r.jennings@micrantha.com";
+            signingKey = "CC38D90FE5A620CF050399CB3B2D2A54ABBCA1F5";
+          };
+          commit.gpgsign = true;
+        };
+      }
     ];
     aliases = {
       ff = "flow feature";
@@ -73,6 +86,21 @@
       commit = {
         gpgSign = true;
         template = "~/.config/git/commit-message";
+      };
+      pager = {
+        diff = "bat -p";
+        show = "bat -p";
+      };
+      core.pager = "bat -p";
+      credential.helper = "!pass-git-helper $@";
+      sequence.editor = "interactive-rebase-tool";
+      url."git+ssh://git@gitlab.com/micrantha" = {
+        insteadOf = [
+          "https://micrantha.com"
+          "git+ssh://git@micrantha.com"
+          "https://git.micrantha.com"
+          "git+ssh://git@git.micrantha.com"
+        ];
       };
     };
   };

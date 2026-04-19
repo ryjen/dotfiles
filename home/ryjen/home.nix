@@ -1,11 +1,14 @@
 {
   username,
+  lib,
   ...
 }:
 {
-  imports = [
-    ../../modules/home/default.nix
-  ];
+  imports =
+    [
+      ../../modules/home/default.nix
+    ]
+    ++ lib.optional (builtins.pathExists ./git-local.nix) ./git-local.nix;
 
   home.username = username;
   home.homeDirectory = "/home/${username}";

@@ -234,13 +234,57 @@ Global npm installs are usually a poor fit for a reproducible machine definition
 - local project dev shells
 - explicit wrappers for tools that are not yet packaged
 
-## Open Questions
+## Design Decisions & Tradeoffs
 
-1. Will this repo remain cross-platform, or become NixOS-first?
-2. Do macOS hosts still need support after the Nix migration starts?
-3. Should secrets be standardized on `sops-nix` or `agenix`?
-4. Should Neovim plugin management be fully Nix-managed, or only partially?
-5. Should optional tooling be modeled as flake apps, dev shells, or host toggles?
+### 1. Platform Strategy
+**Question:** Will this repo remain cross-platform, or become NixOS-first?
+
+*   **Alternatives:**
+    *   *Pure NixOS:* Canonical, highly reproducible, but excludes other systems.
+    *   *Ansible Hybrid:* Best compatibility, but doubles the maintenance burden.
+    *   *Nix-First (Multi-Platform):* Use NixOS for system and Home Manager for user config.
+*   **Recommendation:** **Nix-First (Multi-Platform).** Target NixOS as the primary system, but keep Home Manager modules decoupled so they can run on macOS or other Linux distros.
+*   **Tradeoffs:** Requires careful separation of NixOS modules from Home Manager modules (already implemented in `modules/home/` vs `modules/nixos/`).
+
+### 2. macOS Support
+**Question:** Do macOS hosts still need support?
+
+*   **Alternatives:**
+    *   *Keep Ansible:* Low effort for existing macOS hosts, but fragments the config.
+    *   *nix-darwin:* Declarative macOS management, mirrors NixOS patterns.
+    *   *Drop Support:* Simplifies the repository significantly.
+*   **Recommendation:** **nix-darwin.** Transition macOS hosts to `nix-darwin` to share the same Home Manager modules used on NixOS.
+*   **Tradeoffs:** `nix-darwin` has a learning curve and some limitations compared to NixOS, but it maintains the "Single Source of Truth" goal.
+
+### 3. Secrets Management
+**Question:** Standardize on `sops-nix` or `agenix`?
+
+*   **Alternatives:**
+    *   *sops-nix:* Robust, supports AGE/PGP/Cloud KMS, integrates with non-Nix tools.
+    *   *agenix:* Lightweight, AGE-native, strictly Nix-centric.
+    *   *Ansible Vault (Current):* Works but requires manual steps and isn't Nix-native.
+*   **Recommendation:** **sops-nix.** Its versatility with different encryption backends and its ability to be used outside of Nix (if needed) makes it the most future-proof.
+*   **Tradeoffs:** `sops-nix` is slightly more complex to set up initially than `agenix`.
+
+### 4. Neovim Refactor
+**Question:** Fully Nix-managed or Lua-native?
+
+*   **Alternatives:**
+    *   *nixvim:* Extremely powerful, 100% Nix, but requires a total rewrite of Lua config.
+    *   *Home Manager Plugins:* Managed via Nix, but config still in Lua.
+    *   *Lazy.nvim (Hybrid):* Nix manages the runtime and binary dependencies (LSPs); `Lazy.nvim` manages plugins.
+*   **Recommendation:** **Lazy.nvim (Hybrid).** This provides the best balance of speed and simplicity. Nix ensures LSPs and Neovim itself are present, while `Lazy.nvim` allows for standard Lua iteration.
+*   **Tradeoffs:** Not "100% Nix pure," but significantly more practical for day-to-day development and portability.
+
+### 5. Optional Tooling (Android, Agents, etc.)
+**Question:** Modeled as flake apps, dev shells, or host toggles?
+
+*   **Alternatives:**
+    *   *Global Install:* Add to `home.packages` in `home.nix`.
+    *   *Host Toggles:* Boolean flags in `flake.nix` to enable/disable features.
+    *   *Dev Shells:* Tools only available when entering a specific directory (`nix develop`).
+*   **Recommendation:** **Host Toggles + Dev Shells.** Use toggles for "Global Optional" tools (like `taskwarrior`) and `devShells` for "Project Specific" tools (like `android` or specific `npm` agents).
+*   **Tradeoffs:** Toggles increase `flake.nix` complexity but keep the system predictable. Shells keep the environment clean but require `direnv`.
 
 ## Completion Criteria
 

@@ -1,3 +1,4 @@
 .vagrant
 *.asc
 result
+home/ryjen/git-local.nix

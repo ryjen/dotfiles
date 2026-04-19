@@ -13,6 +13,9 @@
 - `./bootstrap.sh install -t <role>` — run a single role (example: `./bootstrap.sh install -t neovim`).
 - `./bootstrap.sh --test install` / `./bootstrap.sh --test uninstall` — run against the test inventory.
 - `ansible-playbook -i inventory/test/hosts test.yml` — run role tests directly.
+- `nix flake show` — view the Nix flake outputs and available configurations.
+- `home-manager switch --flake .#ryjen@nixos` — apply Home Manager configuration (Linux).
+- `sudo nixos-rebuild switch --flake .#nixos` — apply NixOS system configuration.
 
 ## Coding Style & Naming Conventions
 - Ansible YAML uses 2-space indentation; avoid tabs.
