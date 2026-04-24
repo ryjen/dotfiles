@@ -28,8 +28,22 @@
         inherit system;
         config.allowUnfree = true;
       };
+      verifyInContainer = pkgs.writeShellApplication {
+        name = "verify-in-container";
+        runtimeInputs = [ pkgs.coreutils ];
+        text = ''
+          exec ${pkgs.runtimeShell} ${./scripts/verify-in-container.sh} "$@"
+        '';
+      };
     in
     {
+      apps.${system}.verify-container = {
+        type = "app";
+        program = "${verifyInContainer}/bin/verify-in-container";
+      };
+
+      packages.${system}.verify-container = verifyInContainer;
+
       nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
         inherit system;
         specialArgs = {

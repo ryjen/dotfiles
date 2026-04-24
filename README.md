@@ -63,6 +63,12 @@ Build NixOS system derivation:
 nix build .#nixosConfigurations.nixos.config.system.build.toplevel
 ```
 
+Containerized verification:
+
+```bash
+nix run .#verify-container
+```
+
 ## Secrets
 
 Secrets use `sops-nix`. Copy `secrets.yaml.example` to `secrets.yaml`, fill values, then encrypt with `sops`.
@@ -90,3 +96,5 @@ The shared Git baseline is declarative:
 - `~/.config/git/project` is populated from the repo's managed hook/template tree
 - default personal identity should live in `home/ryjen/git-local.nix`
 - organization-specific identity can live behind an overlay such as `dotfiles.profiles.micrantha.enable`
+
+For isolated Linux verification, see `docs/container-verification.md`.
