@@ -1,6 +1,11 @@
 {
+  lib,
+  config,
   ...
 }:
+let
+  micranthaEnabled = config.dotfiles.profiles.micrantha.enable;
+in
 {
   programs.git = {
     enable = true;
@@ -10,18 +15,10 @@
       "*.log"
       "**/.claude/settings.local.json"
     ];
-    includes = [
-      { path = "~/.config/git/local.conf"; }
+    includes = lib.optionals config.dotfiles.profiles.micrantha.enable [
       {
         condition = "gitdir:~/**/micrantha/**";
-        contents = {
-          user = {
-            name = "Ryan Jennings";
-            email = "r.jennings@micrantha.com";
-            signingKey = "CC38D90FE5A620CF050399CB3B2D2A54ABBCA1F5";
-          };
-          commit.gpgsign = true;
-        };
+        path = "~/.config/git/conf.d/micrantha";
       }
     ];
     aliases = {
@@ -83,9 +80,11 @@
       };
       branch.sort = "-committerdate";
       column.ui = "auto";
-      commit = {
-        gpgSign = true;
-        template = "~/.config/git/commit-message";
+      commit.template = "~/.config/git/commit-message";
+      core.editor = "nvim";
+      merge = {
+        tool = "vimdiff";
+        conflictstyle = "diff3";
       };
       pager = {
         diff = "bat -p";
@@ -93,7 +92,8 @@
       };
       core.pager = "bat -p";
       credential.helper = "!pass-git-helper $@";
-      sequence.editor = "interactive-rebase-tool";
+      sequence.editor = "nvim";
+    } // lib.optionalAttrs micranthaEnabled {
       url."git+ssh://git@gitlab.com/micrantha" = {
         insteadOf = [
           "https://micrantha.com"
@@ -103,5 +103,12 @@
         ];
       };
     };
+  };
+
+  home.file.".gitignore".source = ../../files/home/.gitignore;
+  xdg.configFile."git/commit-message".source = ../../files/home/.config/git/commit-message;
+  xdg.configFile."git/project" = {
+    source = ../../files/home/.local/share/git/hooks;
+    recursive = true;
   };
 }

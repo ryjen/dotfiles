@@ -9,6 +9,8 @@
 - [x] Remove legacy imperative install path
 - [x] Move static file payloads to `files/home` and `files/system`
 - [x] Add minimal internet-updatable agent config
+- [x] Split reusable baseline from host/profile overlays
+- [x] Make the shared Git baseline declarative
 - [ ] Validate `home-manager switch --flake .#ryjen@nixos`
 - [ ] Validate `sudo nixos-rebuild switch --flake .#nixos`
 - [ ] Refactor Neovim to be more Nix-native

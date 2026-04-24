@@ -7,7 +7,7 @@ This checklist captures relevant configuration found under `~/` that should be r
 - [x] Port session variables from [~/.profile](/home/ryjen/.profile) into Nix-managed `home.sessionVariables` or NixOS environment settings.
 - [x] Decide which Wayland and desktop variables from [~/.profile](/home/ryjen/.profile) are host-specific versus shared defaults.
 - [x] Port `EDITOR`, `VISUAL`, `GIT_EDITOR`, and terminal-related defaults into Home Manager.
-- [ ] Decide whether JetBrains Toolbox PATH additions from [~/.profile](/home/ryjen/.profile) and [~/.zprofile](/home/ryjen/.zprofile) belong in shared config or should remain local.
+- [x] Keep JetBrains Toolbox PATH additions from [~/.profile](/home/ryjen/.profile) and [~/.zprofile](/home/ryjen/.zprofile) behind the workstation overlay instead of the shared baseline.
 
 ## Zsh
 
@@ -22,11 +22,11 @@ This checklist captures relevant configuration found under `~/` that should be r
 
 ## Git
 
-- [ ] Replace placeholder identity in [modules/home/git.nix](/home/ryjen/.local/src/dotfiles/modules/home/git.nix) with the intended shared Git identity model.
+- [x] Keep default Git identity outside the shared baseline by using [home/ryjen/git-local.nix.example](/home/ryjen/.local/src/dotfiles/home/ryjen/git-local.nix.example) or an explicit overlay.
 - [x] Review include structure in [~/.config/git/includes.conf](/home/ryjen/.config/git/includes.conf) and decide which includes belong in Home Manager.
-- [ ] Review conditional project-specific includes in [~/.config/git/local.conf](/home/ryjen/.config/git/local.conf) and decide whether they should be represented declaratively or left local.
+- [x] Move project-specific identity and transport behavior into explicit overlays instead of relying on [~/.config/git/local.conf](/home/ryjen/.config/git/local.conf).
 - [x] Port useful global ignore rules from [~/.config/git/ignore](/home/ryjen/.config/git/ignore).
-- [ ] Confirm whether commit templates or additional config under `~/.config/git/` should be added to the repo once the directory is populated with real files.
+- [x] Manage the shared commit template and Git template directory declaratively from the repo.
 
 ## GPG and Pass
 
@@ -48,7 +48,7 @@ This checklist captures relevant configuration found under `~/` that should be r
 
 - [ ] Inventory all secret-bearing shell snippets currently stored under [~/.config/zsh/config.d/](/home/ryjen/.config/zsh/config.d).
 - [ ] Rotate any credentials that were previously stored in plaintext shell config.
-- [ ] Choose a Nix-compatible secret management path: `sops-nix`, `agenix`, or a documented external secret source.
+- [x] Use `sops-nix` as the repository's Nix-compatible secret management path.
 - [ ] Move shared secrets out of shell startup files and into encrypted secret material.
 - [ ] Keep machine-local or temporary credentials out of the repository entirely.
 
@@ -57,12 +57,12 @@ This checklist captures relevant configuration found under `~/` that should be r
 - [ ] Skip direct migration of [~/.bashrc](/home/ryjen/.bashrc) and [~/.bash_profile](/home/ryjen/.bash_profile) unless Bash remains a supported interactive shell.
 - [ ] Skip generated state such as Zsh completion dumps and welcome markers.
 - [ ] Defer direct migration of editor-specific local state until Neovim is refactored.
-- [ ] Defer any machine-specific Android, cloud SDK, or vendor CLI setup until those tools are intentionally brought into the Nix baseline.
+- [x] Keep machine-specific Android and vendor CLI setup behind explicit overlays rather than the shared baseline.
 
 ## Completion Criteria
 
 - [ ] Shared shell behavior is declarative.
 - [ ] Shared Git and GPG behavior is declarative.
 - [ ] Secrets are no longer stored in plaintext startup files.
-- [ ] Host-specific and machine-local config is clearly separated from shared repo-managed config.
+- [x] Host-specific and machine-local config is clearly separated from the shared baseline using overlays.
 - [ ] A fresh NixOS machine can bootstrap the intended shell environment without relying on the legacy home-directory state.

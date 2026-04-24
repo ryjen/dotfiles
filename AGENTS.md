@@ -5,6 +5,7 @@
 - `flake.nix` defines NixOS and Home Manager outputs.
 - `hosts/nixos/` contains the current NixOS host configuration.
 - `home/ryjen/home.nix` is the user Home Manager entrypoint.
+- `home/ryjen/profiles/` contains concrete host/profile overlay selections.
 - `modules/nixos/` contains system-level modules.
 - `modules/home/` contains user-level modules.
 - `files/home/` contains static files linked into `$HOME`.
@@ -23,6 +24,7 @@
 
 - Nix files use 2-space indentation.
 - Keep modules small and scoped to one concern.
+- Keep host-, employer-, or machine-specific behavior behind profile overlays rather than in the shared baseline.
 - Static files should live under `files/home/` or `files/system/`, not inside modules.
 - Prefer Home Manager and NixOS module options over activation scripts.
 - Use activation scripts only when config cannot be expressed declaratively.

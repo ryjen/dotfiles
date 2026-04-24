@@ -7,6 +7,7 @@
   imports =
     [
       ../../modules/home/default.nix
+      ./profiles/nixos.nix
     ]
     ++ lib.optional (builtins.pathExists ./git-local.nix) ./git-local.nix;
 

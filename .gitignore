@@ -1,4 +1,5 @@
 .vagrant
 *.asc
 result
+.codex/
 home/ryjen/git-local.nix
