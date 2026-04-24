@@ -23,6 +23,12 @@ Current overlays:
 - `dotfiles.profiles.android.enable` for Android tooling
 - `dotfiles.profiles.micrantha.enable` for Micrantha SSH, Git, and Zsh config
 
+Tracked profile entrypoints:
+
+- `home/ryjen/profiles/nixos.nix` for the full local machine profile
+- `home/ryjen/profiles/verify.nix` for lightweight verification without Android or other machine-specific overlays
+- `modules/home/verify.nix` for the lightweight shared module set used by verification
+
 Architecture rationale lives in `docs/architecture/adr-0001-baseline-and-overlays.md`.
 
 ## Commands
@@ -67,6 +73,13 @@ Containerized verification:
 
 ```bash
 nix run .#verify-container
+```
+
+Lightweight verification outputs:
+
+```bash
+nix build .#homeConfigurations.ryjen@verify.activationPackage
+nix build .#nixosConfigurations.verify.config.system.build.toplevel
 ```
 
 ## Secrets

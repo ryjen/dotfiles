@@ -28,6 +28,44 @@
         inherit system;
         config.allowUnfree = true;
       };
+      mkHomeConfig =
+        profileModule:
+        home-manager.lib.homeManagerConfiguration {
+          inherit pkgs;
+          extraSpecialArgs = {
+            inherit self username;
+          };
+          modules = [
+            profileModule
+            sops-nix.homeManagerModules.sops
+          ];
+        };
+      mkNixosConfig =
+        profileModule:
+        nixpkgs.lib.nixosSystem {
+          inherit system;
+          specialArgs = {
+            inherit self username;
+          };
+          modules = [
+            ./hosts/nixos/configuration.nix
+            home-manager.nixosModules.home-manager
+            sops-nix.nixosModules.sops
+            {
+              home-manager.useGlobalPkgs = true;
+              home-manager.useUserPackages = true;
+              home-manager.extraSpecialArgs = {
+                inherit self username;
+              };
+              home-manager.users.${username} = {
+                imports = [
+                  profileModule
+                  sops-nix.homeManagerModules.sops
+                ];
+              };
+            }
+          ];
+        };
       verifyInContainer = pkgs.writeShellApplication {
         name = "verify-in-container";
         runtimeInputs = [ pkgs.coreutils ];
@@ -44,40 +82,10 @@
 
       packages.${system}.verify-container = verifyInContainer;
 
-      nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
-        inherit system;
-        specialArgs = {
-          inherit self username;
-        };
-        modules = [
-          ./hosts/nixos/configuration.nix
-          home-manager.nixosModules.home-manager
-          sops-nix.nixosModules.sops
-          {
-            home-manager.useGlobalPkgs = true;
-            home-manager.useUserPackages = true;
-            home-manager.extraSpecialArgs = {
-              inherit self username;
-            };
-            home-manager.users.${username} = {
-              imports = [
-                ./home/ryjen/home.nix
-                sops-nix.homeManagerModules.sops
-              ];
-            };
-          }
-        ];
-      };
+      nixosConfigurations.nixos = mkNixosConfig ./home/ryjen/home.nix;
+      nixosConfigurations.verify = mkNixosConfig ./home/ryjen/verify-home.nix;
 
-      homeConfigurations."${username}@nixos" = home-manager.lib.homeManagerConfiguration {
-        inherit pkgs;
-        extraSpecialArgs = {
-          inherit self username;
-        };
-        modules = [
-          ./home/ryjen/home.nix
-          sops-nix.homeManagerModules.sops
-        ];
-      };
+      homeConfigurations."${username}@nixos" = mkHomeConfig ./home/ryjen/home.nix;
+      homeConfigurations."${username}@verify" = mkHomeConfig ./home/ryjen/verify-home.nix;
     };
 }

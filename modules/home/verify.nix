@@ -1,0 +1,29 @@
+{
+  lib,
+  ...
+}:
+{
+  imports = [
+    ./android.nix
+    ./agents.nix
+    ./bat.nix
+    ./common.nix
+    ./cowsay.nix
+    ./direnv.nix
+    ./fortunes.nix
+    ./fzf.nix
+    ./git.nix
+    ./helix.nix
+    ./input.nix
+    ./lsd.nix
+    ./lolcat.nix
+    ./micrantha.nix
+    ./pass.nix
+    ./session.nix
+    ./starship.nix
+    ./taskwarrior.nix
+    ./tmux.nix
+    ./zsh.nix
+  ]
+  ++ lib.optional (builtins.pathExists ../../secrets.yaml) ./secrets.nix;
+}

@@ -5,10 +5,10 @@ Use this when you want to verify the flake and build targets on a host without r
 ## What It Verifies
 
 - `nix flake check --no-build`
-- `nix build --no-link .#homeConfigurations.ryjen@nixos.activationPackage`
-- `nix build --no-link .#nixosConfigurations.nixos.config.system.build.toplevel`
+- `nix build --no-link .#homeConfigurations.ryjen@verify.activationPackage`
+- `nix build --no-link .#nixosConfigurations.verify.config.system.build.toplevel`
 
-This verifies evaluation and buildability in an isolated Linux container. It does not replace `home-manager switch` or `nixos-rebuild switch` on the real machine.
+This verifies evaluation and buildability in an isolated Linux container using a lightweight verification profile. It does not replace `home-manager switch` or `nixos-rebuild switch` on the real machine.
 
 ## Requirements
 
@@ -53,4 +53,5 @@ NIX_CONTAINER_IMAGE=nixos/nix:2.24.14 nix run .#verify-container
 
 - builds run with `--no-link`, so they do not create `result` symlinks in the repo
 - the container bind-mounts the repository at `/workspace`
+- verification uses the tracked `ryjen@verify` and `nixosConfigurations.verify` outputs, which keep Android and other machine-specific overlays disabled
 - if you need final machine validation, still run `home-manager switch --flake .#ryjen@nixos` and `sudo nixos-rebuild switch --flake .#nixos` on the host

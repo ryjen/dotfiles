@@ -48,12 +48,12 @@ for target in "$@"; do
       run_in_container "nix flake check --no-build"
       ;;
     home)
-      echo "==> nix build --no-link .#homeConfigurations.ryjen@nixos.activationPackage"
-      run_in_container "nix build --no-link .#homeConfigurations.ryjen@nixos.activationPackage"
+      echo "==> nix build --no-link .#homeConfigurations.ryjen@verify.activationPackage"
+      run_in_container "nix build --no-link .#homeConfigurations.ryjen@verify.activationPackage"
       ;;
     system)
-      echo "==> nix build --no-link .#nixosConfigurations.nixos.config.system.build.toplevel"
-      run_in_container "nix build --no-link .#nixosConfigurations.nixos.config.system.build.toplevel"
+      echo "==> nix build --no-link .#nixosConfigurations.verify.config.system.build.toplevel"
+      run_in_container "nix build --no-link .#nixosConfigurations.verify.config.system.build.toplevel"
       ;;
     all)
       echo "==> running flake, home, and system verification"

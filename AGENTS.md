@@ -19,6 +19,8 @@
 - `sudo nixos-rebuild switch --flake .#nixos` - apply NixOS system config.
 - `nix build .#homeConfigurations.ryjen@nixos.activationPackage` - build Home Manager activation.
 - `nix build .#nixosConfigurations.nixos.config.system.build.toplevel` - build NixOS system derivation.
+- `nix build .#homeConfigurations.ryjen@verify.activationPackage` - build the lightweight verification Home Manager activation.
+- `nix build .#nixosConfigurations.verify.config.system.build.toplevel` - build the lightweight verification NixOS system derivation.
 - `nix run .#verify-container` - verify flake and build targets in an isolated container.
 
 ## Coding Style & Naming Conventions
