@@ -88,11 +88,20 @@ Secrets use `sops-nix`. Copy `secrets.yaml.example` to `secrets.yaml`, fill valu
 
 ## Agent Skills
 
-Agent and Codex config is intentionally minimal:
+Agent, Hermes, and Codex config is intentionally minimal:
 
 - `files/home/.agents/.skill-lock.json`
 - `files/home/.codex/config.toml`
 - `files/home/.codex/rules/default.rules`
+
+Hermes Agent is installed through Home Manager from the pinned `hermes-agent`
+flake input. First-time Hermes state remains local to the machine under
+`~/.hermes` and should not be committed.
+
+```bash
+hermes setup
+hermes
+```
 
 Run this after Home Manager switch to install or update skills from GitHub:
 

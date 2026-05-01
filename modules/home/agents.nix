@@ -1,8 +1,11 @@
 {
+  hermes-agent,
   pkgs,
   ...
 }:
 let
+  hermesPackage = hermes-agent.packages.${pkgs.system}.default;
+
   agentsUpdate = pkgs.writeShellApplication {
     name = "agents-update";
     runtimeInputs = with pkgs; [
@@ -60,7 +63,14 @@ in
 {
   home.packages = [
     agentsUpdate
+    hermesPackage
+    pkgs.ffmpeg
+    pkgs.git
     pkgs.nodejs
+    pkgs.openssh
+    pkgs.python311
+    pkgs.ripgrep
+    pkgs.uv
   ];
 
   home.file.".agents/.skill-lock.json".source = ../../files/home/.agents/.skill-lock.json;

@@ -7,6 +7,7 @@
       url = "github:nix-community/home-manager/release-25.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    hermes-agent.url = "github:NousResearch/hermes-agent";
     sops-nix = {
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -18,6 +19,7 @@
       self,
       nixpkgs,
       home-manager,
+      hermes-agent,
       sops-nix,
       ...
     }:
@@ -33,7 +35,7 @@
         home-manager.lib.homeManagerConfiguration {
           inherit pkgs;
           extraSpecialArgs = {
-            inherit self username;
+            inherit self username hermes-agent;
           };
           modules = [
             profileModule
@@ -45,7 +47,7 @@
         nixpkgs.lib.nixosSystem {
           inherit system;
           specialArgs = {
-            inherit self username;
+            inherit self username hermes-agent;
           };
           modules = [
             ./hosts/nixos/configuration.nix
@@ -55,7 +57,7 @@
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
               home-manager.extraSpecialArgs = {
-                inherit self username;
+                inherit self username hermes-agent;
               };
               home-manager.users.${username} = {
                 imports = [
@@ -80,7 +82,10 @@
         program = "${verifyInContainer}/bin/verify-in-container";
       };
 
-      packages.${system}.verify-container = verifyInContainer;
+      packages.${system} = {
+        verify-container = verifyInContainer;
+        hermes-agent = hermes-agent.packages.${system}.default;
+      };
 
       nixosConfigurations.nixos = mkNixosConfig ./home/ryjen/home.nix;
       nixosConfigurations.verify = mkNixosConfig ./home/ryjen/verify-home.nix;
