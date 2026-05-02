@@ -74,6 +74,7 @@ in
   ];
 
   home.file.".agents/.skill-lock.json".source = ../../files/home/.agents/.skill-lock.json;
+  home.file.".hermes/config.yaml".source = ../../files/home/.hermes/config.yaml;
 
   home.file.".codex/config.toml".source = ../../files/home/.codex/config.toml;
   home.file.".codex/rules/default.rules".source = ../../files/home/.codex/rules/default.rules;
