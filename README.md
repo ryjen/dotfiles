@@ -94,7 +94,8 @@ Agent, Hermes, and Codex config is intentionally minimal:
 - `files/home/.codex/config.toml`
 - `files/home/.codex/rules/default.rules`
 
-Hermes Agent is installed through Home Manager from the pinned `hermes-agent`
+Codex and Hermes Agent are installed through Home Manager. Codex comes from the
+pinned nixpkgs package set, while Hermes comes from the pinned `hermes-agent`
 flake input. First-time Hermes state remains local to the machine under
 `~/.hermes` and should not be committed.
 

@@ -63,6 +63,7 @@ in
 {
   home.packages = [
     agentsUpdate
+    pkgs.codex
     hermesPackage
     pkgs.ffmpeg
     pkgs.git
