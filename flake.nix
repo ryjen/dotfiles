@@ -92,5 +92,33 @@
 
       homeConfigurations."${username}@nixos" = mkHomeConfig ./home/ryjen/home.nix;
       homeConfigurations."${username}@verify" = mkHomeConfig ./home/ryjen/verify-home.nix;
+      homeConfigurations."${username}@dubnium" = mkHomeConfig ./home/ryjen/dubnium-home.nix;
+
+      nixosModules.dubnium-home-manager =
+        {
+          config,
+          ...
+        }:
+        let
+          dubniumUsername = config.dubnium.user.name or username;
+        in
+        {
+          imports = [
+            home-manager.nixosModules.home-manager
+          ];
+
+          home-manager.useGlobalPkgs = true;
+          home-manager.useUserPackages = true;
+          home-manager.extraSpecialArgs = {
+            inherit self hermes-agent;
+            username = dubniumUsername;
+          };
+          home-manager.users.${dubniumUsername} = {
+            imports = [
+              ./home/ryjen/dubnium-home.nix
+              sops-nix.homeManagerModules.sops
+            ];
+          };
+        };
     };
 }

@@ -54,6 +54,6 @@
     nil
     nixfmt-rfc-style
     marksman # Markdown LSP
-    nodePackages.vscode-langservers-extracted # HTML/CSS/JSON
+    vscode-langservers-extracted # HTML/CSS/JSON
   ];
 }

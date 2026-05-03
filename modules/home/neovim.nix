@@ -47,7 +47,7 @@
       lua-language-server
       nil # Nix LSP
       pyright # Python LSP
-      nodePackages.typescript-language-server
+      typescript-language-server
 
       # Runtime support for plugins
       gcc # for tree-sitter

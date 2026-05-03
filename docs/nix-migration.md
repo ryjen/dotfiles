@@ -5,7 +5,7 @@ Migration is now Nix-first.
 ## Current State
 
 - NixOS config lives under `hosts/nixos/` and `modules/nixos/`.
-- Home Manager config lives under `home/ryjen/` and `modules/home/`.
+- Home Manager config lives under `home/USERNAME/` and `modules/home/`.
 - Shared baseline behavior is separated from opt-in overlays under `dotfiles.profiles.*`.
 - Architecture rationale is recorded in `docs/architecture/adr-0001-baseline-and-overlays.md`.
 - Static migrated config files live under `files/home/` and `files/system/`.
@@ -14,7 +14,7 @@ Migration is now Nix-first.
 
 ## Remaining Work
 
-- Validate `home-manager switch --flake .#ryjen@nixos` on the target user.
+- Validate `home-manager switch --flake .#USERNAME@nixos` on the target user.
 - Validate `sudo nixos-rebuild switch --flake .#nixos` on the target host.
 - Refactor Neovim to reduce plugin bootstrap impurity if desired.
 - Review `files/home/` for static files that should become native Home Manager options or explicit overlays.

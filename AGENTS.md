@@ -4,8 +4,8 @@
 
 - `flake.nix` defines NixOS and Home Manager outputs.
 - `hosts/nixos/` contains the current NixOS host configuration.
-- `home/ryjen/home.nix` is the user Home Manager entrypoint.
-- `home/ryjen/profiles/` contains concrete host/profile overlay selections.
+- `home/USERNAME/home.nix` is the user Home Manager entrypoint.
+- `home/USERNAME/profiles/` contains concrete host/profile overlay selections.
 - `modules/nixos/` contains system-level modules.
 - `modules/home/` contains user-level modules.
 - `files/home/` contains static files linked into `$HOME`.
@@ -15,11 +15,11 @@
 
 - `nix flake show` - view flake outputs.
 - `nix flake check --no-build` - evaluate all flake outputs.
-- `home-manager switch --flake .#ryjen@nixos` - apply Home Manager config.
+- `home-manager switch --flake .#USERNAME@nixos` - apply Home Manager config.
 - `sudo nixos-rebuild switch --flake .#nixos` - apply NixOS system config.
-- `nix build .#homeConfigurations.ryjen@nixos.activationPackage` - build Home Manager activation.
+- `nix build .#homeConfigurations.USERNAME@nixos.activationPackage` - build Home Manager activation.
 - `nix build .#nixosConfigurations.nixos.config.system.build.toplevel` - build NixOS system derivation.
-- `nix build .#homeConfigurations.ryjen@verify.activationPackage` - build the lightweight verification Home Manager activation.
+- `nix build .#homeConfigurations.USERNAME@verify.activationPackage` - build the lightweight verification Home Manager activation.
 - `nix build .#nixosConfigurations.verify.config.system.build.toplevel` - build the lightweight verification NixOS system derivation.
 - `nix run .#verify-container` - verify flake and build targets in an isolated container.
 
@@ -36,7 +36,7 @@
 
 - Run `nix flake check --no-build` after module edits.
 - Run the relevant `nix build` command when touching package sets or module imports.
-- Run `home-manager switch --flake .#ryjen@nixos` before claiming user config works.
+- Run `home-manager switch --flake .#USERNAME@nixos` before claiming user config works.
 
 ## Commit & Pull Request Guidelines
 

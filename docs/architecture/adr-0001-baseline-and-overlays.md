@@ -25,8 +25,8 @@ The repository will use a two-layer model:
 Concrete implications:
 
 - `modules/home/` may define both baseline modules and disabled-by-default overlay modules.
-- `home/ryjen/profiles/` selects overlays for a concrete machine.
-- personal Git identity is configured outside the shared baseline, using `home/ryjen/git-local.nix` or another explicit overlay.
+- `home/USERNAME/profiles/` selects overlays for a concrete machine.
+- personal Git identity is configured outside the shared baseline, using `home/USERNAME/git-local.nix` or another explicit overlay.
 - organization-specific Git/SSH/Zsh behavior belongs behind overlays, not in the baseline.
 - repo-managed Git assets referenced by the baseline must be provisioned declaratively by Home Manager.
 
