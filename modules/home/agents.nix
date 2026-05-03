@@ -55,7 +55,7 @@ let
           rsync -a --delete "$skill_dir"/ "$tmp_dir"/
           rm -rf "''${skill_dest:?}"
           mv "$tmp_dir" "$skill_dest"
-          echo "updated $name"
+      echo "updated $name"
         done
     '';
   };
