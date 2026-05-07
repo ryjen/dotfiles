@@ -32,6 +32,10 @@ in
     tree-sitter
   ];
 
+  xdg.configFile."containers/registries.conf".text = ''
+    unqualified-search-registries = ["docker.io"]
+  '';
+
   programs.zoxide = {
     enable = true;
     enableZshIntegration = true;
