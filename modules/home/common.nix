@@ -12,6 +12,7 @@ in
     gdu
     ripgrep
     fd
+    gnumake
     lazygit
     lazydocker
     podman
