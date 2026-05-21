@@ -1,20 +1,12 @@
 { pkgs, ... }:
-let
-  dockerCompat = pkgs.runCommandLocal "podman-docker-compat" { } ''
-    mkdir -p "$out/bin"
-    ln -s ${pkgs.podman}/bin/podman "$out/bin/docker"
-  '';
-in
 {
   home.packages = with pkgs; [
     bottom
-    dockerCompat
     gdu
     ripgrep
     fd
     gnumake
     lazygit
-    lazydocker
     podman
     podman-compose
     tig
@@ -35,6 +27,36 @@ in
   xdg.configFile."containers/registries.conf".text = ''
     unqualified-search-registries = ["docker.io"]
   '';
+
+  xdg.configFile."containers/policy.json".text = builtins.toJSON {
+    default = [
+      {
+        type = "insecureAcceptAnything";
+      }
+    ];
+  };
+
+  systemd.user.sockets.podman = {
+    Unit = {
+      Description = "Podman API Socket";
+      Documentation = [ "man:podman-system-service(1)" ];
+    };
+    Socket.ListenStream = "%t/podman/podman.sock";
+    Install.WantedBy = [ "sockets.target" ];
+  };
+
+  systemd.user.services.podman = {
+    Unit = {
+      Description = "Podman API Service";
+      Requires = [ "podman.socket" ];
+      After = [ "podman.socket" ];
+      Documentation = [ "man:podman-system-service(1)" ];
+    };
+    Service = {
+      Type = "exec";
+      ExecStart = "${pkgs.podman}/bin/podman system service";
+    };
+  };
 
   programs.zoxide = {
     enable = true;

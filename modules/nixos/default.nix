@@ -3,9 +3,9 @@
 }:
 {
   imports = [
-    ./docker.nix
     ./fonts.nix
     ./motd.nix
+    ./podman.nix
     ./shell.nix
   ];
 
