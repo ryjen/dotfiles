@@ -107,7 +107,7 @@ in
 
   home.file.".gitignore".source = ../../files/home/.gitignore;
   xdg.configFile."git/commit-message".source = ../../files/home/.config/git/commit-message;
-  xdg.configFile."git/project" = {
+  xdg.configFile."git/project/hooks" = {
     source = ../../files/home/.local/share/git/hooks;
     recursive = true;
   };
