@@ -54,8 +54,6 @@
       tags: [pass, default, never]
     - role: pinentry
       tags: [pinentry, default, never]
-    - role: plano
-      tags: [plano, ai, never]
     - role: mcp
       tags: [mcp, ai, never]
     - role: opencode
