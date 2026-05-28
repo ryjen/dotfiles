@@ -1,0 +1,43 @@
+---
+# User-level Plano integration. Dubnium owns system packages/services;
+# this role owns user config, helper scripts, and optional CLI bootstrap.
+
+plano_install_cli: true
+plano_package: planoai
+plano_config_dir: "{{ ansible_facts['env']['HOME'] }}/.config/planoai"
+plano_config_file: "{{ plano_config_dir }}/dubnium.yaml"
+plano_bin_dir: "{{ ansible_facts['env']['HOME'] }}/.local/bin"
+plano_state_dir: "{{ ansible_facts['env']['HOME'] }}/.local/state/planoai"
+plano_cache_dir: "{{ ansible_facts['env']['HOME'] }}/.cache/planoai"
+
+plano_listener_name: egress_traffic
+plano_listener_address: 127.0.0.1
+plano_listener_port: 12000
+plano_listener_timeout: 120s
+
+# OpenAI-compatible local endpoint. On Dubnium this should normally point at vLLM.
+plano_local_model: openai/qwen2.5-coder-14b-instruct
+plano_local_access_key: EMPTY
+plano_local_base_url: http://127.0.0.1:8000/v1
+plano_enable_local_provider: true
+
+# Optional cloud providers. Keep secrets in env/vault, not in repo.
+plano_enable_openai_provider: false
+plano_openai_model: openai/gpt-4o-mini
+plano_openai_access_key: "$OPENAI_API_KEY"
+
+plano_enable_anthropic_provider: false
+plano_anthropic_model: anthropic/claude-3-5-sonnet
+plano_anthropic_access_key: "$ANTHROPIC_API_KEY"
+
+plano_model_aliases:
+  local-code:
+    target: qwen2.5-coder-14b-instruct
+  fast-local:
+    target: qwen2.5-coder-14b-instruct
+
+plano_routing_preferences:
+  - name: local code work
+    description: code understanding, code generation, refactoring, and repo analysis that should prefer local inference
+    models:
+      - "{{ plano_local_model }}"
