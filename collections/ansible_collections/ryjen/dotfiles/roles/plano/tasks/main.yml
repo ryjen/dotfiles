@@ -11,6 +11,20 @@
     - "{{ plano_cache_dir }}"
   when: install_state == "present"
 
+- name: Ensure model-router config directories exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "{{ model_router_config_dir }}"
+    - "{{ model_router_profile_dir }}"
+    - "{{ model_router_state_dir }}"
+    - "{{ model_router_cache_dir }}"
+  when:
+    - install_state == "present"
+    - model_router_enabled | bool
+
 - name: Install Plano CLI with uv tool
   ansible.builtin.command: "uv tool install {{ plano_package }}"
   register: plano_uv_install
@@ -27,6 +41,15 @@
     mode: "0600"
   when: install_state == "present"
 
+- name: Write model-router local-first profile
+  ansible.builtin.template:
+    src: model-router-local-first-dev.yaml.j2
+    dest: "{{ model_router_profile_file }}"
+    mode: "0600"
+  when:
+    - install_state == "present"
+    - model_router_enabled | bool
+
 - name: Write plano-dubnium helper
   ansible.builtin.template:
     src: plano-dubnium.j2
@@ -34,9 +57,30 @@
     mode: "0755"
   when: install_state == "present"
 
+- name: Write model-router environment helper
+  ansible.builtin.template:
+    src: model-router-env.j2
+    dest: "{{ plano_bin_dir }}/model-router-env"
+    mode: "0755"
+  when:
+    - install_state == "present"
+    - model_router_enabled | bool
+
+- name: Remove model-router environment helper
+  ansible.builtin.file:
+    path: "{{ plano_bin_dir }}/model-router-env"
+    state: absent
+  when: install_state == "absent"
+
 - name: Remove plano-dubnium helper
   ansible.builtin.file:
     path: "{{ plano_bin_dir }}/plano-dubnium"
+    state: absent
+  when: install_state == "absent"
+
+- name: Remove model-router local-first profile
+  ansible.builtin.file:
+    path: "{{ model_router_profile_file }}"
     state: absent
   when: install_state == "absent"
 
