@@ -76,9 +76,11 @@ The generated profile treats Plano as the runtime gateway while model-router own
 - fallback allow/deny semantics
 - affinity key sources
 
-## Ansible compatibility
+## Ansible boundary
 
-The existing Ansible Plano role remains Plano-only for legacy/bootstrap compatibility. New model-router integration should be Nix/Home Manager-first.
+No new AI routing implementation should be added through Ansible on this branch. AI routing config is Nix/Home Manager-first here.
+
+If the legacy Ansible playbooks remain in the repo, they should not own Plano or model-router integration.
 
 ## Security defaults
 
@@ -86,4 +88,4 @@ The existing Ansible Plano role remains Plano-only for legacy/bootstrap compatib
 - Privacy uncertainty should fail closed
 - Fallback must not bypass privacy, budget, safety, or approval failures
 - Cloud providers are opt-in
-- Secrets remain in environment/vaults, not committed config
+- Secrets remain in environment variables or external secret stores, not committed config
