@@ -38,6 +38,7 @@ These belong in Home Manager-style modules.
 nix/home/ai/default.nix
 nix/home/ai/plano.nix
 nix/home/ai/model-router.nix
+nix/home/examples/ai-routing.nix
 ```
 
 Enable from a user/host profile with:
@@ -50,6 +51,8 @@ Enable from a user/host profile with:
   ryjen.ai.model-router.enable = true;
 }
 ```
+
+See `nix/home/examples/ai-routing.nix` for an example profile import.
 
 ## Plano module
 
