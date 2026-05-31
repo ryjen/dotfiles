@@ -17,6 +17,10 @@
       # configctl should never auto-promote local.conf.
       # configctl may reconcile and promote custom.d fragments.
 
+      $terminal = alacritty
+
+      bind = SUPER, RETURN, exec, $terminal
+
       source = ~/.config/hypr/local.conf
       source = ~/.config/hypr/custom.d/*.conf
     '';
@@ -31,6 +35,7 @@
       #
       # Examples:
       # monitor=,preferred,auto,1
+      # $terminal = alacritty
       # exec-once = alacritty
     '';
   };
