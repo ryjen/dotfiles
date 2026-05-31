@@ -17,6 +17,7 @@
     ./helix.nix
     ./git.nix
     ./gpg.nix
+    ./hypr.nix
     ./input.nix
     ./lsd.nix
     ./lolcat.nix
