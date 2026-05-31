@@ -15,7 +15,11 @@ in
       "*.log"
       "**/.claude/settings.local.json"
     ];
-    includes = lib.optionals config.dotfiles.profiles.micrantha.enable [
+    includes = [
+      {
+        path = "~/.config/git/local.config";
+      }
+    ] ++ lib.optionals config.dotfiles.profiles.micrantha.enable [
       {
         condition = "gitdir:~/**/micrantha/**";
         path = "~/.config/git/conf.d/micrantha";
@@ -106,6 +110,14 @@ in
   };
 
   home.file.".gitignore".source = ../../files/home/.gitignore;
+  xdg.configFile."git/local.config".text = ''
+    # Local Git configuration.
+    #
+    # Ownership:
+    # - machine-specific
+    # - writable by the user
+    # - never automatically promoted by configctl
+  '';
   xdg.configFile."git/commit-message".source = ../../files/home/.config/git/commit-message;
   xdg.configFile."git/project/hooks" = {
     source = ../../files/home/.local/share/git/hooks;
