@@ -1,0 +1,20 @@
+(defvar quote_text "With the lights out, it's less dangerous")
+
+(defwindow quote_overlay
+  :monitor 0
+  :geometry (geometry
+    :x "0px"
+    :y "24px"
+    :anchor "bottom center")
+  :stacking "bottom"
+  :focusable false
+  :exclusive false
+  (box :class "quote-container"
+    (label
+      :class "quote-label"
+      :text quote_text
+      :wrap true
+      :justify "center"
+      :xalign 0.5
+      :limit-width 90
+      :lines 2)))

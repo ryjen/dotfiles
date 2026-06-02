@@ -9,7 +9,7 @@ Migration is now Nix-first.
 - Shared baseline behavior is separated from opt-in overlays under `dotfiles.profiles.*`.
 - Architecture rationale is recorded in `docs/architecture/adr-0001-baseline-and-overlays.md`.
 - Static migrated config files live under `files/home/` and `files/system/`.
-- Secrets use `sops-nix`.
+- Secrets are local-first. Optional encrypted `sops-nix` support is available when repo-managed secrets are required.
 - Legacy imperative install tooling has been removed.
 
 ## Remaining Work
@@ -24,5 +24,5 @@ Migration is now Nix-first.
 
 - Prefer declarative Home Manager and NixOS module options.
 - Keep host-specific state out of the shared baseline and behind overlays.
-- Keep secrets in encrypted `sops-nix` files.
+- Keep secrets local by default; use encrypted `sops-nix` only for shared repo-managed secret contracts.
 - Keep agent skills internet-updatable through `agents-update` rather than vendoring full skill repos.

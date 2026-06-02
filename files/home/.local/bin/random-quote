@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+quote="$(
+  fortune -s \
+    | tr '\n' ' ' \
+    | sed -E 's/[[:space:]]+/ /g; s/\\/\\\\/g; s/"/\\"/g; s/^ //; s/ $//'
+)"
+
+eww update quote_text="$quote"

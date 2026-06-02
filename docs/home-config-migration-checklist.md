@@ -48,8 +48,8 @@ This checklist captures relevant configuration found under `~/` that should be r
 
 - [ ] Inventory all secret-bearing shell snippets currently stored under [~/.config/zsh/config.d/](/home/USERNAME/.config/zsh/config.d).
 - [ ] Rotate any credentials that were previously stored in plaintext shell config.
-- [x] Use `sops-nix` as the repository's Nix-compatible secret management path.
-- [ ] Move shared secrets out of shell startup files and into encrypted secret material.
+- [x] Keep secrets local-first, with optional `sops-nix` for repo-managed secret contracts.
+- [ ] Move shared repo-managed secrets out of shell startup files and into encrypted secret material.
 - [ ] Keep machine-local or temporary credentials out of the repository entirely.
 
 ## Explicitly Skip or Defer

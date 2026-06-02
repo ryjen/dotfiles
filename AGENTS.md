@@ -45,6 +45,6 @@
 
 ## Security & Configuration Tips
 
-- Secrets use `sops-nix`; keep real `secrets.yaml` encrypted.
+- Secrets are local-first; use optional encrypted `sops-nix` only when repo-managed secrets are required.
 - Do not commit Codex auth, caches, histories, SQLite state, or runtime logs.
 - Keep agent skills updatable with `agents-update`; do not vendor full external skill repos unless needed.

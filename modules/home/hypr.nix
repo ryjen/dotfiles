@@ -16,14 +16,30 @@
       #
       # configctl should never auto-promote local.conf.
       # configctl may reconcile and promote custom.d fragments.
-
-      $terminal = alacritty
-
-      bind = SUPER, RETURN, exec, $terminal
-
+      source = ~/.config/hypr/adopted.d/*.conf
       source = ~/.config/hypr/local.conf
       source = ~/.config/hypr/custom.d/*.conf
     '';
+
+    xdg.configFile."hypr/adopted.d/technetium.conf".source = ../../files/home/.config/hypr/adopted.d/technetium.conf;
+    xdg.configFile."hypr/hyprpaper.conf".source = ../../files/home/.config/hypr/hyprpaper.conf;
+    xdg.configFile."waybar/config.jsonc".source = ../../files/home/.config/waybar/config.jsonc;
+    xdg.configFile."waybar/style.css".source = ../../files/home/.config/waybar/style.css;
+    xdg.configFile."waybar/colors.css".source = ../../files/home/.config/waybar/colors.css;
+    xdg.configFile."mako/config".source = ../../files/home/.config/mako/config;
+    xdg.configFile."wofi/config".source = ../../files/home/.config/wofi/config;
+    xdg.configFile."eww/eww.yuck".source = ../../files/home/.config/eww/eww.yuck;
+    xdg.configFile."eww/eww.scss".source = ../../files/home/.config/eww/eww.scss;
+
+    home.file.".local/bin/random-wallpaper" = {
+      source = ../../files/home/.local/bin/random-wallpaper;
+      executable = true;
+    };
+
+    home.file.".local/bin/random-quote" = {
+      source = ../../files/home/.local/bin/random-quote;
+      executable = true;
+    };
 
     xdg.configFile."hypr/local.conf".text = ''
       # Local Hyprland configuration.

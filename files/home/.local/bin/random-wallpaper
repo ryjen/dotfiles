@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+IMG=$(find ~/Pictures/wallpaper -type f | shuf -n 1)
+
+if [ -z "$IMG" ]; then
+  exit 1
+fi
+
+sleep 0.3
+
+hyprctl hyprpaper wallpaper ",$IMG,cover"

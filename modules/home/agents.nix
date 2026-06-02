@@ -1,6 +1,8 @@
 {
   hermes-agent,
+  lib,
   pkgs,
+  config,
   ...
 }:
 let
@@ -61,22 +63,27 @@ let
   };
 in
 {
-  home.packages = [
-    agentsUpdate
-    pkgs.codex
-    hermesPackage
-    pkgs.ffmpeg
-    pkgs.git
-    pkgs.nodejs
-    pkgs.openssh
-    pkgs.python311
-    pkgs.ripgrep
-    pkgs.uv
-  ];
+  options.dotfiles.agents.hermes.enable = lib.mkEnableOption "Hermes agent package and config";
 
-  home.file.".agents/.skill-lock.json".source = ../../files/home/.agents/.skill-lock.json;
-  home.file.".hermes/config.yaml".source = ../../files/home/.hermes/config.yaml;
+  config = {
+    home.packages = [
+      agentsUpdate
+      pkgs.codex
+      pkgs.ffmpeg
+      pkgs.git
+      pkgs.nodejs
+      pkgs.openssh
+      pkgs.python311
+      pkgs.ripgrep
+      pkgs.uv
+    ] ++ lib.optional config.dotfiles.agents.hermes.enable hermesPackage;
 
-  home.file.".codex/config.toml".source = ../../files/home/.codex/config.toml;
-  home.file.".codex/rules/default.rules".source = ../../files/home/.codex/rules/default.rules;
+    home.file.".agents/.skill-lock.json".source = ../../files/home/.agents/.skill-lock.json;
+    home.file.".hermes/config.yaml" = lib.mkIf config.dotfiles.agents.hermes.enable {
+      source = ../../files/home/.hermes/config.yaml;
+    };
+
+    home.file.".codex/config.toml".source = ../../files/home/.codex/config.toml;
+    home.file.".codex/rules/default.rules".source = ../../files/home/.codex/rules/default.rules;
+  };
 }

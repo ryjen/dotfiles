@@ -17,10 +17,11 @@ This repository is now Nix-first. Use `flake.nix` for both system and user confi
 
 1. Replace `hosts/nixos/hardware-configuration.nix` with generated hardware config for the target machine.
 2. Copy `home/USERNAME/git-local.nix.example` to `home/USERNAME/git-local.nix` and set the default Git identity for non-overlay repos.
-3. Copy `secrets.yaml.example` to `secrets.yaml`, fill values, and encrypt with `sops`.
-4. Initialize `pass` manually once GPG setup is in place.
-5. Review `home/USERNAME/profiles/nixos.nix` and enable only the overlays that belong on that machine.
-6. Run `agents-update` after Home Manager switch to install external agent skills.
+3. Keep secrets local by default. Use local overlays, `~/.config/zsh/local.zsh`, `pass`, or host environment injection.
+4. Only if repo-managed secrets are required, copy `secrets.yaml.example` to `secrets.yaml`, fill values, and encrypt with `sops`.
+5. Initialize `pass` manually once GPG setup is in place.
+6. Review `home/USERNAME/profiles/nixos.nix` and enable only the overlays that belong on that machine.
+7. Run `agents-update` after Home Manager switch to install external agent skills.
 
 ## Commands
 

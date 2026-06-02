@@ -84,7 +84,13 @@ nix build .#nixosConfigurations.verify.config.system.build.toplevel
 
 ## Secrets
 
-Secrets use `sops-nix`. Copy `secrets.yaml.example` to `secrets.yaml`, fill values, then encrypt with `sops`.
+Secrets are local-first. Real tokens should normally stay out of this repo and
+be provided by machine-local overlays, local zsh fragments, `pass`, or host
+environment injection.
+
+Optional `sops-nix` support exists for secrets that must be reproducible through
+Home Manager. It is only imported when `secrets.yaml` exists. See
+`docs/secrets.md`.
 
 ## Agent Skills
 
@@ -94,10 +100,16 @@ Agent, Hermes, and Codex config is intentionally minimal:
 - `files/home/.codex/config.toml`
 - `files/home/.codex/rules/default.rules`
 
-Codex and Hermes Agent are installed through Home Manager. Codex comes from the
-pinned nixpkgs package set, while Hermes comes from the pinned `hermes-agent`
-flake input. First-time Hermes state remains local to the machine under
-`~/.hermes` and should not be committed.
+Codex is installed through Home Manager from the pinned nixpkgs package set.
+Hermes Agent is optional and controlled by:
+
+```nix
+dotfiles.agents.hermes.enable = true;
+```
+
+When enabled, Hermes comes from the pinned `hermes-agent` flake input.
+First-time Hermes state remains local to the machine under `~/.hermes` and
+should not be committed.
 
 ```bash
 hermes setup
