@@ -8,6 +8,7 @@
     ./alacritty.nix
     ./android.nix
     ./bat.nix
+    ./browser.nix
     ./byobu.nix
     ./common.nix
     ./cowsay.nix
