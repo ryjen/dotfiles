@@ -1,4 +1,0 @@
-neovim_util_packages:
-  - shfmt
-  - codespell
-  - editorconfig

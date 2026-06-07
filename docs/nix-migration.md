@@ -1,0 +1,28 @@
+# Nix Migration
+
+Migration is now Nix-first.
+
+## Current State
+
+- NixOS config lives under `hosts/nixos/` and `modules/nixos/`.
+- Home Manager config lives under `home/USERNAME/` and `modules/home/`.
+- Shared baseline behavior is separated from opt-in overlays under `dotfiles.profiles.*`.
+- Architecture rationale is recorded in `docs/architecture/adr-0001-baseline-and-overlays.md`.
+- Static migrated config files live under `files/home/` and `files/system/`.
+- Secrets are local-first. Optional encrypted `sops-nix` support is available when repo-managed secrets are required.
+- Legacy imperative install tooling has been removed.
+
+## Remaining Work
+
+- Validate `home-manager switch --flake .#USERNAME@nixos` on the target user.
+- Validate `sudo nixos-rebuild switch --flake .#nixos` on the target host.
+- Refactor Neovim to reduce plugin bootstrap impurity if desired.
+- Review `files/home/` for static files that should become native Home Manager options or explicit overlays.
+- Decide whether to add `nix-darwin` for macOS.
+
+## Design Direction
+
+- Prefer declarative Home Manager and NixOS module options.
+- Keep host-specific state out of the shared baseline and behind overlays.
+- Keep secrets local by default; use encrypted `sops-nix` only for shared repo-managed secret contracts.
+- Keep agent skills internet-updatable through `agents-update` rather than vendoring full skill repos.

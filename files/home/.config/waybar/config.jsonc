@@ -1,0 +1,175 @@
+// -*- mode: jsonc -*-
+{
+    "layer": "top",
+    "position": "top",
+    "spacing": 8,
+    "height": 34,
+    "exclusive": true,
+    "passthrough": false,
+    "fixed-center": true,
+    "ipc": true,
+    "modules-left": [
+        "hyprland/workspaces",
+        "hyprland/submap",
+        "custom/media"
+    ],
+    "modules-center": [
+        "hyprland/window"
+    ],
+    "modules-right": [
+        "mpris",
+        "idle_inhibitor",
+        "pulseaudio",
+        "power-profiles-daemon",
+        "cpu",
+        "memory",
+        "temperature",
+        "custom/backlight",
+        "battery",
+        "clock",
+        "tray",
+        "hyprland/language",
+        "custom/power"
+    ],
+    "hyprland/workspaces": {
+        "disable-scroll": true,
+        "all-outputs": true,
+        "active-only": false,
+        "format": "{name}: {icon}",
+        "format-icons": {
+            "1": "",
+            "2": "",
+            "3": "",
+            "urgent": "",
+            "active": "",
+            "default": ""
+        }
+    },
+    "hyprland/window": {
+        "format": "{title}",
+        "max-length": 40,
+        "separate-outputs": true,
+        "rewrite": {
+            "(.*) — Mozilla Firefox": "󰈹 Firefox",
+            "(.*) - Visual Studio Code": "󰨞 Code",
+            "(.*) - kitty": " Terminal",
+            "": "Desktop"
+        }
+    },
+    "hyprland/language": {
+        "format": "  {}",
+        "format-en": "US",
+        "format-colemak": "CMK",
+        "on-click": "hyprctl switchxkblayout all next"
+    },
+    "hyprland/submap": {
+        "format": "<span style=\"italic\">{}</span>"
+    },
+    "cpu": {
+        "format": "{usage}% ",
+        "on-click": "kitty --title 'btop' sh -c 'btop'"
+    },
+    "memory": {
+        "format": "{}% ",
+        "on-click": "kitty --title 'btop' sh -c 'btop'"
+    },
+    "backlight": {
+        "device": "intel_backlight",
+        "format": "{icon} {percent}%",
+        "format-icons": ["", "", "", "", "", "", "", "", ""],
+        "on-scroll-up": "brightnessctl set 1%+",
+        "on-scroll-down": "brightnessctl set 1%-",
+        "min-length": 6
+    },
+    "custom/backlight": {
+        "exec": "brightnessctl -m | cut -d, -f4",
+        "interval": 1,
+        "format": "󰃠 {}",
+        "on-scroll-up": "brightnessctl set 1%+",
+        "on-scroll-down": "brightnessctl set 1%-",
+        "tooltip": false
+    },
+    "temperature": {
+        "critical-threshold": 80,
+        "format": "{icon} {temperatureC}°C",
+        "format-icons": ["", "", "", "", ""]
+    },
+    "mpris": {
+        "format": "{player_icon} {dynamic}",
+        "format-paused": "{status_icon} <i>{dynamic}</i>",
+        "player-icons": {
+            "default": "▶",
+            "spotify": "",
+            "firefox": "",
+            "chrome": ""
+        },
+        "status-icons": {
+            "paused": "⏸"
+        },
+        "max-length": 30
+    },
+    "battery": {
+        "states": {
+            "good": 95,
+            "warning": 30,
+            "critical": 15
+        },
+        "format": "{icon} {capacity}%",
+        "format-charging": "󰂄 {capacity}%",
+        "format-plugged": " {capacity}%",
+        "format-discharging": "{icon} {capacity}%",
+        "format-full": "󰁹 {capacity}%",
+        "format-icons": ["󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
+        "on-click": "kitty -e sudo powertop",
+        "tooltip": true,
+        "interval": 5,
+        "bat": "BAT0"
+    },
+    "pulseaudio": {
+        "format": "{volume}% {icon} {format_source}",
+        "format-bluetooth": "{volume}% {icon} {format_source}",
+        "format-muted": " {format_source}",
+        "format-source": "{volume}% ",
+        "format-source-muted": "",
+        "format-icons": {
+            "headphone": "",
+            "default": ["", "", ""]
+        },
+        "on-click": "pavucontrol"
+    },
+    "network": {
+        "format-wifi": "{essid} ({signalStrength}%) ",
+        "format-ethernet": "{ipaddr}/{cidr} ",
+        "tooltip-format": "{ifname} via {gwaddr} ",
+        "format-disconnected": "Disconnected ⚠",
+        "on-click": "nm-connection-editor"
+    },
+    "idle_inhibitor": {
+        "format": "<span font='12'>{icon}</span>",
+        "format-icons": {
+            "activated": "󰛐",
+            "deactivated": "󰛑"
+        },
+        "tooltip": true
+    },
+    "clock": {
+        "format": "{:%I:%M %p}",
+        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+        "on-click": "gsimplecal"
+    },
+    "custom/media": {
+        "format": "{icon} {}",
+        "return-type": "json",
+        "max-length": 40,
+        "format-icons": {
+            "spotify": "",
+            "default": "🎜"
+        },
+        "escape": true,
+        "exec": "playerctl -a metadata --format '{\"text\": \"{{artist}} - {{title}}\", \"alt\": \"{{status}}\", \"class\": \"{{status}}\"}' --follow"
+    },
+    "custom/power": {
+        "format": "⏻ ",
+        "on-click": "wlogout"
+    }
+}

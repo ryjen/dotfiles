@@ -1,0 +1,33 @@
+{ config, ... }:
+{
+  sops = {
+    defaultSopsFile = ../../secrets.yaml;
+    gnupg.home = "${config.home.homeDirectory}/.gnupg";
+
+    # Define which secrets to decrypt
+    secrets = {
+      github_token = { };
+      openai_api_key = { };
+      anthropic_api_key = { };
+    };
+  };
+
+  sops.templates."user-runtime-secrets.env".content = ''
+    export GITHUB_TOKEN=${config.sops.placeholder.github_token}
+    export OPENAI_API_KEY=${config.sops.placeholder.openai_api_key}
+    export ANTHROPIC_API_KEY=${config.sops.placeholder.anthropic_api_key}
+  '';
+
+  home.sessionVariables = {
+    # This points to the decrypted file in a secure location (usually /run/user/1000/secrets)
+    GITHUB_TOKEN_PATH = config.sops.secrets.github_token.path;
+    OPENAI_API_KEY_PATH = config.sops.secrets.openai_api_key.path;
+    ANTHROPIC_API_KEY_PATH = config.sops.secrets.anthropic_api_key.path;
+  };
+
+  home.file.".config/zsh/config.d/10-user-runtime-secrets.zsh".text = ''
+    if [ -r "${config.sops.templates."user-runtime-secrets.env".path}" ]; then
+      source "${config.sops.templates."user-runtime-secrets.env".path}"
+    fi
+  '';
+}

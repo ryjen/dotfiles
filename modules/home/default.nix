@@ -1,0 +1,36 @@
+{
+  lib,
+  ...
+}:
+{
+  imports = [
+    ./agents.nix
+    ./alacritty.nix
+    ./android.nix
+    ./bat.nix
+    ./browser.nix
+    ./byobu.nix
+    ./common.nix
+    ./cowsay.nix
+    ./direnv.nix
+    ./fortunes.nix
+    ./fzf.nix
+    ./helix.nix
+    ./git.nix
+    ./gpg.nix
+    ./hypr.nix
+    ./input.nix
+    ./lsd.nix
+    ./lolcat.nix
+    ./micrantha.nix
+    ./neovim.nix
+    ./pass.nix
+    ./pinentry.nix
+    ./session.nix
+    ./starship.nix
+    ./taskwarrior.nix
+    ./tmux.nix
+    ./zsh.nix
+  ]
+  ++ lib.optional (builtins.pathExists ../../secrets.yaml) ./secrets.nix;
+}

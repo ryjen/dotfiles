@@ -1,75 +1,135 @@
 # dotfiles
 
-for a perfect yellow submarine with a periscope and radar.
+Nix-first dotfiles for NixOS and Home Manager with a reusable baseline and opt-in host/profile overlays.
 
-![Yellow Submarine](https://i.ibb.co/9HGncjF/yellow-sub.jpg)
+## Layout
 
-## Design
+- `flake.nix` defines the NixOS and Home Manager entrypoints.
+- `hosts/nixos/` contains the current NixOS host config.
+- `home/USERNAME/home.nix` is the user Home Manager entrypoint.
+- `home/USERNAME/profiles/` contains host/profile selections for a concrete machine.
+- `modules/nixos/` contains system modules.
+- `modules/home/` contains user modules.
+- `files/home/` contains static user config files managed by Home Manager.
+- `files/system/` contains static system files used by NixOS modules.
 
-1. A folder to contain the source of truth ($HOME/.local/share/dotfiles)
-2. System installer for packages, templating, customizations, secrets, and other tasks (ansible)
-3. GNU Stow to link the source of truth to appropriate locations
-4. Categorize the installation for use cases
-5. Best effort to support uninstalling
-6. Leverages reuse
+## Profiles
 
+Shared baseline modules are always imported. Host- or organization-specific behavior is enabled through `dotfiles.profiles.*` options from a profile file such as `home/USERNAME/profiles/nixos.nix`.
 
-### Installation
+Current overlays:
 
-Several events may occur during installation:
+- `dotfiles.profiles.workstation.enable` for local workstation session state and PATH additions
+- `dotfiles.profiles.android.enable` for Android tooling
+- `dotfiles.profiles.micrantha.enable` for Micrantha SSH, Git, and Zsh config
 
-1. Will use system packages when it can (homebrew, apt, pacman, winget, etc).
-2. Will prompt for secrets in a vault to configure when needed (gpg).
-3. Leverages variables and templating for customizations. 
-4. Defaults to local, supports remote configurations.
+Tracked profile entrypoints:
 
-### Uninstallation
+- `home/USERNAME/profiles/nixos.nix` for the full local machine profile
+- `home/USERNAME/profiles/verify.nix` for lightweight verification without Android or other machine-specific overlays
+- `modules/home/verify.nix` for the lightweight shared module set used by verification
 
-Best efforts are made to support uninstallation by design.
+Architecture rationale lives in `docs/architecture/adr-0001-baseline-and-overlays.md`.
 
-1. Reverses package installs
-2. Unlinks configurations from source of truth
+## Commands
 
-## Requirements
+View flake outputs:
 
-Python and [Ansible](https://docs.ansible.com/ansible/latest/index.html) on a local or remote machine.
+```bash
+nix flake show
+```
 
-### Windows 
+Check evaluation:
 
-Windows users must use WSL for ansible.  From there you can target the Windows host with WinRM
+```bash
+nix flake check --no-build
+```
 
-## Usage
+Apply Home Manager:
 
-The bootstrap script attempts to simplify the commands.
+```bash
+home-manager switch --flake .#USERNAME@nixos
+```
 
-Install on local machine `./bootstrap.sh install`
-Uninstall on local machine `./bootstrap.sh uninstall`
+Apply NixOS:
 
-## What's included?
+```bash
+sudo nixos-rebuild switch --flake .#nixos
+```
 
-See documentation for [individual roles](collections/ansible_collections/ryjen/dotfiles/roles) of programs and configurations.
+Build Home Manager activation package:
 
-Roles are divided into categories via tags:
+```bash
+nix build .#homeConfigurations.USERNAME@nixos.activationPackage
+```
 
-- **basic**: minimum install
-- **default**: a few more bells and whistles
-- **extra**: the full shebang
+Build NixOS system derivation:
 
-`./bootstrap.sh install -t '<basic|default|extra>'`
+```bash
+nix build .#nixosConfigurations.nixos.config.system.build.toplevel
+```
 
-Individual roles are also tags and can be specified on the command line:
+Containerized verification:
 
-`./bootstrap.sh install -t <role>`
+```bash
+nix run .#verify-container
+```
 
-## Testing
+Lightweight verification outputs:
 
-`vagrant up`
+```bash
+nix build .#homeConfigurations.USERNAME@verify.activationPackage
+nix build .#nixosConfigurations.verify.config.system.build.toplevel
+```
 
-or `./bootstrap.sh --test <install|uninstall>`
+## Secrets
 
-## Deployment
+Secrets are local-first. Real tokens should normally stay out of this repo and
+be provided by machine-local overlays, local zsh fragments, `pass`, or host
+environment injection.
 
-Define your inventory in `inventory/deploy/hosts` and run:
+Optional `sops-nix` support exists for secrets that must be reproducible through
+Home Manager. It is only imported when `secrets.yaml` exists. See
+`docs/secrets.md`.
 
-`./bootstrap.sh --deploy <install|uninstall>`
+## Agent Skills
 
+Agent, Hermes, and Codex config is intentionally minimal:
+
+- `files/home/.agents/.skill-lock.json`
+- `files/home/.codex/config.toml`
+- `files/home/.codex/rules/default.rules`
+
+Codex is installed through Home Manager from the pinned nixpkgs package set.
+Hermes Agent is optional and controlled by:
+
+```nix
+dotfiles.agents.hermes.enable = true;
+```
+
+When enabled, Hermes comes from the pinned `hermes-agent` flake input.
+First-time Hermes state remains local to the machine under `~/.hermes` and
+should not be committed.
+
+```bash
+hermes setup
+hermes
+```
+
+Run this after Home Manager switch to install or update skills from GitHub:
+
+```bash
+agents-update
+```
+
+## Git
+
+The shared Git baseline is declarative:
+
+- `~/.gitignore` is managed from `files/home/.gitignore`
+- `~/.config/git/commit-message` is managed from the repo
+- `~/.config/git/project` is populated from the repo's managed hook/template tree
+- default personal identity should live in `home/USERNAME/git-local.nix`
+- organization-specific identity can live behind an overlay such as `dotfiles.profiles.micrantha.enable`
+
+For isolated Linux verification, see `docs/container-verification.md`.

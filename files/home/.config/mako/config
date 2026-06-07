@@ -1,0 +1,10 @@
+anchor=top-right
+default-timeout=5000
+max-visible=5
+layer=overlay
+background-color=#1e1e2eee
+text-color=#f5f5f5ff
+border-color=#89b4faff
+border-size=2
+border-radius=10
+padding=12

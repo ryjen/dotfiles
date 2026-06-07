@@ -1,24 +1,17 @@
 # TODO
 
-## Packages
+## Nix Migration
 
-- astronvim
-- gdu
-- ripgrep
-- lazygit
-- lazydocker
-- prezto for zsh
-- sad (sed)
-- zoxide
-- tig
-- ngrok
-- bottom (<https://github.com/ClementTsang/bottom>)
-- nerd fonts
-- treesitter cli (<https://github.com/tree-sitter/tree-sitter/blob/master/cli/README.md>)
-
-## Vim
-
-- stylua
-- markdownlint
-- terrafmt
-- vint
+- [x] Bootstrap flake and host config
+- [x] Port baseline Home Manager modules
+- [x] Port default CLI tooling
+- [x] Port optional tooling
+- [x] Remove legacy imperative install path
+- [x] Move static file payloads to `files/home` and `files/system`
+- [x] Add minimal internet-updatable agent config
+- [x] Split reusable baseline from host/profile overlays
+- [x] Make the shared Git baseline declarative
+- [ ] Validate `home-manager switch --flake .#USERNAME@nixos`
+- [ ] Validate `sudo nixos-rebuild switch --flake .#nixos`
+- [ ] Refactor Neovim to be more Nix-native
+- [ ] Review static files for native Home Manager replacements
