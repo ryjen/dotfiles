@@ -51,6 +51,50 @@ Current encrypted key shape is intentionally small:
 
 Add more only when a repo-managed workflow actually needs them.
 
+## GPG Private Keys
+
+Do not sync `~/.gnupg` with Syncthing and do not place a GPG private key in
+`secrets.yaml`. The GnuPG home contains private key material, trust database
+state, sockets, and permission-sensitive files that are not safe as ordinary
+synced dotfiles. A private key encrypted by the same key also creates a
+bootstrap loop on a fresh host.
+
+If a GPG private key needs to be recoverable across machines, store an
+encrypted export artifact, not the live GnuPG home. Prefer exporting secret
+subkeys instead of the primary key:
+
+```bash
+gpg --armor --export-secret-subkeys KEY_FINGERPRINT > /tmp/gpg-secret-subkeys.asc
+```
+
+Encrypt that exported file with `sops` using a non-circular recipient, such as
+an `age` identity or a separate offline recovery key, then sync or commit only
+the encrypted artifact:
+
+```bash
+mkdir -p secrets
+sops --encrypt --input-type binary --output-type yaml \
+  /tmp/gpg-secret-subkeys.asc > secrets/gpg-secret-subkeys.asc.sops.yaml
+```
+
+On a new host, decrypt only long enough to import:
+
+```bash
+sops --decrypt --input-type yaml --output-type binary \
+  secrets/gpg-secret-subkeys.asc.sops.yaml | gpg --import
+```
+
+After import, inspect the key, set ownertrust if needed, and remove any
+temporary plaintext export:
+
+```bash
+gpg --list-secret-keys --keyid-format LONG
+rm /tmp/gpg-secret-subkeys.asc
+```
+
+Home Manager may manage GPG configuration and `gpg-agent`, but private key
+import remains an explicit operator action.
+
 ## Zsh Runtime
 
 When `secrets.yaml` exists, `modules/home/secrets.nix` writes a managed zsh
@@ -76,6 +120,7 @@ Do not move these into tracked zsh config:
 - OAuth client secrets
 - personal access tokens
 - private endpoint credentials
+- GPG private keys or `~/.gnupg`
 
 Non-secret shell behavior may be adopted separately, such as PATH additions,
 aliases, completions, and helper functions.
