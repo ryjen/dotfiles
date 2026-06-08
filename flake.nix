@@ -93,6 +93,7 @@
       homeConfigurations."${username}@nixos" = mkHomeConfig ./home/ryjen/home.nix;
       homeConfigurations."${username}@verify" = mkHomeConfig ./home/ryjen/verify-home.nix;
       homeConfigurations."${username}@dubnium" = mkHomeConfig ./home/ryjen/dubnium-home.nix;
+      homeConfigurations."${username}@technetium" = mkHomeConfig ./home/ryjen/technetium-home.nix;
 
       nixosModules.dubnium-home-manager =
         {

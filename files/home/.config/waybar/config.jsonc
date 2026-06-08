@@ -52,7 +52,7 @@
         "rewrite": {
             "(.*) — Mozilla Firefox": "󰈹 Firefox",
             "(.*) - Visual Studio Code": "󰨞 Code",
-            "(.*) - kitty": " Terminal",
+            "(.*) - Alacritty": " Terminal",
             "": "Desktop"
         }
     },
@@ -67,11 +67,11 @@
     },
     "cpu": {
         "format": "{usage}% ",
-        "on-click": "kitty --title 'btop' sh -c 'btop'"
+        "on-click": "alacritty --title 'btop' -e sh -c 'btop'"
     },
     "memory": {
         "format": "{}% ",
-        "on-click": "kitty --title 'btop' sh -c 'btop'"
+        "on-click": "alacritty --title 'btop' -e sh -c 'btop'"
     },
     "backlight": {
         "device": "intel_backlight",
@@ -120,7 +120,7 @@
         "format-discharging": "{icon} {capacity}%",
         "format-full": "󰁹 {capacity}%",
         "format-icons": ["󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
-        "on-click": "kitty -e sudo powertop",
+        "on-click": "alacritty -e sudo powertop",
         "tooltip": true,
         "interval": 5,
         "bat": "BAT0"

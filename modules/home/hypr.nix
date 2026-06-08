@@ -1,5 +1,18 @@
 { lib, config, ... }:
+let
+  adoptedProfiles = {
+    dubnium = ../../files/home/.config/hypr/adopted.d/dubnium.conf;
+    technetium = ../../files/home/.config/hypr/adopted.d/technetium.conf;
+    empty = ../../files/home/.config/hypr/adopted.d/empty.conf;
+  };
+in
 {
+  options.dotfiles.hypr.adoptedProfile = lib.mkOption {
+    type = lib.types.enum (builtins.attrNames adoptedProfiles);
+    default = "empty";
+    description = "Machine-specific Hyprland adopted fragment to install as adopted.d/machine.conf.";
+  };
+
   config = lib.mkIf config.dotfiles.profiles.workstation.enable {
     xdg.configFile."hypr/hyprland.conf".text = ''
       # GENERATED FILE — DO NOT EDIT DIRECTLY
@@ -11,8 +24,8 @@
       # Promotion candidates:
       #   ~/.config/hypr/custom.d/*.conf
       #
-      # Adopted fragments:
-      #   ~/.config/hypr/adopted.d/*.conf
+      # Adopted machine profile:
+      #   ~/.config/hypr/adopted.d/machine.conf
       #
       # configctl should never auto-promote local.conf.
       # configctl may reconcile and promote custom.d fragments.
@@ -21,7 +34,8 @@
       source = ~/.config/hypr/custom.d/*.conf
     '';
 
-    xdg.configFile."hypr/adopted.d/technetium.conf".source = ../../files/home/.config/hypr/adopted.d/technetium.conf;
+    xdg.configFile."hypr/adopted.d/machine.conf".source = adoptedProfiles.${config.dotfiles.hypr.adoptedProfile};
+    xdg.configFile."hypr/custom.d/empty.conf".source = ../../files/home/.config/hypr/custom.d/empty.conf;
     xdg.configFile."hypr/hyprpaper.conf".source = ../../files/home/.config/hypr/hyprpaper.conf;
     xdg.configFile."waybar/config.jsonc".source = ../../files/home/.config/waybar/config.jsonc;
     xdg.configFile."waybar/style.css".source = ../../files/home/.config/waybar/style.css;
