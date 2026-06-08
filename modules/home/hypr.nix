@@ -35,7 +35,7 @@ in
     '';
 
     xdg.configFile."hypr/adopted.d/machine.conf".source = adoptedProfiles.${config.dotfiles.hypr.adoptedProfile};
-    xdg.configFile."hypr/custom.d/empty.conf".source = ../../files/home/.config/hypr/custom.d/empty.conf;
+    xdg.configFile."hypr/custom.d/00-empty.conf".source = ../../files/home/.config/hypr/custom.d/empty.conf;
     xdg.configFile."hypr/hyprpaper.conf".source = ../../files/home/.config/hypr/hyprpaper.conf;
     xdg.configFile."waybar/config.jsonc".source = ../../files/home/.config/waybar/config.jsonc;
     xdg.configFile."waybar/style.css".source = ../../files/home/.config/waybar/style.css;
