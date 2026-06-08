@@ -1,8 +1,9 @@
-width=600
-height=400
+width=760
+height=520
 location=center
 show=drun
 prompt=Search Apps...
+normal_window=true
 filter_rate=100
 allow_markup=true
 no_actions=true

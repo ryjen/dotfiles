@@ -4,7 +4,7 @@
   :monitor 0
   :geometry (geometry
     :x "0px"
-    :y "24px"
+    :y "40px"
     :anchor "bottom center")
   :stacking "bottom"
   :focusable false

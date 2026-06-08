@@ -6,7 +6,7 @@ window#waybar {
     border-radius: 12px;
     margin: 8px 12px;
     font-family: "JetBrainsMono Nerd Font", "Roboto", "sans-serif";
-    font-size: 13px;
+    font-size: 16px;
     transition-property: background-color;
     transition-duration: .5s;
 }
@@ -19,7 +19,7 @@ window#waybar {
 }
 
 #workspaces button {
-    padding: 0 10px;
+    padding: 0 12px;
     color: #c0caf5;
     border-radius: 8px;
     transition: all 0.3s ease;
@@ -31,7 +31,7 @@ window#waybar {
 #workspaces button.active {
     color: #1a1b26;
     background-color: #7aa2f7;
-    min-width: 40px;
+    min-width: 48px;
 }
 
 #workspaces button.urgent {
@@ -45,7 +45,7 @@ window#waybar {
 }
 
 #battery, #clock, #cpu, #memory, #temperature, #backlight, #custom-backlight, #network, #pulseaudio, #custom-media, #tray, #mode, #idle_inhibitor, #custom-power, #language {
-    padding: 0 12px;
+    padding: 0 14px;
     margin: 4px 2px;
     border-radius: 8px;
     background-color: rgba(255, 255, 255, 0.1);
@@ -88,7 +88,7 @@ window#waybar {
 
 #idle_inhibitor {
     font-family: "Symbols Nerd Font Mono", "JetBrainsMono Nerd Font";
-    font-size: 16px;
+    font-size: 20px;
     color: #bb9af7;
     padding: 0 10px;
     min-width: 24px;
@@ -142,15 +142,17 @@ window#wofi {
     border: 2px solid #7aa2f7;
     background-color: rgba(26, 27, 38, 0.95);
     border-radius: 12px;
+    font-family: "JetBrainsMono Nerd Font", "Roboto", "sans-serif";
+    font-size: 16px;
 }
 
 #input {
-    margin: 10px;
+    margin: 12px;
     border: none;
     border-radius: 8px;
     background-color: rgba(255, 255, 255, 0.1);
     color: #c0caf5;
-    padding: 8px;
+    padding: 12px;
 }
 
 #entry:selected {
