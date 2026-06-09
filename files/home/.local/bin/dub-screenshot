@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+mode="${1:-screen}"
+screenshot_dir="${DUB_SCREENSHOT_DIR:-$HOME/Pictures/screenshots}"
+mkdir -p "$screenshot_dir"
+
+stamp="$(date +%Y%m%d-%H%M%S)"
+path="$screenshot_dir/$stamp.png"
+
+case "$mode" in
+  screen)
+    grim "$path"
+    printf '%s\n' "$path"
+    ;;
+  area)
+    grim -g "$(slurp)" "$path"
+    printf '%s\n' "$path"
+    ;;
+  clipboard|clip)
+    grim -g "$(slurp)" - | wl-copy
+    ;;
+  *)
+    printf 'usage: dub-screenshot [screen|area|clipboard]\n' >&2
+    exit 64
+    ;;
+esac
