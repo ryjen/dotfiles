@@ -30,6 +30,15 @@ start_once nm-applet nm-applet --indicator
 start_once mako mako
 start_once hyprpaper hyprpaper
 
+if command -v wl-paste >/dev/null 2>&1 && command -v cliphist >/dev/null 2>&1; then
+  if ! pgrep -f 'wl-paste --watch cliphist store' >/dev/null 2>&1; then
+    printf '[start] cliphist watcher\n'
+    wl-paste --watch cliphist store &
+  else
+    printf '[skip] cliphist watcher already running\n'
+  fi
+fi
+
 if [ -x "$HOME/.local/bin/random-wallpaper" ]; then
   "$HOME/.local/bin/random-wallpaper" || true
 fi
