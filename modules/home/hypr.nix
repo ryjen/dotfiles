@@ -5,6 +5,25 @@ let
     technetium = ../../files/home/.config/hypr/adopted.d/technetium.conf;
     empty = ../../files/home/.config/hypr/adopted.d/empty.conf;
   };
+
+  managedScripts = [
+    "dub-launch"
+    "dub-screenshot"
+    "dub-session-doctor"
+    "dub-session-start"
+    "dub-terminal"
+    "dub-waybar-reload"
+    "random-wallpaper"
+    "random-quote"
+  ];
+
+  managedScriptFile = name: {
+    name = ".local/bin/${name}";
+    value = {
+      source = ../../files/home/.local/bin/${name};
+      executable = true;
+    };
+  };
 in
 {
   options.dotfiles.hypr.adoptedProfile = lib.mkOption {
@@ -40,20 +59,13 @@ in
     xdg.configFile."waybar/config.jsonc".source = ../../files/home/.config/waybar/config.jsonc;
     xdg.configFile."waybar/style.css".source = ../../files/home/.config/waybar/style.css;
     xdg.configFile."waybar/colors.css".source = ../../files/home/.config/waybar/colors.css;
+    xdg.configFile."waybar/custom.css".source = ../../files/home/.config/waybar/custom.css;
     xdg.configFile."mako/config".source = ../../files/home/.config/mako/config;
     xdg.configFile."wofi/config".source = ../../files/home/.config/wofi/config;
     xdg.configFile."eww/eww.yuck".source = ../../files/home/.config/eww/eww.yuck;
     xdg.configFile."eww/eww.scss".source = ../../files/home/.config/eww/eww.scss;
 
-    home.file.".local/bin/random-wallpaper" = {
-      source = ../../files/home/.local/bin/random-wallpaper;
-      executable = true;
-    };
-
-    home.file.".local/bin/random-quote" = {
-      source = ../../files/home/.local/bin/random-quote;
-      executable = true;
-    };
+    home.file = builtins.listToAttrs (map managedScriptFile managedScripts);
 
     xdg.configFile."hypr/local.conf".text = ''
       # Local Hyprland configuration.
