@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+editor="${DUB_EDITOR:-${VISUAL:-code}}"
+
+if command -v uwsm >/dev/null 2>&1 && [ -n "${WAYLAND_DISPLAY:-}" ]; then
+  exec uwsm app -- "$editor" "$@"
+fi
+
+exec "$editor" "$@"
