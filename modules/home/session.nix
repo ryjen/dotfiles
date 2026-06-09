@@ -8,6 +8,27 @@
   options.dotfiles.profiles.workstation.enable = lib.mkEnableOption "local workstation overlay";
 
   config = lib.mkIf config.dotfiles.profiles.workstation.enable {
+    home.packages = with pkgs; [
+      alacritty
+      brightnessctl
+      cliphist
+      dolphin
+      eww
+      grim
+      gsimplecal
+      hyprpaper
+      mako
+      networkmanagerapplet
+      pavucontrol
+      playerctl
+      rofi-wayland
+      slurp
+      waybar
+      wl-clipboard
+      wlogout
+      wofi
+    ];
+
     home.sessionVariables = {
       GIT_EDITOR = "nvim";
       PAGER = "bat -p";
