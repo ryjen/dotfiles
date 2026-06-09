@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+browser="${DUB_BROWSER:-${BROWSER:-firefox}}"
+
+if command -v uwsm >/dev/null 2>&1 && [ -n "${WAYLAND_DISPLAY:-}" ]; then
+  exec uwsm app -- "$browser" "$@"
+fi
+
+exec "$browser" "$@"
