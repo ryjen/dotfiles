@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+state_home="${XDG_STATE_HOME:-$HOME/.local/state}"
+log_dir="$state_home/dubnium"
+mkdir -p "$log_dir"
+exec >>"$log_dir/session-start.log" 2>&1
+
+printf '[%s] dub-session-start\n' "$(date --iso-8601=seconds)"
+
+start_once() {
+  local name="$1"
+  shift
+
+  if pgrep -x "$name" >/dev/null 2>&1; then
+    printf '[skip] %s already running\n' "$name"
+    return 0
+  fi
+
+  printf '[start] %s\n' "$name"
+  if command -v uwsm >/dev/null 2>&1 && [ -n "${WAYLAND_DISPLAY:-}" ]; then
+    uwsm app -- "$@" &
+  else
+    "$@" &
+  fi
+}
+
+start_once waybar waybar
+start_once nm-applet nm-applet --indicator
+start_once mako mako
+start_once hyprpaper hyprpaper
+
+if [ -x "$HOME/.local/bin/random-wallpaper" ]; then
+  "$HOME/.local/bin/random-wallpaper" || true
+fi
+
+if command -v eww >/dev/null 2>&1; then
+  start_once eww eww daemon
+  eww close quote_overlay >/dev/null 2>&1 || true
+  eww open quote_overlay >/dev/null 2>&1 || true
+  if [ -x "$HOME/.local/bin/random-quote" ]; then
+    "$HOME/.local/bin/random-quote" || true
+  fi
+fi
