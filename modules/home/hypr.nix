@@ -7,9 +7,14 @@ let
   };
 
   managedScripts = [
+    "dub-browser"
+    "dub-clipboard"
+    "dub-editor"
+    "dub-file-manager"
     "dub-launch"
     "dub-screenshot"
     "dub-session-doctor"
+    "dub-session-reset"
     "dub-session-start"
     "dub-terminal"
     "dub-waybar-reload"
