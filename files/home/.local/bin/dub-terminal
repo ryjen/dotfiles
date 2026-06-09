@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+terminal="${DUB_TERMINAL:-${TERMINAL:-alacritty}}"
+
+if command -v uwsm >/dev/null 2>&1 && [ -n "${WAYLAND_DISPLAY:-}" ]; then
+  exec uwsm app -- "$terminal" "$@"
+fi
+
+exec "$terminal" "$@"
