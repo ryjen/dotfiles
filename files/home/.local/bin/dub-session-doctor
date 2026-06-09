@@ -38,7 +38,18 @@ check_file "$HOME/.config/waybar/style.css"
 check_file "$HOME/.config/waybar/custom.css"
 check_file "$HOME/.config/wofi/config"
 
-for script in dub-terminal dub-launch dub-waybar-reload dub-screenshot dub-session-start; do
+for script in \
+  dub-browser \
+  dub-clipboard \
+  dub-editor \
+  dub-file-manager \
+  dub-launch \
+  dub-screenshot \
+  dub-session-doctor \
+  dub-session-reset \
+  dub-session-start \
+  dub-terminal \
+  dub-waybar-reload; do
   path="$HOME/.local/bin/$script"
   [ -x "$path" ] && ok "$script executable" || fail "$script missing or not executable"
 done
@@ -47,14 +58,25 @@ check_exe hyprland
 check_exe waybar
 check_exe alacritty
 check_exe wofi
+check_exe grim
+check_exe slurp
+check_exe wl-copy
+check_exe wl-paste
+check_exe cliphist
 check_optional_exe rofi
-check_optional_exe grim
-check_optional_exe slurp
-check_optional_exe wl-copy
 check_optional_exe hyprpaper
 check_optional_exe mako
 check_optional_exe eww
 check_optional_exe uwsm
+check_optional_exe dolphin
+check_optional_exe firefox
+check_optional_exe code
+
+if pgrep -f 'wl-paste --watch cliphist store' >/dev/null 2>&1; then
+  ok 'cliphist watcher running'
+else
+  warn 'cliphist watcher not running'
+fi
 
 state_home="${XDG_STATE_HOME:-$HOME/.local/state}"
 log_file="$state_home/dubnium/session-start.log"
