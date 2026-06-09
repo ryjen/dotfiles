@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+launcher="${DUB_CLIPBOARD_LAUNCHER:-${DUB_LAUNCHER:-wofi}}"
+
+if ! command -v cliphist >/dev/null 2>&1; then
+  printf 'dub-clipboard: cliphist is not installed\n' >&2
+  exit 69
+fi
+
+if ! command -v wl-copy >/dev/null 2>&1; then
+  printf 'dub-clipboard: wl-copy is not installed\n' >&2
+  exit 69
+fi
+
+case "$launcher" in
+  rofi|rofi-wayland)
+    picker=(rofi -dmenu -p clipboard)
+    ;;
+  wofi)
+    picker=(wofi --dmenu --prompt clipboard)
+    ;;
+  *)
+    picker=($launcher)
+    ;;
+esac
+
+selection="$(cliphist list | "${picker[@]}" || true)"
+[ -n "$selection" ] || exit 0
+
+printf '%s' "$selection" | cliphist decode | wl-copy
