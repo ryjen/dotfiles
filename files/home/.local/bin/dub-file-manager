@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+file_manager="${DUB_FILE_MANAGER:-dolphin}"
+
+if command -v uwsm >/dev/null 2>&1 && [ -n "${WAYLAND_DISPLAY:-}" ]; then
+  exec uwsm app -- "$file_manager" "$@"
+fi
+
+exec "$file_manager" "$@"
