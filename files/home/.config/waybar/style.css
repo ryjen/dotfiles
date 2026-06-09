@@ -1,4 +1,5 @@
 @import "colors.css";
+@import "custom.css";
 
 window#waybar {
     background-color: rgba(26, 27, 38, 0.85);
