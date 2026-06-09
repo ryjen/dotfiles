@@ -75,6 +75,16 @@
           exec ${pkgs.runtimeShell} ${./scripts/verify-in-container.sh} "$@"
         '';
       };
+      verifySessionFiles = pkgs.writeShellApplication {
+        name = "verify-session-files";
+        runtimeInputs = [
+          pkgs.bash
+          pkgs.coreutils
+        ];
+        text = ''
+          exec ${pkgs.runtimeShell} ${./scripts/verify-session-files.sh} "$@"
+        '';
+      };
     in
     {
       apps.${system}.verify-container = {
@@ -82,8 +92,14 @@
         program = "${verifyInContainer}/bin/verify-in-container";
       };
 
+      apps.${system}.verify-session-files = {
+        type = "app";
+        program = "${verifySessionFiles}/bin/verify-session-files";
+      };
+
       packages.${system} = {
         verify-container = verifyInContainer;
+        verify-session-files = verifySessionFiles;
         hermes-agent = hermes-agent.packages.${system}.default;
       };
 
