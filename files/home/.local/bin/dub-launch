@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+launcher="${DUB_LAUNCHER:-wofi}"
+
+case "$launcher" in
+  wofi)
+    cmd=(wofi --show drun --style "$HOME/.config/wofi/style.css" --conf "$HOME/.config/wofi/config")
+    ;;
+  rofi|rofi-wayland)
+    cmd=(rofi -show drun)
+    ;;
+  walker)
+    cmd=(walker)
+    ;;
+  anyrun)
+    cmd=(anyrun)
+    ;;
+  *)
+    cmd=($launcher "$@")
+    ;;
+esac
+
+if command -v uwsm >/dev/null 2>&1 && [ -n "${WAYLAND_DISPLAY:-}" ]; then
+  exec uwsm app -- "${cmd[@]}"
+fi
+
+exec "${cmd[@]}"
