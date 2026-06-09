@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+set -u
+
+status=0
+
+ok() { printf '[ok] %s\n' "$*"; }
+warn() { printf '[warn] %s\n' "$*"; }
+fail() { printf '[fail] %s\n' "$*"; status=1; }
+
+check_file() {
+  local path="$1"
+  [ -f "$path" ] && ok "$path exists" || fail "$path missing"
+}
+
+check_dir() {
+  local path="$1"
+  [ -d "$path" ] && ok "$path exists" || fail "$path missing"
+}
+
+check_exe() {
+  local name="$1"
+  command -v "$name" >/dev/null 2>&1 && ok "$name available" || fail "$name not found"
+}
+
+check_optional_exe() {
+  local name="$1"
+  command -v "$name" >/dev/null 2>&1 && ok "$name available" || warn "$name not found"
+}
+
+printf 'Dubnium session doctor\n\n'
+
+check_file "$HOME/.config/hypr/hyprland.conf"
+check_dir "$HOME/.config/hypr/custom.d"
+check_file "$HOME/.config/hypr/custom.d/00-empty.conf"
+check_file "$HOME/.config/hypr/adopted.d/machine.conf"
+check_file "$HOME/.config/waybar/config.jsonc"
+check_file "$HOME/.config/waybar/style.css"
+check_file "$HOME/.config/waybar/custom.css"
+check_file "$HOME/.config/wofi/config"
+
+for script in dub-terminal dub-launch dub-waybar-reload dub-screenshot dub-session-start; do
+  path="$HOME/.local/bin/$script"
+  [ -x "$path" ] && ok "$script executable" || fail "$script missing or not executable"
+done
+
+check_exe hyprland
+check_exe waybar
+check_exe alacritty
+check_exe wofi
+check_optional_exe rofi
+check_optional_exe grim
+check_optional_exe slurp
+check_optional_exe wl-copy
+check_optional_exe hyprpaper
+check_optional_exe mako
+check_optional_exe eww
+check_optional_exe uwsm
+
+state_home="${XDG_STATE_HOME:-$HOME/.local/state}"
+log_file="$state_home/dubnium/session-start.log"
+if [ -f "$log_file" ]; then
+  ok "$log_file exists"
+else
+  warn "$log_file not found yet"
+fi
+
+if command -v fc-match >/dev/null 2>&1; then
+  if fc-match 'JetBrainsMono Nerd Font' | grep -qi 'JetBrains'; then
+    ok 'JetBrainsMono Nerd Font resolves'
+  else
+    warn 'JetBrainsMono Nerd Font may not resolve as expected'
+  fi
+else
+  warn 'fc-match not available; cannot check font resolution'
+fi
+
+exit "$status"
