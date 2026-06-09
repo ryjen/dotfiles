@@ -1,27 +1,38 @@
 {
   ...
 }:
+let
+  terminalFont = "JetBrainsMono Nerd Font Mono";
+in
 {
   programs.alacritty = {
     enable = true;
     settings = {
       font = {
-        size = 20;
+        size = 18;
         normal = {
-          family = "JetBrainsMono Nerd Font";
+          family = terminalFont;
           style = "Regular";
         };
         bold = {
-          family = "JetBrainsMono Nerd Font";
+          family = terminalFont;
           style = "Bold";
         };
         italic = {
-          family = "JetBrainsMono Nerd Font";
+          family = terminalFont;
           style = "Italic";
         };
         bold_italic = {
-          family = "JetBrainsMono Nerd Font";
+          family = terminalFont;
           style = "Bold Italic";
+        };
+        offset = {
+          x = 0;
+          y = 0;
+        };
+        glyph_offset = {
+          x = 0;
+          y = 0;
         };
       };
     };
