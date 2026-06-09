@@ -67,7 +67,7 @@ Useful Dubnium bindings:
 - `SUPER+D`: file manager
 - `SUPER+V`: clipboard history
 - `SUPER+Shift+V`: toggle floating
-- `SUPER+R`: resize submap, when using the symbolic binding
+- `SUPER+Z`: resize submap
 - `SUPER+W`: move submap
 - `SUPER+Shift+R`: reload Waybar
 - `SUPER+Shift+Escape`: reset session services
