@@ -48,10 +48,32 @@ Stable session wrappers are installed into `~/.local/bin`:
 
 - `dub-terminal` launches the configured terminal.
 - `dub-launch` launches the configured app launcher.
+- `dub-browser` launches the configured browser.
+- `dub-file-manager` launches the configured file manager.
+- `dub-editor` launches the configured graphical editor.
+- `dub-clipboard` opens clipboard history through `cliphist` and a launcher.
 - `dub-waybar-reload` restarts Waybar safely.
 - `dub-screenshot` wraps `grim`, `slurp`, and `wl-copy` screenshot flows.
-- `dub-session-start` starts Waybar, applets, wallpaper, notifications, and optional Eww state with logging.
+- `dub-session-start` starts Waybar, applets, wallpaper, notifications, clipboard history, and optional Eww state with logging.
+- `dub-session-reset` restarts the lightweight session services.
 - `dub-session-doctor` checks common Hyprland/Waybar recovery issues.
+
+Useful Dubnium bindings:
+
+- `SUPER+Enter`: terminal
+- `SUPER+R`: launcher, via physical keycode
+- `SUPER+B`: browser
+- `SUPER+C`: editor
+- `SUPER+D`: file manager
+- `SUPER+V`: clipboard history
+- `SUPER+Shift+V`: toggle floating
+- `SUPER+R`: resize submap, when using the symbolic binding
+- `SUPER+W`: move submap
+- `SUPER+Shift+R`: reload Waybar
+- `SUPER+Shift+Escape`: reset session services
+- `Print`: screenshot screen
+- `Shift+Print`: screenshot area
+- `Ctrl+Shift+Print`: screenshot area to clipboard
 
 Run the session doctor after activation or when Hyprland behaves unexpectedly:
 
@@ -92,6 +114,12 @@ Check evaluation:
 
 ```bash
 nix flake check --no-build
+```
+
+Verify session files:
+
+```bash
+nix run .#verify-session-files
 ```
 
 Apply Home Manager:
