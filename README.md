@@ -31,6 +31,55 @@ Tracked profile entrypoints:
 
 Architecture rationale lives in `docs/architecture/adr-0001-baseline-and-overlays.md`.
 
+## Hyprland and Waybar ownership
+
+Hyprland and Waybar are managed as a session UX substrate rather than loose rice files.
+
+Ownership model:
+
+- Home Manager owns generated base files under `~/.config/hypr` and `~/.config/waybar`.
+- `~/.config/hypr/adopted.d/machine.conf` is selected by `dotfiles.hypr.adoptedProfile`.
+- `~/.config/hypr/local.conf` is writable machine-local state and should not be auto-promoted.
+- `~/.config/hypr/custom.d/*.conf` is the promotion staging area for user-authored Hyprland fragments.
+- `~/.config/waybar/custom.css` is the local stylesheet hook for Waybar experiments.
+- Runtime logs and state belong under XDG state/cache locations, not managed config files.
+
+Stable session wrappers are installed into `~/.local/bin`:
+
+- `dub-terminal` launches the configured terminal.
+- `dub-launch` launches the configured app launcher.
+- `dub-waybar-reload` restarts Waybar safely.
+- `dub-screenshot` wraps `grim`, `slurp`, and `wl-copy` screenshot flows.
+- `dub-session-start` starts Waybar, applets, wallpaper, notifications, and optional Eww state with logging.
+- `dub-session-doctor` checks common Hyprland/Waybar recovery issues.
+
+Run the session doctor after activation or when Hyprland behaves unexpectedly:
+
+```bash
+dub-session-doctor
+```
+
+Session startup logs are written to:
+
+```text
+~/.local/state/dubnium/session-start.log
+```
+
+## Recovery
+
+If Hyprland fails to start or keybindings break:
+
+1. Switch to a TTY.
+2. Run `dub-session-doctor`.
+3. Inspect `~/.local/state/dubnium/session-start.log`.
+4. Temporarily disable local overrides:
+
+   ```bash
+   mv ~/.config/hypr/custom.d ~/.config/hypr/custom.d.disabled
+   ```
+
+5. Re-apply Home Manager or the Dubnium profile.
+
 ## Commands
 
 View flake outputs:
@@ -78,58 +127,5 @@ nix run .#verify-container
 Lightweight verification outputs:
 
 ```bash
-nix build .#homeConfigurations.USERNAME@verify.activationPackage
-nix build .#nixosConfigurations.verify.config.system.build.toplevel
+nix flake check --no-build
 ```
-
-## Secrets
-
-Secrets are local-first. Real tokens should normally stay out of this repo and
-be provided by machine-local overlays, local zsh fragments, `pass`, or host
-environment injection.
-
-Optional `sops-nix` support exists for secrets that must be reproducible through
-Home Manager. It is only imported when `secrets.yaml` exists. See
-`docs/secrets.md`.
-
-## Agent Skills
-
-Agent, Hermes, and Codex config is intentionally minimal:
-
-- `files/home/.agents/.skill-lock.json`
-- `files/home/.codex/config.toml`
-- `files/home/.codex/rules/default.rules`
-
-Codex is installed through Home Manager from the pinned nixpkgs package set.
-Hermes Agent is optional and controlled by:
-
-```nix
-dotfiles.agents.hermes.enable = true;
-```
-
-When enabled, Hermes comes from the pinned `hermes-agent` flake input.
-First-time Hermes state remains local to the machine under `~/.hermes` and
-should not be committed.
-
-```bash
-hermes setup
-hermes
-```
-
-Run this after Home Manager switch to install or update skills from GitHub:
-
-```bash
-agents-update
-```
-
-## Git
-
-The shared Git baseline is declarative:
-
-- `~/.gitignore` is managed from `files/home/.gitignore`
-- `~/.config/git/commit-message` is managed from the repo
-- `~/.config/git/project` is populated from the repo's managed hook/template tree
-- default personal identity should live in `home/USERNAME/git-local.nix`
-- organization-specific identity can live behind an overlay such as `dotfiles.profiles.micrantha.enable`
-
-For isolated Linux verification, see `docs/container-verification.md`.
