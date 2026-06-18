@@ -87,14 +87,16 @@
       };
     in
     {
-      apps.${system}.verify-container = {
-        type = "app";
-        program = "${verifyInContainer}/bin/verify-in-container";
-      };
+      apps.${system} = {
+        verify-container = {
+          type = "app";
+          program = "${verifyInContainer}/bin/verify-in-container";
+        };
 
-      apps.${system}.verify-session-files = {
-        type = "app";
-        program = "${verifySessionFiles}/bin/verify-session-files";
+        verify-session-files = {
+          type = "app";
+          program = "${verifySessionFiles}/bin/verify-session-files";
+        };
       };
 
       packages.${system} = {
