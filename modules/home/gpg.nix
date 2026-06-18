@@ -1,16 +1,38 @@
 {
+  config,
   lib,
   pkgs,
   ...
 }:
+let
+  cfg = config.dotfiles.gpg;
+  defaultKeyFile = if cfg.defaultKeyFile == null then "" else cfg.defaultKeyFile;
+in
 {
+  options.dotfiles.gpg.defaultKeyFile = lib.mkOption {
+    type = lib.types.nullOr lib.types.str;
+    default = null;
+    description = "Optional runtime file containing the default GPG key fingerprint.";
+  };
+
   home.activation.ensureGnuPGHome = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     mkdir -m 700 -p "$HOME/.gnupg"
   '';
 
-  home.file.".gnupg/gpg.conf".text = ''
-    use-agent
-    trusted-key "0CDC76D5C109D17AAA6A71FAD5A34F776D49C905"
+  home.activation.writeGnuPGConfig = lib.hm.dag.entryAfter [ "ensureGnuPGHome" ] ''
+    key=""
+    if [ -n "${defaultKeyFile}" ] && [ -r "${defaultKeyFile}" ]; then
+      key="$(${pkgs.coreutils}/bin/tr -d '\r\n' < "${defaultKeyFile}")"
+    fi
+
+    {
+      echo "use-agent"
+      if [ -n "$key" ]; then
+        printf 'default-key %s\n' "$key"
+        printf 'trusted-key %s\n' "$key"
+      fi
+    } > "$HOME/.gnupg/gpg.conf"
+    chmod 600 "$HOME/.gnupg/gpg.conf"
   '';
 
   services.gpg-agent = {
