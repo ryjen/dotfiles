@@ -68,6 +68,8 @@
     xdg.mimeApps = {
       enable = true;
       defaultApplications = {
+        "application/x-gnome-saved-search" = "org.gnome.Nautilus.desktop";
+        "inode/directory" = "org.gnome.Nautilus.desktop";
         "text/html" = "firefox.desktop";
         "x-scheme-handler/about" = "firefox.desktop";
         "x-scheme-handler/http" = "firefox.desktop";

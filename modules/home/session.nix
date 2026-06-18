@@ -12,7 +12,7 @@
       alacritty
       brightnessctl
       cliphist
-      dolphin
+      kdePackages.dolphin
       eww
       grim
       gsimplecal
@@ -21,7 +21,7 @@
       networkmanagerapplet
       pavucontrol
       playerctl
-      rofi-wayland
+      rofi
       slurp
       waybar
       wl-clipboard
