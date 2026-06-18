@@ -31,6 +31,8 @@ Tracked profile entrypoints:
 
 Architecture rationale lives in `docs/architecture/adr-0001-baseline-and-overlays.md`.
 
+The layered home configuration contract lives in `docs/architecture/home-layering-contract.md`.
+
 ## Hyprland and Waybar ownership
 
 Hyprland and Waybar are managed as a session UX substrate rather than loose rice files.
