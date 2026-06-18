@@ -38,7 +38,8 @@ Hyprland and Waybar are managed as a session UX substrate rather than loose rice
 Ownership model:
 
 - Home Manager owns generated base files under `~/.config/hypr` and `~/.config/waybar`.
-- `~/.config/hypr/adopted.d/machine.conf` is selected by `dotfiles.hypr.adoptedProfile`.
+- `dotfiles.hypr.adoptedProfile` selects machine profile content embedded into generated `~/.config/hypr/hyprland.conf`.
+- `~/.config/hypr/adopted.d/machine.conf` is retained for adopted/archive visibility but is not sourced during normal Hyprland load.
 - `~/.config/hypr/local.conf` is writable machine-local state and should not be auto-promoted.
 - `~/.config/hypr/custom.d/*.conf` is the promotion staging area for user-authored Hyprland fragments.
 - `~/.config/waybar/custom.css` is the local stylesheet hook for Waybar experiments.

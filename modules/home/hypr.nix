@@ -6,6 +6,8 @@ let
     empty = ../../files/home/.config/hypr/adopted.d/empty.conf;
   };
 
+  managedHyprConfig = builtins.readFile adoptedProfiles.${config.dotfiles.hypr.adoptedProfile};
+
   managedScripts = [
     "dub-browser"
     "dub-clipboard"
@@ -34,26 +36,22 @@ in
   options.dotfiles.hypr.adoptedProfile = lib.mkOption {
     type = lib.types.enum (builtins.attrNames adoptedProfiles);
     default = "empty";
-    description = "Machine-specific Hyprland adopted fragment to install as adopted.d/machine.conf.";
+    description = "Machine-specific Hyprland profile content to embed into the managed generated config.";
   };
 
   config = lib.mkIf config.dotfiles.profiles.workstation.enable {
     xdg.configFile."hypr/hyprland.conf".text = ''
       # GENERATED FILE — DO NOT EDIT DIRECTLY
-      # Source of truth: ryjen/dotfiles Home Manager modules
+      # source-of-truth: ryjen/dotfiles
+      # local-layer: ~/.config/hypr/local.conf
+      # custom-layer: ~/.config/hypr/custom.d/*.conf
+      # adopted-layer: ~/.config/hypr/adopted.d/*
       #
-      # Local machine-specific overrides:
-      #   ~/.config/hypr/local.conf
-      #
-      # Promotion candidates:
-      #   ~/.config/hypr/custom.d/*.conf
-      #
-      # Adopted machine profile:
-      #   ~/.config/hypr/adopted.d/machine.conf
-      #
-      # configctl should never auto-promote local.conf.
-      # configctl may reconcile and promote custom.d fragments.
-      source = ~/.config/hypr/adopted.d/*.conf
+      # adopted.d is retained for adopted/archive fragments and is not sourced
+      # during normal load.
+
+      ${managedHyprConfig}
+
       source = ~/.config/hypr/local.conf
       source = ~/.config/hypr/custom.d/*.conf
     '';
@@ -78,7 +76,7 @@ in
       # Ownership:
       # - machine-specific
       # - writable by the user
-      # - never automatically promoted by configctl
+      # - never automatically promoted
       #
       # Examples:
       # monitor=,preferred,auto,1
