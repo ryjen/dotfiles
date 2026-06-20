@@ -45,7 +45,7 @@ window#waybar {
     color: #7aa2f7;
 }
 
-#battery, #clock, #cpu, #memory, #temperature, #backlight, #custom-backlight, #network, #pulseaudio, #custom-media, #custom-configctl, #tray, #mode, #idle_inhibitor, #custom-power, #language {
+#battery, #clock, #cpu, #memory, #temperature, #backlight, #custom-backlight, #network, #pulseaudio, #custom-media, #tray, #mode, #idle_inhibitor, #custom-power, #language {
     padding: 0 14px;
     margin: 4px 2px;
     border-radius: 8px;
@@ -76,22 +76,6 @@ window#waybar {
 
 #cpu {
     color: #f7768e;
-}
-
-#custom-configctl {
-    color: #7aa2f7;
-    background-color: rgba(122, 162, 247, 0.15);
-    font-weight: bold;
-}
-
-#custom-configctl.warning {
-    color: #e0af68;
-    background-color: rgba(224, 175, 104, 0.15);
-}
-
-#custom-configctl.critical {
-    color: #f38ba8;
-    background-color: rgba(243, 139, 168, 0.15);
 }
 
 #language {
