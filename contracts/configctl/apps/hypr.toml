@@ -1,0 +1,48 @@
+schema_version = 1
+tool = "hypr"
+owner = "dotfiles"
+profile = "workstation"
+strategy = "native-include"
+renderer_required = false
+description = "Hyprland uses native source directives for unmanaged local and custom fragments."
+
+managed_files = [
+  "~/.config/hypr/hyprland.conf",
+  "~/.config/hypr/adopted.d/machine.conf",
+  "~/.config/hypr/custom.d/00-empty.conf"
+]
+
+local_only = [
+  "~/.config/hypr/local.conf"
+]
+
+promotion_sources = [
+  "~/.config/hypr/custom.d/*.conf"
+]
+
+adopted_paths = [
+  "~/.config/hypr/adopted.d/*.conf"
+]
+
+runtime_includes = [
+  "~/.config/hypr/local.conf",
+  "~/.config/hypr/custom.d/*.conf"
+]
+
+[adoption]
+state_path = "~/.local/state/configctl/adoptions/hypr.toml"
+hash_algorithm = "sha256"
+mode = "review-gated"
+ignore = [
+  "~/.config/hypr/local.conf",
+  "~/.config/hypr/adopted.d/*"
+]
+
+[validation]
+must_not_manage = [
+  "~/.config/hypr/local.conf"
+]
+must_exist_or_be_creatable = [
+  "~/.config/hypr/custom.d",
+  "~/.config/hypr/adopted.d"
+]
