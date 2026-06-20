@@ -96,13 +96,16 @@ in
     xdg.configFile."hyprpaper/local.conf".text = localLayerText "Hyprpaper";
     xdg.configFile."hyprpaper/custom.d/00-empty.conf".source = ../../files/home/.config/hyprpaper/custom.d/empty.conf;
     xdg.configFile."hyprpaper/adopted.d/00-empty.conf".source = ../../files/home/.config/hyprpaper/adopted.d/empty.conf;
+
+    # Waybar is JSONC + CSS, not Hyprland-style sourced .conf files. Do not
+    # manage a Waybar local.conf or .conf layer skeleton here; local runtime
+    # experiments should remain user-owned or be promoted deliberately into the
+    # managed JSONC/CSS files below.
     xdg.configFile."waybar/config.jsonc".source = ../../files/home/.config/waybar/config.jsonc;
     xdg.configFile."waybar/style.css".source = ../../files/home/.config/waybar/style.css;
     xdg.configFile."waybar/colors.css".source = ../../files/home/.config/waybar/colors.css;
     xdg.configFile."waybar/custom.css".source = ../../files/home/.config/waybar/custom.css;
-    xdg.configFile."waybar/local.conf".text = localLayerText "Waybar";
-    xdg.configFile."waybar/custom.d/00-empty.conf".source = ../../files/home/.config/waybar/custom.d/empty.conf;
-    xdg.configFile."waybar/adopted.d/00-empty.conf".source = ../../files/home/.config/waybar/adopted.d/empty.conf;
+
     xdg.configFile."mako/config".source = ../../files/home/.config/mako/config;
     xdg.configFile."mako/local.conf".text = localLayerText "Mako";
     xdg.configFile."mako/custom.d/00-empty.conf".source = ../../files/home/.config/mako/custom.d/empty.conf;
