@@ -2,7 +2,7 @@
 
 This directory is the dotfiles-owned contract surface consumed by Dubnium's `configctl` executor.
 
-The manifests are declarative policy. They describe what this repository owns, which user paths are intentionally local-only, and which files may be adopted or composed by explicit tooling. They do not execute commands, perform network I/O, install packages, or mutate user state by themselves.
+The manifests are declarative policy. They describe what this repository owns, which user paths are intentionally local-only, and which files may be adopted or composed by explicit tooling. They do not include shell hooks, network fetches, package installation, or implicit user-state changes.
 
 ## Contract roots
 
@@ -22,7 +22,7 @@ contracts/configctl/
 - `custom.d/*` paths are promotion candidates only through an explicit adopt workflow.
 - `adopted.d/*` paths are archive/evidence paths, ignored during normal runtime unless a manifest says otherwise.
 - Hashes are evidence for review and reconciliation. They are not authority to silently rewrite or delete user files.
-- V1 manifests must not include arbitrary command execution.
+- V1 manifests must not include arbitrary shell hooks.
 
 ## Optimized path model
 
@@ -32,12 +32,13 @@ Common roles:
 
 | Role | Meaning |
 | --- | --- |
-| `managed_sources` | Repo source files or Home Manager-owned runtime files used as composition input. |
-| `runtime_outputs` | Final runtime files the app reads. |
+| `source_inputs` | Repo-owned modules, fragments, or static source files used to produce runtime configuration. |
+| `runtime_outputs` | Final runtime files the app reads; currently Home Manager-owned unless the manifest says otherwise. |
 | `local` | Machine-local files that must not be overwritten or promoted. |
 | `custom` | User-authored promotion candidates. |
 | `adopted` | Archive/evidence paths for already adopted fragments. |
 | `runtime_includes` | Files loaded directly by tools with native include support. |
+| `auxiliary_outputs` | Runtime helper files that are not composition outputs. |
 
 Behavior sections refer to roles, not duplicated path globs. For example, adoption ignores `local` and `adopted` roles instead of repeating every path.
 
@@ -72,7 +73,7 @@ Important constraints:
 
 - Init is for first-run mutable tool state only.
 - Init may create directories and empty files with safe permissions.
-- Init must not run arbitrary commands in v1.
+- Init must not use arbitrary shell hooks.
 - Init must not fetch network resources.
 - Init must not prune or rewrite existing user content unless the manifest explicitly marks the action as non-destructive and the executor confirms it.
 
