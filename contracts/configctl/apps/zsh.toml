@@ -15,9 +15,8 @@ description = "Zsh sources unmanaged local config and config.d promotion candida
 [layout]
 root = "~/.config/zsh"
 standard = "configctl-v1"
-managed_sources = [
-  "~/.zshenv",
-  "~/.config/zsh/.zshrc"
+source_inputs = [
+  "modules/home/zsh.nix"
 ]
 runtime_outputs = [
   "~/.zshenv",
