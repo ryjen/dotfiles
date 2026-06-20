@@ -1,0 +1,61 @@
+schema_version = 1
+tool = "eww"
+owner = "dotfiles"
+profile = "workstation"
+strategy = "compose"
+renderer_required = true
+description = "Eww has yuck and scss runtime files. Fragment layering requires an explicit renderer per file type."
+
+managed_files = [
+  "~/.config/eww/eww.yuck",
+  "~/.config/eww/eww.scss",
+  "~/.config/eww/custom.d/00-empty.conf",
+  "~/.config/eww/adopted.d/00-empty.conf"
+]
+
+rendered_outputs = [
+  "~/.config/eww/eww.yuck",
+  "~/.config/eww/eww.scss"
+]
+
+local_only = [
+  "~/.config/eww/local.yuck",
+  "~/.config/eww/local.scss"
+]
+
+promotion_sources = [
+  "~/.config/eww/custom.d/*.yuck",
+  "~/.config/eww/custom.d/*.scss"
+]
+
+adopted_paths = [
+  "~/.config/eww/adopted.d/*"
+]
+
+[composition]
+source_order = [
+  "managed",
+  "local",
+  "custom"
+]
+managed_sources = [
+  "files/home/.config/eww/eww.yuck",
+  "files/home/.config/eww/eww.scss"
+]
+local_sources = [
+  "~/.config/eww/local.yuck",
+  "~/.config/eww/local.scss"
+]
+custom_sources = "~/.config/eww/custom.d/*"
+write_mode = "atomic"
+dry_run_required = true
+
+[adoption]
+state_path = "~/.local/state/configctl/adoptions/eww.toml"
+hash_algorithm = "sha256"
+mode = "review-gated"
+ignore = [
+  "~/.config/eww/local.yuck",
+  "~/.config/eww/local.scss",
+  "~/.config/eww/adopted.d/*"
+]
