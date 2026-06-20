@@ -1,15 +1,24 @@
 local utils = require("config.utils")
 
-local unmap = vim.api.nvim_del_keymap
+-- Colemak/HNEI directional mappings.
+local directional_modes = { "n", "v" }
+utils.map(directional_modes, "n", "j")
+utils.map(directional_modes, "e", "k")
+utils.map(directional_modes, "i", "l")
+-- h remains h.
 
---- faster navigation with CTRL
-local modes = { "n", "v" }
-utils.map(modes, "<C-h>", "5h")
-utils.map(modes, "<C-n>", "5j")
-utils.map(modes, "<C-e>", "5k")
-utils.map(modes, "<C-i>", "5l")
+-- Preserve access to the original motions/actions shadowed above.
+utils.map(directional_modes, "k", "i")
+utils.map(directional_modes, "j", "n")
+utils.map(directional_modes, "l", "e")
 
---- faster navigation is normal navigation in insert mode
+-- Faster navigation with CTRL.
+utils.map(directional_modes, "<C-h>", "5h")
+utils.map(directional_modes, "<C-n>", "5j")
+utils.map(directional_modes, "<C-e>", "5k")
+utils.map(directional_modes, "<C-i>", "5l")
+
+-- Faster navigation is normal navigation in insert mode.
 utils.map("i", "<C-h>", "<Left>")
 utils.map("i", "<C-n>", "<Down>")
 utils.map("i", "<C-e>", "<Up>")
@@ -17,7 +26,7 @@ utils.map("i", "<C-i>", "<Right>")
 
 utils.map("n", "<leader><CR>", "i<CR><Esc>")
 
---- start spell checker
+-- Start spell checker.
 utils.map("n", "<C-p>", ":set spell spelllang=en_ca<CR>")
 
 utils.map("n", "<leader>k", ":bp<CR>")
