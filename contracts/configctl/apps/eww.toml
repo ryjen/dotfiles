@@ -2,60 +2,58 @@ schema_version = 1
 tool = "eww"
 owner = "dotfiles"
 profile = "workstation"
+status = "planned"
 strategy = "compose"
+current_runtime_owner = "home-manager"
+target_runtime_owner = "configctl"
+executor_may_validate = true
+executor_may_adopt = true
+executor_may_write_outputs = false
 renderer_required = true
-description = "Eww has yuck and scss runtime files. Fragment layering requires an explicit renderer per file type."
+description = "Eww has yuck and scss runtime files. Fragment layering requires an explicit renderer before configctl may write outputs."
 
-managed_files = [
-  "~/.config/eww/eww.yuck",
-  "~/.config/eww/eww.scss",
-  "~/.config/eww/custom.d/00-empty.conf",
-  "~/.config/eww/adopted.d/00-empty.conf"
-]
-
-rendered_outputs = [
-  "~/.config/eww/eww.yuck",
-  "~/.config/eww/eww.scss"
-]
-
-local_only = [
-  "~/.config/eww/local.yuck",
-  "~/.config/eww/local.scss"
-]
-
-promotion_sources = [
-  "~/.config/eww/custom.d/*.yuck",
-  "~/.config/eww/custom.d/*.scss"
-]
-
-adopted_paths = [
-  "~/.config/eww/adopted.d/*"
-]
-
-[composition]
-source_order = [
-  "managed",
-  "local",
-  "custom"
-]
+[layout]
+root = "~/.config/eww"
+standard = "configctl-v1"
 managed_sources = [
   "files/home/.config/eww/eww.yuck",
   "files/home/.config/eww/eww.scss"
 ]
-local_sources = [
-  "~/.config/eww/local.yuck",
-  "~/.config/eww/local.scss"
+runtime_outputs = [
+  "eww.yuck",
+  "eww.scss"
 ]
-custom_sources = "~/.config/eww/custom.d/*"
+local = [
+  "local.yuck",
+  "local.scss"
+]
+custom = [
+  "custom.d/*.yuck",
+  "custom.d/*.scss"
+]
+adopted = [
+  "adopted.d/*"
+]
+
+[composition]
+source_order = [
+  "managed_sources",
+  "local",
+  "custom"
+]
+output_role = "runtime_outputs"
 write_mode = "atomic"
 dry_run_required = true
+requires_parser = [
+  "yuck",
+  "scss"
+]
 
 [adoption]
 state_path = "~/.local/state/configctl/adoptions/eww.toml"
 hash_algorithm = "sha256"
 mode = "review-gated"
 ignore = [
-  "~/.config/eww/local.yuck",
-  "~/.config/eww/local.scss",
-  "~/.config/eww/adopted.d/*"
+  "local",
+  "adopted"
 ]
