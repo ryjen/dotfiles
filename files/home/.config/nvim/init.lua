@@ -1,7 +1,6 @@
 vim.loader.enable()
 
 local g = vim.g
-local cmd = vim.cmd
 local fn = vim.fn
 
 -- Disable some built-in plugins we don't want.
@@ -51,15 +50,8 @@ end
 -- Sensible defaults
 require("settings")
 
--- Commands
-cmd([[command! PackerInstall packadd packer.nvim | lua require('plugins').install()]])
-cmd([[command! PackerUpdate packadd packer.nvim | lua require('plugins').update()]])
-cmd([[command! PackerSync packadd packer.nvim | lua require('plugins').sync()]])
-cmd([[command! PackerClean packadd packer.nvim | lua require('plugins').clean()]])
-cmd([[command! PackerCompile packadd packer.nvim | lua require('plugins').compile()]])
-
--- Auto compile when there are changes in plugins.lua
-cmd("autocmd BufWritePost plugins.lua PackerCompile")
+-- Plugin manager and plugin specs
+require("plugins")
 
 -- Key mappings
 require("keymappings")
