@@ -87,7 +87,7 @@ Dubnium may use this as the user-layer profile contract. It should not infer tha
 | System services and timers | Dubnium/NixOS | Enablement must be explicit; profiles should not silently enable heavy optional services. |
 | `dubctl` operator UX | Dubnium | Host-oriented wrappers and read-only diagnostics; not a user-config mutation engine. |
 | User packages | dotfiles/Home Manager | CLI/editor/user apps belong here unless needed before login or by system services. |
-| Node/npm global tooling | dotfiles/Home Manager | User-layer tool state; see `ryjen/dotfiles#22` and `ryjen/dubnium#109`. |
+| Node/npm global tooling | dotfiles/Home Manager | User-layer tool state; see the npm/Codex ownership design work. |
 | `configctl` executable | Dubnium | User-config executor implementation; must consume dotfiles manifests instead of encoding app policy. |
 | `configctl` app contracts/manifests | dotfiles, when app config is user-owned | Consumed by Dubnium tooling; defined close to the owned config. |
 | Runtime/generated app config | generated under user config dirs | Mark as generated; do not hand-edit. |
@@ -276,17 +276,16 @@ Dubnium consumers should follow these constraints:
 - Use `configctl` for user config validation, composition, init/adopt, and explicit mutation workflows.
 - Prefer diagnostics before adopt/init/composition mutation.
 - Treat dotfiles-owned manifests as contracts, not generated implementation detail.
-- Link implementation PRs back to the relevant cross-repo issue when changing boundaries.
+- Link implementation PRs back to the relevant cross-repository design work when changing boundaries.
 
 Related work:
 
-- `ryjen/dotfiles#22` — npm global tooling and Codex ownership.
-- `ryjen/dotfiles#37` — dotfiles-owned config composition manifests.
-- `ryjen/dotfiles#38` — dotfiles-owned init/adopt manifests.
-- `ryjen/dubnium#99` — canonical QART cleanup tracker.
-- `ryjen/dubnium#109` — npm/Codex ownership split.
-- `ryjen/dubnium#113` — `configctl adopt` and initial tool-state contracts.
-- `ryjen/dubnium#114` — `configctl` composition contracts.
+- npm global tooling and Codex ownership split.
+- dotfiles-owned config composition manifests.
+- dotfiles-owned init/adopt manifests.
+- canonical QART cleanup tracking.
+- `configctl adopt` and initial tool-state contracts.
+- `configctl` composition contracts.
 
 ## Initial implementation target
 
