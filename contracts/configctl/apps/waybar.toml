@@ -2,53 +2,51 @@ schema_version = 1
 tool = "waybar"
 owner = "dotfiles"
 profile = "workstation"
+status = "planned"
 strategy = "compose"
+current_runtime_owner = "home-manager"
+target_runtime_owner = "configctl"
+executor_may_validate = true
+executor_may_adopt = true
+executor_may_write_outputs = false
 renderer_required = true
-description = "Waybar JSONC does not provide a safe native include model. CSS can import, but the contract treats Waybar as a composed app so JSONC and CSS stay coherent."
+description = "Waybar JSONC does not provide a safe native include model. CSS can import, but the contract treats Waybar as a composed app so JSONC and CSS stay coherent before configctl may write outputs."
 
-managed_files = [
-  "~/.config/waybar/config.jsonc",
-  "~/.config/waybar/style.css",
-  "~/.config/waybar/colors.css",
-  "~/.config/waybar/custom.css",
-  "~/.config/waybar/scripts/nvidia-gpu"
-]
-
-rendered_outputs = [
-  "~/.config/waybar/config.jsonc",
-  "~/.config/waybar/style.css"
-]
-
-local_only = [
-  "~/.config/waybar/local.jsonc",
-  "~/.config/waybar/local.css"
-]
-
-promotion_sources = [
-  "~/.config/waybar/custom.d/*.jsonc",
-  "~/.config/waybar/custom.d/*.css"
-]
-
-adopted_paths = [
-  "~/.config/waybar/adopted.d/*"
-]
-
-[composition]
-source_order = [
-  "managed",
-  "local",
-  "custom"
-]
+[layout]
+root = "~/.config/waybar"
+standard = "configctl-v1"
 managed_sources = [
   "files/home/.config/waybar/config.jsonc",
   "files/home/.config/waybar/style.css",
   "files/home/.config/waybar/colors.css"
 ]
-local_sources = [
-  "~/.config/waybar/local.jsonc",
-  "~/.config/waybar/local.css"
+runtime_outputs = [
+  "config.jsonc",
+  "style.css"
 ]
-custom_sources = "~/.config/waybar/custom.d/*"
+local = [
+  "local.jsonc",
+  "local.css"
+]
+custom = [
+  "custom.d/*.jsonc",
+  "custom.d/*.css"
+]
+adopted = [
+  "adopted.d/*"
+]
+managed_auxiliary = [
+  "custom.css",
+  "scripts/nvidia-gpu"
+]
+
+[composition]
+source_order = [
+  "managed_sources",
+  "local",
+  "custom"
+]
+output_role = "runtime_outputs"
 write_mode = "atomic"
 dry_run_required = true
 requires_parser = [
@@ -61,7 +59,6 @@ state_path = "~/.local/state/configctl/adoptions/waybar.toml"
 hash_algorithm = "sha256"
 mode = "review-gated"
 ignore = [
-  "~/.config/waybar/local.jsonc",
-  "~/.config/waybar/local.css",
-  "~/.config/waybar/adopted.d/*"
+  "local",
+  "adopted"
 ]
