@@ -10,12 +10,12 @@ executor_may_validate = true
 executor_may_adopt = true
 executor_may_write_outputs = false
 renderer_required = true
-description = "Mako uses a single config file. Local/custom layering requires an explicit renderer before configctl may write outputs."
+description = "Mako uses one runtime config file, so layered fragments require a renderer."
 
 [layout]
 root = "~/.config/mako"
 standard = "configctl-v1"
-managed_sources = [
+source_inputs = [
   "files/home/.config/mako/config"
 ]
 runtime_outputs = [
@@ -33,7 +33,7 @@ adopted = [
 
 [composition]
 source_order = [
-  "managed_sources",
+  "source_inputs",
   "local",
   "custom"
 ]
