@@ -4,10 +4,11 @@
 }:
 {
   fonts.packages = with pkgs; [
-    (nerdfonts.override { fonts = [ "JetBrainsMono" ]; }) # optional, for mono
-    (pkgs.dejavu_fonts) # usually already present, but ok to keep
-    (pkgs.inter)       # optional: install Inter
+    nerd-fonts.jetbrains-mono
+    dejavu_fonts
+    inter
   ];
+
   fonts.fontconfig = {
     enable = true;
     antialias = true;
