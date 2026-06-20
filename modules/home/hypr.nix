@@ -1,4 +1,4 @@
-{ lib, config, ... }:
+{ lib, config, pkgs, ... }:
 let
   adoptedProfiles = {
     dubnium = ../../files/home/.config/hypr/adopted.d/dubnium.conf;
@@ -7,6 +7,21 @@ let
   };
 
   managedHyprConfig = builtins.readFile adoptedProfiles.${config.dotfiles.hypr.adoptedProfile};
+
+  defaultWallpapers = pkgs.runCommand "dubnium-default-wallpapers" {
+    nativeBuildInputs = [ pkgs.imagemagick ];
+  } ''
+    mkdir -p "$out"
+
+    magick -size 2560x1440 gradient:"#020617-#0f766e" \
+      "$out/dubnium-teal.png"
+
+    magick -size 2560x1440 gradient:"#111827-#6d28d9" \
+      "$out/dubnium-violet.png"
+
+    magick -size 2560x1440 gradient:"#0f172a-#b45309" \
+      "$out/dubnium-amber.png"
+  '';
 
   managedScripts = [
     "dub-browser"
@@ -29,6 +44,13 @@ let
     value = {
       source = ../../files/home/.local/bin/${name};
       executable = true;
+    };
+  };
+
+  managedFiles = builtins.listToAttrs (map managedScriptFile managedScripts) // {
+    "Pictures/wallpaper/defaults" = {
+      source = defaultWallpapers;
+      recursive = true;
     };
   };
 
@@ -89,7 +111,7 @@ in
     xdg.configFile."eww/custom.d/00-empty.conf".source = ../../files/home/.config/eww/custom.d/empty.conf;
     xdg.configFile."eww/adopted.d/00-empty.conf".source = ../../files/home/.config/eww/adopted.d/empty.conf;
 
-    home.file = builtins.listToAttrs (map managedScriptFile managedScripts);
+    home.file = managedFiles;
 
     xdg.configFile."hypr/local.conf".text = ''
       # Local Hyprland configuration.
