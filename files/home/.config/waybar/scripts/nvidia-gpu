@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Emit a Waybar JSON payload for the first available NVIDIA GPU.
+# Keep this script host-safe: non-NVIDIA machines should render nothing instead
+# of causing repeated Waybar errors.
+if ! command -v nvidia-smi >/dev/null 2>&1; then
+  printf '{"text":"","tooltip":"nvidia-smi not found","class":"missing"}\n'
+  exit 0
+fi
+
+query='utilization.gpu,temperature.gpu,memory.used,memory.total,power.draw,power.limit,name'
+if ! row="$(nvidia-smi --query-gpu="$query" --format=csv,noheader,nounits 2>/dev/null | head -n1)"; then
+  printf '{"text":"","tooltip":"nvidia-smi failed","class":"error"}\n'
+  exit 0
+fi
+
+if [ -z "${row// }" ]; then
+  printf '{"text":"","tooltip":"No NVIDIA GPU reported by nvidia-smi","class":"missing"}\n'
+  exit 0
+fi
+
+IFS=',' read -r util temp mem_used mem_total power power_limit name <<< "$row"
+
+trim() {
+  local value="$1"
+  value="${value#${value%%[![:space:]]*}}"
+  value="${value%${value##*[![:space:]]}}"
+  printf '%s' "$value"
+}
+
+json_escape() {
+  local value="$1"
+  value=${value//\\/\\\\}
+  value=${value//\"/\\\"}
+  value=${value//$'\n'/ }
+  printf '%s' "$value"
+}
+
+util="$(trim "$util")"
+temp="$(trim "$temp")"
+mem_used="$(trim "$mem_used")"
+mem_total="$(trim "$mem_total")"
+power="$(trim "$power")"
+power_limit="$(trim "$power_limit")"
+name="$(trim "$name")"
+name_escaped="$(json_escape "$name")"
+
+printf '{"text":"󰢮 %s%% %s°C %s/%s MiB","tooltip":"%s\\nGPU: %s%%\\nTemp: %s°C\\nVRAM: %s / %s MiB\\nPower: %s / %s W","class":"nvidia"}\n' \
+  "$util" "$temp" "$mem_used" "$mem_total" \
+  "$name_escaped" "$util" "$temp" "$mem_used" "$mem_total" "$power" "$power_limit"
