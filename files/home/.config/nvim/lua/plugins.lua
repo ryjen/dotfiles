@@ -1,99 +1,97 @@
-local packer = nil
-local function init()
-	if packer == nil then
-		packer = require("packer")
-		packer.init({ disable_commands = true })
-	end
-
-	local use = packer.use
-	packer.reset()
-
-	-- Packer can manage itself.
-	use("wbthomason/packer.nvim")
-
-	-- Language server protocol. Language server binaries are installed by Home Manager.
-	use({
-		"neovim/nvim-lspconfig",
-		"folke/trouble.nvim",
-		"ray-x/lsp_signature.nvim",
-		"kosayoda/nvim-lightbulb",
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not vim.loop.fs_stat(lazypath) then
+	vim.fn.system({
+		"git",
+		"clone",
+		"--filter=blob:none",
+		"https://github.com/folke/lazy.nvim.git",
+		"--branch=stable",
+		lazypath,
 	})
-	use({ "nvimtools/none-ls.nvim", requires = { "nvim-lua/plenary.nvim" } })
+end
+vim.opt.rtp:prepend(lazypath)
 
-	use("fidian/hexmode")
+require("lazy").setup({
+	-- Language server protocol. Language server binaries are installed by Home Manager.
+	{
+		"neovim/nvim-lspconfig",
+		dependencies = {
+			"folke/trouble.nvim",
+			"ray-x/lsp_signature.nvim",
+			"kosayoda/nvim-lightbulb",
+		},
+	},
+	{ "nvimtools/none-ls.nvim", dependencies = { "nvim-lua/plenary.nvim" } },
+
+	"fidian/hexmode",
 
 	-- Completion.
-	use({
+	{
 		"hrsh7th/nvim-cmp",
-		requires = {
+		event = "InsertEnter",
+		dependencies = {
 			"L3MON4D3/LuaSnip",
-			{ "hrsh7th/cmp-buffer", after = "nvim-cmp" },
-			{ "hrsh7th/cmp-nvim-lsp", after = "nvim-cmp" },
-			{ "hrsh7th/cmp-nvim-lsp-signature-help", after = "nvim-cmp" },
-			{ "hrsh7th/cmp-path", after = "nvim-cmp" },
-			{ "hrsh7th/cmp-nvim-lua", after = "nvim-cmp" },
-			{ "saadparwaiz1/cmp_luasnip", after = "nvim-cmp" },
+			"hrsh7th/cmp-buffer",
+			"hrsh7th/cmp-nvim-lsp",
+			"hrsh7th/cmp-nvim-lsp-signature-help",
+			"hrsh7th/cmp-path",
+			"hrsh7th/cmp-nvim-lua",
+			"saadparwaiz1/cmp_luasnip",
 			"lukas-reineke/cmp-under-comparator",
-			{ "hrsh7th/cmp-nvim-lsp-document-symbol", after = "nvim-cmp" },
+			"hrsh7th/cmp-nvim-lsp-document-symbol",
 		},
-		config = [[require('config.cmp')]],
-		event = "InsertEnter *",
-	})
+		config = function()
+			require("config.cmp")
+		end,
+	},
 
 	-- Themes.
-	use("altercation/vim-colors-solarized")
+	"altercation/vim-colors-solarized",
 
 	-- Bufferline.
-	use({
+	{
 		"akinsho/nvim-bufferline.lua",
-		requires = "nvim-tree/nvim-web-devicons",
-		config = [[require('config.bufferline')]],
 		event = "User ActuallyEditing",
-	})
+		dependencies = { "nvim-tree/nvim-web-devicons" },
+		config = function()
+			require("config.bufferline")
+		end,
+	},
 
 	-- Fuzzy finder.
-	use({
-		{
-			"nvim-telescope/telescope.nvim",
-			requires = {
-				"nvim-lua/plenary.nvim",
-				"nvim-telescope/telescope-ui-select.nvim",
-				{
-					"nvim-telescope/telescope-frecency.nvim",
-					requires = "kkharji/sqlite.lua",
-				},
-				{
-					"nvim-telescope/telescope-fzf-native.nvim",
-					run = "make",
-				},
+	{
+		"nvim-telescope/telescope.nvim",
+		cmd = "Telescope",
+		dependencies = {
+			"nvim-lua/plenary.nvim",
+			"nvim-telescope/telescope-ui-select.nvim",
+			{
+				"nvim-telescope/telescope-frecency.nvim",
+				dependencies = { "kkharji/sqlite.lua" },
 			},
-			wants = {
-				"plenary.nvim",
-				"telescope-frecency.nvim",
-				"telescope-fzf-native.nvim",
+			{
+				"nvim-telescope/telescope-fzf-native.nvim",
+				build = "make",
 			},
-			setup = [[require('config.telescope_setup')]],
-			config = [[require('config.telescope')]],
-			cmd = "Telescope",
-			module = "telescope",
 		},
-	})
+		init = function()
+			require("config.telescope_setup")
+		end,
+		config = function()
+			require("config.telescope")
+		end,
+	},
 
 	-- Syntax tree support.
-	use({
+	{
 		"nvim-treesitter/nvim-treesitter",
-		run = ":TSUpdate",
-	})
+		build = ":TSUpdate",
+	},
 
 	-- Default keyboard layout.
-	use("jooize/vim-colemak")
-end
-
-local plugins = setmetatable({}, {
-	__index = function(_, key)
-		init()
-		return packer[key]
-	end,
+	"jooize/vim-colemak",
+}, {
+	checker = { enabled = false },
+	install = { missing = true },
+	change_detection = { notify = false },
 })
-
-return plugins
