@@ -32,6 +32,7 @@ let
     "dub-screenshot"
     "dub-session-doctor"
     "dub-session-reset"
+    "dub-session-start"
     "dub-terminal"
     "dub-waybar-reload"
     "random-wallpaper"
