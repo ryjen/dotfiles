@@ -1,8 +1,8 @@
-/* Local Waybar overrides.
+/* Managed Waybar CSS extension point.
  *
- * Ownership:
- * - managed placeholder
- * - safe place to promote user-specific styling experiments later
+ * Waybar runtime config is JSONC plus CSS. This file is imported by style.css
+ * and is intentionally managed as an empty promotion target, not as a
+ * user-owned local layer.
  *
  * Keep this file intentionally empty by default.
  */
