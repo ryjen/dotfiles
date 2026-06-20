@@ -15,13 +15,17 @@ description = "Hyprland uses native source directives for unmanaged local and cu
 [layout]
 root = "~/.config/hypr"
 standard = "configctl-v1"
-managed_sources = [
-  "~/.config/hypr/hyprland.conf",
-  "~/.config/hypr/adopted.d/machine.conf",
-  "~/.config/hypr/custom.d/00-empty.conf"
+source_inputs = [
+  "modules/home/hypr.nix",
+  "files/home/.config/hypr/adopted.d/dubnium.conf",
+  "files/home/.config/hypr/adopted.d/technetium.conf",
+  "files/home/.config/hypr/adopted.d/empty.conf",
+  "files/home/.config/hypr/custom.d/empty.conf"
 ]
 runtime_outputs = [
-  "hyprland.conf"
+  "hyprland.conf",
+  "adopted.d/machine.conf",
+  "custom.d/00-empty.conf"
 ]
 local = [
   "local.conf"
