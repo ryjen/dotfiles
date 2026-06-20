@@ -68,7 +68,6 @@ in
   config = {
     home.packages = [
       agentsUpdate
-      pkgs.codex
       pkgs.ffmpeg
       pkgs.git
       pkgs.nodejs
