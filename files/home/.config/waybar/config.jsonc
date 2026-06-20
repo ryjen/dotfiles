@@ -24,6 +24,7 @@
         "cpu",
         "memory",
         "temperature",
+        "custom/nvidia-gpu",
         "custom/backlight",
         "battery",
         "clock",
@@ -93,6 +94,13 @@
         "critical-threshold": 80,
         "format": "{icon} {temperatureC}°C",
         "format-icons": ["", "", "", "", ""]
+    },
+    "custom/nvidia-gpu": {
+        "exec": "~/.config/waybar/scripts/nvidia-gpu",
+        "interval": 5,
+        "return-type": "json",
+        "format": "{}",
+        "tooltip": true
     },
     "mpris": {
         "format": "{player_icon} {dynamic}",
