@@ -1,8 +1,7 @@
-/* Local Waybar overrides.
+/* Managed Waybar CSS customizations.
  *
- * Ownership:
- * - managed placeholder
- * - safe place to promote user-specific styling experiments later
+ * Waybar is not currently wired into the configctl layer contract. This file is
+ * managed directly with the rest of the Waybar runtime files.
  *
  * Keep this file intentionally empty by default.
  */
