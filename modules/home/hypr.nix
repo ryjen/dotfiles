@@ -95,6 +95,10 @@ in
     xdg.configFile."waybar/style.css".source = ../../files/home/.config/waybar/style.css;
     xdg.configFile."waybar/colors.css".source = ../../files/home/.config/waybar/colors.css;
     xdg.configFile."waybar/custom.css".source = ../../files/home/.config/waybar/custom.css;
+    xdg.configFile."waybar/scripts/nvidia-gpu" = {
+      source = ../../files/home/.config/waybar/scripts/nvidia-gpu;
+      executable = true;
+    };
 
     xdg.configFile."mako/config".source = ../../files/home/.config/mako/config;
     xdg.configFile."mako/custom.d/00-empty.conf".source = ../../files/home/.config/mako/custom.d/empty.conf;
