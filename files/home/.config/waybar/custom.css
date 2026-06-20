@@ -2,6 +2,16 @@
  *
  * Waybar is not currently wired into the configctl layer contract. This file is
  * managed directly with the rest of the Waybar runtime files.
- *
- * Keep this file intentionally empty by default.
  */
+
+#custom-nvidia-gpu {
+  padding: 0 8px;
+}
+
+#custom-nvidia-gpu.missing {
+  padding: 0;
+}
+
+#custom-nvidia-gpu.error {
+  padding: 0;
+}
