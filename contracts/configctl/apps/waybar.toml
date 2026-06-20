@@ -1,0 +1,67 @@
+schema_version = 1
+tool = "waybar"
+owner = "dotfiles"
+profile = "workstation"
+strategy = "compose"
+renderer_required = true
+description = "Waybar JSONC does not provide a safe native include model. CSS can import, but the contract treats Waybar as a composed app so JSONC and CSS stay coherent."
+
+managed_files = [
+  "~/.config/waybar/config.jsonc",
+  "~/.config/waybar/style.css",
+  "~/.config/waybar/colors.css",
+  "~/.config/waybar/custom.css",
+  "~/.config/waybar/scripts/nvidia-gpu"
+]
+
+rendered_outputs = [
+  "~/.config/waybar/config.jsonc",
+  "~/.config/waybar/style.css"
+]
+
+local_only = [
+  "~/.config/waybar/local.jsonc",
+  "~/.config/waybar/local.css"
+]
+
+promotion_sources = [
+  "~/.config/waybar/custom.d/*.jsonc",
+  "~/.config/waybar/custom.d/*.css"
+]
+
+adopted_paths = [
+  "~/.config/waybar/adopted.d/*"
+]
+
+[composition]
+source_order = [
+  "managed",
+  "local",
+  "custom"
+]
+managed_sources = [
+  "files/home/.config/waybar/config.jsonc",
+  "files/home/.config/waybar/style.css",
+  "files/home/.config/waybar/colors.css"
+]
+local_sources = [
+  "~/.config/waybar/local.jsonc",
+  "~/.config/waybar/local.css"
+]
+custom_sources = "~/.config/waybar/custom.d/*"
+write_mode = "atomic"
+dry_run_required = true
+requires_parser = [
+  "jsonc",
+  "css"
+]
+
+[adoption]
+state_path = "~/.local/state/configctl/adoptions/waybar.toml"
+hash_algorithm = "sha256"
+mode = "review-gated"
+ignore = [
+  "~/.config/waybar/local.jsonc",
+  "~/.config/waybar/local.css",
+  "~/.config/waybar/adopted.d/*"
+]
