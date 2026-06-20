@@ -11,6 +11,7 @@
     "modules-left": [
         "hyprland/workspaces",
         "hyprland/submap",
+        "custom/configctl",
         "custom/media"
     ],
     "modules-center": [
@@ -64,6 +65,16 @@
     },
     "hyprland/submap": {
         "format": "<span style=\"italic\">{}</span>"
+    },
+    "custom/configctl": {
+        "exec": "~/.local/bin/dub-configctl-layouts",
+        "return-type": "json",
+        "interval": 30,
+        "format": "{}",
+        "on-click": "alacritty --title 'configctl status' -e sh -lc 'configctl status; printf \"\\npress enter to close...\"; read _'",
+        "on-click-right": "alacritty --title 'configctl reconcile' -e sh -lc 'configctl reconcile; printf \"\\npress enter to close...\"; read _'",
+        "on-click-middle": "alacritty --title 'configctl doctor' -e sh -lc 'configctl doctor; printf \"\\npress enter to close...\"; read _'",
+        "tooltip": true
     },
     "cpu": {
         "format": "{usage}% ",
