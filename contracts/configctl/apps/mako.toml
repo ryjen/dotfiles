@@ -2,41 +2,42 @@ schema_version = 1
 tool = "mako"
 owner = "dotfiles"
 profile = "workstation"
+status = "planned"
 strategy = "compose"
+current_runtime_owner = "home-manager"
+target_runtime_owner = "configctl"
+executor_may_validate = true
+executor_may_adopt = true
+executor_may_write_outputs = false
 renderer_required = true
-description = "Mako uses a single config file. Local/custom layering requires an explicit renderer."
+description = "Mako uses a single config file. Local/custom layering requires an explicit renderer before configctl may write outputs."
 
-managed_files = [
-  "~/.config/mako/config",
-  "~/.config/mako/custom.d/00-empty.conf",
-  "~/.config/mako/adopted.d/00-empty.conf"
+[layout]
+root = "~/.config/mako"
+standard = "configctl-v1"
+managed_sources = [
+  "files/home/.config/mako/config"
 ]
-
-rendered_outputs = [
-  "~/.config/mako/config"
+runtime_outputs = [
+  "config"
 ]
-
-local_only = [
-  "~/.config/mako/local.conf"
+local = [
+  "local.conf"
 ]
-
-promotion_sources = [
-  "~/.config/mako/custom.d/*.conf"
+custom = [
+  "custom.d/*.conf"
 ]
-
-adopted_paths = [
-  "~/.config/mako/adopted.d/*.conf"
+adopted = [
+  "adopted.d/*.conf"
 ]
 
 [composition]
 source_order = [
-  "managed",
+  "managed_sources",
   "local",
   "custom"
 ]
-managed_source = "files/home/.config/mako/config"
-local_source = "~/.config/mako/local.conf"
-custom_sources = "~/.config/mako/custom.d/*.conf"
+output_role = "runtime_outputs"
 write_mode = "atomic"
 dry_run_required = true
 
@@ -45,6 +46,6 @@ state_path = "~/.local/state/configctl/adoptions/mako.toml"
 hash_algorithm = "sha256"
 mode = "review-gated"
 ignore = [
-  "~/.config/mako/local.conf",
-  "~/.config/mako/adopted.d/*"
+  "local",
+  "adopted"
 ]
