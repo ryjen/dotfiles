@@ -1,0 +1,59 @@
+schema_version = 1
+tool = "eww"
+owner = "dotfiles"
+profile = "workstation"
+status = "planned"
+strategy = "compose"
+current_runtime_owner = "home-manager"
+target_runtime_owner = "configctl"
+executor_may_validate = true
+executor_may_adopt = true
+executor_may_write_outputs = false
+renderer_required = true
+description = "Eww has yuck and scss runtime files; layered fragments require a renderer."
+
+[layout]
+root = "~/.config/eww"
+standard = "configctl-v1"
+source_inputs = [
+  "files/home/.config/eww/eww.yuck",
+  "files/home/.config/eww/eww.scss"
+]
+runtime_outputs = [
+  "eww.yuck",
+  "eww.scss"
+]
+local = [
+  "local.yuck",
+  "local.scss"
+]
+custom = [
+  "custom.d/*.yuck",
+  "custom.d/*.scss"
+]
+adopted = [
+  "adopted.d/*"
+]
+
+[composition]
+source_order = [
+  "source_inputs",
+  "local",
+  "custom"
+]
+output_role = "runtime_outputs"
+write_mode = "atomic"
+dry_run_required = true
+requires_parser = [
+  "yuck",
+  "scss"
+]
+
+[adoption]
+state_path = "~/.local/state/configctl/adoptions/eww.toml"
+hash_algorithm = "sha256"
+mode = "review-gated"
+ignore = [
+  "local",
+  "adopted"
+]

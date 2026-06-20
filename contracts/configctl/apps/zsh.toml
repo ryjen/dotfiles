@@ -1,0 +1,55 @@
+schema_version = 1
+tool = "zsh"
+owner = "dotfiles"
+profile = "all"
+status = "active"
+strategy = "native-include"
+current_runtime_owner = "home-manager"
+target_runtime_owner = "home-manager"
+executor_may_validate = true
+executor_may_adopt = true
+executor_may_write_outputs = false
+renderer_required = false
+description = "Zsh sources unmanaged local config and config.d promotion candidates from managed init content."
+
+[layout]
+root = "~/.config/zsh"
+standard = "configctl-v1"
+source_inputs = [
+  "modules/home/zsh.nix"
+]
+runtime_outputs = [
+  "~/.zshenv",
+  ".zshrc"
+]
+local = [
+  "local.zsh"
+]
+custom = [
+  "config.d/*"
+]
+adopted = [
+  "adopted.d/*"
+]
+runtime_includes = [
+  "local.zsh",
+  "config.d/*"
+]
+
+[adoption]
+state_path = "~/.local/state/configctl/adoptions/zsh.toml"
+hash_algorithm = "sha256"
+mode = "review-gated"
+ignore = [
+  "local",
+  "adopted"
+]
+
+[validation]
+must_not_manage = [
+  "local"
+]
+must_exist_or_be_creatable = [
+  "custom",
+  "adopted"
+]

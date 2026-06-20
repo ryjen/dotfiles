@@ -1,0 +1,60 @@
+schema_version = 1
+tool = "hypr"
+owner = "dotfiles"
+profile = "workstation"
+status = "active"
+strategy = "native-include"
+current_runtime_owner = "home-manager"
+target_runtime_owner = "home-manager"
+executor_may_validate = true
+executor_may_adopt = true
+executor_may_write_outputs = false
+renderer_required = false
+description = "Hyprland uses native source directives for unmanaged local and custom fragments."
+
+[layout]
+root = "~/.config/hypr"
+standard = "configctl-v1"
+source_inputs = [
+  "modules/home/hypr.nix",
+  "files/home/.config/hypr/adopted.d/dubnium.conf",
+  "files/home/.config/hypr/adopted.d/technetium.conf",
+  "files/home/.config/hypr/adopted.d/empty.conf",
+  "files/home/.config/hypr/custom.d/empty.conf"
+]
+runtime_outputs = [
+  "hyprland.conf",
+  "adopted.d/machine.conf",
+  "custom.d/00-empty.conf"
+]
+local = [
+  "local.conf"
+]
+custom = [
+  "custom.d/*.conf"
+]
+adopted = [
+  "adopted.d/*.conf"
+]
+runtime_includes = [
+  "local.conf",
+  "custom.d/*.conf"
+]
+
+[adoption]
+state_path = "~/.local/state/configctl/adoptions/hypr.toml"
+hash_algorithm = "sha256"
+mode = "review-gated"
+ignore = [
+  "local",
+  "adopted"
+]
+
+[validation]
+must_not_manage = [
+  "local"
+]
+must_exist_or_be_creatable = [
+  "custom",
+  "adopted"
+]

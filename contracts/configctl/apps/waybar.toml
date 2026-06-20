@@ -1,0 +1,64 @@
+schema_version = 1
+tool = "waybar"
+owner = "dotfiles"
+profile = "workstation"
+status = "planned"
+strategy = "compose"
+current_runtime_owner = "home-manager"
+target_runtime_owner = "configctl"
+executor_may_validate = true
+executor_may_adopt = true
+executor_may_write_outputs = false
+renderer_required = true
+description = "Waybar JSONC and CSS need coherent composition before configctl may write outputs."
+
+[layout]
+root = "~/.config/waybar"
+standard = "configctl-v1"
+source_inputs = [
+  "files/home/.config/waybar/config.jsonc",
+  "files/home/.config/waybar/style.css",
+  "files/home/.config/waybar/colors.css"
+]
+runtime_outputs = [
+  "config.jsonc",
+  "style.css"
+]
+local = [
+  "local.jsonc",
+  "local.css"
+]
+custom = [
+  "custom.d/*.jsonc",
+  "custom.d/*.css"
+]
+adopted = [
+  "adopted.d/*"
+]
+auxiliary_outputs = [
+  "custom.css",
+  "scripts/nvidia-gpu"
+]
+
+[composition]
+source_order = [
+  "source_inputs",
+  "local",
+  "custom"
+]
+output_role = "runtime_outputs"
+write_mode = "atomic"
+dry_run_required = true
+requires_parser = [
+  "jsonc",
+  "css"
+]
+
+[adoption]
+state_path = "~/.local/state/configctl/adoptions/waybar.toml"
+hash_algorithm = "sha256"
+mode = "review-gated"
+ignore = [
+  "local",
+  "adopted"
+]

@@ -1,0 +1,51 @@
+schema_version = 1
+tool = "hyprpaper"
+owner = "dotfiles"
+profile = "workstation"
+status = "planned"
+strategy = "compose"
+current_runtime_owner = "home-manager"
+target_runtime_owner = "configctl"
+executor_may_validate = true
+executor_may_adopt = true
+executor_may_write_outputs = false
+renderer_required = true
+description = "Hyprpaper has a Home Manager-owned runtime file today; layered fragments require a renderer."
+
+[layout]
+root = "~/.config/hyprpaper"
+standard = "configctl-v1"
+source_inputs = [
+  "files/home/.config/hypr/hyprpaper.conf"
+]
+runtime_outputs = [
+  "~/.config/hypr/hyprpaper.conf"
+]
+local = [
+  "local.conf"
+]
+custom = [
+  "custom.d/*.conf"
+]
+adopted = [
+  "adopted.d/*.conf"
+]
+
+[composition]
+source_order = [
+  "source_inputs",
+  "local",
+  "custom"
+]
+output_role = "runtime_outputs"
+write_mode = "atomic"
+dry_run_required = true
+
+[adoption]
+state_path = "~/.local/state/configctl/adoptions/hyprpaper.toml"
+hash_algorithm = "sha256"
+mode = "review-gated"
+ignore = [
+  "local",
+  "adopted"
+]
