@@ -30,7 +30,7 @@
       ruff
       shfmt
       shellcheck
-      nodePackages.prettier
+      prettier
 
       # Runtime support for plugins
       gcc # for tree-sitter and telescope-fzf-native
