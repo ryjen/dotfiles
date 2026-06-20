@@ -11,16 +11,6 @@ if trouble then
 	trouble.setup()
 end
 
-local mason = optional_require("mason")
-if mason then
-	mason.setup()
-end
-
-local mason_lspconfig = optional_require("mason-lspconfig")
-if mason_lspconfig then
-	mason_lspconfig.setup()
-end
-
 local lsp_signature = optional_require("lsp_signature")
 if lsp_signature then
 	lsp_signature.setup({ bind = true, handler_opts = { border = "single" } })
@@ -36,7 +26,6 @@ vim.diagnostic.config({
 	underline = true,
 })
 
-local lsp_aucmds = vim.api.nvim_create_augroup("dotfiles_lsp", { clear = false })
 local keymap_opts = { noremap = true, silent = true }
 
 local function telescope_or_lsp(telescope_fn, lsp_fn)
@@ -81,7 +70,8 @@ local function on_attach(client, bufnr)
 		end)
 	end
 
-	vim.api.nvim_clear_autocmds({ group = lsp_aucmds, buffer = bufnr })
+	local group_name = "dotfiles_lsp_" .. bufnr .. "_" .. client.id
+	local lsp_aucmds = vim.api.nvim_create_augroup(group_name, { clear = true })
 
 	if client.server_capabilities and client.server_capabilities.documentHighlightProvider then
 		vim.api.nvim_create_autocmd("CursorHold", {
@@ -134,6 +124,7 @@ end
 
 local lspconfig = optional_require("lspconfig")
 if lspconfig then
+	-- Server executables are installed by Home Manager in modules/home/neovim.nix.
 	local servers = {
 		lua_ls = {},
 		nil_ls = {},
