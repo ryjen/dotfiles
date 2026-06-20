@@ -79,13 +79,9 @@ local function init()
 		},
 	})
 
-	-- Post-install/update hook with neovim command.
+	-- Syntax tree support.
 	use({
 		"nvim-treesitter/nvim-treesitter",
-		requires = {
-			"nvim-treesitter/nvim-treesitter-refactor",
-			"RRethy/nvim-treesitter-textsubjects",
-		},
 		run = ":TSUpdate",
 	})
 
