@@ -31,6 +31,18 @@ let
       executable = true;
     };
   };
+
+  localLayerText = tool: ''
+    # Local ${tool} configuration layer.
+    #
+    # Ownership:
+    # - machine-specific
+    # - never automatically promoted
+    #
+    # Note: not every tool can source this file directly at runtime. For tools
+    # without native include support, this file is still the configctl local
+    # layer and should be manually folded into the managed config when promoted.
+  '';
 in
 {
   options.dotfiles.hypr.adoptedProfile = lib.mkOption {
@@ -63,10 +75,19 @@ in
     xdg.configFile."waybar/style.css".source = ../../files/home/.config/waybar/style.css;
     xdg.configFile."waybar/colors.css".source = ../../files/home/.config/waybar/colors.css;
     xdg.configFile."waybar/custom.css".source = ../../files/home/.config/waybar/custom.css;
+    xdg.configFile."waybar/local.conf".text = localLayerText "Waybar";
+    xdg.configFile."waybar/custom.d/00-empty.conf".source = ../../files/home/.config/waybar/custom.d/empty.conf;
+    xdg.configFile."waybar/adopted.d/00-empty.conf".source = ../../files/home/.config/waybar/adopted.d/empty.conf;
     xdg.configFile."mako/config".source = ../../files/home/.config/mako/config;
+    xdg.configFile."mako/local.conf".text = localLayerText "Mako";
+    xdg.configFile."mako/custom.d/00-empty.conf".source = ../../files/home/.config/mako/custom.d/empty.conf;
+    xdg.configFile."mako/adopted.d/00-empty.conf".source = ../../files/home/.config/mako/adopted.d/empty.conf;
     xdg.configFile."wofi/config".source = ../../files/home/.config/wofi/config;
     xdg.configFile."eww/eww.yuck".source = ../../files/home/.config/eww/eww.yuck;
     xdg.configFile."eww/eww.scss".source = ../../files/home/.config/eww/eww.scss;
+    xdg.configFile."eww/local.conf".text = localLayerText "Eww";
+    xdg.configFile."eww/custom.d/00-empty.conf".source = ../../files/home/.config/eww/custom.d/empty.conf;
+    xdg.configFile."eww/adopted.d/00-empty.conf".source = ../../files/home/.config/eww/adopted.d/empty.conf;
 
     home.file = builtins.listToAttrs (map managedScriptFile managedScripts);
 
