@@ -10,12 +10,12 @@ executor_may_validate = true
 executor_may_adopt = true
 executor_may_write_outputs = false
 renderer_required = true
-description = "Waybar JSONC does not provide a safe native include model. CSS can import, but the contract treats Waybar as a composed app so JSONC and CSS stay coherent before configctl may write outputs."
+description = "Waybar JSONC and CSS need coherent composition before configctl may write outputs."
 
 [layout]
 root = "~/.config/waybar"
 standard = "configctl-v1"
-managed_sources = [
+source_inputs = [
   "files/home/.config/waybar/config.jsonc",
   "files/home/.config/waybar/style.css",
   "files/home/.config/waybar/colors.css"
@@ -35,14 +35,14 @@ custom = [
 adopted = [
   "adopted.d/*"
 ]
-managed_auxiliary = [
+auxiliary_outputs = [
   "custom.css",
   "scripts/nvidia-gpu"
 ]
 
 [composition]
 source_order = [
-  "managed_sources",
+  "source_inputs",
   "local",
   "custom"
 ]
