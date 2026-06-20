@@ -1,4 +1,4 @@
-{ lib, config, ... }:
+{ lib, config, pkgs, ... }:
 let
   adoptedProfiles = {
     dubnium = ../../files/home/.config/hypr/adopted.d/dubnium.conf;
@@ -7,6 +7,21 @@ let
   };
 
   managedHyprConfig = builtins.readFile adoptedProfiles.${config.dotfiles.hypr.adoptedProfile};
+
+  defaultWallpapers = pkgs.runCommand "dubnium-default-wallpapers" {
+    nativeBuildInputs = [ pkgs.imagemagick ];
+  } ''
+    mkdir -p "$out"
+
+    magick -size 2560x1440 gradient:"#020617-#0f766e" \
+      "$out/dubnium-teal.png"
+
+    magick -size 2560x1440 gradient:"#111827-#6d28d9" \
+      "$out/dubnium-violet.png"
+
+    magick -size 2560x1440 gradient:"#0f172a-#b45309" \
+      "$out/dubnium-amber.png"
+  '';
 
   managedScripts = [
     "dub-browser"
@@ -29,6 +44,13 @@ let
     value = {
       source = ../../files/home/.local/bin/${name};
       executable = true;
+    };
+  };
+
+  managedFiles = builtins.listToAttrs (map managedScriptFile managedScripts) // {
+    "Pictures/wallpaper/defaults" = {
+      source = defaultWallpapers;
+      recursive = true;
     };
   };
 
@@ -71,6 +93,9 @@ in
     xdg.configFile."hypr/adopted.d/machine.conf".source = adoptedProfiles.${config.dotfiles.hypr.adoptedProfile};
     xdg.configFile."hypr/custom.d/00-empty.conf".source = ../../files/home/.config/hypr/custom.d/empty.conf;
     xdg.configFile."hypr/hyprpaper.conf".source = ../../files/home/.config/hypr/hyprpaper.conf;
+    xdg.configFile."hyprpaper/local.conf".text = localLayerText "Hyprpaper";
+    xdg.configFile."hyprpaper/custom.d/00-empty.conf".source = ../../files/home/.config/hyprpaper/custom.d/empty.conf;
+    xdg.configFile."hyprpaper/adopted.d/00-empty.conf".source = ../../files/home/.config/hyprpaper/adopted.d/empty.conf;
     xdg.configFile."waybar/config.jsonc".source = ../../files/home/.config/waybar/config.jsonc;
     xdg.configFile."waybar/style.css".source = ../../files/home/.config/waybar/style.css;
     xdg.configFile."waybar/colors.css".source = ../../files/home/.config/waybar/colors.css;
@@ -89,7 +114,7 @@ in
     xdg.configFile."eww/custom.d/00-empty.conf".source = ../../files/home/.config/eww/custom.d/empty.conf;
     xdg.configFile."eww/adopted.d/00-empty.conf".source = ../../files/home/.config/eww/adopted.d/empty.conf;
 
-    home.file = builtins.listToAttrs (map managedScriptFile managedScripts);
+    home.file = managedFiles;
 
     xdg.configFile."hypr/local.conf".text = ''
       # Local Hyprland configuration.
