@@ -89,6 +89,7 @@
         name = "verify-neovim-config";
         runtimeInputs = [
           pkgs.coreutils
+          pkgs.git
           pkgs.neovim
         ];
         text = ''
