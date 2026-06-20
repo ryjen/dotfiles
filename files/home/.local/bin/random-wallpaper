@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-IMG=$(find ~/Pictures/wallpaper -type f | shuf -n 1)
+wallpaper_dir="$HOME/Pictures/wallpaper"
+
+IMG=$(
+  find -L "$wallpaper_dir" \
+    -type f \
+    \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' -o -iname '*.jxl' \) \
+    | shuf -n 1
+)
 
 if [ -z "$IMG" ]; then
   exit 1
