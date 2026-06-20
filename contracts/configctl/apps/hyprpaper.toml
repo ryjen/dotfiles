@@ -10,12 +10,12 @@ executor_may_validate = true
 executor_may_adopt = true
 executor_may_write_outputs = false
 renderer_required = true
-description = "Hyprpaper has a Home Manager-owned runtime file today. Local/custom layering requires an explicit renderer before configctl may write outputs."
+description = "Hyprpaper has a Home Manager-owned runtime file today; layered fragments require a renderer."
 
 [layout]
 root = "~/.config/hyprpaper"
 standard = "configctl-v1"
-managed_sources = [
+source_inputs = [
   "files/home/.config/hypr/hyprpaper.conf"
 ]
 runtime_outputs = [
@@ -33,7 +33,7 @@ adopted = [
 
 [composition]
 source_order = [
-  "managed_sources",
+  "source_inputs",
   "local",
   "custom"
 ]
