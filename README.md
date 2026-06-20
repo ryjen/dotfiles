@@ -33,6 +33,57 @@ Architecture rationale lives in `docs/architecture/adr-0001-baseline-and-overlay
 
 The layered home configuration contract lives in `docs/architecture/home-layering-contract.md`.
 
+## npm global tooling
+
+npm global tooling is managed through Home Manager with a user-writable prefix rather than root-owned global installs.
+
+Ownership model:
+
+- Home Manager writes `~/.npmrc` with `prefix=$HOME/.local/share/npm`.
+- Home Manager adds `$HOME/.local/share/npm/bin` to `home.sessionPath`.
+- Home Manager installs the `npm-globals-sync` command.
+- Repo-managed npm packages live in `files/home/.config/npm/global-packages.txt`.
+- `@openai/codex` is npm-owned here; do not also install `pkgs.codex` unless intentionally changing ownership back to Nix.
+
+Apply Home Manager, then sync npm globals manually:
+
+```bash
+home-manager switch --flake .#USERNAME@nixos
+npm-globals-sync
+```
+
+Dry-run package parsing without installing anything:
+
+```bash
+npm-globals-sync --dry-run
+```
+
+Validate Codex ownership and npm prefix:
+
+```bash
+npm config get prefix
+command -v codex
+codex --version
+```
+
+Expected prefix:
+
+```text
+$HOME/.local/share/npm
+```
+
+Do not run `sudo npm install -g`. If the prefix drifts or global installs fail, repair the user prefix:
+
+```bash
+npm config set prefix "$HOME/.local/share/npm"
+mkdir -p "$HOME/.local/share/npm/bin"
+npm-globals-sync
+hash -r
+command -v codex
+```
+
+Do not commit npm auth tokens. Keep registry credentials in a local machine/user-specific npm config, `npm login` state, or environment-backed secret flow.
+
 ## Hyprland and Waybar ownership
 
 Hyprland and Waybar are managed as a session UX substrate rather than loose rice files.
