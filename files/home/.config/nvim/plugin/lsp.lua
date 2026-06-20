@@ -122,29 +122,30 @@ if cmp_nvim_lsp then
 	capabilities = cmp_nvim_lsp.default_capabilities(capabilities)
 end
 
-local lspconfig = optional_require("lspconfig")
-if lspconfig then
-	-- Server executables are installed by Home Manager in modules/home/neovim.nix.
-	local servers = {
-		lua_ls = {},
-		nil_ls = {},
-		pyright = {},
-	}
+local function configure_lsp(server, config)
+	config = vim.tbl_extend("force", {
+		on_attach = on_attach,
+		capabilities = capabilities,
+	}, config or {})
 
-	if lspconfig.ts_ls then
-		servers.ts_ls = {}
-	elseif lspconfig.tsserver then
-		servers.tsserver = {}
+	if vim.lsp.config then
+		vim.lsp.config(server, config)
+		vim.lsp.enable(server)
+		return
 	end
 
-	for server, config in pairs(servers) do
-		if lspconfig[server] then
-			config.on_attach = on_attach
-			config.capabilities = capabilities
-			lspconfig[server].setup(config)
-		end
+	-- Compatibility fallback for older Neovim/lspconfig combinations.
+	local lspconfig = optional_require("lspconfig")
+	if lspconfig and lspconfig[server] then
+		lspconfig[server].setup(config)
 	end
 end
+
+-- Server executables are installed by Home Manager in modules/home/neovim.nix.
+configure_lsp("lua_ls", {})
+configure_lsp("nil_ls", {})
+configure_lsp("pyright", {})
+configure_lsp("ts_ls", {})
 
 local null_ls = optional_require("null-ls")
 if null_ls then
