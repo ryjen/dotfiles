@@ -3,10 +3,15 @@ tool = "variety"
 owner = "dotfiles"
 profile = "workstation"
 kind = "initial-mutable-state"
-description = "Initial local wallpaper state for Variety. This contract documents safe first-run state only; it does not fetch wallpapers or enable rotation."
+status = "planned"
+current_runtime_owner = "home-manager-activation"
+target_runtime_owner = "configctl-init"
+executor_may_validate = true
+executor_may_initialize = false
+description = "Initial local wallpaper state for Variety. Home Manager activation currently performs equivalent setup; this contract documents the future explicit init boundary."
 
 network = false
-arbitrary_shell = false
+arbitrary_commands = false
 destructive = false
 dry_run_required = true
 
