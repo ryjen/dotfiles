@@ -18,13 +18,12 @@ let
       set -euo pipefail
 
       usage() {
-        cat <<'USAGE'
-      Usage: npm-globals-sync [--dry-run]
-
-      Install npm global packages declared by Home Manager.
-      Package entries are read from ~/.config/npm/global-packages.txt.
-      Blank lines and comments are ignored.
-      USAGE
+        printf '%s\n' \
+          'Usage: npm-globals-sync [--dry-run]' \
+          '' \
+          'Install npm global packages declared by Home Manager.' \
+          'Package entries are read from ~/.config/npm/global-packages.txt.' \
+          'Blank lines and comments are ignored.'
       }
 
       dry_run=0
