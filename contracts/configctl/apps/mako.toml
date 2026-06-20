@@ -1,0 +1,50 @@
+schema_version = 1
+tool = "mako"
+owner = "dotfiles"
+profile = "workstation"
+strategy = "compose"
+renderer_required = true
+description = "Mako uses a single config file. Local/custom layering requires an explicit renderer."
+
+managed_files = [
+  "~/.config/mako/config",
+  "~/.config/mako/custom.d/00-empty.conf",
+  "~/.config/mako/adopted.d/00-empty.conf"
+]
+
+rendered_outputs = [
+  "~/.config/mako/config"
+]
+
+local_only = [
+  "~/.config/mako/local.conf"
+]
+
+promotion_sources = [
+  "~/.config/mako/custom.d/*.conf"
+]
+
+adopted_paths = [
+  "~/.config/mako/adopted.d/*.conf"
+]
+
+[composition]
+source_order = [
+  "managed",
+  "local",
+  "custom"
+]
+managed_source = "files/home/.config/mako/config"
+local_source = "~/.config/mako/local.conf"
+custom_sources = "~/.config/mako/custom.d/*.conf"
+write_mode = "atomic"
+dry_run_required = true
+
+[adoption]
+state_path = "~/.local/state/configctl/adoptions/mako.toml"
+hash_algorithm = "sha256"
+mode = "review-gated"
+ignore = [
+  "~/.config/mako/local.conf",
+  "~/.config/mako/adopted.d/*"
+]
