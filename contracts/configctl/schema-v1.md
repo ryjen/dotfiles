@@ -39,14 +39,17 @@ Common fields:
 | --- | --- |
 | `root` | Runtime config directory for the tool. |
 | `standard` | Layout convention identifier, usually `configctl-v1`. |
-| `managed_sources` | Repo or Home Manager-owned source inputs. |
+| `source_inputs` | Repo-owned modules, fragments, or static source files used to produce runtime configuration. |
 | `runtime_outputs` | Final files the app reads. |
 | `local` | Local-only unmanaged paths. |
 | `custom` | User-authored promotion candidates. |
 | `adopted` | Archive/evidence paths. |
 | `runtime_includes` | Paths directly loaded by apps with native include support. |
+| `auxiliary_outputs` | Runtime helper files that are not composition outputs. |
 
 All path role fields use arrays, even when they contain one item.
+
+`source_inputs` must describe source-of-truth inputs, not generated runtime outputs. Runtime outputs belong under `runtime_outputs` or `auxiliary_outputs`.
 
 ## Composition
 
