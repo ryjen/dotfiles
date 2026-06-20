@@ -1,0 +1,6 @@
+# Repo-managed npm global packages.
+#
+# Run `npm-globals-sync` after changing this file.
+# Use package@version here when a tool needs pinning; otherwise entries track npm latest.
+
+@openai/codex
