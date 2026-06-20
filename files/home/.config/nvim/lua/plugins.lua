@@ -8,10 +8,10 @@ local function init()
 	local use = packer.use
 	packer.reset()
 
-	-- Packer can manage itself
+	-- Packer can manage itself.
 	use("wbthomason/packer.nvim")
 
-	-- language server protocol
+	-- Language server protocol.
 	use({
 		"neovim/nvim-lspconfig",
 		"folke/trouble.nvim",
@@ -20,13 +20,11 @@ local function init()
 		"williamboman/mason.nvim",
 		"williamboman/mason-lspconfig.nvim",
 	})
-	use({ "jose-elias-alvarez/null-ls.nvim", requires = { "nvim-lua/plenary.nvim" } })
-
-	use("lewis6991/impatient.nvim")
+	use({ "nvimtools/none-ls.nvim", requires = { "nvim-lua/plenary.nvim" } })
 
 	use("fidian/hexmode")
 
-	-- Completion
+	-- Completion.
 	use({
 		"hrsh7th/nvim-cmp",
 		requires = {
@@ -44,85 +42,28 @@ local function init()
 		event = "InsertEnter *",
 	})
 
-	-- Debugger
-	--use({
-	--	{
-	--		"mfussenegger/nvim-dap",
-	--		setup = [[require('config.dap_setup')]],
-	--		config = [[require('config.dap')]],
-	--		requires = "jbyuki/one-small-step-for-vimkind",
-	--		wants = "one-small-step-for-vimkind",
-	--		module = "dap",
-	--	},
-	--	{
-	--		"rcarriga/nvim-dap-ui",
-	--		requires = "nvim-dap",
-	--		after = "nvim-dap",
-	--		config = function()
-	--			require("dapui").setup()
-	--		end,
-	--	},
-	--})
-	--- themes
+	-- Themes.
 	use("altercation/vim-colors-solarized")
 
-	-- lsp icons
-	-- use 'onsails/lspkind-nvim'
-
-	-- utils
-	--use({
-	--	"chaoren/vim-wordmotion",
-	--	setup = [[require('config.wordmotion')]],
-	--})
-	--use 'kevinhwang91/nvim-bqf'
-	--use({
-	--	"mg979/vim-visual-multi",
-	--	config = [[require('config.visualmulti')]],
-	--})
-
-	-- file tree
-	--use({
-	--	"kyazdani42/nvim-tree.lua",
-	--	requires = "kyazdani42/nvim-web-devicons",
-	--})
-
-	-- line endings and space indicators
-	-- use "lukas-reineke/indent-blankline.nvim"
-
-	-- status bar
-	-- use 'glepnir/galaxyline.nvim'
-
-	-- use 'windwp/nvim-autopairs'
-
+	-- Bufferline.
 	use({
 		"akinsho/nvim-bufferline.lua",
-		requires = "kyazdani42/nvim-web-devicons",
+		requires = "nvim-tree/nvim-web-devicons",
 		config = [[require('config.bufferline')]],
 		event = "User ActuallyEditing",
 	})
 
-	-- Load on a combination of conditions: specific filetypes or commands
-	-- Also run code after load (see the 'config' key)
-	--use {
-	--  'w0rp/ale',
-	--  ft = {'sh', 'zsh', 'bash', 'c', 'cpp', 'cmake', 'html', 'markdown', 'vim', 'go', 'js'},
-	--  cmd = 'ALEEnable',
-	--  config = 'vim.cmd[[ALEEnable]]'
-	--}
-
-	-- Fuzzy finder
+	-- Fuzzy finder.
 	use({
 		{
 			"nvim-telescope/telescope.nvim",
 			requires = {
-				"nvim-lua/popup.nvim",
 				"nvim-lua/plenary.nvim",
 				"telescope-frecency.nvim",
 				"telescope-fzf-native.nvim",
 				"nvim-telescope/telescope-ui-select.nvim",
 			},
 			wants = {
-				"popup.nvim",
 				"plenary.nvim",
 				"telescope-frecency.nvim",
 				"telescope-fzf-native.nvim",
@@ -142,22 +83,8 @@ local function init()
 			run = "make",
 		},
 	})
-	--use({
-	--	"ThePrimeagen/refactoring.nvim",
-	--	requires = {
-	--		{ "nvim-lua/plenary.nvim" },
-	--		{ "nvim-treesitter/nvim-treesitter" },
-	--	},
-	--})
-	-- Documentation
-	--use({
-	--	"danymat/neogen",
-	--	requires = "nvim-treesitter",
-	--	config = [[require('config.neogen')]],
-	--	keys = { "<leader>d", "<leader>df", "<leader>dc" },
-	--})
 
-	-- Post-install/update hook with neovim command
+	-- Post-install/update hook with neovim command.
 	use({
 		"nvim-treesitter/nvim-treesitter",
 		requires = {
@@ -167,9 +94,7 @@ local function init()
 		run = ":TSUpdate",
 	})
 
-	-- use({ "~/.tabby/src/clients/vim", as = "tabby", rtp = "clients/vim", enabled = true })
-
-	-- default keyboard layout
+	-- Default keyboard layout.
 	use("jooize/vim-colemak")
 end
 
