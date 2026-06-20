@@ -1,3 +1,5 @@
+-- Shared Neovim config modules that do not require optional plugins at startup.
 require("config.colorscheme")
-require("config.completion")
---require("config.tree")
+
+-- Optional file tree config is kept available but not loaded by default.
+-- require("config.tree")
