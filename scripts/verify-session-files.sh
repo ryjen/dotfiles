@@ -23,6 +23,18 @@ check_exists() {
   [ -e "$path" ] && ok "$path exists" || fail "$path missing"
 }
 
+check_contains() {
+  local path="$1"
+  local pattern="$2"
+  local description="$3"
+
+  if grep -Eq "$pattern" "$path"; then
+    ok "$description"
+  else
+    fail "$description"
+  fi
+}
+
 printf 'Verifying session files\n\n'
 
 for path in files/home/.local/bin/*; do
@@ -38,9 +50,30 @@ for path in \
   files/home/.config/waybar/colors.css \
   files/home/.config/waybar/custom.css \
   files/home/.config/wofi/config \
-  files/home/.config/mako/config; do
+  files/home/.config/mako/config \
+  files/home/.config/npm/global-packages.txt; do
   check_exists "$path"
 done
+
+check_contains \
+  files/home/.config/npm/global-packages.txt \
+  '^@openai/codex$' \
+  'npm global package list declares @openai/codex'
+
+check_contains \
+  modules/home/npm.nix \
+  'prefix=\$\{cfg\.prefix\}' \
+  'npm module manages .npmrc prefix'
+
+check_contains \
+  modules/home/npm.nix \
+  '\$\{cfg\.prefix\}/bin' \
+  'npm module adds global npm bin path to session path'
+
+check_contains \
+  modules/home/npm.nix \
+  'npm-globals-sync' \
+  'npm-globals-sync is declared'
 
 for script in \
   dub-browser \
