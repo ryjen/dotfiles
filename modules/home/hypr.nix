@@ -74,6 +74,10 @@ in
   };
 
   config = lib.mkIf config.dotfiles.profiles.workstation.enable {
+    home.packages = [
+      pkgs.variety
+    ];
+
     xdg.configFile."hypr/hyprland.conf".text = ''
       # GENERATED FILE — DO NOT EDIT DIRECTLY
       # source-of-truth: ryjen/dotfiles
@@ -115,6 +119,36 @@ in
     xdg.configFile."eww/adopted.d/00-empty.conf".source = ../../files/home/.config/eww/adopted.d/empty.conf;
 
     home.file = managedFiles;
+
+    home.activation.configureVarietyWallpaperFolders = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      variety_config="$HOME/.config/variety/variety.conf"
+      variety_downloads="$HOME/Pictures/wallpaper/variety/downloaded"
+      variety_fetched="$HOME/Pictures/wallpaper/variety/fetched"
+      variety_favorites="$HOME/Pictures/wallpaper/variety/favorites"
+
+      mkdir -p "$HOME/.config/variety" \
+        "$variety_downloads" \
+        "$variety_fetched" \
+        "$variety_favorites"
+
+      touch "$variety_config"
+      chmod 600 "$variety_config"
+
+      tmp="$(${pkgs.coreutils}/bin/mktemp)"
+      ${pkgs.gnugrep}/bin/grep -Ev '^(download_folder|fetched_folder|favorites_folder|copyto_folder|wallpaper_auto_rotate|change_enabled|change_on_start)[[:space:]]*=' "$variety_config" > "$tmp" || true
+      {
+        printf '%s\n' 'download_folder = ~/Pictures/wallpaper/variety/downloaded'
+        printf '%s\n' 'fetched_folder = ~/Pictures/wallpaper/variety/fetched'
+        printf '%s\n' 'favorites_folder = ~/Pictures/wallpaper/variety/favorites'
+        printf '%s\n' 'copyto_folder = ~/Pictures/wallpaper/variety/favorites'
+        printf '%s\n' 'wallpaper_auto_rotate = False'
+        printf '%s\n' 'change_enabled = False'
+        printf '%s\n' 'change_on_start = False'
+      } >> "$tmp"
+      cat "$tmp" > "$variety_config"
+      rm -f "$tmp"
+      chmod 600 "$variety_config"
+    '';
 
     xdg.configFile."hypr/local.conf".text = ''
       # Local Hyprland configuration.
