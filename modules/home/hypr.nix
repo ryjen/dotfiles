@@ -97,10 +97,9 @@ in
     xdg.configFile."hyprpaper/custom.d/00-empty.conf".source = ../../files/home/.config/hyprpaper/custom.d/empty.conf;
     xdg.configFile."hyprpaper/adopted.d/00-empty.conf".source = ../../files/home/.config/hyprpaper/adopted.d/empty.conf;
 
-    # Waybar is JSONC + CSS, not Hyprland-style sourced .conf files. Do not
-    # manage a Waybar local.conf or .conf layer skeleton here; local runtime
-    # experiments should remain user-owned or be promoted deliberately into the
-    # managed JSONC/CSS files below.
+    # Waybar does not use the configctl layer contract. Keep its native runtime
+    # files managed directly until there is an explicit renderer that composes
+    # JSONC/CSS fragments into final Waybar config files.
     xdg.configFile."waybar/config.jsonc".source = ../../files/home/.config/waybar/config.jsonc;
     xdg.configFile."waybar/style.css".source = ../../files/home/.config/waybar/style.css;
     xdg.configFile."waybar/colors.css".source = ../../files/home/.config/waybar/colors.css;
