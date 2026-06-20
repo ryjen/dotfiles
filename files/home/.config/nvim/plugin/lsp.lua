@@ -1,126 +1,176 @@
-require("trouble").setup()
-require("mason").setup()
-require("mason-lspconfig").setup()
+local function optional_require(module)
+	local ok, value = pcall(require, module)
+	if ok then
+		return value
+	end
+	return nil
+end
 
-local lsp = vim.lsp
-local cmd = vim.cmd
-local buf_keymap = vim.api.nvim_buf_set_keymap
-local null_ls = require("null-ls")
-local lsp_signature = require("lsp_signature")
+local trouble = optional_require("trouble")
+if trouble then
+	trouble.setup()
+end
 
-vim.api.nvim_command("hi link LightBulbFloatWin YellowFloat")
-vim.api.nvim_command("hi link LightBulbVirtualText YellowFloat")
+local lsp_signature = optional_require("lsp_signature")
+if lsp_signature then
+	lsp_signature.setup({ bind = true, handler_opts = { border = "single" } })
+end
 
-lsp.handlers["textDocument/publishDiagnostics"] = lsp.with(lsp.diagnostic.on_publish_diagnostics, {
+pcall(vim.api.nvim_command, "hi link LightBulbFloatWin YellowFloat")
+pcall(vim.api.nvim_command, "hi link LightBulbVirtualText YellowFloat")
+
+vim.diagnostic.config({
 	virtual_text = false,
 	signs = true,
 	update_in_insert = false,
 	underline = true,
 })
 
-lsp_signature.setup({ bind = true, handler_opts = { border = "single" } })
 local keymap_opts = { noremap = true, silent = true }
 
-local function on_attach(client, bufnr)
-	lsp_signature.on_attach({ bind = true, handler_opts = { border = "single" } })
-	buf_keymap(0, "n", "gD", "<cmd>lua vim.lsp.buf.declaration()<CR>", keymap_opts)
-	buf_keymap(0, "n", "gd", '<cmd>lua require"telescope.builtin".lsp_definitions()<CR>', keymap_opts)
-	buf_keymap(0, "n", "K", "<cmd>lua vim.lsp.buf.hover()<CR>", keymap_opts)
-	buf_keymap(0, "n", "gi", '<cmd>lua require"telescope.builtin".lsp_implementations()<CR>', keymap_opts)
-	buf_keymap(0, "n", "gS", "<cmd>lua vim.lsp.buf.signature_help()<CR>", keymap_opts)
-	buf_keymap(0, "n", "gTD", "<cmd>lua vim.lsp.buf.type_definition()<CR>", keymap_opts)
-	buf_keymap(0, "n", "<leader>rn", "<cmd>lua vim.lsp.buf.rename()<CR>", keymap_opts)
-	buf_keymap(0, "n", "gr", '<cmd>lua require"telescope.builtin".lsp_references()<CR>', keymap_opts)
-	buf_keymap(0, "n", "gA", "<cmd>lua vim.lsp.buf.code_action()<CR>", keymap_opts)
-	buf_keymap(0, "v", "gA", "<cmd>lua vim.lsp.buf.code_action()<CR>", keymap_opts)
-	buf_keymap(0, "n", "]e", "<cmd>lua vim.diagnostic.goto_next { float = true }<cr>", keymap_opts)
-	buf_keymap(0, "n", "[e", "<cmd>lua vim.diagnostic.goto_prev { float = true }<cr>", keymap_opts)
+local function telescope_or_lsp(telescope_fn, lsp_fn)
+	return function()
+		local telescope = optional_require("telescope.builtin")
+		if telescope and telescope[telescope_fn] then
+			telescope[telescope_fn]()
+		else
+			vim.lsp.buf[lsp_fn]()
+		end
+	end
+end
 
-	if client.server_capabilities.documentFormattingProvider then
-		buf_keymap(0, "n", "<leader>f", "<cmd>lua vim.lsp.buf.format { async = true }<cr>", keymap_opts)
+local function on_attach(client, bufnr)
+	if lsp_signature then
+		lsp_signature.on_attach({ bind = true, handler_opts = { border = "single" } }, bufnr)
 	end
-	cmd("augroup lsp_aucmds")
-	if client.server_capabilities.documentHighlightProvider then
-		cmd("au CursorHold <buffer> lua vim.lsp.buf.document_highlight()")
-		cmd("au CursorMoved <buffer> lua vim.lsp.buf.clear_references()")
+
+	local function map(mode, lhs, rhs)
+		vim.keymap.set(mode, lhs, rhs, vim.tbl_extend("force", keymap_opts, { buffer = bufnr }))
 	end
-	if client.supports_method("textDocument/formatting") then
-		vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
+
+	map("n", "gD", vim.lsp.buf.declaration)
+	map("n", "gd", telescope_or_lsp("lsp_definitions", "definition"))
+	map("n", "K", vim.lsp.buf.hover)
+	map("n", "gi", telescope_or_lsp("lsp_implementations", "implementation"))
+	map("n", "gS", vim.lsp.buf.signature_help)
+	map("n", "gTD", vim.lsp.buf.type_definition)
+	map("n", "<leader>rn", vim.lsp.buf.rename)
+	map("n", "gr", telescope_or_lsp("lsp_references", "references"))
+	map({ "n", "v" }, "gA", vim.lsp.buf.code_action)
+	map("n", "]e", function()
+		vim.diagnostic.goto_next({ float = true })
+	end)
+	map("n", "[e", function()
+		vim.diagnostic.goto_prev({ float = true })
+	end)
+
+	if client.server_capabilities and client.server_capabilities.documentFormattingProvider then
+		map("n", "<leader>f", function()
+			vim.lsp.buf.format({ async = true, bufnr = bufnr })
+		end)
+	end
+
+	local group_name = "dotfiles_lsp_" .. bufnr .. "_" .. client.id
+	local lsp_aucmds = vim.api.nvim_create_augroup(group_name, { clear = true })
+
+	if client.server_capabilities and client.server_capabilities.documentHighlightProvider then
+		vim.api.nvim_create_autocmd("CursorHold", {
+			group = lsp_aucmds,
+			buffer = bufnr,
+			callback = vim.lsp.buf.document_highlight,
+		})
+		vim.api.nvim_create_autocmd("CursorMoved", {
+			group = lsp_aucmds,
+			buffer = bufnr,
+			callback = vim.lsp.buf.clear_references,
+		})
+	end
+
+	if client.supports_method and client:supports_method("textDocument/formatting") then
 		vim.api.nvim_create_autocmd("BufWritePre", {
-			group = augroup,
+			group = lsp_aucmds,
 			buffer = bufnr,
 			callback = function()
-				-- on 0.8, you should use vim.lsp.buf.format({ bufnr = bufnr }) instead
-				--lsp.buf.formatting_sync()
-				lsp.buf.format({ bufnr = bufnr })
+				vim.lsp.buf.format({ bufnr = bufnr })
 			end,
 		})
 	end
-	cmd(
-		'au CursorHold,CursorHoldI <buffer> lua require"nvim-lightbulb".update_lightbulb {sign = {enabled = false}, virtual_text = {enabled = true, text = ""}, float = {enabled = false, text = "", win_opts = {winblend = 100, anchor = "NE"}}}'
-	)
-	cmd("augroup END")
+
+	local lightbulb = optional_require("nvim-lightbulb")
+	if lightbulb then
+		vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
+			group = lsp_aucmds,
+			buffer = bufnr,
+			callback = function()
+				lightbulb.update_lightbulb({
+					sign = { enabled = false },
+					virtual_text = { enabled = true, text = "" },
+					float = {
+						enabled = false,
+						text = "",
+						win_opts = { winblend = 100, anchor = "NE" },
+					},
+				})
+			end,
+		})
+	end
 end
 
--- null-ls setup
-local null_fmt = null_ls.builtins.formatting
-local null_diag = null_ls.builtins.diagnostics
-local null_act = null_ls.builtins.code_actions
-null_ls.setup({
-	sources = {
-		null_diag.chktex,
-		null_diag.cppcheck,
-		--null_diag.proselint,
-		null_diag.pylint,
-		--null_diag.selene,
-		null_diag.shellcheck,
-		--null_diag.teal,
-		--null_diag.vale,
-		null_diag.ansiblelint,
-		null_diag.checkmake,
-		null_diag.clang_check,
-		null_diag.codespell,
-		null_diag.gitlint,
-		null_diag.credo,
-		--null_diag.cspell,
-		null_diag.curlylint,
-		null_diag.djlint,
-		null_diag.editorconfig_checker,
-		null_diag.eslint,
-		null_diag.ktlint,
-		null_diag.markdownlint,
-		null_diag.zsh,
-		null_diag.vint,
-		null_diag.php,
-		null_diag.pylint,
-		null_diag.revive,
-		--null_diag.semgrep,
-		null_diag.write_good.with({ filetypes = { "markdown", "tex" } }),
-		null_fmt.astyle.with({ extra_args = { "--style=allman", "--indent-namespaces" } }),
-		null_fmt.cmake_format,
-		null_fmt.isort,
-		null_fmt.djlint,
-		null_fmt.eslint_d,
-		null_fmt.gofmt,
-		null_fmt.jq,
-		null_fmt.markdownlint,
-		null_fmt.perltidy,
-		null_fmt.ktlint,
-		null_fmt.sqlformat,
-		--null_fmt.terrafmt,
-		null_fmt.trim_whitespace,
-		null_fmt.trim_newlines,
-		null_fmt.goimports,
-		null_fmt.prettier,
-		null_fmt.rustfmt,
-		null_fmt.shfmt,
-		null_fmt.stylua,
-		null_fmt.trim_whitespace,
-		null_fmt.yapf,
-		null_fmt.black,
-		null_act.eslint,
-		null_act.shellcheck,
-		null_act.refactoring, --.with({ filetypes = { "javascript", "typescript", "lua", "python", "c", "cpp" } }),
-	},
-	on_attach = on_attach,
-})
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+local cmp_nvim_lsp = optional_require("cmp_nvim_lsp")
+if cmp_nvim_lsp then
+	capabilities = cmp_nvim_lsp.default_capabilities(capabilities)
+end
+
+local lspconfig = optional_require("lspconfig")
+if lspconfig then
+	-- Server executables are installed by Home Manager in modules/home/neovim.nix.
+	local servers = {
+		lua_ls = {},
+		nil_ls = {},
+		pyright = {},
+	}
+
+	if lspconfig.ts_ls then
+		servers.ts_ls = {}
+	elseif lspconfig.tsserver then
+		servers.tsserver = {}
+	end
+
+	for server, config in pairs(servers) do
+		if lspconfig[server] then
+			config.on_attach = on_attach
+			config.capabilities = capabilities
+			lspconfig[server].setup(config)
+		end
+	end
+end
+
+local null_ls = optional_require("null-ls")
+if null_ls then
+	local sources = {}
+	local function add(source)
+		if source then
+			table.insert(sources, source)
+		end
+	end
+
+	local formatting = null_ls.builtins.formatting
+	local diagnostics = null_ls.builtins.diagnostics
+
+	add(formatting.stylua)
+	add(formatting.nixfmt)
+	add(formatting.black)
+	add(formatting.shfmt)
+	add(formatting.prettier)
+	add(formatting.trim_whitespace)
+	add(formatting.trim_newlines)
+
+	add(diagnostics.ruff)
+	add(diagnostics.shellcheck)
+
+	null_ls.setup({
+		sources = sources,
+		on_attach = on_attach,
+	})
+end

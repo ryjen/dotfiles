@@ -44,15 +44,6 @@ cmp.setup {
   completion = { completeopt = 'menu,menuone,noinsert' },
   sorting = {
     comparators = {
-      -- function(entry1, entry2)
-      --   local score1 = entry1.completion_item.score
-      --   local score2 = entry2.completion_item.score
-      --   if score1 and score2 then
-      --     return (score1 - score2) < 0
-      --   end
-      -- end,
-
-      -- The built-in comparators:
       cmp.config.compare.offset,
       cmp.config.compare.exact,
       cmp.config.compare.score,
@@ -108,18 +99,9 @@ cmp.setup {
   sources = {
     { name = 'nvim_lsp_signature_help' },
     { name = 'nvim_lsp' },
-    { name = 'orgmode' },
     { name = 'luasnip' },
     { name = 'nvim_lua' },
     { name = 'path' },
     { name = 'buffer' },
   },
 }
-
--- cmp.setup.cmdline('/', {
---   sources = cmp.config.sources({
---     { name = 'nvim_lsp_document_symbol' },
---   }, {
---     { name = 'buffer' },
---   }),
--- })

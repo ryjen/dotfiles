@@ -85,6 +85,24 @@
           exec ${pkgs.runtimeShell} ${./scripts/verify-session-files.sh} "$@"
         '';
       };
+      verifyNeovimConfig = pkgs.writeShellApplication {
+        name = "verify-neovim-config";
+        runtimeInputs = [
+          pkgs.coreutils
+          pkgs.neovim
+        ];
+        text = ''
+          tmpdir="$(mktemp -d)"
+          trap 'rm -rf "$tmpdir"' EXIT
+
+          export XDG_CONFIG_HOME=${./files/home/.config}
+          export XDG_CACHE_HOME="$tmpdir/cache"
+          export XDG_DATA_HOME="$tmpdir/data"
+          export XDG_STATE_HOME="$tmpdir/state"
+
+          nvim --headless +qa
+        '';
+      };
     in
     {
       apps.${system} = {
@@ -97,11 +115,17 @@
           type = "app";
           program = "${verifySessionFiles}/bin/verify-session-files";
         };
+
+        verify-neovim-config = {
+          type = "app";
+          program = "${verifyNeovimConfig}/bin/verify-neovim-config";
+        };
       };
 
       packages.${system} = {
         verify-container = verifyInContainer;
         verify-session-files = verifySessionFiles;
+        verify-neovim-config = verifyNeovimConfig;
         hermes-agent = hermes-agent.packages.${system}.default;
       };
 
