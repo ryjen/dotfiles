@@ -1,0 +1,32 @@
+schema_version = 1
+tool = "variety"
+owner = "dotfiles"
+profile = "workstation"
+kind = "initial-mutable-state"
+description = "Initial local wallpaper state for Variety. This contract documents safe first-run state only; it does not fetch wallpapers or enable rotation."
+
+network = false
+arbitrary_shell = false
+destructive = false
+dry_run_required = true
+
+directories = [
+  { path = "~/.config/variety", mode = "0700" },
+  { path = "~/Pictures/wallpaper/variety/downloaded", mode = "0755" },
+  { path = "~/Pictures/wallpaper/variety/fetched", mode = "0755" },
+  { path = "~/Pictures/wallpaper/variety/favorites", mode = "0755" }
+]
+
+files = [
+  { path = "~/.config/variety/variety.conf", mode = "0600", create = "if-missing" }
+]
+
+settings = [
+  { file = "~/.config/variety/variety.conf", key = "download_folder", value = "~/Pictures/wallpaper/variety/downloaded", mode = "set-if-missing-or-owned" },
+  { file = "~/.config/variety/variety.conf", key = "fetched_folder", value = "~/Pictures/wallpaper/variety/fetched", mode = "set-if-missing-or-owned" },
+  { file = "~/.config/variety/variety.conf", key = "favorites_folder", value = "~/Pictures/wallpaper/variety/favorites", mode = "set-if-missing-or-owned" },
+  { file = "~/.config/variety/variety.conf", key = "copyto_folder", value = "~/Pictures/wallpaper/variety/favorites", mode = "set-if-missing-or-owned" },
+  { file = "~/.config/variety/variety.conf", key = "wallpaper_auto_rotate", value = "False", mode = "set-if-missing-or-owned" },
+  { file = "~/.config/variety/variety.conf", key = "change_enabled", value = "False", mode = "set-if-missing-or-owned" },
+  { file = "~/.config/variety/variety.conf", key = "change_on_start", value = "False", mode = "set-if-missing-or-owned" }
+]
