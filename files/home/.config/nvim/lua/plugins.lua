@@ -19,6 +19,7 @@ require("lazy").setup({
 			"folke/trouble.nvim",
 			"ray-x/lsp_signature.nvim",
 			"kosayoda/nvim-lightbulb",
+			"hrsh7th/cmp-nvim-lsp",
 		},
 	},
 	{ "nvimtools/none-ls.nvim", dependencies = { "nvim-lua/plenary.nvim" } },
