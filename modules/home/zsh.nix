@@ -7,15 +7,6 @@
     export ZDOTDIR="$HOME/.config/zsh"
   '';
 
-  home.file.".config/zsh/local.zsh".text = ''
-    # Local zsh configuration.
-    #
-    # Ownership:
-    # - machine-specific
-    # - writable by the user
-    # - never automatically promoted by configctl
-  '';
-
   programs.zsh = {
     enable = true;
     dotDir = ".config/zsh";
@@ -77,7 +68,7 @@
         task todo
       fi
 
-      # machine-local overrides; never automatically promoted
+      # machine-local overrides; unmanaged by Home Manager and never automatically promoted
       [ -f "$HOME/.config/zsh/local.zsh" ] && source "$HOME/.config/zsh/local.zsh"
 
       # promotion candidates; managed by configctl

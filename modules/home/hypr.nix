@@ -53,18 +53,6 @@ let
       recursive = true;
     };
   };
-
-  localLayerText = tool: ''
-    # Local ${tool} configuration layer.
-    #
-    # Ownership:
-    # - machine-specific
-    # - never automatically promoted
-    #
-    # Note: not every tool can source this file directly at runtime. For tools
-    # without native include support, this file is still the configctl local
-    # layer and should be manually folded into the managed config when promoted.
-  '';
 in
 {
   options.dotfiles.hypr.adoptedProfile = lib.mkOption {
@@ -97,7 +85,6 @@ in
     xdg.configFile."hypr/adopted.d/machine.conf".source = adoptedProfiles.${config.dotfiles.hypr.adoptedProfile};
     xdg.configFile."hypr/custom.d/00-empty.conf".source = ../../files/home/.config/hypr/custom.d/empty.conf;
     xdg.configFile."hypr/hyprpaper.conf".source = ../../files/home/.config/hypr/hyprpaper.conf;
-    xdg.configFile."hyprpaper/local.conf".text = localLayerText "Hyprpaper";
     xdg.configFile."hyprpaper/custom.d/00-empty.conf".source = ../../files/home/.config/hyprpaper/custom.d/empty.conf;
     xdg.configFile."hyprpaper/adopted.d/00-empty.conf".source = ../../files/home/.config/hyprpaper/adopted.d/empty.conf;
 
@@ -110,13 +97,11 @@ in
     xdg.configFile."waybar/custom.css".source = ../../files/home/.config/waybar/custom.css;
 
     xdg.configFile."mako/config".source = ../../files/home/.config/mako/config;
-    xdg.configFile."mako/local.conf".text = localLayerText "Mako";
     xdg.configFile."mako/custom.d/00-empty.conf".source = ../../files/home/.config/mako/custom.d/empty.conf;
     xdg.configFile."mako/adopted.d/00-empty.conf".source = ../../files/home/.config/mako/adopted.d/empty.conf;
     xdg.configFile."wofi/config".source = ../../files/home/.config/wofi/config;
     xdg.configFile."eww/eww.yuck".source = ../../files/home/.config/eww/eww.yuck;
     xdg.configFile."eww/eww.scss".source = ../../files/home/.config/eww/eww.scss;
-    xdg.configFile."eww/local.conf".text = localLayerText "Eww";
     xdg.configFile."eww/custom.d/00-empty.conf".source = ../../files/home/.config/eww/custom.d/empty.conf;
     xdg.configFile."eww/adopted.d/00-empty.conf".source = ../../files/home/.config/eww/adopted.d/empty.conf;
 
@@ -150,20 +135,6 @@ in
       cat "$tmp" > "$variety_config"
       rm -f "$tmp"
       chmod 600 "$variety_config"
-    '';
-
-    xdg.configFile."hypr/local.conf".text = ''
-      # Local Hyprland configuration.
-      #
-      # Ownership:
-      # - machine-specific
-      # - writable by the user
-      # - never automatically promoted
-      #
-      # Examples:
-      # monitor=,preferred,auto,1
-      # $terminal = alacritty
-      # exec-once = alacritty
     '';
   };
 }
