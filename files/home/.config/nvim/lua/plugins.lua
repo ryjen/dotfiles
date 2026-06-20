@@ -11,14 +11,12 @@ local function init()
 	-- Packer can manage itself.
 	use("wbthomason/packer.nvim")
 
-	-- Language server protocol.
+	-- Language server protocol. Language server binaries are installed by Home Manager.
 	use({
 		"neovim/nvim-lspconfig",
 		"folke/trouble.nvim",
 		"ray-x/lsp_signature.nvim",
 		"kosayoda/nvim-lightbulb",
-		"williamboman/mason.nvim",
-		"williamboman/mason-lspconfig.nvim",
 	})
 	use({ "nvimtools/none-ls.nvim", requires = { "nvim-lua/plenary.nvim" } })
 
@@ -59,9 +57,15 @@ local function init()
 			"nvim-telescope/telescope.nvim",
 			requires = {
 				"nvim-lua/plenary.nvim",
-				"telescope-frecency.nvim",
-				"telescope-fzf-native.nvim",
 				"nvim-telescope/telescope-ui-select.nvim",
+				{
+					"nvim-telescope/telescope-frecency.nvim",
+					requires = "kkharji/sqlite.lua",
+				},
+				{
+					"nvim-telescope/telescope-fzf-native.nvim",
+					run = "make",
+				},
 			},
 			wants = {
 				"plenary.nvim",
@@ -72,15 +76,6 @@ local function init()
 			config = [[require('config.telescope')]],
 			cmd = "Telescope",
 			module = "telescope",
-		},
-		{
-			"nvim-telescope/telescope-frecency.nvim",
-			after = "telescope.nvim",
-			requires = "tami5/sqlite.lua",
-		},
-		{
-			"nvim-telescope/telescope-fzf-native.nvim",
-			run = "make",
 		},
 	})
 
