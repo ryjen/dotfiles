@@ -20,9 +20,13 @@ Dubnium host / NixOS layer
 Dotfiles Home Manager layer
   owns: user packages, shell/session behavior, user config policy, user app manifests
 
-configctl / dubctl executors
-  own: validation, read-only inspection, explicit mutation workflows
-  consume: dotfiles-authored contracts/manifests where the app config is user-owned
+dubctl operator UX
+  owns: host-oriented operator commands, lifecycle wrappers, and read-only diagnostics
+  does not own: user config composition, init/adopt policy, or per-app Home Manager behavior
+
+configctl executor
+  owns: user config validation, composition, and explicit init/adopt workflows
+  consumes: dotfiles-authored contracts/manifests where the app config is user-owned
 ```
 
 Rules:
@@ -31,6 +35,7 @@ Rules:
 - `home/ryjen/dubnium-home.nix` imports `modules/home/default.nix` plus the Dubnium profile.
 - `modules/home/default.nix` is the broad module hub, not a promise that every imported module is public API.
 - Profile files under `home/ryjen/profiles/` express user-layer capability selection.
+- `dubctl` may expose host/operator UX and read-only diagnostics for this contract.
 - `configctl` may consume dotfiles-owned manifests for apps whose config is owned here.
 - Dubnium should not bake assumptions about individual dotfiles module internals into NixOS modules or activation scripts.
 
@@ -62,6 +67,8 @@ Current module categories:
 | Developer tools | `git.nix`, `gpg.nix`, `android.nix`, `agents.nix`, `micrantha.nix` | profile-gated where appropriate |
 | Optional secret-backed config | `secrets.nix` | local/private input; not a host contract |
 
+This inventory is descriptive, not a compatibility guarantee.
+
 ### Profile entry point
 
 ```text
@@ -78,9 +85,10 @@ Dubnium may use this as the user-layer profile contract. It should not infer tha
 | --- | --- | --- |
 | Host packages required before login | Dubnium/NixOS | Base system tools, graphical/session prerequisites, system service dependencies. |
 | System services and timers | Dubnium/NixOS | Enablement must be explicit; profiles should not silently enable heavy optional services. |
+| `dubctl` operator UX | Dubnium | Host-oriented wrappers and read-only diagnostics; not a user-config mutation engine. |
 | User packages | dotfiles/Home Manager | CLI/editor/user apps belong here unless needed before login or by system services. |
 | Node/npm global tooling | dotfiles/Home Manager | User-layer tool state; see `ryjen/dotfiles#22` and `ryjen/dubnium#109`. |
-| `configctl` executable | Dubnium | Executor and diagnostics implementation. |
+| `configctl` executable | Dubnium | User-config executor implementation; must consume dotfiles manifests instead of encoding app policy. |
 | `configctl` app contracts/manifests | dotfiles, when app config is user-owned | Consumed by Dubnium tooling; defined close to the owned config. |
 | Runtime/generated app config | generated under user config dirs | Mark as generated; do not hand-edit. |
 | Mutable post-activation tool state | explicit `configctl init`/adopt contracts | Network-backed mutation must be opt-in and risk-gated. |
@@ -264,7 +272,8 @@ Dubnium consumers should follow these constraints:
 
 - Import the stable Home Manager entry point instead of reassembling dotfiles modules.
 - Keep system activation limited to host-level prerequisites and deterministic system state.
-- Keep read-only diagnostics separate from mutation.
+- Use `dubctl` for host/operator UX and read-only diagnostics, not user-config mutation policy.
+- Use `configctl` for user config validation, composition, init/adopt, and explicit mutation workflows.
 - Prefer diagnostics before adopt/init/composition mutation.
 - Treat dotfiles-owned manifests as contracts, not generated implementation detail.
 - Link implementation PRs back to the relevant cross-repo issue when changing boundaries.
@@ -310,7 +319,7 @@ Rationale:
 
 ### Recommendation
 
-Keep dotfiles as the policy source for user state. Keep Dubnium responsible for host-level prerequisites, system services, validation, diagnostics, and executor implementation. Require dotfiles-owned manifests for user/app-specific behavior consumed by `configctl`.
+Keep dotfiles as the policy source for user state. Keep Dubnium responsible for host-level prerequisites, system services, validation, diagnostics, and host/operator UX through `dubctl`. Keep `configctl` focused on user-config validation, composition, and explicit init/adopt workflows that consume dotfiles-owned manifests.
 
 ### Tradeoffs
 
