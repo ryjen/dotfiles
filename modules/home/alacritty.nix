@@ -15,10 +15,6 @@ let
     "custom.d/20-colors.toml"
     "custom.d/90-local.toml"
   ];
-
-  renderedImports = lib.concatMapStringsSep "\n" (path: ''
-        "${path}",
-  '') importPaths;
 in
 {
   options.dotfiles.alacritty.adoptedProfile = lib.mkOption {
@@ -28,23 +24,16 @@ in
   };
 
   config = lib.mkIf config.dotfiles.profiles.workstation.enable {
-    xdg.configFile."alacritty/alacritty.toml".text = ''
-      # GENERATED FILE — DO NOT EDIT DIRECTLY
-      # source-of-truth: ryjen/dotfiles
-      # base-layer: ~/.config/alacritty/conf.d/base.toml
-      # local-layer: ~/.config/alacritty/local.toml
-      # custom-layer: ~/.config/alacritty/custom.d/*.toml
-      # adopted-layer: ~/.config/alacritty/adopted.d/*
-      #
-      # Alacritty imports are explicit paths, not Hyprland-style globs.
-      # Missing imports are skipped, so custom fragments can be created
-      # locally using the filenames listed below.
-
-      [general]
-      import = [
-      ${renderedImports}
-      ]
-    '';
+    # Keep package enablement and ~/.config/alacritty/alacritty.toml
+    # ownership on the Home Manager Alacritty module. The generated entrypoint
+    # only imports layered TOML fragments; concrete settings live below conf.d,
+    # adopted.d, local.toml, and custom.d.
+    programs.alacritty = {
+      enable = true;
+      settings = {
+        general.import = importPaths;
+      };
+    };
 
     xdg.configFile."alacritty/conf.d/base.toml".source = ../../files/home/.config/alacritty/conf.d/base.toml;
     xdg.configFile."alacritty/adopted.d/machine.toml".source = adoptedProfiles.${config.dotfiles.alacritty.adoptedProfile};
