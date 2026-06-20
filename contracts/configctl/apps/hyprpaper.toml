@@ -1,0 +1,50 @@
+schema_version = 1
+tool = "hyprpaper"
+owner = "dotfiles"
+profile = "workstation"
+strategy = "compose"
+renderer_required = true
+description = "Hyprpaper has a managed runtime file today. A future renderer may compose managed fragments with custom fragments into the final config."
+
+managed_files = [
+  "~/.config/hypr/hyprpaper.conf",
+  "~/.config/hyprpaper/custom.d/00-empty.conf",
+  "~/.config/hyprpaper/adopted.d/00-empty.conf"
+]
+
+rendered_outputs = [
+  "~/.config/hypr/hyprpaper.conf"
+]
+
+local_only = [
+  "~/.config/hyprpaper/local.conf"
+]
+
+promotion_sources = [
+  "~/.config/hyprpaper/custom.d/*.conf"
+]
+
+adopted_paths = [
+  "~/.config/hyprpaper/adopted.d/*.conf"
+]
+
+[composition]
+source_order = [
+  "managed",
+  "local",
+  "custom"
+]
+managed_source = "files/home/.config/hypr/hyprpaper.conf"
+local_source = "~/.config/hyprpaper/local.conf"
+custom_sources = "~/.config/hyprpaper/custom.d/*.conf"
+write_mode = "atomic"
+dry_run_required = true
+
+[adoption]
+state_path = "~/.local/state/configctl/adoptions/hyprpaper.toml"
+hash_algorithm = "sha256"
+mode = "review-gated"
+ignore = [
+  "~/.config/hyprpaper/local.conf",
+  "~/.config/hyprpaper/adopted.d/*"
+]
