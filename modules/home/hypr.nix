@@ -135,16 +135,16 @@ in
       chmod 600 "$variety_config"
 
       tmp="$(${pkgs.coreutils}/bin/mktemp)"
-      ${pkgs.gnugrep}/bin/grep -Ev '^(download_folder|fetched_folder|favorites_folder|copyto_folder|wallpaper_auto_rotate|change_enabled|change_on_start)\s*=' "$variety_config" > "$tmp" || true
-      cat >> "$tmp" <<EOF
-      download_folder = ~/Pictures/wallpaper/variety/downloaded
-      fetched_folder = ~/Pictures/wallpaper/variety/fetched
-      favorites_folder = ~/Pictures/wallpaper/variety/favorites
-      copyto_folder = ~/Pictures/wallpaper/variety/favorites
-      wallpaper_auto_rotate = False
-      change_enabled = False
-      change_on_start = False
-      EOF
+      ${pkgs.gnugrep}/bin/grep -Ev '^(download_folder|fetched_folder|favorites_folder|copyto_folder|wallpaper_auto_rotate|change_enabled|change_on_start)[[:space:]]*=' "$variety_config" > "$tmp" || true
+      {
+        printf '%s\n' 'download_folder = ~/Pictures/wallpaper/variety/downloaded'
+        printf '%s\n' 'fetched_folder = ~/Pictures/wallpaper/variety/fetched'
+        printf '%s\n' 'favorites_folder = ~/Pictures/wallpaper/variety/favorites'
+        printf '%s\n' 'copyto_folder = ~/Pictures/wallpaper/variety/favorites'
+        printf '%s\n' 'wallpaper_auto_rotate = False'
+        printf '%s\n' 'change_enabled = False'
+        printf '%s\n' 'change_on_start = False'
+      } >> "$tmp"
       cat "$tmp" > "$variety_config"
       rm -f "$tmp"
       chmod 600 "$variety_config"
