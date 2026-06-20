@@ -1,8 +1,7 @@
-/* Managed Waybar CSS extension point.
+/* Managed Waybar CSS customizations.
  *
- * Waybar runtime config is JSONC plus CSS. This file is imported by style.css
- * and is intentionally managed as an empty promotion target, not as a
- * user-owned local layer.
+ * Waybar is not currently wired into the configctl layer contract. This file is
+ * managed directly with the rest of the Waybar runtime files.
  *
  * Keep this file intentionally empty by default.
  */
