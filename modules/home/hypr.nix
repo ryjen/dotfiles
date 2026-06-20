@@ -11,7 +11,6 @@ let
   managedScripts = [
     "dub-browser"
     "dub-clipboard"
-    "dub-configctl-layouts"
     "dub-editor"
     "dub-file-manager"
     "dub-launch"
