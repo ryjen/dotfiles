@@ -29,6 +29,25 @@ The default global bin path is:
 ~/.local/share/npm/bin
 ```
 
+## Existing `.npmrc` migration
+
+Before enabling this module on a machine with existing npm state, inspect any current `~/.npmrc`:
+
+```sh
+test -f ~/.npmrc && sed -n '1,120p' ~/.npmrc
+```
+
+Move npm authentication tokens, private registry settings, or machine-local options out of the managed file before running Home Manager.
+
+If Home Manager refuses to activate because `~/.npmrc` already exists, back it up first:
+
+```sh
+mv ~/.npmrc ~/.npmrc.local-backup
+home-manager switch --flake .#USERNAME@nixos
+```
+
+Then re-apply only non-secret local npm settings through an explicit local/private mechanism. Do not commit auth tokens or private registry credentials.
+
 ## Package manifest
 
 Durable npm global tools are declared in:
