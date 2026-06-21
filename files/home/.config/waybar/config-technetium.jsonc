@@ -26,6 +26,7 @@
         "temperature",
         "custom/nvidia-gpu",
         "custom/backlight",
+        "battery",
         "clock",
         "hyprland/language",
         "custom/power"
