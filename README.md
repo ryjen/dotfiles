@@ -12,6 +12,7 @@ Nix-first dotfiles for NixOS and Home Manager with a reusable baseline and opt-i
 - `modules/home/` contains user modules.
 - `files/home/` contains static user config files managed by Home Manager.
 - `files/system/` contains static system files used by NixOS modules.
+- `scripts/` contains supporting scripts used by flake apps and verification commands.
 
 ## Profiles
 
