@@ -68,65 +68,26 @@
             }
           ];
         };
-      verifyInContainer = pkgs.writeShellApplication {
-        name = "verify-in-container";
-        runtimeInputs = [ pkgs.coreutils ];
-        text = ''
-          exec ${pkgs.runtimeShell} ${./scripts/verify-in-container.sh} "$@"
-        '';
-      };
-      verifySessionFiles = pkgs.writeShellApplication {
-        name = "verify-session-files";
-        runtimeInputs = [
-          pkgs.bash
-          pkgs.coreutils
-        ];
-        text = ''
-          exec ${pkgs.runtimeShell} ${./scripts/verify-session-files.sh} "$@"
-        '';
-      };
-      verifyNeovimConfig = pkgs.writeShellApplication {
-        name = "verify-neovim-config";
-        runtimeInputs = [
-          pkgs.coreutils
-          pkgs.git
-          pkgs.neovim
-        ];
-        text = ''
-          tmpdir="$(mktemp -d)"
-          trap 'rm -rf "$tmpdir"' EXIT
-
-          export XDG_CONFIG_HOME=${./files/home/.config}
-          export XDG_CACHE_HOME="$tmpdir/cache"
-          export XDG_DATA_HOME="$tmpdir/data"
-          export XDG_STATE_HOME="$tmpdir/state"
-
-          nvim --headless +qa
-        '';
-      };
     in
     {
       apps.${system} = {
         verify-container = {
           type = "app";
-          program = "${verifyInContainer}/bin/verify-in-container";
+          program = "${./scripts/verify-in-container.sh}";
         };
 
         verify-session-files = {
           type = "app";
-          program = "${verifySessionFiles}/bin/verify-session-files";
+          program = "${./scripts/verify-session-files.sh}";
         };
 
         verify-neovim-config = {
           type = "app";
-          program = "${verifyNeovimConfig}/bin/verify-neovim-config";
+          program = "${./scripts/verify-neovim-config.sh}";
         };
       };
 
       packages.${system} = {
-        verify-container = verifyInContainer;
-        verify-session-files = verifySessionFiles;
-        verify-neovim-config = verifyNeovimConfig;
         hermes-agent = hermes-agent.packages.${system}.default;
       };
 
@@ -135,6 +96,8 @@
 
       homeConfigurations."${username}@nixos" = mkHomeConfig ./home/ryjen/home.nix;
       homeConfigurations."${username}@verify" = mkHomeConfig ./home/ryjen/verify-home.nix;
+      homeConfigurations."${username}@headless" = mkHomeConfig ./home/ryjen/headless-home.nix;
+      homeConfigurations."${username}@wsl" = mkHomeConfig ./home/ryjen/wsl-home.nix;
       homeConfigurations."${username}@dubnium" = mkHomeConfig ./home/ryjen/dubnium-home.nix;
       homeConfigurations."${username}@technetium" = mkHomeConfig ./home/ryjen/technetium-home.nix;
 
