@@ -20,6 +20,7 @@
     ./gpg.nix
     ./hypr.nix
     ./input.nix
+    ./keyring.nix
     ./lsd.nix
     ./lolcat.nix
     ./micrantha.nix
