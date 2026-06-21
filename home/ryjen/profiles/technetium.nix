@@ -1,6 +1,10 @@
 { lib, ... }:
 {
-  dotfiles.profiles.workstation.enable = true;
+  imports = [
+    ./laptop.nix
+  ];
+
+  dotfiles.host.name = "technetium";
   dotfiles.profiles.browser.enable = true;
   dotfiles.profiles.android.enable = false;
   dotfiles.profiles.micrantha.enable = false;
