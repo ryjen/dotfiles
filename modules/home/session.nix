@@ -23,6 +23,7 @@
       playerctl
       rofi
       slurp
+      vanilla-dmz
       waybar
       wl-clipboard
       wlogout

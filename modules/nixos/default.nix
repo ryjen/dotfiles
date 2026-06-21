@@ -7,6 +7,7 @@
     ./motd.nix
     ./podman.nix
     ./shell.nix
+    ./syncthing.nix
   ];
 
   nix.settings.experimental-features = [
