@@ -5,6 +5,13 @@
 }:
 let
   micranthaEnabled = config.dotfiles.profiles.micrantha.enable;
+  gitEditor =
+    if config.programs.neovim.enable then
+      "nvim"
+    else if config.programs.helix.enable then
+      "hx"
+    else
+      "vi";
 in
 {
   programs.git = {
@@ -85,7 +92,7 @@ in
       branch.sort = "-committerdate";
       column.ui = "auto";
       commit.template = "~/.config/git/commit-message";
-      core.editor = "nvim";
+      core.editor = gitEditor;
       merge = {
         tool = "vimdiff";
         conflictstyle = "diff3";
@@ -96,7 +103,7 @@ in
       };
       core.pager = "bat -p";
       credential.helper = "!pass-git-helper $@";
-      sequence.editor = "nvim";
+      sequence.editor = gitEditor;
     } // lib.optionalAttrs micranthaEnabled {
       url."git+ssh://git@gitlab.com/micrantha" = {
         insteadOf = [
