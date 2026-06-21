@@ -87,6 +87,11 @@
         };
       };
 
+      checks.${system}.devtools = pkgs.runCommand "devtools" { } ''
+        ${./scripts/verify-devtools.sh}
+        touch "$out"
+      '';
+
       checks.${system}.flake-script-executables = pkgs.runCommand "flake-script-executables" { nativeBuildInputs = [ pkgs.git ]; } ''
         ${./scripts/verify-flake-script-executables.sh} ${self}
         touch "$out"
