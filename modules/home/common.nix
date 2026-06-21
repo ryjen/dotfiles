@@ -5,8 +5,10 @@
   ...
 }:
 {
-  options.dotfiles.host.userSystemd.enable = lib.mkEnableOption "Home Manager user systemd units" // {
+  options.dotfiles.host.userSystemd.enable = lib.mkOption {
+    type = lib.types.bool;
     default = true;
+    description = "Whether this host supports Home Manager user systemd units.";
   };
 
   config = {
