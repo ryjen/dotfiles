@@ -5,10 +5,42 @@
   ...
 }:
 {
-  options.dotfiles.host.userSystemd.enable = lib.mkOption {
-    type = lib.types.bool;
-    default = true;
-    description = "Whether this host supports Home Manager user systemd units.";
+  options.dotfiles.host = {
+    name = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = null;
+      description = "Optional Home Manager host identity.";
+    };
+
+    role = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = null;
+      description = "Optional Home Manager host role.";
+    };
+
+    graphical.enable = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = "Whether this Home Manager profile is graphical-capable.";
+    };
+
+    laptop.enable = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = "Whether this Home Manager profile is laptop-specific.";
+    };
+
+    wsl.enable = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = "Whether this Home Manager profile targets WSL.";
+    };
+
+    userSystemd.enable = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = "Whether this host supports Home Manager user systemd units.";
+    };
   };
 
   config = {
