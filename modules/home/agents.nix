@@ -68,13 +68,6 @@ in
   config = {
     home.packages = [
       agentsUpdate
-      pkgs.ffmpeg
-      pkgs.gh
-      pkgs.git
-      pkgs.openssh
-      pkgs.python311
-      pkgs.ripgrep
-      pkgs.uv
     ] ++ lib.optional config.dotfiles.agents.hermes.enable hermesPackage;
 
     home.file.".agents/.skill-lock.json".source = ../../files/home/.agents/.skill-lock.json;
