@@ -32,12 +32,41 @@ configctl executor
 Rules:
 
 - Dubnium may import `home/ryjen/dubnium-home.nix` as the Dubnium-facing Home Manager entry point.
-- `home/ryjen/dubnium-home.nix` imports `modules/home/default.nix` plus the Dubnium profile.
-- `modules/home/default.nix` is the broad module hub, not a promise that every imported module is public API.
+- Stable Home Manager entrypoints import a named module-set layer plus a concrete profile.
+- `home/ryjen/layers/graphical.nix` imports the broad graphical Home Manager module hub.
+- `home/ryjen/layers/lightweight.nix` imports the lightweight non-graphical Home Manager module set.
 - Profile files under `home/ryjen/profiles/` express user-layer capability selection.
 - `dubctl` may expose host/operator UX and read-only diagnostics for this contract.
 - `configctl` may consume dotfiles-owned manifests for apps whose config is owned here.
 - Dubnium should not bake assumptions about individual dotfiles module internals into NixOS modules or activation scripts.
+
+## Durable layering model
+
+Home Manager composition is intentionally split into two axes:
+
+```text
+home/ryjen/*-home.nix
+  imports: one module-set layer + one host/profile file + optional git-local.nix
+
+home/ryjen/layers/*.nix
+  imports: reusable Home Manager module sets
+
+home/ryjen/profiles/*.nix
+  imports: capability profiles and sets host-specific profile options
+```
+
+Layer files answer "which module set is imported?" Profile files answer "which capabilities and host-specific settings are enabled?"
+
+This keeps the host matrix explicit:
+
+| Home Manager output | Module layer | Profile | Contract |
+| --- | --- | --- | --- |
+| `ryjen@dubnium` | `graphical.nix` | `dubnium.nix` | Graphical workstation; not laptop-specific. |
+| `ryjen@technetium` | `graphical.nix` | `technetium.nix` | Graphical laptop; owns Technetium Waybar battery config. |
+| `ryjen@nixos` | `graphical.nix` | `nixos.nix` | Compatibility workstation path; Dubnium-style, not laptop-specific. |
+| `ryjen@headless` | `lightweight.nix` | `headless.nix` | Non-graphical shell/server target. |
+| `ryjen@wsl` | `lightweight.nix` | `wsl.nix` | Non-graphical WSL-safe target with user systemd disabled. |
+| `ryjen@verify` | `lightweight.nix` | `verify.nix` | Lightweight verification target. |
 
 ## Stable entry points
 
@@ -47,15 +76,25 @@ Rules:
 home/ryjen/dubnium-home.nix
 ```
 
-This is the stable import target for Dubnium's Home Manager integration. It sets the user, home directory, Home Manager state version, imports the common module hub, imports the Dubnium profile, and conditionally imports local Git identity.
+This is the stable import target for Dubnium's Home Manager integration. It sets the user, home directory, Home Manager state version, imports the graphical module-set layer, imports the Dubnium profile, and conditionally imports local Git identity.
 
-### Module hub
+### Module-set layers
+
+```text
+home/ryjen/layers/graphical.nix
+home/ryjen/layers/lightweight.nix
+```
+
+These are the stable reusable module-set boundaries. Consumers should choose an entrypoint rather than directly importing these layers unless they intentionally own profile selection.
+
+### Module hubs
 
 ```text
 modules/home/default.nix
+modules/home/verify.nix
 ```
 
-This is the internal aggregation point for reusable Home Manager modules. Dubnium may treat the existence of this hub as part of the integration contract, but should avoid depending on the exact module list unless a module is explicitly promoted into a manifest or documented profile contract.
+These are internal aggregation points for reusable Home Manager modules. Dubnium may treat their existence as part of the integration contract through the named layers, but should avoid depending on the exact module lists unless a module is explicitly promoted into a manifest or documented profile contract.
 
 Current module categories:
 
@@ -63,7 +102,7 @@ Current module categories:
 | --- | --- | --- |
 | Shell/session | `common.nix`, `session.nix`, `zsh.nix`, `starship.nix`, `direnv.nix` | user-layer policy |
 | Editors/terminals | `neovim.nix`, `helix.nix`, `tmux.nix`, `alacritty.nix` | user-layer policy |
-| Desktop/app config | `hypr.nix`, `browser.nix`, `input.nix`, `pinentry.nix` | user-layer policy; may expose app manifests |
+| Desktop/app config | `hypr.nix`, `browser.nix`, `input.nix`, `pinentry.nix` | user-layer policy; graphical layer only |
 | Developer tools | `git.nix`, `gpg.nix`, `android.nix`, `agents.nix`, `micrantha.nix` | profile-gated where appropriate |
 | Optional secret-backed config | `secrets.nix` | local/private input; not a host contract |
 
@@ -75,7 +114,7 @@ This inventory is descriptive, not a compatibility guarantee.
 home/ryjen/profiles/dubnium.nix
 ```
 
-The Dubnium profile currently enables the workstation and browser profiles, disables Android and Micrantha-specific profiles, and selects the Dubnium Hypr adopted profile.
+The Dubnium profile currently imports the workstation capability profile, enables the browser profile, disables Android and Micrantha-specific profiles, and selects the Dubnium Hypr adopted profile.
 
 Dubnium may use this as the user-layer profile contract. It should not infer that every workstation host must enable every optional system service.
 
@@ -98,13 +137,23 @@ Dubnium may use this as the user-layer profile contract. It should not infer tha
 
 ## Profile boundaries
 
-### Workstation GUI profile
+### Graphical profile
 
-The workstation profile is the correct place for user-layer GUI defaults: shell behavior, editor defaults, terminal defaults, browser/user app config, and desktop-session preferences.
+`home/ryjen/profiles/graphical.nix` marks a profile as graphical-capable. It should remain capability metadata unless behavior needs to be shared by every graphical host.
+
+### Workstation profile
+
+`home/ryjen/profiles/workstation.nix` imports `graphical.nix` and enables workstation behavior. It is the correct place for user-layer GUI defaults: shell behavior, editor defaults, terminal defaults, browser/user app config, and desktop-session preferences.
 
 It must not imply that host-level optional services such as n8n, GitHub runner, vLLM, k3s, or exposed local AI endpoints are enabled.
 
+### Laptop profile
+
+`home/ryjen/profiles/laptop.nix` imports `graphical.nix` and marks laptop capability. Laptop-specific config must stay behind laptop profiles. Technetium is currently the only laptop profile and the only profile that force-selects `config-technetium.jsonc` for Waybar.
+
 ### WSL/dev profile
+
+`home/ryjen/profiles/wsl.nix` imports the headless profile, marks WSL capability, and disables Home Manager user-systemd assumptions with `dotfiles.host.userSystemd.enable = false`.
 
 WSL/dev support should prefer shell, editor, Git, language tooling, and path/session behavior. It should avoid desktop-only configuration and systemd assumptions unless explicitly guarded by the host layer.
 
@@ -114,7 +163,7 @@ Developer profiles may enable user-level developer tools and user-owned initiali
 
 ### Headless profile
 
-If a headless Home Manager profile is added, it should be a user-layer profile for shells, editors, Git, agents, and CLI tooling. It should not become a duplicate Dubnium host profile or a hidden service bundle.
+`home/ryjen/profiles/headless.nix` is the user-layer profile for shells, editors, Git, agents, and CLI tooling. It should not become a duplicate Dubnium host profile or a hidden service bundle.
 
 ## Session environment contract
 

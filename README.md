@@ -7,6 +7,7 @@ Nix-first dotfiles for NixOS and Home Manager with a reusable baseline and opt-i
 - `flake.nix` defines the NixOS and Home Manager entrypoints.
 - `hosts/nixos/` contains the current NixOS host config.
 - `home/USERNAME/home.nix` is the user Home Manager entrypoint.
+- `home/USERNAME/layers/` contains reusable Home Manager module-set layers.
 - `home/USERNAME/profiles/` contains host/profile selections for a concrete machine.
 - `modules/nixos/` contains system modules.
 - `modules/home/` contains user modules.
@@ -16,7 +17,19 @@ Nix-first dotfiles for NixOS and Home Manager with a reusable baseline and opt-i
 
 ## Profiles
 
-Shared baseline modules are always imported. Host- or organization-specific behavior is enabled through `dotfiles.profiles.*` options from a profile file such as `home/USERNAME/profiles/nixos.nix`.
+Shared baseline modules are imported through named Home Manager layers. Host- or organization-specific behavior is enabled through `dotfiles.profiles.*` options from a profile file such as `home/USERNAME/profiles/nixos.nix`.
+
+Current module-set layers:
+
+- `home/USERNAME/layers/graphical.nix` imports the full graphical Home Manager module hub.
+- `home/USERNAME/layers/lightweight.nix` imports the lightweight non-graphical verification module set.
+
+Current capability profiles:
+
+- `home/USERNAME/profiles/graphical.nix` marks a profile as graphical-capable.
+- `home/USERNAME/profiles/workstation.nix` imports `graphical.nix` and enables workstation behavior.
+- `home/USERNAME/profiles/laptop.nix` imports `graphical.nix` and enables laptop capability metadata.
+- `home/USERNAME/profiles/headless.nix` keeps non-graphical targets lightweight.
 
 Current overlays:
 
@@ -27,16 +40,19 @@ Current overlays:
 Tracked profile entrypoints:
 
 - `home/USERNAME/profiles/nixos.nix` for the full local machine profile
+- `home/USERNAME/profiles/dubnium.nix` for the canonical graphical workstation profile
+- `home/USERNAME/profiles/technetium.nix` for the graphical laptop profile
 - `home/USERNAME/profiles/verify.nix` for lightweight verification without Android or other machine-specific overlays
-- `modules/home/verify.nix` for the lightweight shared module set used by verification
+- `home/USERNAME/profiles/headless.nix` for non-graphical shell/server-style Home Manager targets
+- `home/USERNAME/profiles/wsl.nix` for WSL-safe non-graphical Home Manager targets
 
 Current Home Manager host contract:
 
 - `ryjen@dubnium` is the graphical workstation path. It enables Hyprland/Waybar and uses the workstation-safe Waybar config without a laptop battery module.
 - `ryjen@technetium` is the graphical laptop path. It enables Hyprland/Waybar and force-selects the Technetium Waybar config with the battery module.
 - `ryjen@nixos` is a compatibility alias for the main NixOS/workstation path. It must not imply Technetium or laptop-specific behavior.
-- `ryjen@headless` is a non-graphical shell/server-style Home Manager target. It reuses the lightweight verification module/profile baseline and does not enable GUI, Hyprland, or Waybar by default.
-- `ryjen@wsl` is a non-graphical WSL-safe Home Manager target. It reuses the lightweight verification module/profile baseline and does not enable GUI, Hyprland, or Waybar by default.
+- `ryjen@headless` is a non-graphical shell/server-style Home Manager target. It imports the lightweight layer and does not enable GUI, Hyprland, or Waybar by default.
+- `ryjen@wsl` is a non-graphical WSL-safe Home Manager target. It imports the lightweight layer, does not enable GUI, Hyprland, or Waybar by default, and disables Home Manager user-systemd assumptions.
 - `ryjen@verify` is the lightweight verification target and does not enable GUI, Hyprland, or Waybar by default.
 
 Architecture rationale lives in `docs/architecture/adr-0001-baseline-and-overlays.md`.

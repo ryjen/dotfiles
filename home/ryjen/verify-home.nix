@@ -6,7 +6,7 @@
 {
   imports =
     [
-      ../../modules/home/verify.nix
+      ./layers/lightweight.nix
       ./profiles/verify.nix
     ]
     ++ lib.optional (builtins.pathExists ./git-local.nix) ./git-local.nix;
