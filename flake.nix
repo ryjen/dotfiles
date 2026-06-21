@@ -87,6 +87,11 @@
         };
       };
 
+      checks.${system}.flake-script-executables = pkgs.runCommand "flake-script-executables" { nativeBuildInputs = [ pkgs.git ]; } ''
+        ${./scripts/verify-flake-script-executables.sh} ${self}
+        touch "$out"
+      '';
+
       packages.${system} = {
         hermes-agent = hermes-agent.packages.${system}.default;
       };
