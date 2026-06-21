@@ -88,20 +88,14 @@
       verifyNeovimConfig = pkgs.writeShellApplication {
         name = "verify-neovim-config";
         runtimeInputs = [
+          pkgs.bash
           pkgs.coreutils
           pkgs.git
           pkgs.neovim
         ];
         text = ''
-          tmpdir="$(mktemp -d)"
-          trap 'rm -rf "$tmpdir"' EXIT
-
-          export XDG_CONFIG_HOME=${./files/home/.config}
-          export XDG_CACHE_HOME="$tmpdir/cache"
-          export XDG_DATA_HOME="$tmpdir/data"
-          export XDG_STATE_HOME="$tmpdir/state"
-
-          nvim --headless +qa
+          export DUBNIUM_DOTFILES_CONFIG_HOME=${./files/home/.config}
+          exec ${pkgs.runtimeShell} ${./scripts/verify-neovim-config.sh} "$@"
         '';
       };
     in
