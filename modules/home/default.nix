@@ -12,6 +12,7 @@
     ./byobu.nix
     ./common.nix
     ./cowsay.nix
+    ./devtools.nix
     ./direnv.nix
     ./fortunes.nix
     ./fzf.nix
