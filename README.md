@@ -34,7 +34,9 @@ Current Home Manager host contract:
 - `ryjen@dubnium` is the graphical workstation path. It enables Hyprland/Waybar and uses the workstation-safe Waybar config without a laptop battery module.
 - `ryjen@technetium` is the graphical laptop path. It enables Hyprland/Waybar and force-selects the Technetium Waybar config with the battery module.
 - `ryjen@nixos` is a compatibility alias for the main NixOS/workstation path. It must not imply Technetium or laptop-specific behavior.
-- `ryjen@verify` and other non-graphical verification paths remain lightweight and do not enable GUI, Hyprland, or Waybar by default.
+- `ryjen@headless` is a non-graphical shell/server-style Home Manager target. It reuses the lightweight verification module/profile baseline and does not enable GUI, Hyprland, or Waybar by default.
+- `ryjen@wsl` is a non-graphical WSL-safe Home Manager target. It reuses the lightweight verification module/profile baseline and does not enable GUI, Hyprland, or Waybar by default.
+- `ryjen@verify` is the lightweight verification target and does not enable GUI, Hyprland, or Waybar by default.
 
 Architecture rationale lives in `docs/architecture/adr-0001-baseline-and-overlays.md`.
 
@@ -183,5 +185,7 @@ nix build .#homeConfigurations.ryjen@dubnium.activationPackage
 nix build .#homeConfigurations.ryjen@technetium.activationPackage
 nix build .#homeConfigurations.ryjen@nixos.activationPackage
 nix build .#homeConfigurations.ryjen@verify.activationPackage
+nix build .#homeConfigurations.ryjen@headless.activationPackage
+nix build .#homeConfigurations.ryjen@wsl.activationPackage
 nix run .#verify-session-files
 ```
