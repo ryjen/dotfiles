@@ -8,6 +8,23 @@ exec >>"$log_dir/session-start.log" 2>&1
 
 printf '[%s] dub-session-start\n' "$(date --iso-8601=seconds)"
 
+start_graphical_session_targets() {
+  if ! command -v systemctl >/dev/null 2>&1; then
+    printf '[skip] systemctl not found; graphical session targets unavailable\n'
+    return 0
+  fi
+
+  systemctl --user import-environment \
+    WAYLAND_DISPLAY \
+    XDG_CURRENT_DESKTOP \
+    XDG_SESSION_DESKTOP \
+    XDG_SESSION_TYPE \
+    DBUS_SESSION_BUS_ADDRESS || true
+
+  systemctl --user start graphical-session-pre.target || true
+  systemctl --user start graphical-session.target || true
+}
+
 start_once() {
   local name="$1"
   shift
@@ -24,6 +41,8 @@ start_once() {
     "$@" &
   fi
 }
+
+start_graphical_session_targets
 
 start_once waybar waybar
 start_once nm-applet nm-applet --indicator
