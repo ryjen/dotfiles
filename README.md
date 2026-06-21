@@ -29,6 +29,13 @@ Tracked profile entrypoints:
 - `home/USERNAME/profiles/verify.nix` for lightweight verification without Android or other machine-specific overlays
 - `modules/home/verify.nix` for the lightweight shared module set used by verification
 
+Current Home Manager host contract:
+
+- `ryjen@dubnium` is the graphical workstation path. It enables Hyprland/Waybar and uses the workstation-safe Waybar config without a laptop battery module.
+- `ryjen@technetium` is the graphical laptop path. It enables Hyprland/Waybar and force-selects the Technetium Waybar config with the battery module.
+- `ryjen@nixos` is a compatibility alias for the main NixOS/workstation path. It must not imply Technetium or laptop-specific behavior.
+- `ryjen@verify` and other non-graphical verification paths remain lightweight and do not enable GUI, Hyprland, or Waybar by default.
+
 Architecture rationale lives in `docs/architecture/adr-0001-baseline-and-overlays.md`.
 
 The layered home configuration contract lives in `docs/architecture/home-layering-contract.md`.
@@ -167,4 +174,14 @@ Lightweight verification outputs:
 
 ```bash
 nix flake check --no-build
+```
+
+Home Manager host smoke checks:
+
+```bash
+nix build .#homeConfigurations.ryjen@dubnium.activationPackage
+nix build .#homeConfigurations.ryjen@technetium.activationPackage
+nix build .#homeConfigurations.ryjen@nixos.activationPackage
+nix build .#homeConfigurations.ryjen@verify.activationPackage
+nix run .#verify-session-files
 ```
