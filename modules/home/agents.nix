@@ -69,6 +69,7 @@ in
     home.packages = [
       agentsUpdate
       pkgs.ffmpeg
+      pkgs.gh
       pkgs.git
       pkgs.openssh
       pkgs.python311
