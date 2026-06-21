@@ -94,7 +94,7 @@
           pkgs.neovim
         ];
         text = ''
-          export DUBNIUM_DOTFILES_CONFIG_HOME=${./files/home/.config}
+          export DOTFILES_CONFIG_HOME=${./files/home/.config}
           exec ${pkgs.runtimeShell} ${./scripts/verify-neovim-config.sh} "$@"
         '';
       };
