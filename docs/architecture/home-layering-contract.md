@@ -108,31 +108,15 @@ Current module categories:
 
 This inventory is descriptive, not a compatibility guarantee.
 
-## Profile boundaries
+### Profile entry point
 
-### Graphical profile
+```text
+home/ryjen/profiles/dubnium.nix
+```
 
-`home/ryjen/profiles/graphical.nix` marks a profile as graphical-capable. It should remain capability metadata unless behavior needs to be shared by every graphical host.
+The Dubnium profile currently imports the workstation capability profile, enables the browser profile, disables Android and Micrantha-specific profiles, and selects the Dubnium Hypr adopted profile.
 
-### Workstation profile
-
-`home/ryjen/profiles/workstation.nix` imports `graphical.nix` and enables workstation behavior. It is the correct place for user-layer GUI defaults: shell behavior, editor defaults, terminal defaults, browser/user app config, and desktop-session preferences.
-
-It must not imply that host-level optional services such as n8n, GitHub runner, vLLM, k3s, or exposed local AI endpoints are enabled.
-
-### Laptop profile
-
-`home/ryjen/profiles/laptop.nix` imports `graphical.nix` and marks laptop capability. Laptop-specific config must stay behind laptop profiles. Technetium is currently the only laptop profile and the only profile that force-selects `config-technetium.jsonc` for Waybar.
-
-### Headless profile
-
-`home/ryjen/profiles/headless.nix` is the user-layer profile for non-graphical shells, editors, Git, agents, and CLI tooling. It should not become a duplicate Dubnium host profile or a hidden service bundle.
-
-### WSL/dev profile
-
-`home/ryjen/profiles/wsl.nix` imports the headless profile, marks WSL capability, and disables Home Manager user-systemd assumptions with `dotfiles.host.userSystemd.enable = false`.
-
-WSL/dev support should prefer shell, editor, Git, language tooling, and path/session behavior. It should avoid desktop-only configuration and systemd assumptions unless explicitly guarded by the host layer.
+Dubnium may use this as the user-layer profile contract. It should not infer that every workstation host must enable every optional system service.
 
 ## Ownership matrix
 
@@ -150,6 +134,36 @@ WSL/dev support should prefer shell, editor, Git, language tooling, and path/ses
 | Local unmanaged overrides | user/machine local | `local.*` and local-only files are explicit opt-outs from repo management. |
 | Private secrets | host/user local secret mechanism | Must not be materialized into Nix-store-rendered user config. |
 | Public material | owning repo or generated config, depending on use | Do not label public identifiers as private secrets. |
+
+## Profile boundaries
+
+### Graphical profile
+
+`home/ryjen/profiles/graphical.nix` marks a profile as graphical-capable. It should remain capability metadata unless behavior needs to be shared by every graphical host.
+
+### Workstation profile
+
+`home/ryjen/profiles/workstation.nix` imports `graphical.nix` and enables workstation behavior. It is the correct place for user-layer GUI defaults: shell behavior, editor defaults, terminal defaults, browser/user app config, and desktop-session preferences.
+
+It must not imply that host-level optional services such as n8n, GitHub runner, vLLM, k3s, or exposed local AI endpoints are enabled.
+
+### Laptop profile
+
+`home/ryjen/profiles/laptop.nix` imports `graphical.nix` and marks laptop capability. Laptop-specific config must stay behind laptop profiles. Technetium is currently the only laptop profile and the only profile that force-selects `config-technetium.jsonc` for Waybar.
+
+### WSL/dev profile
+
+`home/ryjen/profiles/wsl.nix` imports the headless profile, marks WSL capability, and disables Home Manager user-systemd assumptions with `dotfiles.host.userSystemd.enable = false`.
+
+WSL/dev support should prefer shell, editor, Git, language tooling, and path/session behavior. It should avoid desktop-only configuration and systemd assumptions unless explicitly guarded by the host layer.
+
+### Developer/tooling profiles
+
+Developer profiles may enable user-level developer tools and user-owned initialization manifests. They should not require root-owned mutation or host activation hooks to repair user state.
+
+### Headless profile
+
+`home/ryjen/profiles/headless.nix` is the user-layer profile for shells, editors, Git, agents, and CLI tooling. It should not become a duplicate Dubnium host profile or a hidden service bundle.
 
 ## Session environment contract
 
@@ -182,7 +196,42 @@ Home Manager-managed configuration should use this shape when the target app can
 └── adopted.d/     # fragments already promoted or represented by managed config
 ```
 
-Runtime state must not be written into managed config paths. Adoption and reconciliation metadata belongs under XDG state, not under `~/.config/<tool>/`.
+Ownership rules:
+
+```text
+managed.*    -> governed source of truth
+local.*      -> machine-specific, ignored by promotion
+custom.d/*   -> promotion candidates
+adopted.d/*  -> archived/adopted fragments, ignored during normal load
+```
+
+Managed files should carry a generated-file header that identifies this repository as the source of truth and documents any active local/custom include hooks.
+
+Apps without native include semantics require explicit composition manifests. Those manifests belong in dotfiles when the app config is owned by dotfiles, even if Dubnium implements the composition executor.
+
+## Source, generated, mutable, and local-only state
+
+| State class | Example | Policy |
+| --- | --- | --- |
+| Source fragments | repo-managed module inputs, app fragments, manifests | Reviewed in Git; durable source of truth. |
+| Generated runtime config | composed `managed.*` output | Regenerated by Home Manager or explicit tooling; never hand-edit. |
+| Mutable user state | npm global install state, first-run tool initialization | Managed by explicit init/adopt contracts, not system activation. |
+| Local-only overrides | `local.*`, `git-local.nix`, machine-specific files | Never silently promoted, overwritten, or garbage-collected. |
+| Adoption metadata | hashes/provenance for adopted fragments | Stored under XDG state, not managed config paths. |
+
+## XDG state separation
+
+Use:
+
+```text
+XDG_STATE_HOME = ~/.local/state
+XDG_DATA_HOME  = ~/.local/share
+XDG_CACHE_HOME = ~/.cache
+```
+
+Runtime state must not be written into managed config paths.
+
+Adoption and reconciliation metadata belongs under XDG state, not under `~/.config/<tool>/`.
 
 ## Mutable state policy
 
@@ -207,7 +256,7 @@ Not allowed:
 
 `configctl init` and related adopt/reconcile flows should handle mutable first-run tool state. Those flows must be explicit, dry-run capable where practical, and risk-gated when they perform network or destructive actions.
 
-## Promotion and reconciliation semantics
+## Promotion semantics
 
 Promotion should produce:
 
@@ -216,7 +265,55 @@ Promotion should produce:
 
 Promotion must be review-gated through Git. A tool may propose a promotion, but the durable state change is a reviewed repository change.
 
-Future reconciliation should be dry-run first and must not silently move, delete, or promote user-authored files.
+`local.*` files are never promotion candidates. They are machine-specific escape hatches.
+
+## Reconciliation semantics
+
+Future reconciliation should be dry-run first.
+
+```text
+custom.d/* hash matches adoption metadata
+  -> candidate to move to adopted.d/
+
+custom.d/* differs from adopted hash
+  -> conflict
+
+local.*
+  -> ignore
+
+adopted.d/*
+  -> ignore unless explicitly garbage-collected
+```
+
+Reconciliation must not silently move, delete, or promote user-authored files.
+
+## Adoption metadata
+
+Future state path:
+
+```text
+~/.local/state/home-layering/adoptions.toml
+```
+
+or another repo-approved XDG state path.
+
+Example:
+
+```toml
+[[adoptions]]
+id = "hypr-keybinds-001"
+tool = "hypr"
+source = "custom.d/keybinds.conf"
+adopted_path = "adopted.d/keybinds.conf"
+hash = "sha256:..."
+promoted_at = "2026-05-31T18:00:00-07:00"
+promoted_by = "dubnium-workstation"
+
+[adoptions.managed]
+repo = "ryjen/dotfiles"
+path = "modules/home/hypr.nix"
+commit = "abc123"
+```
 
 ## Dubnium consumption requirements
 
@@ -229,6 +326,54 @@ Dubnium consumers should follow these constraints:
 - Prefer diagnostics before adopt/init/composition mutation.
 - Treat dotfiles-owned manifests as contracts, not generated implementation detail.
 - Link implementation PRs back to the relevant cross-repository design work when changing boundaries.
+
+Related work:
+
+- npm global tooling and Codex ownership split.
+- dotfiles-owned config composition manifests.
+- dotfiles-owned init/adopt manifests.
+- canonical QART cleanup tracking.
+- `configctl adopt` and initial tool-state contracts.
+- `configctl` composition contracts.
+
+## Initial implementation target
+
+Start with Hyprland.
+
+Rationale:
+
+- machine-local display/input tweaks are common;
+- user keybinding experiments are common;
+- managed config can source local/custom fragments safely;
+- adopted fragments can be ignored; and
+- Dubnium can validate the convention without owning the policy.
+
+## QART notes
+
+### Questions
+
+- Which Home Manager modules are stable public contract versus internal organization?
+- Should profile selection be dotfiles-native, Dubnium-driven, or both?
+- Which tools need first-run mutable state after declarative config is applied?
+- Which desktop apps require generated runtime config because they lack native include semantics?
+- Which session variables must be visible consistently across shells, Hyprland, user services, and launchers?
+
+### Alternatives
+
+- Keep the boundary implicit and handle each issue ad hoc.
+- Move more responsibility into Dubnium system modules.
+- Move all user-layer contracts into dotfiles and keep Dubnium as executor/provider only.
+- Treat Home Manager activation as the lifecycle hook for every user tool.
+
+### Recommendation
+
+Keep dotfiles as the policy source for user state. Keep Dubnium responsible for host-level prerequisites, system services, validation, diagnostics, and host/operator UX through `dubctl`. Keep `configctl` focused on user-config validation, composition, and explicit init/adopt workflows that consume dotfiles-owned manifests.
+
+### Tradeoffs
+
+- Explicit contracts add doc and manifest maintenance overhead.
+- Some behavior now needs a two-repo change: dotfiles for policy, Dubnium for executor support.
+- The payoff is fewer cross-repo regressions, less hidden coupling, and safer separation between declarative user config, generated config, mutable tool state, and host activation.
 
 ## Non-goals
 
