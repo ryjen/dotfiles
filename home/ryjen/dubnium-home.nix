@@ -6,7 +6,7 @@
 {
   imports =
     [
-      ../../modules/home/default.nix
+      ./layers/graphical.nix
       ./profiles/dubnium.nix
     ]
     ++ lib.optional (builtins.pathExists ./git-local.nix) ./git-local.nix;
