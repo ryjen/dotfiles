@@ -7,7 +7,7 @@
   imports =
     [
       ../../modules/home/verify.nix
-      ./profiles/verify.nix
+      ./profiles/wsl.nix
     ]
     ++ lib.optional (builtins.pathExists ./git-local.nix) ./git-local.nix;
 
