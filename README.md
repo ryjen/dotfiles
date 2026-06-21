@@ -33,6 +33,8 @@ Architecture rationale lives in `docs/architecture/adr-0001-baseline-and-overlay
 
 The layered home configuration contract lives in `docs/architecture/home-layering-contract.md`.
 
+User tool state, durable manifests, and package promotion are documented in `docs/user-tool-state.md`.
+
 ## Hyprland and Waybar ownership
 
 Hyprland and Waybar are managed as a session UX substrate rather than loose rice files.
@@ -123,6 +125,12 @@ Verify session files:
 
 ```bash
 nix run .#verify-session-files
+```
+
+Verify npm global environment files:
+
+```bash
+bash scripts/verify-npm-global-env.sh
 ```
 
 Apply Home Manager:

@@ -24,6 +24,7 @@
     ./lolcat.nix
     ./micrantha.nix
     ./neovim.nix
+    ./npm.nix
     ./pass.nix
     ./pinentry.nix
     ./session.nix

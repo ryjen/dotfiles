@@ -68,10 +68,8 @@ in
   config = {
     home.packages = [
       agentsUpdate
-      pkgs.codex
       pkgs.ffmpeg
       pkgs.git
-      pkgs.nodejs
       pkgs.openssh
       pkgs.python311
       pkgs.ripgrep
