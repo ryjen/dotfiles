@@ -68,59 +68,26 @@
             }
           ];
         };
-      verifyInContainer = pkgs.writeShellApplication {
-        name = "verify-in-container";
-        runtimeInputs = [ pkgs.coreutils ];
-        text = ''
-          exec ${pkgs.runtimeShell} ${./scripts/verify-in-container.sh} "$@"
-        '';
-      };
-      verifySessionFiles = pkgs.writeShellApplication {
-        name = "verify-session-files";
-        runtimeInputs = [
-          pkgs.bash
-          pkgs.coreutils
-        ];
-        text = ''
-          exec ${pkgs.runtimeShell} ${./scripts/verify-session-files.sh} "$@"
-        '';
-      };
-      verifyNeovimConfig = pkgs.writeShellApplication {
-        name = "verify-neovim-config";
-        runtimeInputs = [
-          pkgs.bash
-          pkgs.coreutils
-          pkgs.git
-          pkgs.neovim
-        ];
-        text = ''
-          export DOTFILES_CONFIG_HOME=${./files/home/.config}
-          exec ${pkgs.runtimeShell} ${./scripts/verify-neovim-config.sh} "$@"
-        '';
-      };
     in
     {
       apps.${system} = {
         verify-container = {
           type = "app";
-          program = "${verifyInContainer}/bin/verify-in-container";
+          program = "${./scripts/verify-in-container.sh}";
         };
 
         verify-session-files = {
           type = "app";
-          program = "${verifySessionFiles}/bin/verify-session-files";
+          program = "${./scripts/verify-session-files.sh}";
         };
 
         verify-neovim-config = {
           type = "app";
-          program = "${verifyNeovimConfig}/bin/verify-neovim-config";
+          program = "${./scripts/verify-neovim-config.sh}";
         };
       };
 
       packages.${system} = {
-        verify-container = verifyInContainer;
-        verify-session-files = verifySessionFiles;
-        verify-neovim-config = verifyNeovimConfig;
         hermes-agent = hermes-agent.packages.${system}.default;
       };
 
