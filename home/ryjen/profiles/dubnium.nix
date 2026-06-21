@@ -1,6 +1,10 @@
 { ... }:
 {
-  dotfiles.profiles.workstation.enable = true;
+  imports = [
+    ./workstation.nix
+  ];
+
+  dotfiles.host.name = "dubnium";
   dotfiles.profiles.browser.enable = true;
   dotfiles.profiles.android.enable = false;
   dotfiles.profiles.micrantha.enable = false;
