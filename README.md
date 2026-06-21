@@ -33,7 +33,7 @@ Architecture rationale lives in `docs/architecture/adr-0001-baseline-and-overlay
 
 The layered home configuration contract lives in `docs/architecture/home-layering-contract.md`.
 
-Npm global tooling and package promotion are documented in `docs/npm-global-tooling.md`.
+User tool state, durable manifests, and package promotion are documented in `docs/user-tool-state.md`.
 
 ## Hyprland and Waybar ownership
 
