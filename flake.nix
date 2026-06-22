@@ -93,10 +93,12 @@
       };
 
       checks.${system} = {
-        flake-script-executables = pkgs.runCommand "flake-script-executables" { nativeBuildInputs = [ pkgs.git ]; } ''
-          ${./scripts/verify-flake-script-executables.sh} ${self}
-          touch "$out"
-        '';
+        flake-script-executables =
+          pkgs.runCommand "flake-script-executables" { nativeBuildInputs = [ pkgs.git ]; }
+            ''
+              ${./scripts/verify-flake-script-executables.sh} ${self}
+              touch "$out"
+            '';
 
         pre-commit-check = git-hooks.lib.${system}.run {
           src = self;
