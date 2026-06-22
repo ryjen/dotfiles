@@ -26,7 +26,8 @@ in
       {
         path = "~/.config/git/local.config";
       }
-    ] ++ lib.optionals config.dotfiles.profiles.micrantha.enable [
+    ]
+    ++ lib.optionals config.dotfiles.profiles.micrantha.enable [
       {
         condition = "gitdir:~/**/micrantha/**";
         path = "~/.config/git/conf.d/micrantha";
@@ -104,7 +105,8 @@ in
       core.pager = "bat -p";
       credential.helper = "!pass-git-helper $@";
       sequence.editor = gitEditor;
-    } // lib.optionalAttrs micranthaEnabled {
+    }
+    // lib.optionalAttrs micranthaEnabled {
       url."git+ssh://git@gitlab.com/micrantha" = {
         insteadOf = [
           "https://micrantha.com"

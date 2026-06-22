@@ -12,6 +12,10 @@
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    git-hooks = {
+      url = "github:cachix/git-hooks.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -21,6 +25,7 @@
       home-manager,
       hermes-agent,
       sops-nix,
+      git-hooks,
       ...
     }:
     let
@@ -87,10 +92,30 @@
         };
       };
 
-      checks.${system}.flake-script-executables = pkgs.runCommand "flake-script-executables" { nativeBuildInputs = [ pkgs.git ]; } ''
-        ${./scripts/verify-flake-script-executables.sh} ${self}
-        touch "$out"
-      '';
+      checks.${system} = {
+        flake-script-executables =
+          pkgs.runCommand "flake-script-executables" { nativeBuildInputs = [ pkgs.git ]; }
+            ''
+              ${./scripts/verify-flake-script-executables.sh} ${self}
+              touch "$out"
+            '';
+
+        pre-commit-check = git-hooks.lib.${system}.run {
+          src = self;
+          hooks = {
+            nixfmt.enable = true;
+          };
+        };
+      };
+
+      devShells.${system}.default =
+        let
+          inherit (self.checks.${system}.pre-commit-check) shellHook enabledPackages;
+        in
+        pkgs.mkShell {
+          inherit shellHook;
+          buildInputs = enabledPackages;
+        };
 
       packages.${system} = {
         hermes-agent = hermes-agent.packages.${system}.default;

@@ -35,8 +35,11 @@ in
       };
     };
 
-    xdg.configFile."alacritty/conf.d/base.toml".source = ../../files/home/.config/alacritty/conf.d/base.toml;
-    xdg.configFile."alacritty/adopted.d/machine.toml".source = adoptedProfiles.${config.dotfiles.alacritty.adoptedProfile};
-    xdg.configFile."alacritty/custom.d/00-empty.toml".source = ../../files/home/.config/alacritty/custom.d/empty.toml;
+    xdg.configFile."alacritty/conf.d/base.toml".source =
+      ../../files/home/.config/alacritty/conf.d/base.toml;
+    xdg.configFile."alacritty/adopted.d/machine.toml".source =
+      adoptedProfiles.${config.dotfiles.alacritty.adoptedProfile};
+    xdg.configFile."alacritty/custom.d/00-empty.toml".source =
+      ../../files/home/.config/alacritty/custom.d/empty.toml;
   };
 }

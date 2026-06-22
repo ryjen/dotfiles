@@ -5,7 +5,8 @@
   ...
 }:
 {
-  options.dotfiles.graphical.keyring.enable = lib.mkEnableOption "graphical Secret Service credential storage";
+  options.dotfiles.graphical.keyring.enable =
+    lib.mkEnableOption "graphical Secret Service credential storage";
 
   config = lib.mkIf config.dotfiles.graphical.keyring.enable {
     assertions = [

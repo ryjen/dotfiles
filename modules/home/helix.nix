@@ -24,15 +24,15 @@
         n = "move_line_down";
         e = "move_line_up";
         i = "move_char_right";
-        
+
         # Original n (search next) -> j
         j = "search_next";
         J = "search_prev";
-        
+
         # Original e (end of word) -> l
         l = "move_word_forward";
         L = "move_word_backward";
-        
+
         # Original i (insert) -> k
         k = "insert_mode";
         K = "insert_at_line_start";
