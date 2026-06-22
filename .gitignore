@@ -2,4 +2,5 @@
 *.asc
 result
 .codex/
+/.pre-commit-config.yaml
 home/ryjen/git-local.nix
