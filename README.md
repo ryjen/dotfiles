@@ -61,6 +61,8 @@ The layered home configuration contract lives in `docs/architecture/home-layerin
 
 User tool state, durable manifests, and package promotion are documented in `docs/user-tool-state.md`.
 
+Repo-local hook governance is documented in `docs/architecture/adr-0002-hook-governance.md`.
+
 ## Hyprland and Waybar ownership
 
 Hyprland and Waybar are managed as a session UX substrate rather than loose rice files.
@@ -157,6 +159,18 @@ Verify npm global environment files:
 
 ```bash
 bash scripts/verify-npm-global-env.sh
+```
+
+Install repo-local hooks through the development shell:
+
+```bash
+nix develop
+```
+
+Run managed hooks manually across the repo:
+
+```bash
+nix develop -c pre-commit run --all-files
 ```
 
 Apply Home Manager:
