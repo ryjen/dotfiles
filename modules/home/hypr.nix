@@ -1,4 +1,9 @@
-{ lib, config, pkgs, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 let
   adoptedProfiles = {
     dubnium = ../../files/home/.config/hypr/adopted.d/dubnium.conf;
@@ -8,20 +13,23 @@ let
 
   managedHyprConfig = builtins.readFile adoptedProfiles.${config.dotfiles.hypr.adoptedProfile};
 
-  defaultWallpapers = pkgs.runCommand "dubnium-default-wallpapers" {
-    nativeBuildInputs = [ pkgs.imagemagick ];
-  } ''
-    mkdir -p "$out"
+  defaultWallpapers =
+    pkgs.runCommand "dubnium-default-wallpapers"
+      {
+        nativeBuildInputs = [ pkgs.imagemagick ];
+      }
+      ''
+        mkdir -p "$out"
 
-    magick -size 2560x1440 gradient:"#020617-#0f766e" \
-      "$out/dubnium-teal.png"
+        magick -size 2560x1440 gradient:"#020617-#0f766e" \
+          "$out/dubnium-teal.png"
 
-    magick -size 2560x1440 gradient:"#111827-#6d28d9" \
-      "$out/dubnium-violet.png"
+        magick -size 2560x1440 gradient:"#111827-#6d28d9" \
+          "$out/dubnium-violet.png"
 
-    magick -size 2560x1440 gradient:"#0f172a-#b45309" \
-      "$out/dubnium-amber.png"
-  '';
+        magick -size 2560x1440 gradient:"#0f172a-#b45309" \
+          "$out/dubnium-amber.png"
+      '';
 
   managedScripts = [
     "dub-browser"
@@ -82,11 +90,15 @@ in
       source = ~/.config/hypr/custom.d/*.conf
     '';
 
-    xdg.configFile."hypr/adopted.d/machine.conf".source = adoptedProfiles.${config.dotfiles.hypr.adoptedProfile};
-    xdg.configFile."hypr/custom.d/00-empty.conf".source = ../../files/home/.config/hypr/custom.d/empty.conf;
+    xdg.configFile."hypr/adopted.d/machine.conf".source =
+      adoptedProfiles.${config.dotfiles.hypr.adoptedProfile};
+    xdg.configFile."hypr/custom.d/00-empty.conf".source =
+      ../../files/home/.config/hypr/custom.d/empty.conf;
     xdg.configFile."hypr/hyprpaper.conf".source = ../../files/home/.config/hypr/hyprpaper.conf;
-    xdg.configFile."hyprpaper/custom.d/00-empty.conf".source = ../../files/home/.config/hyprpaper/custom.d/empty.conf;
-    xdg.configFile."hyprpaper/adopted.d/00-empty.conf".source = ../../files/home/.config/hyprpaper/adopted.d/empty.conf;
+    xdg.configFile."hyprpaper/custom.d/00-empty.conf".source =
+      ../../files/home/.config/hyprpaper/custom.d/empty.conf;
+    xdg.configFile."hyprpaper/adopted.d/00-empty.conf".source =
+      ../../files/home/.config/hyprpaper/adopted.d/empty.conf;
 
     # Waybar does not use the configctl layer contract. Keep its native runtime
     # files managed directly until there is an explicit renderer that composes
@@ -101,13 +113,17 @@ in
     };
 
     xdg.configFile."mako/config".source = ../../files/home/.config/mako/config;
-    xdg.configFile."mako/custom.d/00-empty.conf".source = ../../files/home/.config/mako/custom.d/empty.conf;
-    xdg.configFile."mako/adopted.d/00-empty.conf".source = ../../files/home/.config/mako/adopted.d/empty.conf;
+    xdg.configFile."mako/custom.d/00-empty.conf".source =
+      ../../files/home/.config/mako/custom.d/empty.conf;
+    xdg.configFile."mako/adopted.d/00-empty.conf".source =
+      ../../files/home/.config/mako/adopted.d/empty.conf;
     xdg.configFile."wofi/config".source = ../../files/home/.config/wofi/config;
     xdg.configFile."eww/eww.yuck".source = ../../files/home/.config/eww/eww.yuck;
     xdg.configFile."eww/eww.scss".source = ../../files/home/.config/eww/eww.scss;
-    xdg.configFile."eww/custom.d/00-empty.conf".source = ../../files/home/.config/eww/custom.d/empty.conf;
-    xdg.configFile."eww/adopted.d/00-empty.conf".source = ../../files/home/.config/eww/adopted.d/empty.conf;
+    xdg.configFile."eww/custom.d/00-empty.conf".source =
+      ../../files/home/.config/eww/custom.d/empty.conf;
+    xdg.configFile."eww/adopted.d/00-empty.conf".source =
+      ../../files/home/.config/eww/adopted.d/empty.conf;
 
     home.file = managedFiles;
 

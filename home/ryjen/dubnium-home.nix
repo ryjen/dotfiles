@@ -4,12 +4,11 @@
   ...
 }:
 {
-  imports =
-    [
-      ./layers/graphical.nix
-      ./profiles/dubnium.nix
-    ]
-    ++ lib.optional (builtins.pathExists ./git-local.nix) ./git-local.nix;
+  imports = [
+    ./layers/graphical.nix
+    ./profiles/dubnium.nix
+  ]
+  ++ lib.optional (builtins.pathExists ./git-local.nix) ./git-local.nix;
 
   home.username = username;
   home.homeDirectory = "/home/${username}";

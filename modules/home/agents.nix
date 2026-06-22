@@ -68,7 +68,8 @@ in
   config = {
     home.packages = [
       agentsUpdate
-    ] ++ lib.optional config.dotfiles.agents.hermes.enable hermesPackage;
+    ]
+    ++ lib.optional config.dotfiles.agents.hermes.enable hermesPackage;
 
     home.file.".agents/.skill-lock.json".source = ../../files/home/.agents/.skill-lock.json;
     home.file.".hermes/config.yaml" = lib.mkIf config.dotfiles.agents.hermes.enable {
