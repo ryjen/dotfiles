@@ -11,6 +11,7 @@
     ./browser.nix
     ./byobu.nix
     ./common.nix
+    ./configctl.nix
     ./cowsay.nix
     ./devtools.nix
     ./direnv.nix

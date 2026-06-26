@@ -1,0 +1,8 @@
+schema_version = 1
+id = "npm-globals"
+kind = "npm-globals"
+enabled = true
+risk = ["network", "mutable-user-state"]
+manifest = "$HOME/.config/npm/global-packages.txt"
+prefix = "$XDG_DATA_HOME/npm"
+bin = "$XDG_DATA_HOME/npm/bin"
