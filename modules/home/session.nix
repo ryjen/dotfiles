@@ -30,6 +30,20 @@
       wofi
     ];
 
+    home.pointerCursor = {
+      gtk.enable = true;
+      x11.enable = true;
+      package = pkgs.adwaita-icon-theme;
+      name = "Adwaita";
+      size = 24;
+    };
+
+    gtk.cursorTheme = {
+      package = pkgs.adwaita-icon-theme;
+      name = "Adwaita";
+      size = 24;
+    };
+
     home.sessionVariables = {
       GIT_EDITOR = "nvim";
       PAGER = "bat -p";
@@ -39,6 +53,8 @@
       MOZ_ENABLE_WAYLAND = "1";
       MOZ_DBUS_REMOTE = "1";
       GTK_CSD = "0";
+      XCURSOR_THEME = "Adwaita";
+      XCURSOR_SIZE = "24";
       QT_QPA_PLATFORM = "wayland";
       QT_QPA_PLATFORMTHEME = "qt5ct";
       QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
