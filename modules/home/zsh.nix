@@ -42,7 +42,7 @@
       # options
       setopt globdots
       setopt auto_cd
-      setopt extended_glob
+      unsetopt extended_glob
       setopt hist_ignore_all_dups
       setopt hist_reduce_blanks
       setopt hist_verify
