@@ -5,3 +5,4 @@
 # explicit mutable user state and must not run from Home Manager activation.
 
 @openai/codex
+@bitwarden/cli
