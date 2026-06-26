@@ -119,14 +119,6 @@ in
   };
 
   home.file.".gitignore".source = ../../files/home/.gitignore;
-  xdg.configFile."git/local.config".text = ''
-    # Local Git configuration.
-    #
-    # Ownership:
-    # - machine-specific
-    # - writable by the user
-    # - never automatically promoted by configctl
-  '';
   xdg.configFile."git/commit-message".source = ../../files/home/.config/git/commit-message;
   xdg.configFile."git/project/hooks" = {
     source = ../../files/home/.local/share/git/hooks;
