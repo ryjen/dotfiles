@@ -94,6 +94,8 @@ in
       adoptedProfiles.${config.dotfiles.hypr.adoptedProfile};
     xdg.configFile."hypr/custom.d/00-empty.conf".source =
       ../../files/home/.config/hypr/custom.d/empty.conf;
+    xdg.configFile."hypr/custom.d/10-cursor.conf".source =
+      ../../files/home/.config/hypr/custom.d/cursor.conf;
     xdg.configFile."hypr/hyprpaper.conf".source = ../../files/home/.config/hypr/hyprpaper.conf;
     xdg.configFile."hyprpaper/custom.d/00-empty.conf".source =
       ../../files/home/.config/hyprpaper/custom.d/empty.conf;
