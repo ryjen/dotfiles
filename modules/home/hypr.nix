@@ -90,6 +90,12 @@ in
       source = ~/.config/hypr/custom.d/*.conf
     '';
 
+    # Hyprland sources local.conf and custom.d/*.conf; ensure local.conf exists
+    # so Hyprland does not emit a globbing/missing-file error on reload.
+    xdg.configFile."hypr/local.conf".text = ''
+      # Place host-local or user overrides here.
+    '';
+
     xdg.configFile."hypr/adopted.d/machine.conf".source =
       adoptedProfiles.${config.dotfiles.hypr.adoptedProfile};
     xdg.configFile."hypr/custom.d/00-empty.conf".source =

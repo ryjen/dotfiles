@@ -3,6 +3,6 @@
   ...
 }:
 {
-  home.file.".config/configctl/init.d/npm-globals.toml".source =
+  xdg.configFile."configctl/init.d/npm-globals.toml".source =
     ../../contracts/configctl/init/npm-globals.toml;
 }
