@@ -6,3 +6,4 @@
 
 @openai/codex
 @bitwarden/cli
+@tobilu/qmd

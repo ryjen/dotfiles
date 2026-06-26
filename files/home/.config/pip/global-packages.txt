@@ -1,0 +1,5 @@
+# Repo-managed pip global package manifest.
+#
+# This file declares durable pip global tools for configctl init contracts.
+# Comments and blank lines are allowed. Package install/update execution is
+# explicit mutable user state and must not run from Home Manager activation.

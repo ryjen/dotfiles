@@ -30,6 +30,7 @@
     ./npm.nix
     ./pass.nix
     ./pinentry.nix
+    ./pip.nix
     ./session.nix
     ./starship.nix
     ./taskwarrior.nix

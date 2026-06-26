@@ -1,0 +1,8 @@
+schemaVersion = 1
+id = "pip-globals"
+kind = "pip-globals"
+enabled = true
+risk = ["network", "mutable-user-state"]
+manifest = "$HOME/.config/pip/global-packages.txt"
+prefix = "$XDG_DATA_HOME/pip"
+bin = "$XDG_DATA_HOME/pip/bin"
