@@ -1,0 +1,10 @@
+schemaVersion = 1
+id = "codex-config"
+kind = "codex-config"
+enabled = true
+risk = ["mutable-user-state"]
+description = "Compose Codex runtime config from standard configctl layers."
+tags = ["codex", "developer-tools"]
+profile = "dubnium"
+root = "$XDG_CONFIG_HOME/codex"
+output = "$HOME/.codex/config.toml"
