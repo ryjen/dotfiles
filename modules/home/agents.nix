@@ -1,5 +1,5 @@
 {
-  antigravity-nix,
+  antigravity-nix ? null,
   hermes-agent,
   lib,
   pkgs,
@@ -9,7 +9,11 @@
 let
   system = pkgs.stdenv.hostPlatform.system;
   hermesPackage = hermes-agent.packages.${system}.default;
-  antigravityPackage = antigravity-nix.packages.${system}.google-antigravity-cli;
+  antigravityPackage =
+    if antigravity-nix != null then
+      antigravity-nix.packages.${system}.google-antigravity-cli
+    else
+      null;
   cfg = config.dotfiles.agents;
 in
 {
@@ -20,7 +24,7 @@ in
       enable = lib.mkEnableOption "Google Antigravity CLI";
 
       package = lib.mkOption {
-        type = lib.types.package;
+        type = lib.types.nullOr lib.types.package;
         default = antigravityPackage;
         description = "Google Antigravity CLI package to install.";
       };
@@ -28,6 +32,13 @@ in
   };
 
   config = {
+    assertions = [
+      {
+        assertion = !cfg.antigravity.enable || cfg.antigravity.package != null;
+        message = "dotfiles.agents.antigravity.enable requires the antigravity-nix flake input or an explicit dotfiles.agents.antigravity.package.";
+      }
+    ];
+
     home.packages =
       lib.optional cfg.hermes.enable hermesPackage
       ++ lib.optional cfg.antigravity.enable cfg.antigravity.package;
