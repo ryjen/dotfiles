@@ -1,4 +1,5 @@
 {
+  antigravity-nix,
   hermes-agent,
   lib,
   pkgs,
@@ -6,15 +7,32 @@
   ...
 }:
 let
-  hermesPackage = hermes-agent.packages.${pkgs.stdenv.hostPlatform.system}.default;
+  system = pkgs.stdenv.hostPlatform.system;
+  hermesPackage = hermes-agent.packages.${system}.default;
+  antigravityPackage = antigravity-nix.packages.${system}.google-antigravity-cli;
+  cfg = config.dotfiles.agents;
 in
 {
-  options.dotfiles.agents.hermes.enable = lib.mkEnableOption "Hermes agent package and config";
+  options.dotfiles.agents = {
+    hermes.enable = lib.mkEnableOption "Hermes agent package and config";
+
+    antigravity = {
+      enable = lib.mkEnableOption "Google Antigravity CLI";
+
+      package = lib.mkOption {
+        type = lib.types.package;
+        default = antigravityPackage;
+        description = "Google Antigravity CLI package to install.";
+      };
+    };
+  };
 
   config = {
-    home.packages = lib.optional config.dotfiles.agents.hermes.enable hermesPackage;
+    home.packages =
+      lib.optional cfg.hermes.enable hermesPackage
+      ++ lib.optional cfg.antigravity.enable cfg.antigravity.package;
 
-    home.file.".hermes/config.yaml" = lib.mkIf config.dotfiles.agents.hermes.enable {
+    home.file.".hermes/config.yaml" = lib.mkIf cfg.hermes.enable {
       source = ../../files/home/.hermes/config.yaml;
     };
 
