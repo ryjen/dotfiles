@@ -45,9 +45,7 @@ in
     xdg.configFile."codex/custom.d/.keep".source = ../../files/home/.config/codex/custom.d/.keep;
     xdg.configFile."codex/README.md".source = ../../files/home/.config/codex/README.md;
 
-    home.activation.bootstrapCodexConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-      ${codexBootstrapConfig}/bin/codex-bootstrap-config
-    '';
+    home.activation.bootstrapCodexConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] (lib.getExe codexBootstrapConfig);
 
     home.file.".codex/rules/default.rules".source = ../../files/home/.codex/rules/default.rules;
   };
