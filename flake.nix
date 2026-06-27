@@ -69,20 +69,18 @@
               home-manager.extraSpecialArgs = {
                 inherit self username hermes-agent antigravity-nix;
               };
-              home-manager.users = {
-                ryjen = {
-                  imports = [
-                    profileModule
-                    sops-nix.homeManagerModules.sops
-                  ];
-                };
+              home-manager.users.${username} = {
+                imports = [
+                  profileModule
+                  sops-nix.homeManagerModules.sops
+                ];
               };
             }
           ];
         };
     in
     {
-      apps.x86_64-linux = {
+      apps.${system} = {
         verify-container = {
           type = "app";
           program = "${./scripts/verify-in-container.sh}";
@@ -99,7 +97,7 @@
         };
       };
 
-      checks.x86_64-linux = {
+      checks.${system} = {
         flake-script-executables =
           pkgs.runCommand "flake-script-executables" { nativeBuildInputs = [ pkgs.git ]; }
             ''
@@ -107,7 +105,7 @@
               touch "$out"
             '';
 
-        pre-commit-check = git-hooks.lib.x86_64-linux.run {
+        pre-commit-check = git-hooks.lib.${system}.run {
           src = self;
           hooks = {
             nixfmt.enable = true;
@@ -115,28 +113,28 @@
         };
       };
 
-      devShells.x86_64-linux.default =
+      devShells.${system}.default =
         let
-          inherit (self.checks.x86_64-linux.pre-commit-check) shellHook enabledPackages;
+          inherit (self.checks.${system}.pre-commit-check) shellHook enabledPackages;
         in
         pkgs.mkShell {
           inherit shellHook;
           buildInputs = enabledPackages;
         };
 
-      packages.x86_64-linux = {
-        hermes-agent = hermes-agent.packages.x86_64-linux.default;
+      packages.${system} = {
+        hermes-agent = hermes-agent.packages.${system}.default;
       };
 
       nixosConfigurations.nixos = mkNixosConfig ./home/ryjen/home.nix;
       nixosConfigurations.verify = mkNixosConfig ./home/ryjen/verify-home.nix;
 
-      homeConfigurations."ryjen@nixos" = mkHomeConfig ./home/ryjen/home.nix;
-      homeConfigurations."ryjen@verify" = mkHomeConfig ./home/ryjen/verify-home.nix;
-      homeConfigurations."ryjen@headless" = mkHomeConfig ./home/ryjen/headless-home.nix;
-      homeConfigurations."ryjen@wsl" = mkHomeConfig ./home/ryjen/wsl-home.nix;
-      homeConfigurations."ryjen@dubnium" = mkHomeConfig ./home/ryjen/dubnium-home.nix;
-      homeConfigurations."ryjen@technetium" = mkHomeConfig ./home/ryjen/technetium-home.nix;
+      homeConfigurations."${username}@nixos" = mkHomeConfig ./home/ryjen/home.nix;
+      homeConfigurations."${username}@verify" = mkHomeConfig ./home/ryjen/verify-home.nix;
+      homeConfigurations."${username}@headless" = mkHomeConfig ./home/ryjen/headless-home.nix;
+      homeConfigurations."${username}@wsl" = mkHomeConfig ./home/ryjen/wsl-home.nix;
+      homeConfigurations."${username}@dubnium" = mkHomeConfig ./home/ryjen/dubnium-home.nix;
+      homeConfigurations."${username}@technetium" = mkHomeConfig ./home/ryjen/technetium-home.nix;
 
       nixosModules.dubnium-home-manager =
         {
@@ -157,17 +155,12 @@
             inherit self hermes-agent antigravity-nix;
             username = dubniumUsername;
           };
-          home-manager.users = builtins.listToAttrs [
-            {
-              name = dubniumUsername;
-              value = {
-                imports = [
-                  ./home/ryjen/dubnium-home.nix
-                  sops-nix.homeManagerModules.sops
-                ];
-              };
-            }
-          ];
+          home-manager.users.${dubniumUsername} = {
+            imports = [
+              ./home/ryjen/dubnium-home.nix
+              sops-nix.homeManagerModules.sops
+            ];
+          };
         };
     };
 }
