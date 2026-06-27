@@ -29,27 +29,28 @@ in
     };
   };
 
-  config = {
-    home.packages =
-      lib.optional cfg.hermes.enable hermesPackage
-      ++ lib.optional googleAgentCfg.enable googleAgentCfg.package;
+  config = lib.mkMerge [
+    {
+      home.packages =
+        lib.optional cfg.hermes.enable hermesPackage
+        ++ lib.optional googleAgentCfg.enable googleAgentCfg.package;
 
-    home.sessionVariables = lib.mkIf cfg.hermes.enable {
-      HERMES_CONFIG = "${config.home.homeDirectory}/.hermes/config.toml";
-    };
+      home.sessionVariables = lib.mkIf cfg.hermes.enable {
+        HERMES_CONFIG = "${config.home.homeDirectory}/.hermes/config.toml";
+      };
 
-    xdg.configFile."codex/adopted.d/00-managed.toml".source =
-      ../../files/home/.config/codex/adopted.d/00-managed.toml;
-    xdg.configFile."codex/custom.d/README.md".source =
-      ../../files/home/.config/codex/custom.d/README.md;
-    xdg.configFile."codex/README.md".source = ../../files/home/.config/codex/README.md;
-
-    xdg.configFile = lib.mkIf cfg.hermes.enable {
-      "hermes/adopted.d/00-managed.toml".source =
+      xdg.configFile."codex/adopted.d/00-managed.toml".source =
+        ../../files/home/.config/codex/adopted.d/00-managed.toml;
+      xdg.configFile."codex/custom.d/README.md".source =
+        ../../files/home/.config/codex/custom.d/README.md;
+      xdg.configFile."codex/README.md".source = ../../files/home/.config/codex/README.md;
+    }
+    (lib.mkIf cfg.hermes.enable {
+      xdg.configFile."hermes/adopted.d/00-managed.toml".source =
         ../../files/home/.config/hermes/adopted.d/00-managed.toml;
-      "hermes/custom.d/README.md".source =
+      xdg.configFile."hermes/custom.d/README.md".source =
         ../../files/home/.config/hermes/custom.d/README.md;
-      "hermes/README.md".source = ../../files/home/.config/hermes/README.md;
-    };
-  };
+      xdg.configFile."hermes/README.md".source = ../../files/home/.config/hermes/README.md;
+    })
+  ];
 }
