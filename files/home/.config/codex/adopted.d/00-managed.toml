@@ -11,6 +11,9 @@ trust_level = "trusted"
 [projects."/home/ryjen/.local/src/dotfiles"]
 trust_level = "trusted"
 
+[projects."/home/ryjen/.local/src/dubnium"]
+trust_level = "trusted"
+
 [projects."/home/ryjen/.local/share/dotfiles/mcp/.local/share/mcp"]
 trust_level = "trusted"
 
