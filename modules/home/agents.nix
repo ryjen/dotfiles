@@ -18,14 +18,6 @@ let
     ];
     text = builtins.readFile ../../scripts/home/agents-update.sh;
   };
-
-  codexBootstrapConfig = pkgs.writeShellApplication {
-    name = "codex-bootstrap-config";
-    runtimeInputs = with pkgs; [
-      coreutils
-    ];
-    text = builtins.readFile ../../scripts/home/codex-bootstrap-config.sh;
-  };
 in
 {
   options.dotfiles.agents.hermes.enable = lib.mkEnableOption "Hermes agent package and config";
@@ -44,10 +36,6 @@ in
     xdg.configFile."codex/adopted.d/00-managed.toml".source = ../../files/home/.config/codex/adopted.d/00-managed.toml;
     xdg.configFile."codex/custom.d/README.md".source = ../../files/home/.config/codex/custom.d/README.md;
     xdg.configFile."codex/README.md".source = ../../files/home/.config/codex/README.md;
-
-    home.activation.bootstrapCodexConfig = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
-      run ${lib.getExe codexBootstrapConfig}
-    '';
 
     home.file.".codex/rules/default.rules".source = ../../files/home/.codex/rules/default.rules;
   };
