@@ -1,4 +1,5 @@
 schemaVersion = 1
+id = "variety-wallpaper"
 tool = "variety"
 owner = "dotfiles"
 profile = "workstation"
