@@ -1,0 +1,8 @@
+schemaVersion = 1
+id = "codex-config"
+kind = "codex-config"
+enabled = true
+risk = ["mutable-user-state"]
+tags = ["codex", "developer-tools"]
+root = "$XDG_CONFIG_HOME/codex"
+output = "$HOME/.codex/config.toml"
