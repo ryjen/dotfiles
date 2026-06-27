@@ -24,6 +24,5 @@ in
       ../../files/home/.config/codex/custom.d/README.md;
     xdg.configFile."codex/README.md".source = ../../files/home/.config/codex/README.md;
 
-    home.file.".codex/rules/default.rules".source = ../../files/home/.codex/rules/default.rules;
   };
 }
