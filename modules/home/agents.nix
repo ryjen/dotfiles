@@ -44,6 +44,8 @@ in
 
     xdg.configFile."hermes/adopted.d/00-managed.toml".source =
       ../../files/home/.config/hermes/adopted.d/00-managed.toml;
+    xdg.configFile."hermes/adopted.d/90-antigravity.toml".source =
+      ../../files/home/.config/hermes/adopted.d/90-antigravity.toml;
     xdg.configFile."hermes/custom.d/README.md".source =
       ../../files/home/.config/hermes/custom.d/README.md;
     xdg.configFile."hermes/README.md".source = ../../files/home/.config/hermes/README.md;
