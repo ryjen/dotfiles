@@ -7,28 +7,13 @@
 }:
 let
   hermesPackage = hermes-agent.packages.${pkgs.system}.default;
-
-  agentsUpdate = pkgs.writeShellApplication {
-    name = "agents-update";
-    runtimeInputs = with pkgs; [
-      coreutils
-      git
-      jq
-      rsync
-    ];
-    text = builtins.readFile ../../scripts/home/agents-update.sh;
-  };
 in
 {
   options.dotfiles.agents.hermes.enable = lib.mkEnableOption "Hermes agent package and config";
 
   config = {
-    home.packages = [
-      agentsUpdate
-    ]
-    ++ lib.optional config.dotfiles.agents.hermes.enable hermesPackage;
+    home.packages = lib.optional config.dotfiles.agents.hermes.enable hermesPackage;
 
-    home.file.".agents/.skill-lock.json".source = ../../files/home/.agents/.skill-lock.json;
     home.file.".hermes/config.yaml" = lib.mkIf config.dotfiles.agents.hermes.enable {
       source = ../../files/home/.hermes/config.yaml;
     };
