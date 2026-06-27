@@ -7,4 +7,5 @@
   dotfiles.host.role = "workstation";
   dotfiles.profiles.workstation.enable = true;
   dotfiles.agents.hermes.enable = true;
+  dotfiles.agents.antigravity.enable = true;
 }

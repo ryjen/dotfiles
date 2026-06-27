@@ -8,6 +8,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     hermes-agent.url = "github:NousResearch/hermes-agent";
+    antigravity-nix = {
+      url = "github:jacopone/antigravity-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     sops-nix = {
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -24,6 +28,7 @@
       nixpkgs,
       home-manager,
       hermes-agent,
+      antigravity-nix,
       sops-nix,
       git-hooks,
       ...
@@ -40,7 +45,7 @@
         home-manager.lib.homeManagerConfiguration {
           inherit pkgs;
           extraSpecialArgs = {
-            inherit self username hermes-agent;
+            inherit self username hermes-agent antigravity-nix;
           };
           modules = [
             profileModule
@@ -52,7 +57,7 @@
         nixpkgs.lib.nixosSystem {
           inherit system;
           specialArgs = {
-            inherit self username hermes-agent;
+            inherit self username hermes-agent antigravity-nix;
           };
           modules = [
             ./hosts/nixos/configuration.nix
@@ -62,7 +67,7 @@
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
               home-manager.extraSpecialArgs = {
-                inherit self username hermes-agent;
+                inherit self username hermes-agent antigravity-nix;
               };
               home-manager.users.${username} = {
                 imports = [
@@ -147,7 +152,7 @@
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
           home-manager.extraSpecialArgs = {
-            inherit self hermes-agent;
+            inherit self hermes-agent antigravity-nix;
             username = dubniumUsername;
           };
           home-manager.users.${dubniumUsername} = {
