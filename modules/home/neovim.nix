@@ -8,6 +8,8 @@
     defaultEditor = true;
     viAlias = true;
     vimAlias = true;
+    withRuby = true;
+    withPython3 = true;
 
     # External tools used by the Lua config and plugin integrations.
     # Keep this list explicit so Neovim behavior stays reproducible under Nix.
@@ -25,7 +27,7 @@
 
       # Formatters & Linters
       stylua
-      nixfmt-rfc-style
+      nixfmt
       black
       ruff
       shfmt

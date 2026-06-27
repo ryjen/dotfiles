@@ -6,7 +6,7 @@
   ...
 }:
 let
-  hermesPackage = hermes-agent.packages.${pkgs.system}.default;
+  hermesPackage = hermes-agent.packages.${pkgs.stdenv.hostPlatform.system}.default;
 in
 {
   options.dotfiles.agents.hermes.enable = lib.mkEnableOption "Hermes agent package and config";

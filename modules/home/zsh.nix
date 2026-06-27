@@ -1,15 +1,16 @@
 {
+  config,
   pkgs,
   ...
 }:
 {
   home.file.".zshenv".text = ''
-    export ZDOTDIR="$HOME/.config/zsh"
+    export ZDOTDIR="${config.xdg.configHome}/zsh"
   '';
 
   programs.zsh = {
     enable = true;
-    dotDir = ".config/zsh";
+    dotDir = "${config.xdg.configHome}/zsh";
     enableCompletion = true;
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
