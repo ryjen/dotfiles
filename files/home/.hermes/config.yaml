@@ -1,17 +1,17 @@
 model:
   provider: vllm
-  default: Qwen/Qwen2.5-Coder-14B-Instruct
-  base_url: http://ai.dubnium:8000/v1
+  default: Qwen3-14B
+  base_url: http://127.0.0.1:8000/v1
 
 providers:
   vllm:
     name: Dubnium vLLM
-    base_url: http://ai.dubnium:8000/v1
-    default_model: Qwen/Qwen2.5-Coder-14B-Instruct
+    base_url: http://127.0.0.1:8000/v1
+    default_model: Qwen3-14B
     transport: chat_completions
     models:
-      Qwen/Qwen2.5-Coder-14B-Instruct:
-        context_length: 8192
+      Qwen3-14B:
+        context_length: 65536
 
 agent:
   max_turns: 90

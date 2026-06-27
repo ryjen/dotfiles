@@ -45,7 +45,12 @@
         home-manager.lib.homeManagerConfiguration {
           inherit pkgs;
           extraSpecialArgs = {
-            inherit self username hermes-agent antigravity-nix;
+            inherit
+              self
+              username
+              hermes-agent
+              antigravity-nix
+              ;
           };
           modules = [
             profileModule
@@ -57,7 +62,12 @@
         nixpkgs.lib.nixosSystem {
           inherit system;
           specialArgs = {
-            inherit self username hermes-agent antigravity-nix;
+            inherit
+              self
+              username
+              hermes-agent
+              antigravity-nix
+              ;
           };
           modules = [
             ./hosts/nixos/configuration.nix
@@ -67,7 +77,12 @@
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
               home-manager.extraSpecialArgs = {
-                inherit self username hermes-agent antigravity-nix;
+                inherit
+                  self
+                  username
+                  hermes-agent
+                  antigravity-nix
+                  ;
               };
               home-manager.users.${username} = {
                 imports = [
