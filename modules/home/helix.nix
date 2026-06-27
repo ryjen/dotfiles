@@ -43,7 +43,7 @@
         {
           name = "nix";
           auto-format = true;
-          formatter.command = "${pkgs.nixfmt-rfc-style}/bin/nixfmt";
+          formatter.command = "${pkgs.nixfmt}/bin/nixfmt";
         }
       ];
     };
@@ -52,7 +52,7 @@
   # Extra LSPs that Helix uses
   home.packages = with pkgs; [
     nil
-    nixfmt-rfc-style
+    nixfmt
     marksman # Markdown LSP
     vscode-langservers-extracted # HTML/CSS/JSON
   ];
