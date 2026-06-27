@@ -15,13 +15,15 @@ The generated runtime output is:
 ~/.codex/config.toml
 ```
 
-Home Manager bootstraps `~/.codex/config.toml` during activation so Codex works immediately after flows such as:
+Home Manager installs only the source layers and init contract. Runtime composition is owned by `configctl`.
+
+Until Home Manager is wired to call `configctl` directly, generate the runtime file with:
 
 ```text
-home-manager switch --flake .#USERNAME@nixos
+configctl init apply codex-config --allow mutable-user-state --yes
 ```
 
-The activation bootstrap mirrors the `configctl` composition order:
+`configctl` composes layers in this order:
 
 1. `~/.config/codex/adopted.d/*.toml`, lexically sorted
 2. `~/.config/codex/custom.d/*.toml`, lexically sorted
@@ -29,6 +31,6 @@ The activation bootstrap mirrors the `configctl` composition order:
 
 `local.toml` is intentionally not installed by Home Manager. It is local mutable state and may be created by `configctl adopt codex` or by the user.
 
-The runtime file is written as a normal user-writable file, not as a symlink into the Nix store. This preserves the ability for Codex and `configctl` to update mutable state such as project trust.
+The runtime file should be a normal user-writable file, not a symlink into the Nix store. This preserves the ability for Codex and `configctl` to update mutable state such as project trust.
 
-Do not manage `~/.codex/config.toml` directly with `home.file`. `configctl` remains the canonical reconciliation path; Home Manager only bootstraps the runtime file so Codex has managed defaults immediately after activation.
+Do not manage `~/.codex/config.toml` directly with `home.file`.
