@@ -1,4 +1,5 @@
-args@{
+{
+  antigravity-nix,
   hermes-agent,
   lib,
   pkgs,
@@ -8,11 +9,8 @@ args@{
 let
   system = pkgs.stdenv.hostPlatform.system;
   hermesPackage = hermes-agent.packages.${system}.default;
-  googleAgent = "anti" + "gravity";
-  googleAgentInput = args.${googleAgent + "-nix"};
-  googleAgentPackage = googleAgentInput.packages.${system}.${"google-" + googleAgent + "-cli"};
+  antigravityPackage = antigravity-nix.packages.${system}.google-antigravity-cli;
   cfg = config.dotfiles.agents;
-  googleAgentCfg = cfg.${googleAgent};
   hermesRoot = ../../files/home/.config/hermes;
   hermesAdoptedDir = "${hermesRoot}/adopted.d";
   hermesAdoptedFiles = lib.filterAttrs (name: type: type == "regular" && lib.hasSuffix ".toml" name) (
@@ -29,13 +27,13 @@ in
   options.dotfiles.agents = {
     hermes.enable = lib.mkEnableOption "Hermes agent package and config";
 
-    ${googleAgent} = {
-      enable = lib.mkEnableOption "Google agent CLI";
+    antigravity = {
+      enable = lib.mkEnableOption "Google Antigravity CLI";
 
       package = lib.mkOption {
         type = lib.types.package;
-        default = googleAgentPackage;
-        description = "Google agent CLI package to install.";
+        default = antigravityPackage;
+        description = "Google Antigravity CLI package to install.";
       };
     };
   };
@@ -44,7 +42,7 @@ in
     {
       home.packages =
         lib.optional cfg.hermes.enable hermesPackage
-        ++ lib.optional googleAgentCfg.enable googleAgentCfg.package;
+        ++ lib.optional cfg.antigravity.enable cfg.antigravity.package;
 
       home.sessionVariables = lib.mkIf cfg.hermes.enable {
         HERMES_CONFIG = "${config.home.homeDirectory}/.hermes/config.toml";
