@@ -1,0 +1,10 @@
+schemaVersion = 1
+id = "hermes-config"
+kind = "hermes-config"
+enabled = true
+risk = ["mutable-user-state"]
+tags = ["hermes", "ai", "developer-tools"]
+root = "$XDG_CONFIG_HOME/hermes"
+output = "$HOME/.hermes/config.toml"
+desktopVllmQwenModel = "Qwen/Qwen2.5-7B-Instruct-1M"
+computeVllmQwenModel = "/var/lib/dubnium/models/Qwen3-14B"
