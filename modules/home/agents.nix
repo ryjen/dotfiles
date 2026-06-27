@@ -13,6 +13,17 @@ let
   googleAgentPackage = googleAgentInput.packages.${system}.${"google-" + googleAgent + "-cli"};
   cfg = config.dotfiles.agents;
   googleAgentCfg = cfg.${googleAgent};
+  hermesRoot = ../../files/home/.config/hermes;
+  hermesAdoptedDir = "${hermesRoot}/adopted.d";
+  hermesAdoptedFiles = lib.filterAttrs (name: type: type == "regular" && lib.hasSuffix ".toml" name) (
+    builtins.readDir hermesAdoptedDir
+  );
+  hermesAdoptedConfigFiles = lib.mapAttrs' (name: _type: {
+    name = "hermes/adopted.d/${name}";
+    value = {
+      source = "${hermesAdoptedDir}/${name}";
+    };
+  }) hermesAdoptedFiles;
 in
 {
   options.dotfiles.agents = {
@@ -46,11 +57,11 @@ in
       xdg.configFile."codex/README.md".source = ../../files/home/.config/codex/README.md;
     }
     (lib.mkIf cfg.hermes.enable {
-      xdg.configFile."hermes/adopted.d/00-managed.toml".source =
-        ../../files/home/.config/hermes/adopted.d/00-managed.toml;
-      xdg.configFile."hermes/custom.d/README.md".source =
-        ../../files/home/.config/hermes/custom.d/README.md;
-      xdg.configFile."hermes/README.md".source = ../../files/home/.config/hermes/README.md;
+      xdg.configFile = hermesAdoptedConfigFiles // {
+        "hermes/custom.d/README.md".source =
+          ../../files/home/.config/hermes/custom.d/README.md;
+        "hermes/README.md".source = ../../files/home/.config/hermes/README.md;
+      };
     })
   ];
 }
