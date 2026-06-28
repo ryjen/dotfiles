@@ -1,16 +1,16 @@
 model:
-  provider: vllm
-  default: Qwen3-14B
+  provider: llm-local
+  default: dubnium-local
   base_url: http://127.0.0.1:8000/v1
 
 providers:
-  vllm:
-    name: Dubnium vLLM
+  llm-local:
+    name: Dubnium llm.service
     base_url: http://127.0.0.1:8000/v1
-    default_model: Qwen3-14B
+    default_model: dubnium-local
     transport: chat_completions
     models:
-      Qwen3-14B:
+      dubnium-local:
         context_length: 65536
 
 agent:

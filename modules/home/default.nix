@@ -26,6 +26,7 @@
     ./lsd.nix
     ./lolcat.nix
     ./micrantha.nix
+    ./mise.nix
     ./neovim.nix
     ./npm.nix
     ./pass.nix

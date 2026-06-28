@@ -48,3 +48,15 @@
 - Secrets are local-first; use optional encrypted `sops-nix` only when repo-managed secrets are required.
 - Do not commit Codex auth, caches, histories, SQLite state, or runtime logs.
 - Keep agent skills updatable with `agents-update`; do not vendor full external skill repos unless needed.
+
+## Agent Skills
+
+This repo maintains the following agent skills under `agents/skills/`:
+
+- **`multi-agent-worktrees`** (`agents/skills/multi-agent-worktrees/`): Extends standard worktree isolation with multi-agent session detection, `<agent-id>-<branch>` naming, sentinel-based status/ heartbeat tracking, and staleness detection. Use this skill when working on repos shared by multiple agents or sessions. The init contract at `contracts/configctl/init/multi-agent-worktrees.toml` describes the deployment target (`~/.agents/skills/multi-agent-worktrees/`).
+
+To deploy a skill to `~/.agents/skills/`:
+  ```bash
+  configctl init multi-agent-worktrees  # when handler exists
+  # or manually: cp -r agents/skills/<name> ~/.agents/skills/
+  ```

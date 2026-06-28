@@ -1,0 +1,22 @@
+schemaVersion = 1
+id = "multi-agent-worktrees"
+tool = "multi-agent-worktrees"
+owner = "dotfiles"
+profile = "workstation"
+kind = "skill-deployment"
+enabled = true
+risk = ["mutable-user-state"]
+status = "active"
+current_runtime_owner = "dotfiles"
+target_runtime_owner = "configctl-init"
+executor_may_validate = true
+executor_may_initialize = false
+description = "Skill: multi-agent worktree coordination with naming convention, sentinel-based status tracking, and session detection."
+
+network = false
+arbitrary_commands = false
+destructive = false
+dry_run_required = true
+
+source = "agents/skills/multi-agent-worktrees/"
+target = "$HOME/.agents/skills/multi-agent-worktrees/"
