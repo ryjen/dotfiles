@@ -36,6 +36,7 @@
     ./starship.nix
     ./taskwarrior.nix
     ./tmux.nix
+    ./vscode.nix
     ./zsh.nix
   ]
   ++ lib.optional (builtins.pathExists ../../secrets.yaml) ./secrets.nix;
