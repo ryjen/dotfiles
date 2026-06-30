@@ -1,0 +1,22 @@
+model:
+  provider: llm-local
+  default: dubnium-local
+  base_url: http://127.0.0.1:8000/v1
+
+providers:
+  llm-local:
+    name: Dubnium llm.service
+    base_url: http://127.0.0.1:8000/v1
+    default_model: dubnium-local
+    transport: chat_completions
+    models:
+      dubnium-local:
+        context_length: 65536
+
+agent:
+  max_turns: 90
+
+display:
+  personality: pragmatic
+  show_reasoning: false
+  streaming: true

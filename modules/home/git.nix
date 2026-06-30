@@ -75,10 +75,7 @@ in
       push.default = "simple";
       rebase.autoStash = true;
       user.useConfigOnly = true;
-      init = {
-        defaultBranch = "main";
-        templateDir = "~/.config/git/project";
-      };
+      init.defaultBranch = "main";
       filter.lfs = {
         clean = "git-lfs clean -- %f";
         smudge = "git-lfs smudge -- %f";
@@ -120,8 +117,4 @@ in
 
   home.file.".gitignore".source = ../../files/home/.gitignore;
   xdg.configFile."git/commit-message".source = ../../files/home/.config/git/commit-message;
-  xdg.configFile."git/project/hooks" = {
-    source = ../../files/home/.local/share/git/hooks;
-    recursive = true;
-  };
 }

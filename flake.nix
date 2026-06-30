@@ -123,7 +123,36 @@
         pre-commit-check = git-hooks.lib.${system}.run {
           src = self;
           hooks = {
+            # Nix
             nixfmt.enable = true;
+            statix.enable = true;
+            deadnix.enable = true;
+
+            # Shell
+            shellcheck.enable = true;
+            shfmt.enable = true;
+
+            # Git / file integrity
+            check-merge-conflicts.enable = true;
+            check-added-large-files.enable = true;
+            check-case-conflicts.enable = true;
+            check-json.enable = true;
+            check-toml.enable = true;
+            check-yaml.enable = true;
+            end-of-file-fixer.enable = true;
+            trim-trailing-whitespace.enable = true;
+            mixed-line-endings.enable = true;
+            detect-private-keys.enable = true;
+            check-symlinks.enable = true;
+            check-executables-have-shebangs.enable = true;
+            forbid-new-submodules.enable = true;
+            no-commit-to-branch.enable = true;
+
+            # Spelling
+            typos.enable = true;
+
+            # GitHub Actions
+            actionlint.enable = true;
           };
         };
       };
@@ -131,9 +160,15 @@
       devShells.${system}.default =
         let
           inherit (self.checks.${system}.pre-commit-check) shellHook enabledPackages;
+          prePushHook = pkgs.writeShellScriptBin "pre-push-hook" (builtins.readFile ./scripts/pre-push-hook.sh);
         in
         pkgs.mkShell {
-          inherit shellHook;
+          shellHook = shellHook + ''
+            # Install custom pre-push hook (WIP, tag, submodule checks)
+            mkdir -p .git/hooks
+            cp -f ${prePushHook}/bin/pre-push-hook .git/hooks/pre-push
+            chmod +x .git/hooks/pre-push
+          '';
           buildInputs = enabledPackages;
         };
 

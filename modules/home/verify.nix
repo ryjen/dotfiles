@@ -19,6 +19,7 @@
     ./lsd.nix
     ./lolcat.nix
     ./micrantha.nix
+    ./mise.nix
     ./pass.nix
     ./session.nix
     ./starship.nix

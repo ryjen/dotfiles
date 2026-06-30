@@ -26,6 +26,7 @@
     ./lsd.nix
     ./lolcat.nix
     ./micrantha.nix
+    ./mise.nix
     ./neovim.nix
     ./npm.nix
     ./pass.nix
@@ -35,7 +36,9 @@
     ./starship.nix
     ./taskwarrior.nix
     ./tmux.nix
+    ./vscode.nix
     ./zsh.nix
-  ]
+    ./zellij.nix
+    ]
   ++ lib.optional (builtins.pathExists ../../secrets.yaml) ./secrets.nix;
 }

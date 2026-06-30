@@ -14,9 +14,7 @@ Layer order:
 2. `custom.d/*.toml`
 3. `local.toml`
 
-The managed provider layer keeps Hermes pointed at stable provider boundaries:
+Managed providers:
 
 - `nous-cloud`: default cloud provider.
-- `local`: local OpenAI-compatible Dubnium LLM service at `http://127.0.0.1:8000/v1` using model alias `dubnium-local`.
-
-Backend-specific local runtimes such as vLLM, llama.cpp, or Ollama stay behind the local service boundary.
+- `local`: local OpenAI-compatible provider at `http://127.0.0.1:8000/v1` using model alias `dubnium-local`.
