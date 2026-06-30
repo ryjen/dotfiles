@@ -1,0 +1,16 @@
+[hermes]
+default_provider = "nous-cloud"
+approval_mode = "confirm-mutations"
+transcript_mode = "off"
+
+[providers.nous-cloud]
+enabled = true
+type = "nous-cloud"
+model = "default"
+api_key_env = "NOUS_API_KEY"
+
+[providers.local]
+enabled = true
+type = "openai-compatible"
+base_url = "http://127.0.0.1:8000/v1"
+model = "dubnium-local"
