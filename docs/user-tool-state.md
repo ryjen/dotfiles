@@ -207,5 +207,5 @@ Run repo-side contract validation after editing init contracts or package manife
 
 ```sh
 nix run .#verify-configctl-contracts
-nix flake check --no-build
+nix build .#checks.x86_64-linux.configctl-contracts
 ```
