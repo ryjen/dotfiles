@@ -27,6 +27,7 @@ SUPPORTED_RISKS = {
 
 SUPPORTED_ACTIVE_KINDS = {
     "npm-globals",
+    "skill-deployment",
 }
 
 
@@ -125,6 +126,25 @@ def validate_npm_globals(path: Path, contract: dict[str, Any]) -> None:
         fail(f"{path}: npm-globals missing required risks: {', '.join(missing)}")
 
 
+def validate_skill_deployment(path: Path, contract: dict[str, Any]) -> None:
+    source = require_type(contract, path, "source", str)
+    target = require_type(contract, path, "target", str)
+
+    if Path(source).is_absolute() or source.startswith("../"):
+        fail(f"{path}: source must be a repository-relative path")
+    if not (ROOT / source).exists():
+        fail(f"{path}: source does not exist: {source}")
+    if not target.startswith(("$HOME/", "~/")):
+        fail(f"{path}: target must be HOME-relative")
+
+    if contract.get("executor_may_initialize") is not False:
+        fail(f"{path}: skill-deployment contracts are documentation-only until a handler exists")
+
+    risks = set(contract["risk"])
+    if risks != {"mutable-user-state"}:
+        fail(f"{path}: skill-deployment risk must be exactly mutable-user-state")
+
+
 def main() -> int:
     if not INIT_DIR.is_dir():
         fail(f"missing init contract directory: {INIT_DIR.relative_to(ROOT)}")
@@ -141,6 +161,8 @@ def main() -> int:
         _contract_id, kind, enabled = validate_common(path, contract, seen_ids)
         if kind == "npm-globals":
             validate_npm_globals(path, contract)
+        elif kind == "skill-deployment":
+            validate_skill_deployment(path, contract)
         if enabled:
             active_contracts += 1
 
