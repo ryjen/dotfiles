@@ -2,15 +2,161 @@
 
 This schema documents the declarative contract format under `contracts/configctl/`.
 
-The schema is intentionally small. It avoids duplicated path lists by defining path roles once in `[layout]` and referencing those roles from behavior sections.
+Dotfiles owns contract source files and static package manifests. Dubnium `configctl` owns contract discovery, runtime validation, planning, apply behavior, risk gating, and state files.
 
-## App manifest
+## Discovery
+
+Init contracts are materialized by Home Manager to:
+
+```text
+$XDG_CONFIG_HOME/configctl/init.d/*.toml
+```
+
+Default path:
+
+```text
+~/.config/configctl/init.d/*.toml
+```
+
+Runtime state belongs to Dubnium `configctl` under:
+
+```text
+$XDG_STATE_HOME/configctl/init/<id>/state.json
+```
+
+Default path:
+
+```text
+~/.local/state/configctl/init/<id>/state.json
+```
+
+## Init manifest
 
 Required top-level fields:
 
 | Field | Allowed values | Notes |
 | --- | --- | --- |
-| `schema_version` | `1` | Integer schema version. |
+| `schemaVersion` | `1` | Integer schema version. |
+| `id` | string | Stable unique contract ID. |
+| `kind` | string | Typed handler name, for example `npm-globals`. |
+| `enabled` | boolean | Whether the contract participates in normal operations. |
+| `risk` | array of strings | Risks that must be explicitly approved for mutating operations. |
+
+Optional top-level fields:
+
+| Field | Notes |
+| --- | --- |
+| `description` | Human-readable purpose. |
+| `tags` | Optional grouping or filter labels. |
+| `profile` | Optional profile selector, for example `dubnium` or `workstation`. |
+| `dependsOn` | Other contract IDs that should be applied first. |
+
+Supported risk labels:
+
+| Risk | Meaning |
+| --- | --- |
+| `network` | May fetch from a remote registry or service. |
+| `mutable-user-state` | Mutates files outside the Nix store in `$HOME`. |
+| `auth-required` | May require an existing login, token, or local session. |
+| `destructive` | May delete or prune state. |
+| `arbitrary-code` | Executes contract-provided shell or code. |
+| `privileged` | Requires elevated privileges. Avoid for user-layer contracts. |
+
+V1 dotfiles init contracts must not contain arbitrary shell hooks, auth tokens, private registry credentials, session files, caches, or generated runtime state.
+
+## Environment expansion
+
+Path fields may use only variables supported by Dubnium `configctl`:
+
+```text
+$HOME
+$XDG_CONFIG_HOME
+$XDG_STATE_HOME
+$XDG_DATA_HOME
+$XDG_CACHE_HOME
+```
+
+Rules:
+
+- Expansion is performed by `configctl`, not the shell.
+- Unknown variables are errors.
+- `~` expands to `$HOME`.
+- No command substitution.
+- No shell glob expansion.
+
+Prefer `$HOME` for paths that must match Home Manager defaults exactly.
+
+## `npm-globals` init contract
+
+`npm-globals` declares user-layer npm global tools managed by an explicit `configctl init apply` operation.
+
+Required fields:
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `manifest` | path string | Package manifest path. |
+| `prefix` | path string | Expected npm global prefix. |
+| `bin` | path string | Expected npm global bin path. |
+
+Required risks:
+
+```toml
+risk = ["network", "mutable-user-state"]
+```
+
+Required state tracking:
+
+```toml
+[state]
+trackDesiredHash = true
+trackObservedHash = true
+```
+
+Required default behavior:
+
+```toml
+[behavior]
+install = true
+update = false
+prune = false
+```
+
+Normal apply must not prune undeclared packages. Any future destructive cleanup must use a separate destructive command and require explicit destructive risk approval.
+
+Example:
+
+```toml
+schemaVersion = 1
+id = "npm-globals"
+kind = "npm-globals"
+description = "Install npm globals declared by dotfiles"
+enabled = true
+risk = ["network", "mutable-user-state"]
+tags = ["npm", "codex", "workstation"]
+
+manifest = "$HOME/.config/npm/global-packages.txt"
+prefix = "$HOME/.local/share/npm"
+bin = "$HOME/.local/share/npm/bin"
+
+[state]
+trackDesiredHash = true
+trackObservedHash = true
+
+[behavior]
+install = true
+update = false
+prune = false
+```
+
+## App manifest
+
+App manifests are a dotfiles-side ownership and composition policy surface for `configctl adopt`, `status`, `doctor`, `promote`, and future compose workflows.
+
+Required top-level fields:
+
+| Field | Allowed values | Notes |
+| --- | --- | --- |
+| `schema_version` | `1` | Integer schema version for app manifests. |
 | `tool` | string | Stable tool identifier. |
 | `owner` | `dotfiles` | Policy owner for this repository. |
 | `profile` | string | Profile that activates the contract. |
@@ -93,31 +239,3 @@ executor_may_write_outputs = false
 | --- | --- |
 | `must_not_manage` | Layout roles that Home Manager or configctl must not own as generated files. |
 | `must_exist_or_be_creatable` | Layout roles whose parent directories may be created safely. |
-
-## Init manifest
-
-Required top-level fields:
-
-| Field | Allowed values | Notes |
-| --- | --- | --- |
-| `schema_version` | `1` | Integer schema version. |
-| `tool` | string | Stable tool identifier. |
-| `owner` | `dotfiles` | Policy owner. |
-| `profile` | string | Profile that activates the contract. |
-| `kind` | `initial-mutable-state` | Init contract kind. |
-| `status` | `active`, `planned` | Whether executor ownership is current. |
-| `current_runtime_owner` | string | Current owner of the mutable state behavior. |
-| `target_runtime_owner` | string | Target owner after migration. |
-| `executor_may_validate` | boolean | Whether validation is allowed now. |
-| `executor_may_initialize` | boolean | Whether init mutation is allowed now. |
-
-Required safety flags:
-
-| Field | Required value for v1 |
-| --- | --- |
-| `network` | `false` |
-| `arbitrary_commands` | `false` |
-| `destructive` | `false` |
-| `dry_run_required` | `true` |
-
-Init manifests may contain `directories`, `files`, and `settings` arrays. Those entries must be declarative and non-destructive.
