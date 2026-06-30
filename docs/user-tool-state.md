@@ -18,6 +18,7 @@ Home Manager should own:
 - PATH entries
 - durable profile/module enablement
 - directories needed for declared user tooling
+- contract manifests under `$XDG_CONFIG_HOME/configctl/init.d/`
 
 Home Manager should not own:
 
@@ -36,6 +37,22 @@ Examples:
 - npm globals: `files/home/.config/npm/global-packages.txt`
 
 Manifests describe desired durable tools. They do not imply that Home Manager should run network-backed installation during activation.
+
+## Configctl init contracts
+
+Dotfiles-owned init contracts live under:
+
+```text
+contracts/configctl/init/*.toml
+```
+
+Home Manager materializes them to the Dubnium discovery path:
+
+```text
+~/.config/configctl/init.d/*.toml
+```
+
+`configctl` owns runtime parsing, risk gates, planning, application, verification, and state under `$XDG_STATE_HOME`.
 
 ## Local experiments and promotion
 
@@ -65,6 +82,7 @@ Dotfiles owns the stable npm global environment:
 - a user-writable npm prefix
 - the npm global bin PATH entry
 - a repo-managed package manifest
+- a `configctl init` contract describing explicit mutable reconciliation
 
 Mutable npm package installation is explicit user state. It is not run by Home Manager activation.
 
@@ -75,6 +93,7 @@ Home Manager writes:
 ```text
 ~/.npmrc
 ~/.config/npm/global-packages.txt
+~/.config/configctl/init.d/npm-globals.toml
 ```
 
 The default prefix is:
@@ -118,10 +137,13 @@ files/home/.config/npm/global-packages.txt
 
 The manifest supports blank lines and `#` comments.
 
-Codex is npm-owned in this repository, so the manifest declares:
+Current durable npm globals include Codex and other npm-owned CLI tools:
 
 ```text
 @openai/codex
+@bitwarden/cli
+@tobilu/qmd
+opencode-ai
 ```
 
 Do not add npm authentication, registry credentials, or machine-local settings to managed files.
@@ -136,7 +158,7 @@ npm install -g some-tool
 
 That package remains local-only drift until it is intentionally promoted.
 
-Once Dubnium `configctl init` support is available, inspect npm global drift with:
+Inspect npm global drift with:
 
 ```sh
 configctl init status npm-globals
@@ -156,11 +178,11 @@ To make an experimental package durable:
 2. Check for binary-name conflicts with Nix packages.
 3. Add the package spec to `files/home/.config/npm/global-packages.txt`.
 4. Commit the manifest change.
-5. Reconcile with `configctl init` once available.
+5. Reconcile with `configctl init`.
 
 ```sh
 configctl init plan npm-globals
-configctl init apply npm-globals --allow network,mutable-user-state
+configctl init apply npm-globals --allow network,mutable-user-state --yes
 configctl init verify npm-globals
 ```
 
@@ -178,3 +200,12 @@ command -v codex
 ```
 
 Avoid `sudo npm install -g`. The configured prefix is user-writable by design.
+
+## Verification
+
+Run repo-side contract validation after editing init contracts or package manifests:
+
+```sh
+nix run .#verify-configctl-contracts
+nix flake check --no-build
+```
