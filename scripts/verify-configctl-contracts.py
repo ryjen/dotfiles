@@ -40,7 +40,9 @@ SUPPORTED_RISKS = {
 }
 
 SUPPORTED_ACTIVE_KINDS = {
+    "codex-config",
     "npm-globals",
+    "pip-globals",
     "skill-deployment",
 }
 
@@ -91,23 +93,45 @@ def validate_common(path: Path, contract: dict[str, Any], seen_ids: set[str]) ->
     return contract_id, kind, enabled
 
 
-def validate_npm_globals(path: Path, contract: dict[str, Any]) -> None:
+def validate_package_globals(
+    path: Path,
+    contract: dict[str, Any],
+    *,
+    tool: str,
+    expected_prefix: str,
+    expected_bin: str,
+    required_risks: set[str],
+) -> None:
     manifest = require_type(contract, path, "manifest", str)
     prefix = require_type(contract, path, "prefix", str)
     bin_path = require_type(contract, path, "bin", str)
 
-    expected_prefix = "$HOME/.local/share/npm"
-    expected_bin = "$HOME/.local/share/npm/bin"
     if prefix != expected_prefix:
-        fail(f"{path}: prefix must match Home Manager npm prefix {expected_prefix!r}")
+        fail(f"{path}: prefix must match Home Manager {tool} prefix {expected_prefix!r}")
     if bin_path != expected_bin:
-        fail(f"{path}: bin must match Home Manager npm bin path {expected_bin!r}")
+        fail(f"{path}: bin must match Home Manager {tool} bin path {expected_bin!r}")
 
     source_manifest = managed_home_path(manifest)
     if source_manifest is None:
         fail(f"{path}: manifest must be a managed $HOME-relative path")
     if not source_manifest.is_file():
         fail(f"{path}: referenced manifest does not exist: {source_manifest.relative_to(ROOT)}")
+
+    risks = set(contract["risk"])
+    missing = sorted(required_risks - risks)
+    if missing:
+        fail(f"{path}: {tool} missing required risks: {', '.join(missing)}")
+
+
+def validate_npm_globals(path: Path, contract: dict[str, Any]) -> None:
+    validate_package_globals(
+        path,
+        contract,
+        tool="npm-globals",
+        expected_prefix="$HOME/.local/share/npm",
+        expected_bin="$HOME/.local/share/npm/bin",
+        required_risks={"network", "mutable-user-state"},
+    )
 
     state = contract.get("state")
     if not isinstance(state, dict):
@@ -128,11 +152,30 @@ def validate_npm_globals(path: Path, contract: dict[str, Any]) -> None:
         if behavior.get(key) is not expected:
             fail(f"{path}: [behavior].{key} must be {str(expected).lower()}")
 
+
+def validate_pip_globals(path: Path, contract: dict[str, Any]) -> None:
+    validate_package_globals(
+        path,
+        contract,
+        tool="pip-globals",
+        expected_prefix="$XDG_DATA_HOME/pip",
+        expected_bin="$XDG_DATA_HOME/pip/bin",
+        required_risks={"network", "mutable-user-state"},
+    )
+
+
+def validate_codex_config(path: Path, contract: dict[str, Any]) -> None:
+    root = require_type(contract, path, "root", str)
+    output = require_type(contract, path, "output", str)
+
+    if root != "$XDG_CONFIG_HOME/codex":
+        fail(f"{path}: root must be '$XDG_CONFIG_HOME/codex'")
+    if output != "$HOME/.codex/config.toml":
+        fail(f"{path}: output must be '$HOME/.codex/config.toml'")
+
     risks = set(contract["risk"])
-    required = {"network", "mutable-user-state"}
-    missing = sorted(required - risks)
-    if missing:
-        fail(f"{path}: npm-globals missing required risks: {', '.join(missing)}")
+    if risks != {"mutable-user-state"}:
+        fail(f"{path}: codex-config risk must be exactly mutable-user-state")
 
 
 def validate_skill_deployment(path: Path, contract: dict[str, Any]) -> None:
@@ -168,8 +211,12 @@ def main() -> int:
             fail(f"{path}: invalid TOML: {exc}")
 
         _contract_id, kind, enabled = validate_common(path, contract, seen_ids)
-        if kind == "npm-globals":
+        if kind == "codex-config":
+            validate_codex_config(path, contract)
+        elif kind == "npm-globals":
             validate_npm_globals(path, contract)
+        elif kind == "pip-globals":
+            validate_pip_globals(path, contract)
         elif kind == "skill-deployment":
             validate_skill_deployment(path, contract)
         if enabled:
