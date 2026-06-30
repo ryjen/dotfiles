@@ -110,6 +110,13 @@
           type = "app";
           program = "${./scripts/verify-neovim-config.sh}";
         };
+
+        verify-configctl-contracts = {
+          type = "app";
+          program = "${pkgs.writeShellScript "verify-configctl-contracts" ''
+            exec ${pkgs.python3}/bin/python3 ${./scripts/verify-configctl-contracts.py}
+          ''}";
+        };
       };
 
       checks.${system} = {
@@ -119,6 +126,11 @@
               ${./scripts/verify-flake-script-executables.sh} ${self}
               touch "$out"
             '';
+
+        configctl-contracts = pkgs.runCommand "configctl-contracts" { nativeBuildInputs = [ pkgs.python3 ]; } ''
+          python3 ${./scripts/verify-configctl-contracts.py}
+          touch "$out"
+        '';
 
         pre-commit-check = git-hooks.lib.${system}.run {
           src = self;
