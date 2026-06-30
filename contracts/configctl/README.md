@@ -55,7 +55,7 @@ Behavior sections refer to roles, not duplicated path globs. For example, adopti
 
 ## Lifecycle fields
 
-Every app/init manifest must declare whether it describes current behavior or a planned migration:
+App manifests and migration-oriented init manifests may declare lifecycle fields to make current ownership and target ownership explicit:
 
 | Field | Meaning |
 | --- | --- |
@@ -66,6 +66,8 @@ Every app/init manifest must declare whether it describes current behavior or a 
 | `executor_may_adopt` | Whether `configctl` may use the adoption policy now. |
 | `executor_may_initialize` | Whether `configctl` may initialize mutable user state now. |
 | `executor_may_write_outputs` | Whether `configctl` may write runtime outputs now. |
+
+These lifecycle fields are policy metadata for ownership transitions; they are not required by the Dubnium v1 `configctl init` schema unless a typed contract or repo-side verifier requires them.
 
 Planned compose manifests are intentionally not write-enabled while Home Manager still owns the runtime files.
 
@@ -111,10 +113,10 @@ Run the repo-side verifier directly:
 nix run .#verify-configctl-contracts
 ```
 
-Or as part of flake checks:
+Or build the check derivation explicitly:
 
 ```sh
-nix flake check --no-build
+nix build .#checks.x86_64-linux.configctl-contracts
 ```
 
 The verifier checks that init contracts are valid TOML, use supported risk labels, have unique IDs, and that enabled contracts have dotfiles-side validation rules. For `npm-globals`, it also verifies that the contract paths match the Home Manager npm prefix and that the referenced package manifest exists.
