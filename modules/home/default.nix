@@ -38,6 +38,7 @@
     ./tmux.nix
     ./vscode.nix
     ./zsh.nix
-  ]
+    ./zellij.nix
+    ]
   ++ lib.optional (builtins.pathExists ../../secrets.yaml) ./secrets.nix;
 }
