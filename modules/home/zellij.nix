@@ -33,6 +33,6 @@
         }
       }
     '';
-    enableZshIntegration = true;
+    enableZshIntegration = false;
   };
 }
