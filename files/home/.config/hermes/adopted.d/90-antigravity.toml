@@ -1,4 +1,0 @@
-[providers.google]
-enabled = false
-type = "antigravity"
-command = "agy"
