@@ -13,6 +13,11 @@ from pathlib import Path
 from typing import Any
 
 
+def fail(message: str) -> None:
+    print(f"configctl-contracts: {message}", file=sys.stderr)
+    raise SystemExit(1)
+
+
 def repo_root() -> Path:
     if len(sys.argv) > 2:
         fail("usage: verify-configctl-contracts.py [repo-root]")
@@ -38,11 +43,6 @@ SUPPORTED_ACTIVE_KINDS = {
     "npm-globals",
     "skill-deployment",
 }
-
-
-def fail(message: str) -> None:
-    print(f"configctl-contracts: {message}", file=sys.stderr)
-    raise SystemExit(1)
 
 
 def require_type(contract: dict[str, Any], path: Path, key: str, expected: type) -> Any:
