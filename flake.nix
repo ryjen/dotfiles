@@ -114,7 +114,7 @@
         verify-configctl-contracts = {
           type = "app";
           program = "${pkgs.writeShellScript "verify-configctl-contracts" ''
-            exec ${pkgs.python3}/bin/python3 ${./scripts/verify-configctl-contracts.py}
+            exec ${pkgs.python3}/bin/python3 ${./scripts/verify-configctl-contracts.py} ${self}
           ''}";
         };
       };
@@ -128,7 +128,7 @@
             '';
 
         configctl-contracts = pkgs.runCommand "configctl-contracts" { nativeBuildInputs = [ pkgs.python3 ]; } ''
-          python3 ${./scripts/verify-configctl-contracts.py}
+          python3 ${./scripts/verify-configctl-contracts.py} ${self}
           touch "$out"
         '';
 
