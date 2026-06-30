@@ -147,6 +147,17 @@ configure_lsp("nil_ls", {})
 configure_lsp("pyright", {})
 configure_lsp("ts_ls", {})
 
+vim.api.nvim_create_autocmd("BufWritePre", {
+	group = vim.api.nvim_create_augroup("dotfiles_trim_whitespace", { clear = true }),
+	pattern = "*",
+	callback = function()
+		local save = vim.fn.winsaveview()
+		vim.cmd([[%s/\s\+$//e]])
+		vim.cmd([[%s#\($\n\s*\)\+\%$##e]])
+		vim.fn.winrestview(save)
+	end,
+})
+
 local null_ls = optional_require("null-ls")
 if null_ls then
 	local sources = {}
@@ -157,18 +168,17 @@ if null_ls then
 	end
 
 	local formatting = null_ls.builtins.formatting
-	local diagnostics = null_ls.builtins.diagnostics
 
 	add(formatting.stylua)
 	add(formatting.nixfmt)
 	add(formatting.black)
 	add(formatting.shfmt)
 	add(formatting.prettier)
-	add(formatting.trim_whitespace)
-	add(formatting.trim_newlines)
 
-	add(diagnostics.ruff)
-	add(diagnostics.shellcheck)
+	add(optional_require("none-ls.formatting.ruff"))
+	add(optional_require("none-ls.diagnostics.ruff"))
+	add(optional_require("none-ls-shellcheck.diagnostics"))
+	add(optional_require("none-ls-shellcheck.code_actions"))
 
 	null_ls.setup({
 		sources = sources,
