@@ -9,35 +9,8 @@ type = "nous-cloud"
 model = "default"
 api_key_env = "NOUS_API_KEY"
 
-[providers.ollama-qwen]
-enabled = true
-type = "ollama"
-base_url = "http://127.0.0.1:11434"
-model = "qwen3:14b"
-
-[providers.ollama-gemma]
-enabled = true
-type = "ollama"
-base_url = "http://127.0.0.1:11434"
-model = "gemma3:4b"
-
-[providers.vllm-qwen]
+[providers.local]
 enabled = true
 type = "openai-compatible"
 base_url = "http://127.0.0.1:8000/v1"
-model = "Qwen/Qwen2.5-7B-Instruct-1M"
-api_key_env = "VLLM_API_KEY"
-
-[providers.vllm-gemma]
-enabled = true
-type = "openai-compatible"
-base_url = "http://127.0.0.1:8000/v1"
-model = "/var/lib/dubnium/models/gemma"
-api_key_env = "VLLM_API_KEY"
-
-[providers.vllm-hermes]
-enabled = true
-type = "openai-compatible"
-base_url = "http://127.0.0.1:8000/v1"
-model = "/var/lib/dubnium/models/Hermes-3-Llama-3.1-8B"
-api_key_env = "VLLM_API_KEY"
+model = "dubnium-local"
