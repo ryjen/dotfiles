@@ -22,6 +22,7 @@
 - `nix build .#homeConfigurations.USERNAME@verify.activationPackage` - build the lightweight verification Home Manager activation.
 - `nix build .#nixosConfigurations.verify.config.system.build.toplevel` - build the lightweight verification NixOS system derivation.
 - `nix run .#verify-container` - verify flake and build targets in an isolated container.
+- `nix run .#verify-configctl-contracts` - validate dotfiles-owned `configctl` init contracts.
 
 ## Coding Style & Naming Conventions
 
@@ -56,7 +57,8 @@ This repo maintains the following agent skills under `agents/skills/`:
 - **`multi-agent-worktrees`** (`agents/skills/multi-agent-worktrees/`): Extends standard worktree isolation with multi-agent session detection, `<agent-id>-<branch>` naming, sentinel-based status/ heartbeat tracking, and staleness detection. Use this skill when working on repos shared by multiple agents or sessions. The init contract at `contracts/configctl/init/multi-agent-worktrees.toml` describes the deployment target (`~/.agents/skills/multi-agent-worktrees/`).
 
 To deploy a skill to `~/.agents/skills/`:
-  ```bash
-  configctl init multi-agent-worktrees  # when handler exists
-  # or manually: cp -r agents/skills/<name> ~/.agents/skills/
-  ```
+
+```bash
+configctl init apply multi-agent-worktrees  # when handler exists
+# or manually: cp -r agents/skills/<name> ~/.agents/skills/
+```

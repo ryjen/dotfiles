@@ -1,8 +1,20 @@
 schemaVersion = 1
 id = "npm-globals"
 kind = "npm-globals"
+description = "Install npm globals declared by dotfiles"
 enabled = true
 risk = ["network", "mutable-user-state"]
+tags = ["npm", "codex", "workstation"]
+
 manifest = "$HOME/.config/npm/global-packages.txt"
-prefix = "$XDG_DATA_HOME/npm"
-bin = "$XDG_DATA_HOME/npm/bin"
+prefix = "$HOME/.local/share/npm"
+bin = "$HOME/.local/share/npm/bin"
+
+[state]
+trackDesiredHash = true
+trackObservedHash = true
+
+[behavior]
+install = true
+update = false
+prune = false
