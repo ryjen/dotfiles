@@ -12,7 +12,16 @@ import tomllib
 from pathlib import Path
 from typing import Any
 
-ROOT = Path(__file__).resolve().parents[1]
+
+def repo_root() -> Path:
+    if len(sys.argv) > 2:
+        fail("usage: verify-configctl-contracts.py [repo-root]")
+    if len(sys.argv) == 2:
+        return Path(sys.argv[1]).resolve()
+    return Path.cwd().resolve()
+
+
+ROOT = repo_root()
 INIT_DIR = ROOT / "contracts" / "configctl" / "init"
 FILES_HOME = ROOT / "files" / "home"
 
