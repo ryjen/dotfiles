@@ -14,7 +14,9 @@ Layer order:
 2. `custom.d/*.toml`
 3. `local.toml`
 
-`configctl` also applies the active Dubnium mode when rendering `providers.vllm-qwen.model`:
+The managed provider layer keeps Hermes pointed at stable provider boundaries:
 
-- desktop: `Qwen/Qwen2.5-7B-Instruct-1M`
-- compute: `/var/lib/dubnium/models/Qwen3-14B`
+- `nous-cloud`: default cloud provider.
+- `local`: local OpenAI-compatible Dubnium LLM service at `http://127.0.0.1:8000/v1` using model alias `dubnium-local`.
+
+Backend-specific local runtimes such as vLLM, llama.cpp, or Ollama stay behind the local service boundary.
