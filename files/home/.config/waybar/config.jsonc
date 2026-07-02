@@ -11,7 +11,7 @@
     "modules-left": [
         "hyprland/workspaces",
         "hyprland/submap",
-        "custom/media"
+        "custom/mpd"
     ],
     "modules-center": [
         "hyprland/window"
@@ -99,6 +99,19 @@
         "return-type": "json",
         "format": "{}",
         "tooltip": true
+    },
+    "custom/mpd": {
+        "exec": "~/.config/waybar/scripts/mpd-now-playing",
+        "interval": 3,
+        "return-type": "json",
+        "format": "{}",
+        "max-length": 48,
+        "on-click": "alacritty --title 'ncmpcpp' -e ncmpcpp",
+        "on-click-right": "mpc toggle",
+        "on-scroll-up": "mpc next",
+        "on-scroll-down": "mpc prev",
+        "tooltip": true,
+        "escape": true
     },
     "mpris": {
         "format": "{player_icon} {dynamic}",
