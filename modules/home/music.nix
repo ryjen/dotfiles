@@ -14,7 +14,7 @@ in
     musicDirectory = lib.mkOption {
       type = lib.types.str;
       default = "${config.home.homeDirectory}/Music";
-      description = "Directory used by the mpv music launcher.";
+      description = "Directory used by the music launcher.";
     };
   };
 
@@ -26,8 +26,8 @@ in
 
     home.sessionVariables.DUBNIUM_MUSIC_DIR = cfg.musicDirectory;
 
-    home.file.".local/bin/mpv-music" = {
-      source = ../../files/home/.local/bin/mpv-music;
+    home.file.".local/bin/music" = {
+      source = ../../files/home/.local/bin/music;
       executable = true;
     };
   };
