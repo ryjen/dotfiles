@@ -6,6 +6,17 @@
 }:
 let
   cfg = config.dotfiles.music;
+
+  beetsConfig = pkgs.replaceVars ../../files/home/.config/beets/config.yaml {
+    DUBNIUM_MUSIC_DIRECTORY = cfg.musicDirectory;
+    DUBNIUM_BEETS_LIBRARY = "${config.xdg.configHome}/beets/library.db";
+  };
+
+  ncmpcppConfig = pkgs.replaceVars ../../files/home/.config/ncmpcpp/config {
+    DUBNIUM_MPD_HOST = cfg.mpd.listenAddress;
+    DUBNIUM_MPD_PORT = toString cfg.mpd.port;
+    DUBNIUM_MUSIC_DIRECTORY = cfg.musicDirectory;
+  };
 in
 {
   options.dotfiles.music = {
@@ -65,43 +76,7 @@ in
       '';
     };
 
-    xdg.configFile."beets/config.yaml".text = ''
-      directory: ${cfg.musicDirectory}
-      library: ${config.xdg.configHome}/beets/library.db
-
-      import:
-        move: yes
-        write: yes
-        copy: no
-        resume: yes
-        incremental: yes
-
-      paths:
-        default: $albumartist/$album%aunique{}/$track $title
-        singleton: Singles/$artist/$title
-        comp: Compilations/$album%aunique{}/$track $title
-
-      plugins:
-        - fetchart
-        - embedart
-        - lastgenre
-        - duplicates
-        - missing
-        - info
-    '';
-
-    xdg.configFile."ncmpcpp/config".text = ''
-      mpd_host = "${cfg.mpd.listenAddress}"
-      mpd_port = "${toString cfg.mpd.port}"
-      music_directory = "${cfg.musicDirectory}"
-
-      playlist_display_mode = "columns"
-      browser_display_mode = "columns"
-      search_engine_display_mode = "columns"
-
-      autocenter_mode = "yes"
-      display_volume_level = "yes"
-      follow_now_playing_lyrics = "no"
-    '';
+    xdg.configFile."beets/config.yaml".source = beetsConfig;
+    xdg.configFile."ncmpcpp/config".source = ncmpcppConfig;
   };
 }
