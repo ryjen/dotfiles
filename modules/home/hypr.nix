@@ -115,10 +115,6 @@ in
     xdg.configFile."waybar/style.css".source = ../../files/home/.config/waybar/style.css;
     xdg.configFile."waybar/colors.css".source = ../../files/home/.config/waybar/colors.css;
     xdg.configFile."waybar/custom.css".source = ../../files/home/.config/waybar/custom.css;
-    xdg.configFile."waybar/scripts/mpd-now-playing" = {
-      source = ../../files/home/.config/waybar/scripts/mpd-now-playing;
-      executable = true;
-    };
     xdg.configFile."waybar/scripts/nvidia-gpu" = {
       source = ../../files/home/.config/waybar/scripts/nvidia-gpu;
       executable = true;
