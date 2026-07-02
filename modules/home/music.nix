@@ -6,77 +6,43 @@
 }:
 let
   cfg = config.dotfiles.music;
-
-  beetsConfig = pkgs.replaceVars ../../files/home/.config/beets/config.yaml {
-    DUBNIUM_MUSIC_DIRECTORY = cfg.musicDirectory;
-    DUBNIUM_BEETS_LIBRARY = "${config.xdg.configHome}/beets/library.db";
-  };
-
-  ncmpcppConfig = pkgs.replaceVars ../../files/home/.config/ncmpcpp/config {
-    DUBNIUM_MPD_HOST = cfg.mpd.listenAddress;
-    DUBNIUM_MPD_PORT = toString cfg.mpd.port;
-    DUBNIUM_MUSIC_DIRECTORY = cfg.musicDirectory;
-  };
 in
 {
   options.dotfiles.music = {
-    enable = lib.mkEnableOption "low-profile local music library tooling";
+    enable = lib.mkEnableOption "low-profile local music playback tooling";
 
     musicDirectory = lib.mkOption {
       type = lib.types.str;
       default = "${config.home.homeDirectory}/Music";
-      description = "Directory managed by beets and indexed by MPD.";
-    };
-
-    mpd.enable = lib.mkOption {
-      type = lib.types.bool;
-      default = true;
-      description = "Whether to run MPD as a Home Manager user service.";
-    };
-
-    mpd.listenAddress = lib.mkOption {
-      type = lib.types.str;
-      default = "127.0.0.1";
-      description = "Address MPD listens on. Keep loopback unless explicitly exposing over a trusted network.";
-    };
-
-    mpd.port = lib.mkOption {
-      type = lib.types.port;
-      default = 6600;
-      description = "MPD TCP port.";
+      description = "Directory used by the mpv music launcher.";
     };
   };
 
   config = lib.mkIf cfg.enable {
     home.packages = with pkgs; [
-      beets
-      jq
-      mpc-cli
-      ncmpcpp
+      mpv
+      playerctl
     ];
 
-    services.mpd = lib.mkIf cfg.mpd.enable {
-      enable = true;
-      musicDirectory = cfg.musicDirectory;
+    home.file.".local/bin/mpv-music" = {
+      executable = true;
+      text = ''
+        #!/usr/bin/env bash
+        set -euo pipefail
 
-      network = {
-        listenAddress = cfg.mpd.listenAddress;
-        port = cfg.mpd.port;
-      };
+        music_dir="''${MPV_MUSIC_DIR:-${cfg.musicDirectory}}"
 
-      extraConfig = ''
-        auto_update "yes"
-        restore_paused "yes"
-        replaygain "album"
+        if [ ! -d "$music_dir" ]; then
+          printf 'music directory not found: %s\n' "$music_dir" >&2
+          exit 1
+        fi
 
-        audio_output {
-          type "pipewire"
-          name "PipeWire"
-        }
+        exec ${pkgs.mpv}/bin/mpv \
+          --shuffle \
+          --loop-playlist=inf \
+          --save-position-on-quit \
+          "$music_dir"
       '';
     };
-
-    xdg.configFile."beets/config.yaml".source = beetsConfig;
-    xdg.configFile."ncmpcpp/config".source = ncmpcppConfig;
   };
 }
