@@ -9,5 +9,9 @@
   dotfiles.profiles.android.enable = false;
   dotfiles.profiles.micrantha.enable = false;
   dotfiles.hypr.adoptedProfile = "dubnium";
-  dotfiles.music.enable = true;
+
+  dotfiles.music = {
+    enable = true;
+    musicDirectory = "/mnt/isotope/music";
+  };
 }
