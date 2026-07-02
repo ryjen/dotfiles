@@ -24,25 +24,11 @@ in
       playerctl
     ];
 
+    home.sessionVariables.DUBNIUM_MUSIC_DIR = cfg.musicDirectory;
+
     home.file.".local/bin/mpv-music" = {
+      source = ../../files/home/.local/bin/mpv-music;
       executable = true;
-      text = ''
-        #!/usr/bin/env bash
-        set -euo pipefail
-
-        music_dir="''${MPV_MUSIC_DIR:-${cfg.musicDirectory}}"
-
-        if [ ! -d "$music_dir" ]; then
-          printf 'music directory not found: %s\n' "$music_dir" >&2
-          exit 1
-        fi
-
-        exec ${pkgs.mpv}/bin/mpv \
-          --shuffle \
-          --loop-playlist=inf \
-          --save-position-on-quit \
-          "$music_dir"
-      '';
     };
   };
 }
