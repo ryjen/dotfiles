@@ -27,6 +27,7 @@
     ./lolcat.nix
     ./micrantha.nix
     ./mise.nix
+    ./music.nix
     ./neovim.nix
     ./npm.nix
     ./pass.nix
