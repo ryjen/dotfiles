@@ -4,6 +4,6 @@
 # Comments and blank lines are allowed. Package install/update execution is
 # explicit mutable user state and must not run from Home Manager activation.
 
-pybind11           # build-time dep for hnswlib (headroom-ai[all])
+pybind11
 huggingface_hub
 headroom-ai[all]
