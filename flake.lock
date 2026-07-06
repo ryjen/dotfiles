@@ -223,17 +223,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1783303739,
-        "narHash": "sha256-IMBeZUQH9RRV3wZytMPYvQmMUV71k7Wrv5a4IBz1V/U=",
+        "lastModified": 1783306414,
+        "narHash": "sha256-krKeqwfyivelIchuU7la+r5Gzeoz40QAGrcZ5LgO/co=",
         "ref": "feat/opsctl-minimal-slice",
-        "rev": "ca8961320f2ce959e2e5f951ba80f3fb632ad5ad",
-        "revCount": 2,
+        "rev": "1ded51c5ccce176c0c6e7a9f7f9e8c09592b42a7",
+        "revCount": 3,
         "type": "git",
         "url": "ssh://git@github.com/ryjen/ops-cadence.git"
       },
       "original": {
         "ref": "feat/opsctl-minimal-slice",
-        "rev": "ca8961320f2ce959e2e5f951ba80f3fb632ad5ad",
+        "rev": "1ded51c5ccce176c0c6e7a9f7f9e8c09592b42a7",
         "type": "git",
         "url": "ssh://git@github.com/ryjen/ops-cadence.git"
       }

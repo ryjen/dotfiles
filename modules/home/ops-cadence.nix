@@ -55,6 +55,14 @@ in
       [llm]
       base_url = "http://127.0.0.1:8080/v1"
       model = "local"
+
+      [sources.github]
+      career_workflows = "ryjen/career-workflows"
+      career_data = "ryjen/career-data"
+
+      [sources.local_git]
+      dubnium = "${config.home.homeDirectory}/.local/src/dubnium"
+      dotfiles = "${config.home.homeDirectory}/.local/src/dubnium/external/dotfiles"
     '';
 
     systemd.user.services = lib.mkIf (cfg.timers.enable && config.dotfiles.host.userSystemd.enable) {
