@@ -1,0 +1,8 @@
+schemaVersion = 1
+id = "task-config"
+kind = "task-config"
+enabled = true
+risk = ["mutable-user-state"]
+tags = ["task", "taskwarrior"]
+root = "$XDG_CONFIG_HOME/task"
+output = "$HOME/.taskrc"
