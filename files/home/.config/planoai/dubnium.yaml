@@ -1,0 +1,77 @@
+version: v0.4.0
+
+listeners:
+  - name: egress_traffic
+    type: model
+    address: 127.0.0.1
+    port: 12000
+    timeout: 120s
+
+model_providers:
+  - model: openai/qwen2.5-coder-14b-instruct
+    access_key: EMPTY
+    base_url: http://127.0.0.1:8000/v1
+    default: true
+  - model: openrouter/anthropic/claude-3.5-sonnet
+    access_key: "$OPENROUTER_API_KEY"
+    base_url: https://openrouter.ai/api/v1
+  - model: nous/hermes-3-llama-3.1-405b
+    access_key: "$NOUS_API_KEY"
+    base_url: https://api.nousresearch.com/v1
+  - model: opencode/default
+    access_key: "$OPENCODE_API_KEY"
+    base_url: https://api.opencode.ai/v1
+  - model: nvidia/nemotron-4-340b-instruct
+    access_key: "$NVIDIA_API_KEY"
+    base_url: https://integrate.api.nvidia.com/v1
+  - model: kimi/moonshot-v1-128k
+    access_key: "$KIMI_API_KEY"
+    base_url: https://api.moonshot.ai/v1
+
+model_aliases:
+  local-code:
+    target: openai/qwen2.5-coder-14b-instruct
+  fast-local:
+    target: openai/qwen2.5-coder-14b-instruct
+  cloud-general:
+    target: openrouter/anthropic/claude-3.5-sonnet
+  cloud-reasoning:
+    target: nous/hermes-3-llama-3.1-405b
+  long-context:
+    target: kimi/moonshot-v1-128k
+  code-review:
+    target: openrouter/anthropic/claude-3.5-sonnet
+  planning:
+    target: nvidia/nemotron-4-340b-instruct
+  cheap-fast:
+    target: opencode/default
+
+routing_preferences:
+  - name: local code work
+    description: code understanding, code generation, refactoring, and repo analysis that should prefer local inference
+    models:
+      - openai/qwen2.5-coder-14b-instruct
+  - name: cloud general work
+    description: public-safe general chat and broad reasoning allowed to use cloud routing
+    models:
+      - openrouter/anthropic/claude-3.5-sonnet
+  - name: cloud reasoning work
+    description: public-safe high-quality reasoning allowed to use cloud routing
+    models:
+      - nous/hermes-3-llama-3.1-405b
+  - name: long-context work
+    description: public-safe long-context analysis and synthesis
+    models:
+      - kimi/moonshot-v1-128k
+  - name: code review work
+    description: public-safe code review and repo analysis allowed to use cloud routing
+    models:
+      - openrouter/anthropic/claude-3.5-sonnet
+  - name: planning work
+    description: public-safe planning and decomposition allowed to use cloud routing
+    models:
+      - nvidia/nemotron-4-340b-instruct
+  - name: cheap fast work
+    description: public-safe cheap or fast tasks allowed to use cloud routing
+    models:
+      - opencode/default

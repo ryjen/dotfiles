@@ -1,0 +1,188 @@
+profile: local-first-dev
+version: 0.1.0
+
+runtime:
+  gateway: plano
+  plano_base_url: http://127.0.0.1:12000
+  openai_base_url: http://127.0.0.1:12000/v1
+  plano_config_file: ~/.config/planoai/dubnium.yaml
+
+principles:
+  - fail closed on privacy uncertainty
+  - prefer local execution for private code and unpublished docs
+  - preserve affinity within agentic execution loops
+  - allow fallback only for operational failures
+  - record routing decisions for later Anthesis evidence
+
+privacy_classes:
+  local_only:
+    description: Secrets, private source code, unpublished documents, and sensitive personal data
+    allowed_boundaries:
+      - local
+  trusted_cloud_ok:
+    description: Work content allowed for explicitly approved cloud providers
+    allowed_boundaries:
+      - local
+      - trusted_cloud
+  public_cloud_ok:
+    description: Public-safe content
+    allowed_boundaries:
+      - local
+      - trusted_cloud
+      - public_cloud
+
+sources:
+  - id: dubnium-local-code
+    provider: plano
+    plano_alias: local-code
+    privacy_boundary: local
+    cost_class: free
+    capabilities:
+      - code
+      - summarize
+      - rewrite
+      - classify
+    context_tokens: 32768
+  - id: dubnium-fast-local
+    provider: plano
+    plano_alias: fast-local
+    privacy_boundary: local
+    cost_class: free
+    capabilities:
+      - summarize
+      - rewrite
+      - classify
+    context_tokens: 32768
+  - id: openrouter-cloud-general
+    provider: plano
+    plano_alias: cloud-general
+    privacy_boundary: trusted_cloud
+    cost_class: metered
+    capabilities:
+      - chat
+      - summarize
+      - rewrite
+      - classify
+      - code
+    context_tokens: 128000
+  - id: nous-cloud-reasoning
+    provider: plano
+    plano_alias: cloud-reasoning
+    privacy_boundary: trusted_cloud
+    cost_class: metered
+    capabilities:
+      - chat
+      - code
+      - reason
+      - summarize
+      - rewrite
+    context_tokens: 200000
+  - id: kimi-long-context
+    provider: plano
+    plano_alias: long-context
+    privacy_boundary: trusted_cloud
+    cost_class: metered
+    capabilities:
+      - chat
+      - reason
+      - summarize
+      - rewrite
+      - long_context
+    context_tokens: 128000
+  - id: openrouter-code-review
+    provider: plano
+    plano_alias: code-review
+    privacy_boundary: trusted_cloud
+    cost_class: metered
+    capabilities:
+      - code
+      - review
+      - reason
+      - summarize
+    context_tokens: 128000
+  - id: nvidia-planning
+    provider: plano
+    plano_alias: planning
+    privacy_boundary: trusted_cloud
+    cost_class: metered
+    capabilities:
+      - chat
+      - reason
+      - plan
+      - summarize
+    context_tokens: 128000
+  - id: opencode-cheap-fast
+    provider: plano
+    plano_alias: cheap-fast
+    privacy_boundary: trusted_cloud
+    cost_class: low
+    capabilities:
+      - chat
+      - summarize
+      - rewrite
+      - classify
+    context_tokens: 32768
+
+rules:
+  - id: private-code-local-only
+    description: Private code and unpublished docs must stay on local routing surfaces
+    when:
+      data_class:
+        - source_code
+        - secrets
+        - unpublished_docs
+        - sensitive_personal_data
+    effect: require_local
+  - id: public-cheap-work-prefer-free
+    description: Public summarize/rewrite/classify tasks should prefer free/local routes
+    when:
+      privacy_class:
+        - public_cloud_ok
+      task:
+        - summarize
+        - rewrite
+        - classify
+    effect: prefer
+    parameters:
+      cost_class:
+        - free
+        - low
+  - id: approved-general-chat-cloud-ok
+    description: General chat may use trusted cloud providers only when task data is cloud-approved
+    when:
+      privacy_class:
+        - trusted_cloud_ok
+        - public_cloud_ok
+      task:
+        - chat
+        - reason
+    effect: allow
+    parameters:
+      privacy_boundary:
+        - local
+        - trusted_cloud
+
+fallback:
+  allowed_reasons:
+    - timeout
+    - rate_limited
+    - provider_5xx
+    - transient_network_failure
+    - invalid_structured_output_after_retry
+  forbidden_reasons:
+    - privacy_violation
+    - forbidden_provider
+    - budget_hard_limit
+    - safety_policy_denial
+    - missing_approval_gate
+
+affinity:
+  enabled: true
+  key_sources:
+    - anthesis_execution_id
+    - session_id
+    - explicit_affinity_key
+
+ledger:
+  format: jsonl
+  path: ~/.local/state/model-router/route-decisions.jsonl
