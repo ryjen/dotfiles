@@ -44,6 +44,7 @@ SUPPORTED_ACTIVE_KINDS = {
     "npm-globals",
     "pip-globals",
     "skill-deployment",
+    "task-config",
 }
 
 
@@ -197,6 +198,20 @@ def validate_skill_deployment(path: Path, contract: dict[str, Any]) -> None:
         fail(f"{path}: skill-deployment risk must be exactly mutable-user-state")
 
 
+def validate_task_config(path: Path, contract: dict[str, Any]) -> None:
+    root = require_type(contract, path, "root", str)
+    output = require_type(contract, path, "output", str)
+
+    if root != "$XDG_CONFIG_HOME/task":
+        fail(f"{path}: root must be '$XDG_CONFIG_HOME/task'")
+    if output != "$HOME/.taskrc":
+        fail(f"{path}: output must be '$HOME/.taskrc'")
+
+    risks = set(contract["risk"])
+    if risks != {"mutable-user-state"}:
+        fail(f"{path}: task-config risk must be exactly mutable-user-state")
+
+
 def main() -> int:
     if not INIT_DIR.is_dir():
         fail(f"missing init contract directory: {INIT_DIR.relative_to(ROOT)}")
@@ -219,6 +234,8 @@ def main() -> int:
             validate_pip_globals(path, contract)
         elif kind == "skill-deployment":
             validate_skill_deployment(path, contract)
+        elif kind == "task-config":
+            validate_task_config(path, contract)
         if enabled:
             active_contracts += 1
 

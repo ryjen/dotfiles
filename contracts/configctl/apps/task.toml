@@ -1,0 +1,56 @@
+schema_version = 1
+tool = "task"
+owner = "dotfiles"
+profile = "all"
+status = "active"
+strategy = "native-include"
+current_runtime_owner = "home-manager"
+target_runtime_owner = "home-manager"
+executor_may_validate = true
+executor_may_adopt = true
+executor_may_write_outputs = false
+renderer_required = false
+description = "Taskwarrior uses native include directives for layered fragments."
+
+[layout]
+root = "~/.config/task"
+standard = "configctl-v1"
+source_inputs = [
+  "modules/home/taskwarrior.nix",
+  "files/home/.taskrc",
+  "files/home/.config/task/"
+]
+runtime_outputs = [
+  "~/.taskrc"
+]
+local = [
+  "local.rc"
+]
+custom = [
+  "custom.d/*.rc"
+]
+adopted = [
+  "adopted.d/*.rc"
+]
+runtime_includes = [
+  "local.rc",
+  "custom.d/*.rc"
+]
+
+[adoption]
+state_path = "~/.local/state/configctl/adoptions/task.toml"
+hash_algorithm = "sha256"
+mode = "review-gated"
+ignore = [
+  "local",
+  "adopted"
+]
+
+[validation]
+must_not_manage = [
+  "local"
+]
+must_exist_or_be_creatable = [
+  "custom",
+  "adopted"
+]
