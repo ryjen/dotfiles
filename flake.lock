@@ -216,6 +216,28 @@
         "type": "github"
       }
     },
+    "ops-cadence": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1783303739,
+        "narHash": "sha256-IMBeZUQH9RRV3wZytMPYvQmMUV71k7Wrv5a4IBz1V/U=",
+        "ref": "feat/opsctl-minimal-slice",
+        "rev": "ca8961320f2ce959e2e5f951ba80f3fb632ad5ad",
+        "revCount": 2,
+        "type": "git",
+        "url": "ssh://git@github.com/ryjen/ops-cadence.git"
+      },
+      "original": {
+        "ref": "feat/opsctl-minimal-slice",
+        "rev": "ca8961320f2ce959e2e5f951ba80f3fb632ad5ad",
+        "type": "git",
+        "url": "ssh://git@github.com/ryjen/ops-cadence.git"
+      }
+    },
     "pyproject-build-systems": {
       "inputs": {
         "nixpkgs": [
@@ -311,6 +333,7 @@
         "hermes-agent": "hermes-agent",
         "home-manager": "home-manager",
         "nixpkgs": "nixpkgs_2",
+        "ops-cadence": "ops-cadence",
         "sops-nix": "sops-nix"
       }
     },
