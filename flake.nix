@@ -13,7 +13,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     ops-cadence = {
-      url = "git+ssh://git@github.com/ryjen/ops-cadence.git?ref=feat/opsctl-minimal-slice&rev=1ded51c5ccce176c0c6e7a9f7f9e8c09592b42a7";
+      url = "git+ssh://git@github.com/ryjen/ops-cadence.git?ref=feat/opsctl-minimal-slice&rev=f2dbfa1518eaac411ce0cfe08ddef3ad5e87ccb7";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     sops-nix = {
