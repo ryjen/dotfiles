@@ -30,6 +30,7 @@
     ./music.nix
     ./neovim.nix
     ./npm.nix
+    ./ops-cadence.nix
     ./pass.nix
     ./pinentry.nix
     ./pip.nix

@@ -12,6 +12,10 @@
       url = "github:jacopone/antigravity-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    ops-cadence = {
+      url = "git+ssh://git@github.com/ryjen/ops-cadence.git?ref=feat/opsctl-minimal-slice&rev=f2dbfa1518eaac411ce0cfe08ddef3ad5e87ccb7";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     sops-nix = {
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -29,6 +33,7 @@
       home-manager,
       hermes-agent,
       antigravity-nix,
+      ops-cadence,
       sops-nix,
       git-hooks,
       ...
@@ -50,6 +55,7 @@
               username
               hermes-agent
               antigravity-nix
+              ops-cadence
               ;
           };
           modules = [
@@ -67,6 +73,7 @@
               username
               hermes-agent
               antigravity-nix
+              ops-cadence
               ;
           };
           modules = [
@@ -82,6 +89,7 @@
                   username
                   hermes-agent
                   antigravity-nix
+                  ops-cadence
                   ;
               };
               home-manager.users.${username} = {
@@ -214,7 +222,7 @@
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
           home-manager.extraSpecialArgs = {
-            inherit self hermes-agent antigravity-nix;
+            inherit self hermes-agent antigravity-nix ops-cadence;
             username = dubniumUsername;
           };
           home-manager.users.${dubniumUsername} = {

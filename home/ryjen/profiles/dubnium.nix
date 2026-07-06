@@ -8,6 +8,7 @@
   dotfiles.profiles.browser.enable = true;
   dotfiles.profiles.android.enable = false;
   dotfiles.profiles.micrantha.enable = false;
+  dotfiles.opsCadence.enable = true;
   dotfiles.hypr.adoptedProfile = "dubnium";
 
   dotfiles.music = {
