@@ -20,8 +20,8 @@
     # Reserved for Nix-managed adopted profiles
   '';
 
-  xdg.configFile."task/custom.d/00-empty.rc".text = ''
-    # Reserved for configctl custom fragments
+  xdg.configFile."task/custom.d/index.rc".text = ''
+    # Custom rc fragments — include files here to activate them
   '';
 
   xdg.configFile."task/local.rc".text = ''

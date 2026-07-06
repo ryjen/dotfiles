@@ -27,14 +27,14 @@ local = [
   "local.rc"
 ]
 custom = [
-  "custom.d/*.rc"
+  "custom.d/index.rc"
 ]
 adopted = [
   "adopted.d/*.rc"
 ]
 runtime_includes = [
   "local.rc",
-  "custom.d/*.rc"
+  "custom.d/index.rc"
 ]
 
 [adoption]

@@ -107,11 +107,11 @@
         "uv2nix": "uv2nix"
       },
       "locked": {
-        "lastModified": 1783313339,
-        "narHash": "sha256-8YY/JT1R883/me+bN2m49c0xVVbTwHgnmaw0f2g76zc=",
+        "lastModified": 1783367200,
+        "narHash": "sha256-TEfO0ecFvPsMYqo3TypycWfQHgPi1Nz/E3VSXRDhKPs=",
         "owner": "NousResearch",
         "repo": "hermes-agent",
-        "rev": "f761fb9d6a00347b86ac21acdbc38f6044333392",
+        "rev": "70c6ae609ed643f2d43cdac7e3fc8b6c34411d12",
         "type": "github"
       },
       "original": {
@@ -201,17 +201,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1783316801,
+        "lastModified": 1783317191,
         "narHash": "sha256-VvHc4JRHDmx6caFGjfA6rka+gKnRlYzWi9ndIehU+/E=",
-        "ref": "feat/opsctl-minimal-slice",
-        "rev": "f2dbfa1518eaac411ce0cfe08ddef3ad5e87ccb7",
-        "revCount": 5,
+        "ref": "main",
+        "rev": "d83511cb669a6ca1481f7a79ea5f1aac6ceabd36",
+        "revCount": 2,
         "type": "git",
         "url": "ssh://git@github.com/ryjen/ops-cadence.git"
       },
       "original": {
-        "ref": "feat/opsctl-minimal-slice",
-        "rev": "f2dbfa1518eaac411ce0cfe08ddef3ad5e87ccb7",
+        "ref": "main",
+        "rev": "d83511cb669a6ca1481f7a79ea5f1aac6ceabd36",
         "type": "git",
         "url": "ssh://git@github.com/ryjen/ops-cadence.git"
       }

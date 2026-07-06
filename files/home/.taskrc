@@ -48,4 +48,4 @@ news.version=2.6.0
 
 # Local overrides and custom fragments
 include ~/.config/task/local.rc
-include ~/.config/task/custom.d/*.rc
+include ~/.config/task/custom.d/index.rc
