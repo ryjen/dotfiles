@@ -95,15 +95,35 @@ in
 
       model_aliases:
         local-code:
-          target: qwen2.5-coder-14b-instruct
+          target: ${cfg.localModel}
         fast-local:
-          target: qwen2.5-coder-14b-instruct
+          target: ${cfg.localModel}
+      ${lib.optionalString cfg.enableOpenAI ''
+        cloud-general:
+          target: ${cfg.openAIModel}
+      ''}
+      ${lib.optionalString cfg.enableAnthropic ''
+        cloud-reasoning:
+          target: ${cfg.anthropicModel}
+      ''}
 
       routing_preferences:
         - name: local code work
           description: code understanding, code generation, refactoring, and repo analysis that should prefer local inference
           models:
             - ${cfg.localModel}
+      ${lib.optionalString cfg.enableOpenAI ''
+        - name: cloud general work
+          description: public-safe general chat and broad reasoning allowed to use OpenAI
+          models:
+            - ${cfg.openAIModel}
+      ''}
+      ${lib.optionalString cfg.enableAnthropic ''
+        - name: cloud reasoning work
+          description: public-safe high-quality reasoning allowed to use Anthropic
+          models:
+            - ${cfg.anthropicModel}
+      ''}
     '';
 
     home.file.".local/bin/plano-dubnium" = {

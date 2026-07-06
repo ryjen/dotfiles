@@ -92,6 +92,34 @@ in
             - rewrite
             - classify
           context_tokens: 32768
+      ${lib.optionalString planoCfg.enableOpenAI ''
+        - id: openai-cloud-general
+          provider: plano
+          plano_alias: cloud-general
+          privacy_boundary: trusted_cloud
+          cost_class: metered
+          capabilities:
+            - chat
+            - summarize
+            - rewrite
+            - classify
+            - code
+          context_tokens: 128000
+      ''}
+      ${lib.optionalString planoCfg.enableAnthropic ''
+        - id: anthropic-cloud-reasoning
+          provider: plano
+          plano_alias: cloud-reasoning
+          privacy_boundary: trusted_cloud
+          cost_class: metered
+          capabilities:
+            - chat
+            - code
+            - reason
+            - summarize
+            - rewrite
+          context_tokens: 200000
+      ''}
 
       rules:
         - id: private-code-local-only
@@ -117,6 +145,20 @@ in
             cost_class:
               - free
               - low
+        - id: approved-general-chat-cloud-ok
+          description: General chat may use trusted cloud providers only when task data is cloud-approved
+          when:
+            privacy_class:
+              - trusted_cloud_ok
+              - public_cloud_ok
+            task:
+              - chat
+              - reason
+          effect: allow
+          parameters:
+            privacy_boundary:
+              - local
+              - trusted_cloud
 
       fallback:
         allowed_reasons:

@@ -13,6 +13,8 @@
     localBaseUrl = "http://127.0.0.1:8000/v1";
     listenerAddress = "127.0.0.1";
     listenerPort = 12000;
+    enableOpenAI = true;
+    enableAnthropic = true;
   };
 
   ryjen.ai.model-router = {

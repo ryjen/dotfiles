@@ -18,6 +18,12 @@ Anthesis
   Governed execution envelopes, approvals, replayability, and evidence
 ```
 
+Rule of thumb:
+
+- Dubnium owns runtime, ports, GPUs, and local serving
+- dotfiles own client policy, provider aliases, and secrets
+- model-router owns route semantics, task classes, and fallback rules
+
 ## Why Nix/Home Manager here
 
 The `feature/nix-migration` branch should avoid growing new Ansible surface for user config. Plano and model-router client integration are declarative home-environment concerns:
@@ -67,6 +73,14 @@ Local model endpoint: http://127.0.0.1:8000/v1
 
 Dubnium should provide the actual local runtime, usually vLLM or Ollama behind an OpenAI-compatible endpoint.
 
+Use the Plano user module to declare both local and cloud providers:
+
+- local endpoint via `localBaseUrl`
+- cloud aliases via `enableOpenAI` / `openAIModel`
+- cloud aliases via `enableAnthropic` / `anthropicModel`
+
+Keep API keys in runtime secrets or environment variables. Do not commit them.
+
 ## model-router module
 
 `ryjen.ai.model-router` writes a local-first policy profile and exports client environment variables.
@@ -75,9 +89,16 @@ The generated profile treats Plano as the runtime gateway while model-router own
 
 - privacy classes
 - source policy
+- task-class routing
 - route-decision ledger path
 - fallback allow/deny semantics
 - affinity key sources
+
+Recommended task split:
+
+- `local-code` for private code, refactors, repo analysis, and unpublished docs
+- `fast-local` for summaries, rewrites, and classification
+- cloud aliases for general chat, broad reasoning, or tasks you explicitly allow to leave machine
 
 ## Ansible boundary
 
