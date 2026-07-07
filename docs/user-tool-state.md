@@ -253,6 +253,18 @@ configctl init apply uv-tools --allow network,mutable-user-state --yes
 configctl init verify uv-tools
 ```
 
+### Exposed uv tool commands
+
+Some uv tools install additional executables inside their isolated tool environment that are not automatically exposed through `~/.local/bin`. Tool manifest entries may declare selected additional commands with `expose`.
+
+Current exposed commands:
+
+```text
+headroom-ai[all]: rtk
+```
+
+After `configctl` supports `expose`, applying `uv-tools` should link exposed commands into the configured uv tools bin path without declaring them as separate uv tool packages.
+
 ## Verification
 
 Run repo-side contract validation after editing init contracts or package manifests:
