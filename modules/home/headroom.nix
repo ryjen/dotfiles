@@ -26,8 +26,8 @@ in
 
       package = lib.mkOption {
         type = lib.types.str;
-        default = "${config.home.homeDirectory}/.local/share/pip/bin/headroom";
-        description = "Path to the headroom CLI binary (pip-installed).";
+        default = "${config.home.homeDirectory}/.local/bin/headroom";
+        description = "Path to the headroom CLI binary (uv tool-installed).";
       };
     };
   };
@@ -47,7 +47,7 @@ in
         Restart = "always";
         RestartSec = "5s";
         Environment = [
-          "PATH=${config.home.homeDirectory}/.local/share/pip/bin:%h/.venv/bin:%h/.local/bin"
+          "PATH=%h/.local/bin:%h/.local/share/pip/bin:%h/.venv/bin"
           "LD_LIBRARY_PATH=${lib.makeLibraryPath [ pkgs.stdenv.cc.cc.lib ]}"
         ];
       };
