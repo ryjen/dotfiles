@@ -26,13 +26,18 @@ in
 
       package = lib.mkOption {
         type = lib.types.str;
-        default = "${config.home.homeDirectory}/.local/bin/headroom";
-        description = "Path to the headroom CLI binary (uv tool-installed).";
+        default = "${config.home.homeDirectory}/.local/libexec/headroom-proxy";
+        description = "Path to the Headroom proxy launcher. The launcher prefers uv tool-installed Headroom and falls back to the legacy pip global during migration.";
       };
     };
   };
 
   config = lib.mkIf cfg.proxy.enable {
+    home.file.".local/libexec/headroom-proxy" = {
+      source = ../../files/home/.local/libexec/headroom-proxy;
+      executable = true;
+    };
+
     systemd.user.services.headroom-proxy = {
       Unit = {
         Description = "Headroom context compression proxy";
@@ -43,7 +48,7 @@ in
 
       Service = {
         Type = "simple";
-        ExecStart = "${cfg.proxy.package} proxy --host ${cfg.proxy.host} --port ${toString cfg.proxy.port}";
+        ExecStart = "${cfg.proxy.package} --host ${cfg.proxy.host} --port ${toString cfg.proxy.port}";
         Restart = "always";
         RestartSec = "5s";
         Environment = [
