@@ -12,3 +12,4 @@ onnxruntime
 magika
 zstandard
 h2
+aider-chat
