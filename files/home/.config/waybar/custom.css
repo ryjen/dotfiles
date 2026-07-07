@@ -4,14 +4,14 @@
  * managed directly with the rest of the Waybar runtime files.
  */
 
+#custom-fans,
 #custom-nvidia-gpu {
-  padding: 0 8px;
+  padding: 0 6px;
 }
 
-#custom-nvidia-gpu.missing {
-  padding: 0;
-}
-
+#custom-fans.missing,
+#custom-fans.error,
+#custom-nvidia-gpu.missing,
 #custom-nvidia-gpu.error {
   padding: 0;
 }

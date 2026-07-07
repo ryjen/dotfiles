@@ -24,6 +24,7 @@
         "cpu",
         "memory",
         "temperature",
+        "custom/fans",
         "custom/nvidia-gpu",
         "custom/backlight",
         "clock",
@@ -92,6 +93,13 @@
         "critical-threshold": 80,
         "format": "{icon} {temperatureC}°C",
         "format-icons": ["", "", "", "", ""]
+    },
+    "custom/fans": {
+        "exec": "bash ~/.config/waybar/scripts/fans",
+        "interval": 5,
+        "return-type": "json",
+        "format": "{}",
+        "tooltip": true
     },
     "custom/nvidia-gpu": {
         "exec": "~/.config/waybar/scripts/nvidia-gpu",
