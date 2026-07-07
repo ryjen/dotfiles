@@ -253,17 +253,17 @@ configctl init apply uv-tools --allow network,mutable-user-state --yes
 configctl init verify uv-tools
 ```
 
-### Headroom wrapper support
+### Exposed uv tool commands
 
-Headroom installs an internal `rtk` executable inside its uv tool environment, but `headroom wrap` expects an `rtk` command on PATH. The Headroom Home Manager module installs an `~/.local/bin/rtk` shim that dispatches to the executable inside the uv tools directory.
+Some uv tools install additional executables inside their isolated tool environment that are not automatically exposed through `~/.local/bin`. Tool manifest entries may declare selected additional commands with `expose`.
 
-Manual checks:
+Current exposed commands:
 
-```sh
-command -v headroom
-command -v rtk
-headroom wrap --help
+```text
+headroom-ai[all]: rtk
 ```
+
+After `configctl` supports `expose`, applying `uv-tools` should link exposed commands into the configured uv tools bin path without declaring them as separate uv tool packages.
 
 ## Verification
 
