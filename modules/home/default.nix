@@ -31,6 +31,7 @@
     ./music.nix
     ./neovim.nix
     ./npm.nix
+    ./office.nix
     ./ops-cadence.nix
     ./pass.nix
     ./pinentry.nix
