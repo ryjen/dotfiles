@@ -45,6 +45,7 @@ SUPPORTED_ACTIVE_KINDS = {
     "pip-globals",
     "skill-deployment",
     "task-config",
+    "uv-tools",
 }
 
 
@@ -165,6 +166,71 @@ def validate_pip_globals(path: Path, contract: dict[str, Any]) -> None:
     )
 
 
+def validate_uv_tools(path: Path, contract: dict[str, Any]) -> None:
+    manifest = require_type(contract, path, "manifest", str)
+    bin_path = require_type(contract, path, "bin", str)
+
+    if bin_path != "$HOME/.local/bin":
+        fail(f"{path}: bin must match Home Manager uv tool bin path '$HOME/.local/bin'")
+
+    source_manifest = managed_home_path(manifest)
+    if source_manifest is None:
+        fail(f"{path}: manifest must be a managed $HOME-relative path")
+    if not source_manifest.is_file():
+        fail(f"{path}: referenced manifest does not exist: {source_manifest.relative_to(ROOT)}")
+
+    risks = set(contract["risk"])
+    missing = sorted({"network", "mutable-user-state"} - risks)
+    if missing:
+        fail(f"{path}: uv-tools missing required risks: {', '.join(missing)}")
+
+    state = contract.get("state")
+    if not isinstance(state, dict):
+        fail(f"{path}: missing [state] table")
+    for key in ("trackDesiredHash", "trackObservedHash"):
+        if state.get(key) is not True:
+            fail(f"{path}: [state].{key} must be true")
+
+    behavior = contract.get("behavior")
+    if not isinstance(behavior, dict):
+        fail(f"{path}: missing [behavior] table")
+    expected_behavior = {
+        "install": True,
+        "update": False,
+        "prune": False,
+    }
+    for key, expected in expected_behavior.items():
+        if behavior.get(key) is not expected:
+            fail(f"{path}: [behavior].{key} must be {str(expected).lower()}")
+
+    try:
+        tool_manifest = tomllib.loads(source_manifest.read_text(encoding="utf-8"))
+    except tomllib.TOMLDecodeError as exc:
+        fail(f"{source_manifest}: invalid TOML: {exc}")
+
+    tools = tool_manifest.get("tools")
+    if not isinstance(tools, list) or not tools:
+        fail(f"{source_manifest}: expected at least one [[tools]] entry")
+
+    seen_packages: set[str] = set()
+    for index, tool in enumerate(tools, start=1):
+        if not isinstance(tool, dict):
+            fail(f"{source_manifest}: [[tools]] entry {index} must be a table")
+        package = tool.get("package")
+        if not isinstance(package, str) or not package.strip():
+            fail(f"{source_manifest}: [[tools]] entry {index} package must be a non-empty string")
+        if package in seen_packages:
+            fail(f"{source_manifest}: duplicate uv tool package {package!r}")
+        seen_packages.add(package)
+        python = tool.get("python")
+        if python is not None and not isinstance(python, str):
+            fail(f"{source_manifest}: [[tools]] entry {index} python must be a string")
+        extra_packages = tool.get("extraPackages")
+        if extra_packages is not None:
+            if not isinstance(extra_packages, list) or not all(isinstance(item, str) for item in extra_packages):
+                fail(f"{source_manifest}: [[tools]] entry {index} extraPackages must be a list of strings")
+
+
 def validate_codex_config(path: Path, contract: dict[str, Any]) -> None:
     root = require_type(contract, path, "root", str)
     output = require_type(contract, path, "output", str)
@@ -232,6 +298,8 @@ def main() -> int:
             validate_npm_globals(path, contract)
         elif kind == "pip-globals":
             validate_pip_globals(path, contract)
+        elif kind == "uv-tools":
+            validate_uv_tools(path, contract)
         elif kind == "skill-deployment":
             validate_skill_deployment(path, contract)
         elif kind == "task-config":
