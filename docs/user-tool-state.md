@@ -266,8 +266,6 @@ command -v rtk
 headroom wrap --help
 ```
 
-Wrapper mode should be treated as more sensitive than a plain CLI tool because it may sit between local developer tools and model/provider calls. Do not commit wrapper traces, prompt caches, provider tokens, local logs, or generated proxy state.
-
 ## Verification
 
 Run repo-side contract validation after editing init contracts or package manifests:
