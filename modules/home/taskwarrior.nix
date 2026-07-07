@@ -1,4 +1,6 @@
 {
+  config,
+  lib,
   pkgs,
   ...
 }: {
@@ -8,7 +10,7 @@
 
   home.file.".taskrc".source = ../../files/home/.taskrc;
 
-  # Managed config subdirectories — sourced by the generated .taskrc
+  # Managed config subdirectories - sourced by the generated .taskrc
   xdg.configFile."task/sync".source = ../../files/home/.config/task/sync;
   xdg.configFile."task/themes".source = ../../files/home/.config/task/themes;
   xdg.configFile."task/uda".source = ../../files/home/.config/task/uda;
@@ -20,11 +22,20 @@
     # Reserved for Nix-managed adopted profiles
   '';
 
-  xdg.configFile."task/custom.d/index.rc".text = ''
-    # Custom rc fragments — include files here to activate them
-  '';
+  home.activation.ensureTaskRuntimeFiles = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    task_config_dir="${config.xdg.configHome}/task"
+    mkdir -p "$task_config_dir/custom.d"
 
-  xdg.configFile."task/local.rc".text = ''
-    # Place host-local or user overrides here.
+    if [ ! -e "$task_config_dir/local.rc" ]; then
+      cat > "$task_config_dir/local.rc" <<'EOF'
+# Local Taskwarrior overrides.
+EOF
+    fi
+
+    if [ ! -e "$task_config_dir/custom.d/index.rc" ]; then
+      cat > "$task_config_dir/custom.d/index.rc" <<'EOF'
+# User-managed Taskwarrior custom includes.
+EOF
+    fi
   '';
 }
