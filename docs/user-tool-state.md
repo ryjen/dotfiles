@@ -243,7 +243,6 @@ Current durable uv tools include:
 ```text
 aider-chat
 headroom-ai[all]
-rtk
 ```
 
 Inspect and reconcile with:
@@ -256,7 +255,7 @@ configctl init verify uv-tools
 
 ### Headroom wrapper support
 
-Headroom wrapper mode expects both `headroom` and `rtk` on PATH. Both are declared in the uv tools manifest so `configctl init apply uv-tools` can expose them through `~/.local/bin`.
+Headroom installs an internal `rtk` executable inside its uv tool environment, but `headroom wrap` expects an `rtk` command on PATH. The Headroom Home Manager module installs an `~/.local/bin/rtk` shim that dispatches to the executable inside the uv tools directory.
 
 Manual checks:
 
