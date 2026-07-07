@@ -26,7 +26,6 @@
         "temperature",
         "custom/fans",
         "custom/nvidia-gpu",
-        "custom/backlight",
         "clock",
         "hyprland/language",
         "custom/power"
@@ -81,14 +80,6 @@
         "on-scroll-down": "brightnessctl set 1%-",
         "min-length": 6
     },
-    "custom/backlight": {
-        "exec": "brightnessctl -m | cut -d, -f4",
-        "interval": 1,
-        "format": "󰃠 {}",
-        "on-scroll-up": "brightnessctl set 1%+",
-        "on-scroll-down": "brightnessctl set 1%-",
-        "tooltip": false
-    },
     "temperature": {
         "critical-threshold": 80,
         "format": "{icon} {temperatureC}°C",
@@ -123,9 +114,9 @@
         "max-length": 30
     },
     "pulseaudio": {
-        "format": "{volume}% {icon} {format_source}",
-        "format-bluetooth": "{volume}% {icon} {format_source}",
-        "format-muted": " {format_source}",
+        "format": "{volume}% {icon}  {format_source}",
+        "format-bluetooth": "{volume}% {icon}  {format_source}",
+        "format-muted": "  {format_source}",
         "format-source": "{volume}% ",
         "format-source-muted": "",
         "format-icons": {

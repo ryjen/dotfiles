@@ -60,6 +60,6 @@ name="$(trim "$name")"
 name_escaped="$(json_escape "$name")"
 vram_pct="$(percent "$mem_used" "$mem_total")"
 
-printf '{"text":"󰢮 %s%%/%s%%","tooltip":"%s\\nGPU: %s%%\\nVRAM: %s%% (%s / %s MiB)\\nTemp: %s°C\\nPower: %s / %s W\\nFan: %s%%","class":"nvidia"}\n' \
+printf '{"text":"󰢮  %s%%/%s%%","tooltip":"%s\\nGPU: %s%%\\nVRAM: %s%% (%s / %s MiB)\\nTemp: %s°C\\nPower: %s / %s W\\nFan: %s%%","class":"nvidia"}\n' \
   "$util" "$vram_pct" \
   "$name_escaped" "$util" "$vram_pct" "$mem_used" "$mem_total" "$temp" "$power" "$power_limit" "$fan"

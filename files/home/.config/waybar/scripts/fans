@@ -2,15 +2,15 @@
 set -euo pipefail
 
 # Emit a Waybar JSON payload for hardware fan speeds exposed by lm_sensors.
-# Keep this script host-safe: machines without readable fan sensors should render
-# nothing instead of causing repeated Waybar errors.
+# Keep this widget visible even when the host does not expose fan RPM sensors so
+# operators can distinguish "not wired" from a missing Waybar module.
 if ! command -v sensors >/dev/null 2>&1; then
-  printf '{"text":"","tooltip":"sensors not found","class":"missing"}\n'
+  printf '{"text":"󰈐 --","tooltip":"sensors not found","class":"missing"}\n'
   exit 0
 fi
 
 if ! output="$(sensors 2>/dev/null)"; then
-  printf '{"text":"","tooltip":"sensors failed","class":"error"}\n'
+  printf '{"text":"󰈐 err","tooltip":"sensors failed","class":"error"}\n'
   exit 0
 fi
 
@@ -32,7 +32,7 @@ fans="$(
 )"
 
 if [ -z "$fans" ]; then
-  printf '{"text":"","tooltip":"No fan RPM sensors reported","class":"missing"}\n'
+  printf '{"text":"󰈐 --","tooltip":"No fan RPM sensors reported","class":"missing"}\n'
   exit 0
 fi
 
