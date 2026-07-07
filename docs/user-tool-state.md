@@ -256,7 +256,7 @@ configctl init verify uv-tools
 
 ### Headroom wrapper support
 
-Headroom is declared as an isolated uv tool, but wrapper mode also expects an `rtk` command on PATH. `rtk` is therefore declared in the uv tools manifest so `configctl init apply uv-tools` can expose it through `~/.local/bin`.
+Headroom is declared as an isolated uv tool, and wrapper mode also expects `rtk` on PATH. `rtk` is declared in the uv tools manifest so `configctl init apply uv-tools` can expose it through `~/.local/bin`.
 
 Manual checks:
 
