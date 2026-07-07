@@ -1,43 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Emit a Waybar JSON payload for hardware fan speeds exposed by lm_sensors.
-# Keep this widget visible even when the host does not expose fan RPM sensors so
-# operators can distinguish "not wired" from a missing Waybar module.
-if ! command -v sensors >/dev/null 2>&1; then
-  printf '{"text":"󰈐 --","tooltip":"sensors not found","class":"missing"}\n'
-  exit 0
-fi
-
-if ! output="$(sensors 2>/dev/null)"; then
-  printf '{"text":"󰈐 err","tooltip":"sensors failed","class":"error"}\n'
-  exit 0
-fi
-
-fans="$(
-  printf '%s\n' "$output" |
-    awk '
-      /^[[:space:]]*fan[0-9A-Za-z_-]*:/ {
-        label=$1
-        sub(/:$/, "", label)
-
-        for (i = 2; i <= NF; i++) {
-          if ($i ~ /^[0-9]+(\.[0-9]+)?$/) {
-            printf "%s %d\n", label, int($i + 0.5)
-            next
-          }
-        }
-      }
-    '
-)"
-
-if [ -z "$fans" ]; then
-  printf '{"text":"󰈐 --","tooltip":"No fan RPM sensors reported","class":"missing"}\n'
-  exit 0
-fi
-
-max_rpm="$(printf '%s\n' "$fans" | awk 'BEGIN { max=0 } { if ($2 > max) max=$2 } END { print max }')"
-tooltip="$(printf '%s\n' "$fans" | awk '{ printf "%s: %s RPM\n", $1, $2 }')"
+# Emit a Waybar JSON payload for fan state.
+# Prefer NVIDIA fan percentage for the compact text because it is already a
+# normalized percentage. Keep motherboard/system fan RPM details in the tooltip
+# when lm_sensors exposes them.
 
 json_escape() {
   local value="$1"
@@ -47,6 +14,99 @@ json_escape() {
   printf '%s' "$value"
 }
 
+trim() {
+  local value="$1"
+  value="${value#${value%%[![:space:]]*}}"
+  value="${value%${value##*[![:space:]]}}"
+  printf '%s' "$value"
+}
+
+gpu_fans=""
+gpu_tooltip=""
+max_gpu_fan=""
+
+if command -v nvidia-smi >/dev/null 2>&1; then
+  if gpu_rows="$(nvidia-smi --query-gpu=index,name,temperature.gpu,fan.speed,power.draw --format=csv,noheader,nounits 2>/dev/null)" && [ -n "${gpu_rows// }" ]; then
+    while IFS=',' read -r idx name temp fan power; do
+      idx="$(trim "$idx")"
+      name="$(trim "$name")"
+      temp="$(trim "$temp")"
+      fan="$(trim "$fan")"
+      power="$(trim "$power")"
+
+      [ -z "$idx" ] && continue
+      gpu_tooltip+="GPU ${idx} ${name}: ${fan:-N/A}% / ${temp:-N/A}°C / ${power:-N/A} W"$'\n'
+
+      if [[ "$fan" =~ ^[0-9]+([.][0-9]+)?$ ]]; then
+        fan_int="$(awk -v value="$fan" 'BEGIN { printf "%d", value + 0.5 }')"
+        gpu_fans+="${fan_int}"$'\n'
+        if [ -z "$max_gpu_fan" ] || [ "$fan_int" -gt "$max_gpu_fan" ]; then
+          max_gpu_fan="$fan_int"
+        fi
+      fi
+    done <<< "$gpu_rows"
+  fi
+fi
+
+sensors_status="missing"
+system_fans=""
+system_tooltip=""
+max_rpm=""
+
+if command -v sensors >/dev/null 2>&1; then
+  if sensors_output="$(sensors 2>/dev/null)"; then
+    sensors_status="ok"
+    system_fans="$(
+      printf '%s\n' "$sensors_output" |
+        awk '
+          /^[[:space:]]*fan[0-9A-Za-z_-]*:/ {
+            label=$1
+            sub(/:$/, "", label)
+
+            for (i = 2; i <= NF; i++) {
+              if ($i ~ /^[0-9]+(\.[0-9]+)?$/) {
+                printf "%s %d\n", label, int($i + 0.5)
+                next
+              }
+            }
+          }
+        '
+    )"
+  else
+    sensors_status="error"
+  fi
+fi
+
+if [ -n "$system_fans" ]; then
+  max_rpm="$(printf '%s\n' "$system_fans" | awk 'BEGIN { max=0 } { if ($2 > max) max=$2 } END { print max }')"
+  system_tooltip="$(printf '%s\n' "$system_fans" | awk '{ printf "%s: %s RPM\n", $1, $2 }')"
+elif [ "$sensors_status" = "missing" ]; then
+  system_tooltip="sensors not found"
+elif [ "$sensors_status" = "error" ]; then
+  system_tooltip="sensors failed"
+else
+  system_tooltip="No fan RPM sensors reported"
+fi
+
+if [ -n "$max_gpu_fan" ]; then
+  text="󰈐 ${max_gpu_fan}%"
+  class="fans"
+elif [ -n "$max_rpm" ]; then
+  text="󰈐 ${max_rpm} RPM"
+  class="fans"
+else
+  text="󰈐 --"
+  class="unavailable"
+fi
+
+tooltip="GPU fans"
+if [ -n "$gpu_tooltip" ]; then
+  tooltip+=$'\n'"${gpu_tooltip%$'\n'}"
+else
+  tooltip+=$'\n'"No NVIDIA fan percentages reported"
+fi
+
+tooltip+=$'\n\n'"System fans"$'\n'"${system_tooltip%$'\n'}"
 tooltip_escaped="$(json_escape "$tooltip")"
 
-printf '{"text":"󰈐 %s","tooltip":"%s","class":"fans"}\n' "$max_rpm" "$tooltip_escaped"
+printf '{"text":"%s","tooltip":"%s","class":"%s"}\n' "$text" "$tooltip_escaped" "$class"
