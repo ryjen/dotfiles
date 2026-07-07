@@ -9,7 +9,7 @@ if ! command -v nvidia-smi >/dev/null 2>&1; then
   exit 0
 fi
 
-query='utilization.gpu,temperature.gpu,memory.used,memory.total,power.draw,power.limit,name'
+query='utilization.gpu,temperature.gpu,memory.used,memory.total,power.draw,power.limit,fan.speed,name'
 if ! row="$(nvidia-smi --query-gpu="$query" --format=csv,noheader,nounits 2>/dev/null | head -n1)"; then
   printf '{"text":"","tooltip":"nvidia-smi failed","class":"error"}\n'
   exit 0
@@ -20,7 +20,7 @@ if [ -z "${row// }" ]; then
   exit 0
 fi
 
-IFS=',' read -r util temp mem_used mem_total power power_limit name <<< "$row"
+IFS=',' read -r util temp mem_used mem_total power power_limit fan name <<< "$row"
 
 trim() {
   local value="$1"
@@ -55,10 +55,11 @@ mem_used="$(trim "$mem_used")"
 mem_total="$(trim "$mem_total")"
 power="$(trim "$power")"
 power_limit="$(trim "$power_limit")"
+fan="$(trim "$fan")"
 name="$(trim "$name")"
 name_escaped="$(json_escape "$name")"
 vram_pct="$(percent "$mem_used" "$mem_total")"
 
-printf '{"text":"󰢮 %s%%/%s%%","tooltip":"%s\\nGPU: %s%%\\nVRAM: %s%% (%s / %s MiB)\\nTemp: %s°C\\nPower: %s / %s W","class":"nvidia"}\n' \
+printf '{"text":"󰢮 %s%%/%s%%","tooltip":"%s\\nGPU: %s%%\\nVRAM: %s%% (%s / %s MiB)\\nTemp: %s°C\\nPower: %s / %s W\\nFan: %s%%","class":"nvidia"}\n' \
   "$util" "$vram_pct" \
-  "$name_escaped" "$util" "$vram_pct" "$mem_used" "$mem_total" "$temp" "$power" "$power_limit"
+  "$name_escaped" "$util" "$vram_pct" "$mem_used" "$mem_total" "$temp" "$power" "$power_limit" "$fan"
