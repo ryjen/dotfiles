@@ -33,6 +33,11 @@ in
   };
 
   config = lib.mkIf cfg.proxy.enable {
+    home.file.".local/bin/rtk" = {
+      source = ../../files/home/.local/bin/rtk;
+      executable = true;
+    };
+
     home.file.".local/libexec/headroom-proxy" = {
       source = ../../files/home/.local/libexec/headroom-proxy;
       executable = true;
