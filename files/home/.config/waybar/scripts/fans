@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Emit a Waybar JSON payload for hardware fan speeds exposed by lm_sensors.
+# Keep this script host-safe: machines without readable fan sensors should render
+# nothing instead of causing repeated Waybar errors.
+if ! command -v sensors >/dev/null 2>&1; then
+  printf '{"text":"","tooltip":"sensors not found","class":"missing"}\n'
+  exit 0
+fi
+
+if ! output="$(sensors 2>/dev/null)"; then
+  printf '{"text":"","tooltip":"sensors failed","class":"error"}\n'
+  exit 0
+fi
+
+fans="$(
+  printf '%s\n' "$output" |
+    awk '
+      /^[[:space:]]*fan[0-9A-Za-z_-]*:/ {
+        label=$1
+        sub(/:$/, "", label)
+
+        for (i = 2; i <= NF; i++) {
+          if ($i ~ /^[0-9]+(\.[0-9]+)?$/) {
+            printf "%s %d\n", label, int($i + 0.5)
+            next
+          }
+        }
+      }
+    '
+)"
+
+if [ -z "$fans" ]; then
+  printf '{"text":"","tooltip":"No fan RPM sensors reported","class":"missing"}\n'
+  exit 0
+fi
+
+max_rpm="$(printf '%s\n' "$fans" | awk 'BEGIN { max=0 } { if ($2 > max) max=$2 } END { print max }')"
+tooltip="$(printf '%s\n' "$fans" | awk '{ printf "%s: %s RPM\\n", $1, $2 }')"
+tooltip="${tooltip%\\n}"
+
+json_escape() {
+  local value="$1"
+  value=${value//\\/\\\\}
+  value=${value//\"/\\\"}
+  value=${value//$'\n'/\\n}
+  printf '%s' "$value"
+}
+
+tooltip_escaped="$(json_escape "$tooltip")"
+
+printf '{"text":"󰈐 %s","tooltip":"%s","class":"fans"}\n' "$max_rpm" "$tooltip_escaped"
