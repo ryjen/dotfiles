@@ -253,6 +253,35 @@ configctl init apply uv-tools --allow network,mutable-user-state --yes
 configctl init verify uv-tools
 ```
 
+### Headroom wrapper diagnostics
+
+Headroom is declared as an isolated uv tool, but wrapper mode has an additional runtime surface beyond the `headroom` executable itself. In particular, `headroom wrap` has been observed looking for an `rtk` helper command.
+
+Do not add `rtk` to a durable manifest or Home Manager package list until its current upstream source is confirmed.
+
+Use the diagnostic helper installed by the Headroom Home Manager module:
+
+```sh
+headroom-wrap-doctor
+```
+
+The helper checks:
+
+- `headroom` availability on PATH
+- `rtk` availability on PATH
+- `headroom wrap --help`
+- visible Python package entry points for Headroom or `rtk`
+
+A missing `rtk` means wrapper readiness is degraded, not that dotfiles should immediately package an `rtk` command. First determine whether `rtk` is:
+
+- installed by `headroom-ai[all]`
+- a separate Python package or console script
+- optional for only some wrapper modes
+- stale/renamed upstream behavior
+- a user-local command expected outside durable dotfiles state
+
+Wrapper mode should be treated as more sensitive than a plain CLI tool because it may sit between local developer tools and model/provider calls. Do not commit wrapper traces, prompt caches, provider tokens, local logs, or generated proxy state.
+
 ## Verification
 
 Run repo-side contract validation after editing init contracts or package manifests:
