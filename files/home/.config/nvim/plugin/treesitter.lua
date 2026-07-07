@@ -5,7 +5,7 @@ if not ok then
 end
 
 ts_configs.setup({
-	ensure_installed = "all",
+	auto_install = false,
 	highlight = { enable = true, use_languagetree = true },
 	indent = { enable = false },
 	incremental_selection = {
