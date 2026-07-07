@@ -259,18 +259,32 @@ Headroom is declared as an isolated uv tool, but wrapper mode has an additional 
 
 Do not add `rtk` to a durable manifest or Home Manager package list until its current upstream source is confirmed.
 
-Use the diagnostic helper installed by the Headroom Home Manager module:
+Manual checks:
 
 ```sh
-headroom-wrap-doctor
+command -v headroom
+command -v rtk
+headroom wrap --help
+python -m pip show headroom-ai
+python -m pip show rtk || true
 ```
 
-The helper checks:
+Inspect visible Python package entry points if needed:
 
-- `headroom` availability on PATH
-- `rtk` availability on PATH
-- `headroom wrap --help`
-- visible Python package entry points for Headroom or `rtk`
+```sh
+python - <<'PY'
+import importlib.metadata as metadata
+
+for dist in sorted(metadata.distributions(), key=lambda d: (d.metadata.get("Name") or "").lower()):
+    name = dist.metadata.get("Name") or ""
+    if "headroom" not in name.lower() and name.lower() != "rtk":
+        continue
+    print(name, dist.version)
+    for entry_point in dist.entry_points:
+        if entry_point.group == "console_scripts":
+            print(" ", entry_point.name, "->", entry_point.value)
+PY
+```
 
 A missing `rtk` means wrapper readiness is degraded, not that dotfiles should immediately package an `rtk` command. First determine whether `rtk` is:
 
