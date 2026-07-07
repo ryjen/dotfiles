@@ -96,7 +96,7 @@
         "format-icons": ["", "", "", "", ""]
     },
     "custom/fans": {
-        "exec": "~/.config/waybar/scripts/fans",
+        "exec": "bash ~/.config/waybar/scripts/fans",
         "interval": 5,
         "return-type": "json",
         "format": "{}",
