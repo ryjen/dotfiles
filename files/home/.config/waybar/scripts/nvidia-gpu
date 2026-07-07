@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Emit a Waybar JSON payload for the first available NVIDIA GPU.
+# Emit a compact Waybar JSON payload for the first available NVIDIA GPU.
 # Keep this script host-safe: non-NVIDIA machines should render nothing instead
 # of causing repeated Waybar errors.
 if ! command -v nvidia-smi >/dev/null 2>&1; then
@@ -37,6 +37,18 @@ json_escape() {
   printf '%s' "$value"
 }
 
+percent() {
+  local used="$1"
+  local total="$2"
+
+  if [ -z "$used" ] || [ -z "$total" ] || [ "$total" = "0" ]; then
+    printf '0'
+    return
+  fi
+
+  awk -v used="$used" -v total="$total" 'BEGIN { printf "%d", (used * 100 / total) + 0.5 }'
+}
+
 util="$(trim "$util")"
 temp="$(trim "$temp")"
 mem_used="$(trim "$mem_used")"
@@ -45,7 +57,8 @@ power="$(trim "$power")"
 power_limit="$(trim "$power_limit")"
 name="$(trim "$name")"
 name_escaped="$(json_escape "$name")"
+vram_pct="$(percent "$mem_used" "$mem_total")"
 
-printf '{"text":"󰢮 %s%% %s°C %s/%s MiB","tooltip":"%s\\nGPU: %s%%\\nTemp: %s°C\\nVRAM: %s / %s MiB\\nPower: %s / %s W","class":"nvidia"}\n' \
-  "$util" "$temp" "$mem_used" "$mem_total" \
-  "$name_escaped" "$util" "$temp" "$mem_used" "$mem_total" "$power" "$power_limit"
+printf '{"text":"󰢮 %s%%/%s%%","tooltip":"%s\\nGPU: %s%%\\nVRAM: %s%% (%s / %s MiB)\\nTemp: %s°C\\nPower: %s / %s W","class":"nvidia"}\n' \
+  "$util" "$vram_pct" \
+  "$name_escaped" "$util" "$vram_pct" "$mem_used" "$mem_total" "$temp" "$power" "$power_limit"
