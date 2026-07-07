@@ -11,6 +11,10 @@
     withRuby = true;
     withPython3 = true;
 
+    plugins = with pkgs.vimPlugins; [
+      nvim-treesitter.withAllGrammars
+    ];
+
     # External tools used by the Lua config and plugin integrations.
     # Keep this list explicit so Neovim behavior stays reproducible under Nix.
     extraPackages = with pkgs; [
