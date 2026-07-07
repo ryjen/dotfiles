@@ -63,6 +63,9 @@
       ZEIT_DB = "$HOME/.config/zeit.db";
       ELECTRON_OZONE_PLATFORM_HINT = "wayland";
       OPENCV_LOG_LEVEL = "ERROR";
+
+      # Nix-ld library path for pip-installed native packages (onnxruntime, magika, etc.)
+      LD_LIBRARY_PATH = "/run/current-system/sw/share/nix-ld/lib";
     };
 
     home.sessionPath = [

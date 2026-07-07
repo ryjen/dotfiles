@@ -8,4 +8,5 @@
   dotfiles.profiles.workstation.enable = true;
   dotfiles.agents.hermes.enable = true;
   dotfiles.agents.antigravity.enable = true;
+  dotfiles.headroom.proxy.enable = true;
 }

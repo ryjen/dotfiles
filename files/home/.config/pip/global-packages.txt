@@ -7,3 +7,8 @@
 pybind11
 huggingface_hub
 headroom-ai[all]
+# headroom proxy runtime dependencies (not always pulled by [all])
+onnxruntime
+magika
+zstandard
+h2

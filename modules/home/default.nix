@@ -17,6 +17,7 @@
     ./direnv.nix
     ./fortunes.nix
     ./fzf.nix
+    ./headroom.nix
     ./helix.nix
     ./git.nix
     ./gpg.nix
