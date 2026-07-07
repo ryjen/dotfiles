@@ -264,8 +264,6 @@ Manual checks:
 command -v headroom
 command -v rtk
 headroom wrap --help
-python -m pip show headroom-ai
-python -m pip show rtk
 ```
 
 If `rtk` does not install cleanly through `uv-tools`, verify whether the upstream package name differs from the exposed command name before moving it to another lane or adding custom package handling.
