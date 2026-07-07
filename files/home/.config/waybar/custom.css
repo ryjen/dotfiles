@@ -6,12 +6,26 @@
 
 #custom-fans,
 #custom-nvidia-gpu {
-  padding: 0 6px;
+  margin: 4px 2px;
+  padding: 0 10px;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+#custom-fans {
+  color: #b4f9f8;
+}
+
+#custom-nvidia-gpu {
+  color: #9ece6a;
 }
 
 #custom-fans.missing,
 #custom-fans.error,
 #custom-nvidia-gpu.missing,
 #custom-nvidia-gpu.error {
+  margin: 0;
   padding: 0;
+  background-color: transparent;
 }
