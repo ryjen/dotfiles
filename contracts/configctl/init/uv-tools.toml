@@ -1,0 +1,19 @@
+schemaVersion = 1
+id = "uv-tools"
+kind = "uv-tools"
+description = "Install isolated Python CLI tools declared by dotfiles"
+enabled = true
+risk = ["network", "mutable-user-state"]
+tags = ["uv", "python", "workstation", "ai"]
+
+manifest = "$HOME/.config/uv/tools.toml"
+bin = "$HOME/.local/bin"
+
+[state]
+trackDesiredHash = true
+trackObservedHash = true
+
+[behavior]
+install = true
+update = false
+prune = false
