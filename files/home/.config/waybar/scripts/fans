@@ -37,8 +37,7 @@ if [ -z "$fans" ]; then
 fi
 
 max_rpm="$(printf '%s\n' "$fans" | awk 'BEGIN { max=0 } { if ($2 > max) max=$2 } END { print max }')"
-tooltip="$(printf '%s\n' "$fans" | awk '{ printf "%s: %s RPM\\n", $1, $2 }')"
-tooltip="${tooltip%\\n}"
+tooltip="$(printf '%s\n' "$fans" | awk '{ printf "%s: %s RPM\n", $1, $2 }')"
 
 json_escape() {
   local value="$1"
