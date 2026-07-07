@@ -1,14 +1,9 @@
 # Repo-managed pip global package manifest.
 #
-# This file declares durable pip global tools for configctl init contracts.
+# This file declares durable pip global library/helper packages for configctl init contracts.
+# Python CLI applications with larger dependency graphs belong in uv tools.
 # Comments and blank lines are allowed. Package install/update execution is
 # explicit mutable user state and must not run from Home Manager activation.
 
 pybind11
 huggingface_hub
-headroom-ai[all]
-# headroom proxy runtime dependencies (not always pulled by [all])
-onnxruntime
-magika
-zstandard
-h2

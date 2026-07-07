@@ -35,6 +35,8 @@ Tool manifests live in repo-managed paths under `files/home/` and are materializ
 Examples:
 
 - npm globals: `files/home/.config/npm/global-packages.txt`
+- pip globals: `files/home/.config/pip/global-packages.txt`
+- uv tools: `files/home/.config/uv/tools.toml`
 
 Manifests describe desired durable tools. They do not imply that Home Manager should run network-backed installation during activation.
 
@@ -53,6 +55,18 @@ Home Manager materializes them to the Dubnium discovery path:
 ```
 
 `configctl` owns runtime parsing, risk gates, planning, application, verification, and state under `$XDG_STATE_HOME`.
+
+## Tool lanes
+
+User-installed tooling is split by package ecosystem and isolation requirement:
+
+| Lane | Use for | Isolation |
+| --- | --- | --- |
+| `npm-globals` | npm-owned CLI tools | npm global prefix |
+| `pip-globals` | small Python library/helper packages | shared pip prefix |
+| `uv-tools` | Python CLI applications with larger dependency graphs | isolated uv tool environments |
+
+A package should move to `uv-tools` when it behaves like an application rather than a lightweight helper package. Examples include Aider and Headroom.
 
 ## Local experiments and promotion
 
@@ -200,6 +214,44 @@ command -v codex
 ```
 
 Avoid `sudo npm install -g`. The configured prefix is user-writable by design.
+
+## pip globals
+
+`pip-globals` is for small Python packages and helper libraries that are acceptable in a shared user prefix.
+
+Current durable pip globals are declared in:
+
+```text
+files/home/.config/pip/global-packages.txt
+```
+
+Python CLI applications with larger dependency graphs should not be added here. Prefer `uv-tools` so their dependencies remain isolated.
+
+## uv tools
+
+`uv-tools` is for Python CLI applications installed into isolated uv-managed environments while exposing executables through `~/.local/bin`.
+
+Home Manager writes:
+
+```text
+~/.config/uv/tools.toml
+~/.config/configctl/init.d/uv-tools.toml
+```
+
+Current durable uv tools include:
+
+```text
+aider-chat
+headroom-ai[all]
+```
+
+Inspect and reconcile with:
+
+```sh
+configctl init plan uv-tools
+configctl init apply uv-tools --allow network,mutable-user-state --yes
+configctl init verify uv-tools
+```
 
 ## Verification
 

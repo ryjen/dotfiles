@@ -40,6 +40,7 @@
     ./starship.nix
     ./taskwarrior.nix
     ./tmux.nix
+    ./uv.nix
     ./vscode.nix
     ./zsh.nix
     ./zellij.nix
