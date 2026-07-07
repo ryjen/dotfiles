@@ -1,0 +1,80 @@
+#!/usr/bin/env sh
+set -eu
+
+status=0
+
+note() {
+  printf '%s\n' "$*"
+}
+
+warn() {
+  printf '%s\n' "$*" >&2
+}
+
+show_command() {
+  name="$1"
+  purpose="$2"
+
+  if path="$(command -v "$name" 2>/dev/null)"; then
+    note "$name: ok ($path)"
+    return 0
+  fi
+
+  warn "$name: missing; $purpose"
+  status=1
+  return 1
+}
+
+note "Headroom wrapper diagnostics"
+note ""
+
+show_command headroom "required for Headroom CLI and wrapper commands" || true
+show_command rtk "observed as a Headroom wrapper helper dependency; verify upstream before packaging" || true
+
+note ""
+
+if command -v headroom >/dev/null 2>&1; then
+  note "headroom wrap help:"
+  if ! headroom wrap --help 2>&1 | sed 's/^/  /'; then
+    warn "headroom wrap --help failed; wrapper mode may be unavailable or misconfigured"
+    status=1
+  fi
+else
+  warn "skipping headroom wrap --help because headroom is not on PATH"
+fi
+
+note ""
+
+if command -v python3 >/dev/null 2>&1; then
+  note "Python package entry point inventory:"
+  python3 - <<'PY' 2>/dev/null || true
+import importlib.metadata as metadata
+
+matched = False
+for dist in sorted(metadata.distributions(), key=lambda d: (d.metadata.get("Name") or "").lower()):
+    name = dist.metadata.get("Name") or ""
+    if "headroom" not in name.lower() and name.lower() != "rtk":
+        continue
+    matched = True
+    print(f"  {name} {dist.version}")
+    for entry_point in dist.entry_points:
+        if entry_point.group == "console_scripts":
+            print(f"    {entry_point.name} -> {entry_point.value}")
+
+if not matched:
+    print("  no headroom/rtk distributions visible to python3")
+PY
+else
+  note "python3: missing; skipping package entry point inventory"
+fi
+
+note ""
+
+if [ "$status" -eq 0 ]; then
+  note "wrapper readiness: ok"
+else
+  warn "wrapper readiness: degraded"
+  warn "next step: confirm whether rtk is required, optional, or stale before adding package/PATH wiring"
+fi
+
+exit "$status"
