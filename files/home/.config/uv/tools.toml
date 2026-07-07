@@ -1,0 +1,14 @@
+# Repo-managed isolated Python CLI tool manifest.
+#
+# This file declares durable uv tool installs for configctl init contracts.
+# Comments are allowed. Installation is explicit mutable user state and must not
+# run from Home Manager activation.
+
+[[tools]]
+package = "aider-chat"
+python = "python3.12"
+extraPackages = ["pip"]
+
+[[tools]]
+package = "headroom-ai[all]"
+python = "python3.12"
