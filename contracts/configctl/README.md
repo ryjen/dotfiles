@@ -102,6 +102,8 @@ Important constraints:
 | Eww | `apps/eww.toml` | compose | planned | Home Manager | configctl |
 | Waybar | `apps/waybar.toml` | compose | planned | Home Manager | configctl |
 | npm globals | `init/npm-globals.toml` | init | active | explicit user state | configctl init |
+| pip globals | `init/pip-globals.toml` | init | active | explicit user state | configctl init |
+| uv tools | `init/uv-tools.toml` | init | active | explicit user state | configctl init |
 | Variety | `init/variety.toml` | init | planned | Home Manager activation | configctl init |
 | Multi-agent worktrees skill | `init/multi-agent-worktrees.toml` | init | active, validate-only | dotfiles/manual copy | configctl init |
 
@@ -119,12 +121,12 @@ Or build the check derivation explicitly:
 nix build .#checks.x86_64-linux.configctl-contracts
 ```
 
-The verifier checks that init contracts are valid TOML, use supported risk labels, have unique IDs, and that enabled contracts have dotfiles-side validation rules. For `npm-globals`, it also verifies that the contract paths match the Home Manager npm prefix and that the referenced package manifest exists.
+The verifier checks that init contracts are valid TOML, use supported risk labels, have unique IDs, and that enabled contracts have dotfiles-side validation rules. For `npm-globals`, `pip-globals`, and `uv-tools`, it also verifies that contract paths match the Home Manager-managed paths and that referenced package/tool manifests exist.
 
 ## Non-goals
 
 - No `configctl` executable implementation in this repository.
-- No automatic npm global package management from Home Manager activation.
+- No automatic package management from Home Manager activation.
 - No implicit network-backed init.
 - No automatic promotion, pruning, or garbage collection.
 - No public mdBook generation.
