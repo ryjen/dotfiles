@@ -71,6 +71,7 @@ in
 
   config = lib.mkIf config.dotfiles.profiles.workstation.enable {
     home.packages = [
+      pkgs.lm_sensors
       pkgs.variety
     ];
 
@@ -115,6 +116,10 @@ in
     xdg.configFile."waybar/style.css".source = ../../files/home/.config/waybar/style.css;
     xdg.configFile."waybar/colors.css".source = ../../files/home/.config/waybar/colors.css;
     xdg.configFile."waybar/custom.css".source = ../../files/home/.config/waybar/custom.css;
+    xdg.configFile."waybar/scripts/fans" = {
+      source = ../../files/home/.config/waybar/scripts/fans;
+      executable = true;
+    };
     xdg.configFile."waybar/scripts/nvidia-gpu" = {
       source = ../../files/home/.config/waybar/scripts/nvidia-gpu;
       executable = true;
