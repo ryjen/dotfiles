@@ -9,8 +9,10 @@ package = "aider-chat"
 python = "python3.12"
 extraPackages = ["pip"]
 
-# Headroom wrapper mode has been observed looking for an `rtk` helper command.
-# Keep that dependency out of durable state until its upstream source is verified.
 [[tools]]
 package = "headroom-ai[all]"
+python = "python3.12"
+
+[[tools]]
+package = "rtk"
 python = "python3.12"
