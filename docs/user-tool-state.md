@@ -243,6 +243,7 @@ Current durable uv tools include:
 ```text
 aider-chat
 headroom-ai[all]
+rtk
 ```
 
 Inspect and reconcile with:
@@ -253,11 +254,9 @@ configctl init apply uv-tools --allow network,mutable-user-state --yes
 configctl init verify uv-tools
 ```
 
-### Headroom wrapper diagnostics
+### Headroom wrapper support
 
-Headroom is declared as an isolated uv tool, but wrapper mode has an additional runtime surface beyond the `headroom` executable itself. In particular, `headroom wrap` has been observed looking for an `rtk` helper command.
-
-Do not add `rtk` to a durable manifest or Home Manager package list until its current upstream source is confirmed.
+Headroom is declared as an isolated uv tool, but wrapper mode also expects an `rtk` command on PATH. `rtk` is therefore declared in the uv tools manifest so `configctl init apply uv-tools` can expose it through `~/.local/bin`.
 
 Manual checks:
 
@@ -266,33 +265,10 @@ command -v headroom
 command -v rtk
 headroom wrap --help
 python -m pip show headroom-ai
-python -m pip show rtk || true
+python -m pip show rtk
 ```
 
-Inspect visible Python package entry points if needed:
-
-```sh
-python - <<'PY'
-import importlib.metadata as metadata
-
-for dist in sorted(metadata.distributions(), key=lambda d: (d.metadata.get("Name") or "").lower()):
-    name = dist.metadata.get("Name") or ""
-    if "headroom" not in name.lower() and name.lower() != "rtk":
-        continue
-    print(name, dist.version)
-    for entry_point in dist.entry_points:
-        if entry_point.group == "console_scripts":
-            print(" ", entry_point.name, "->", entry_point.value)
-PY
-```
-
-A missing `rtk` means wrapper readiness is degraded, not that dotfiles should immediately package an `rtk` command. First determine whether `rtk` is:
-
-- installed by `headroom-ai[all]`
-- a separate Python package or console script
-- optional for only some wrapper modes
-- stale/renamed upstream behavior
-- a user-local command expected outside durable dotfiles state
+If `rtk` does not install cleanly through `uv-tools`, verify whether the upstream package name differs from the exposed command name before moving it to another lane or adding custom package handling.
 
 Wrapper mode should be treated as more sensitive than a plain CLI tool because it may sit between local developer tools and model/provider calls. Do not commit wrapper traces, prompt caches, provider tokens, local logs, or generated proxy state.
 
