@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/run/current-system/sw/bin/sh
 set -eu
 
 uv_headroom="${HOME}/.local/bin/headroom"
