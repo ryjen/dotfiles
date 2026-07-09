@@ -43,6 +43,7 @@ let
     "dub-session-start"
     "dub-terminal"
     "dub-waybar-reload"
+    "music-status"
     "random-wallpaper"
     "random-quote"
   ];
