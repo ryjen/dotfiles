@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat <<'USAGE'
+usage: music-eq [open|service|preset NAME]
+
+Manage EasyEffects for local music playback.
+
+Commands:
+  open          Open the EasyEffects UI (default)
+  service       Start EasyEffects hidden as a background application service
+  preset NAME   Load an EasyEffects preset by name
+
+Examples:
+  music-eq
+  music-eq service
+  music-eq preset Headphones
+USAGE
+}
+
+cmd="${1:-open}"
+
+case "$cmd" in
+  open)
+    exec easyeffects
+    ;;
+  service)
+    exec easyeffects --gapplication-service
+    ;;
+  preset)
+    if [ "$#" -ne 2 ]; then
+      usage >&2
+      exit 2
+    fi
+    exec easyeffects --load-preset "$2"
+    ;;
+  -h|--help|help)
+    usage
+    ;;
+  *)
+    usage >&2
+    exit 2
+    ;;
+esac
