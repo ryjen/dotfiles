@@ -62,7 +62,8 @@ window#waybar {
     color: #bb9af7;
 }
 
-#custom-music {
+#custom-music,
+#custom-media {
     color: #c0caf5;
 }
 
