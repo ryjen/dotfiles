@@ -17,7 +17,7 @@
         "hyprland/window"
     ],
     "modules-right": [
-        "mpris",
+        "custom/music",
         "idle_inhibitor",
         "pulseaudio",
         "power-profiles-daemon",
@@ -99,19 +99,17 @@
         "format": "{}",
         "tooltip": true
     },
-    "mpris": {
-        "format": "{player_icon} {dynamic}",
-        "format-paused": "{status_icon} <i>{dynamic}</i>",
-        "player-icons": {
-            "default": "▶",
-            "spotify": "",
-            "firefox": "",
-            "chrome": ""
-        },
-        "status-icons": {
-            "paused": "⏸"
-        },
-        "max-length": 30
+    "custom/music": {
+        "exec": "playerctl --player=mpv metadata --format '{{artist}} - {{title}}' 2>/dev/null || true",
+        "interval": 2,
+        "format": " {}",
+        "max-length": 36,
+        "escape": true,
+        "on-click": "playerctl --player=mpv play-pause",
+        "on-click-right": "playerctl --player=mpv next",
+        "on-click-middle": "playerctl --player=mpv previous",
+        "on-click-backward": "music-eq",
+        "on-click-forward": "music-eq service"
     },
     "pulseaudio": {
         "format": "{volume}% {icon}  {format_source}",
