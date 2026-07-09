@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+uri="$(playerctl --player=mpv metadata xesam:url 2>/dev/null || true)"
+
+if [ -z "$uri" ]; then
+  printf 'music-dislike: no mpv track URL found\n' >&2
+  exit 1
+fi
+
+case "$uri" in
+  file://*)
+    ;;
+  *)
+    printf 'music-dislike: refusing non-local track URL: %s\n' "$uri" >&2
+    exit 1
+    ;;
+esac
+
+path="$(python3 - "$uri" <<'PY'
+import sys
+from urllib.parse import unquote, urlparse
+
+parsed = urlparse(sys.argv[1])
+if parsed.scheme != "file":
+    raise SystemExit(1)
+print(unquote(parsed.path))
+PY
+)"
+
+if [ ! -f "$path" ]; then
+  printf 'music-dislike: current track is not a file: %s\n' "$path" >&2
+  exit 1
+fi
+
+playerctl --player=mpv next 2>/dev/null || true
+sleep 0.25
+trash-put -- "$path"
+printf 'music-dislike: moved to trash: %s\n' "$path"
