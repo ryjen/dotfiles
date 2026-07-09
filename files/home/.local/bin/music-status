@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+status="$(playerctl --player=mpv status 2>/dev/null || true)"
+
+if [ -z "$status" ]; then
+  python3 - <<'PY'
+import json
+print(json.dumps({"text": "stopped", "alt": "stopped", "class": "stopped", "tooltip": "mpv music stopped"}))
+PY
+  exit 0
+fi
+
+artist="$(playerctl --player=mpv metadata xesam:artist 2>/dev/null || true)"
+title="$(playerctl --player=mpv metadata xesam:title 2>/dev/null || true)"
+url="$(playerctl --player=mpv metadata xesam:url 2>/dev/null || true)"
+
+python3 - "$status" "$artist" "$title" "$url" <<'PY'
+import json
+import os
+import sys
+from urllib.parse import unquote, urlparse
+
+status, artist, title, url = sys.argv[1:5]
+artist = artist.strip()
+title = title.strip()
+
+if artist and title:
+    text = f"{artist} - {title}"
+elif title:
+    text = title
+else:
+    parsed = urlparse(url)
+    if parsed.scheme == "file":
+        text = os.path.basename(unquote(parsed.path)) or "mpv music"
+    else:
+        text = "mpv music"
+
+tooltip_parts = [part for part in (artist, title) if part]
+tooltip = " - ".join(tooltip_parts) if tooltip_parts else text
+
+print(json.dumps({
+    "text": text,
+    "alt": status.lower(),
+    "class": status.lower(),
+    "tooltip": f"mpv: {tooltip}",
+}))
+PY
