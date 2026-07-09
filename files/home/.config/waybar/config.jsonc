@@ -100,10 +100,10 @@
         "tooltip": true
     },
     "custom/music": {
-        "exec": "playerctl --player=mpv metadata --format '{{artist}} - {{title}}' 2>/dev/null || true",
-        "interval": 2,
+        "exec": "music-status",
+        "interval": 1,
+        "return-type": "json",
         "format": " {}",
-        "max-length": 36,
         "escape": true,
         "on-click": "playerctl --player=mpv play-pause",
         "on-click-right": "playerctl --player=mpv next",
