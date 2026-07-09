@@ -20,6 +20,7 @@ in
 
   config = lib.mkIf cfg.enable {
     home.packages = with pkgs; [
+      easyeffects
       playerctl
     ];
 
@@ -40,6 +41,11 @@ in
 
     home.file.".local/bin/music" = {
       source = ../../files/home/.local/bin/music;
+      executable = true;
+    };
+
+    home.file.".local/bin/music-eq" = {
+      source = ../../files/home/.local/bin/music-eq;
       executable = true;
     };
   };
