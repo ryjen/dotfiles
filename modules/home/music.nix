@@ -44,6 +44,11 @@ in
       executable = true;
     };
 
+    home.file.".local/bin/music-window" = {
+      source = ../../files/home/.local/bin/music-window;
+      executable = true;
+    };
+
     home.file.".local/bin/music-eq" = {
       source = ../../files/home/.local/bin/music-eq;
       executable = true;
