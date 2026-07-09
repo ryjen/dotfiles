@@ -19,6 +19,7 @@ python3 - "$status" "$artist" "$title" "$url" <<'PY'
 import json
 import os
 import sys
+import time
 from urllib.parse import unquote, urlparse
 
 status, artist, title, url = sys.argv[1:5]
@@ -26,23 +27,28 @@ artist = artist.strip()
 title = title.strip()
 
 if artist and title:
-    text = f"{artist} - {title}"
+    full_text = f"{artist} - {title}"
 elif title:
-    text = title
+    full_text = title
 else:
     parsed = urlparse(url)
     if parsed.scheme == "file":
-        text = os.path.basename(unquote(parsed.path)) or "mpv music"
+        full_text = os.path.basename(unquote(parsed.path)) or "mpv music"
     else:
-        text = "mpv music"
+        full_text = "mpv music"
 
-tooltip_parts = [part for part in (artist, title) if part]
-tooltip = " - ".join(tooltip_parts) if tooltip_parts else text
+width = 36
+if len(full_text) > width:
+    padded = f"{full_text}   •   "
+    offset = int(time.time()) % len(padded)
+    text = (padded + padded)[offset:offset + width]
+else:
+    text = full_text
 
 print(json.dumps({
     "text": text,
     "alt": status.lower(),
     "class": status.lower(),
-    "tooltip": f"mpv: {tooltip}",
+    "tooltip": f"mpv: {full_text}",
 }))
 PY
