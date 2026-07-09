@@ -20,9 +20,21 @@ in
 
   config = lib.mkIf cfg.enable {
     home.packages = with pkgs; [
-      mpv
       playerctl
     ];
+
+    programs.mpv = {
+      enable = true;
+
+      scripts = with pkgs.mpvScripts; [
+        mpris
+      ];
+
+      config = {
+        audio-display = "no";
+        save-position-on-quit = "yes";
+      };
+    };
 
     home.sessionVariables.DUBNIUM_MUSIC_DIR = cfg.musicDirectory;
 
