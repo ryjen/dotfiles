@@ -73,5 +73,10 @@ in
       source = ../../files/home/.local/bin/music-dislike;
       executable = true;
     };
+
+    home.file.".local/bin/music-status" = {
+      source = ../../files/home/.local/bin/music-status;
+      executable = true;
+    };
   };
 }
