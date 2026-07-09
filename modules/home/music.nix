@@ -37,6 +37,15 @@ in
       };
     };
 
+    xdg.desktopEntries.music-window = {
+      name = "Music Window";
+      genericName = "Music Player";
+      comment = "Open the local music library in mpv's graphical window";
+      exec = "music-window";
+      terminal = false;
+      categories = [ "Audio" "Music" "Player" ];
+    };
+
     home.sessionVariables.DUBNIUM_MUSIC_DIR = cfg.musicDirectory;
 
     home.file.".local/bin/music" = {
