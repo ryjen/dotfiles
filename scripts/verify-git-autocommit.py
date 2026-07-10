@@ -35,6 +35,7 @@ def load_module(path: Path):
 
 
 def write(path: Path, value: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(value, encoding="utf-8")
 
 
@@ -45,20 +46,23 @@ def main() -> int:
 
     with tempfile.TemporaryDirectory(prefix="git-autocommit-test-") as directory:
         repo = Path(directory)
+        nested = repo / "dir"
         run("init", "-q", cwd=repo)
         run("config", "user.name", "Test User", cwd=repo)
         run("config", "user.email", "test@example.invalid", cwd=repo)
 
         write(repo / "alpha.txt", "alpha base\n")
         write(repo / "delete.txt", "delete base\n")
-        run("add", "alpha.txt", "delete.txt", cwd=repo)
+        write(nested / "nested.txt", "nested base\n")
+        run("add", "alpha.txt", "delete.txt", "dir/nested.txt", cwd=repo)
         run("commit", "-q", "-m", "chore: seed repository", cwd=repo)
         base = run("rev-parse", "HEAD", cwd=repo)
 
         write(repo / "alpha.txt", "alpha staged\n")
         write(repo / "beta.txt", "beta staged\n")
+        write(nested / "nested.txt", "nested staged\n")
         (repo / "delete.txt").unlink()
-        run("add", "alpha.txt", "beta.txt", "delete.txt", cwd=repo)
+        run("add", "alpha.txt", "beta.txt", "delete.txt", "dir/nested.txt", cwd=repo)
         snapshot = run("write-tree", cwd=repo)
 
         write(repo / "alpha.txt", "alpha unstaged drift\n")
@@ -66,8 +70,10 @@ def main() -> int:
         write(repo / "delete.txt", "resurrected but unstaged\n")
 
         previous = Path.cwd()
-        os.chdir(repo)
+        os.chdir(nested)
         try:
+            module.require_repository()
+            assert module.REPOSITORY_ROOT == repo
             config_path = module.git_config_path()
             assert config_path == repo / ".git" / "autocommit.toml"
             write(
@@ -87,8 +93,17 @@ def main() -> int:
             assert settings["max_commits"] == 3
             assert settings["single_commit"] is True
 
+            captured_head, captured_tree, files = module.repository_snapshot()
+            assert captured_head == base
+            assert captured_tree == snapshot
+            assert "dir/nested.txt" in files
+            assert "File: dir/nested.txt" in module.staged_context(files, 120_000)
+            assert module.tree_entry(snapshot, "dir/nested.txt") is not None
+
             module.assert_snapshot_unchanged(base, snapshot)
-            first_tree = module.build_commit_tree(base, snapshot, ["alpha.txt"])
+            first_tree = module.build_commit_tree(
+                base, snapshot, ["alpha.txt", "dir/nested.txt"]
+            )
             first = run(
                 "commit-tree",
                 first_tree,
@@ -102,8 +117,6 @@ def main() -> int:
                 first, snapshot, ["beta.txt", "delete.txt"]
             )
 
-            # Stage a new file while the generated commit chain is being built.
-            # The final snapshot check must reject it before moving HEAD.
             original_create = module.create_signed_commit_object
             calls = 0
 
@@ -120,7 +133,10 @@ def main() -> int:
 
             module.create_signed_commit_object = create_with_index_race
             plan = [
-                {"message": "test: first group", "files": ["alpha.txt"]},
+                {
+                    "message": "test: first group",
+                    "files": ["alpha.txt", "dir/nested.txt"],
+                },
                 {
                     "message": "test: second group",
                     "files": ["beta.txt", "delete.txt"],
@@ -140,6 +156,10 @@ def main() -> int:
             os.chdir(previous)
 
         assert run("show", f"{first_tree}:alpha.txt", cwd=repo) == "alpha staged"
+        assert (
+            run("show", f"{first_tree}:dir/nested.txt", cwd=repo)
+            == "nested staged"
+        )
         assert run("show", f"{second_tree}:beta.txt", cwd=repo) == "beta staged"
         assert subprocess.run(
             ["git", "cat-file", "-e", f"{second_tree}:delete.txt"],
