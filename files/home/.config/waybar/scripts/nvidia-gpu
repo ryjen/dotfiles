@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Emit a compact Waybar JSON payload for every available NVIDIA GPU.
+# Emit aggregate NVIDIA GPU utilization in Waybar, with per-GPU detail in the tooltip.
 # Keep this script host-safe: non-NVIDIA machines should render nothing instead
 # of causing repeated Waybar errors.
 if ! command -v nvidia-smi >/dev/null 2>&1; then
@@ -47,9 +47,11 @@ percent() {
   awk -v used="$used" -v total="$total" 'BEGIN { printf "%d", (used * 100 / total) + 0.5 }'
 }
 
-text='󰢮 '
 tooltip=''
-separator=' '
+gpu_count=0
+util_total=0
+mem_used_total=0
+mem_capacity_total=0
 
 while IFS=',' read -r index util temp mem_used mem_total power power_limit fan name; do
   index="$(trim "$index")"
@@ -63,7 +65,10 @@ while IFS=',' read -r index util temp mem_used mem_total power power_limit fan n
   name="$(trim "$name")"
   vram_pct="$(percent "$mem_used" "$mem_total")"
 
-  text+="${separator}${index}:${util}%/${vram_pct}%"
+  gpu_count=$((gpu_count + 1))
+  util_total=$((util_total + util))
+  mem_used_total=$((mem_used_total + mem_used))
+  mem_capacity_total=$((mem_capacity_total + mem_total))
 
   if [ -n "$tooltip" ]; then
     tooltip+=$'\n\n'
@@ -74,8 +79,11 @@ while IFS=',' read -r index util temp mem_used mem_total power power_limit fan n
   tooltip+="Temp: ${temp}°C"$'\n'
   tooltip+="Power: ${power} / ${power_limit} W"$'\n'
   tooltip+="Fan: ${fan}%"
-
 done <<< "$output"
+
+aggregate_util="$(percent "$util_total" "$((gpu_count * 100))")"
+aggregate_vram="$(percent "$mem_used_total" "$mem_capacity_total")"
+text="󰢮  ${aggregate_util}%/${aggregate_vram}%"
 
 printf '{"text":"%s","tooltip":"%s","class":"nvidia"}\n' \
   "$(json_escape "$text")" "$(json_escape "$tooltip")"
