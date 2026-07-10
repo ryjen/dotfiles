@@ -37,6 +37,7 @@ CONVENTIONAL_COMMIT = re.compile(
     r"(?:\([a-z0-9][a-z0-9._/-]*\))?!?: [^\n]+"
     r"(?:\n\n[\s\S]+)?$"
 )
+REPOSITORY_ROOT: Path | None = None
 
 
 class AutocommitError(Exception):
@@ -47,10 +48,15 @@ def git(
     *args: str,
     check: bool = True,
     env: dict[str, str] | None = None,
+    at_root: bool = True,
 ) -> subprocess.CompletedProcess[str]:
+    command = ["git"]
+    if at_root and REPOSITORY_ROOT is not None:
+        command.extend(["-C", str(REPOSITORY_ROOT)])
+    command.extend(args)
     try:
         return subprocess.run(
-            ["git", *args],
+            command,
             check=check,
             text=True,
             stdout=subprocess.PIPE,
@@ -65,15 +71,19 @@ def git(
 
 
 def require_repository() -> None:
-    result = git("rev-parse", "--is-inside-work-tree", check=False)
+    global REPOSITORY_ROOT
+    result = git("rev-parse", "--is-inside-work-tree", check=False, at_root=False)
     if result.returncode != 0 or result.stdout.strip() != "true":
         raise AutocommitError("not inside a Git work tree")
+    root = git("rev-parse", "--show-toplevel", at_root=False).stdout.strip()
+    REPOSITORY_ROOT = Path(root).resolve()
 
 
 def git_config_path() -> Path:
     value = git("rev-parse", "--git-path", "autocommit.toml").stdout.strip()
     path = Path(value).expanduser()
-    return path if path.is_absolute() else (Path.cwd() / path).resolve()
+    base = REPOSITORY_ROOT or Path.cwd()
+    return path if path.is_absolute() else (base / path).resolve()
 
 
 def validate_config(config: dict[str, Any], path: Path) -> None:
@@ -155,9 +165,7 @@ def resolve_settings(args: argparse.Namespace, config: dict[str, Any]) -> dict[s
         else positive_float(timeout_env, "GIT_AUTOCOMMIT_TIMEOUT")
         if timeout_env
         else float(config.get("timeout_seconds", DEFAULT_TIMEOUT)),
-        "max_diff_bytes": positive_int(
-            max_diff_env, "GIT_AUTOCOMMIT_MAX_DIFF_BYTES"
-        )
+        "max_diff_bytes": positive_int(max_diff_env, "GIT_AUTOCOMMIT_MAX_DIFF_BYTES")
         if max_diff_env
         else int(config.get("max_diff_bytes", DEFAULT_MAX_DIFF_BYTES)),
         "max_commits": positive_int(max_commits_env, "GIT_AUTOCOMMIT_MAX_COMMITS")
@@ -367,7 +375,7 @@ def assert_snapshot_unchanged(head: str, tree: str) -> None:
 
 
 def tree_entry(tree: str, path: str) -> tuple[str, str] | None:
-    output = git("ls-tree", "-z", tree, "--", path).stdout
+    output = git("ls-tree", "-z", "--full-tree", tree, "--", path).stdout
     if not output:
         return None
     records = [record for record in output.split("\0") if record]
@@ -423,10 +431,6 @@ def create_signed_commits(
         parent = create_signed_commit_object(tree, parent, str(entry["message"]))
     if git("rev-parse", f"{parent}^{{tree}}").stdout.strip() != snapshot_tree:
         raise AutocommitError("generated commits do not reproduce the original staged tree")
-
-    # Signing and object creation can take long enough for another process to stage
-    # changes. Recheck immediately before the compare-and-swap ref update so a newer
-    # index is never reinterpreted against the generated commit chain.
     assert_snapshot_unchanged(base_head, snapshot_tree)
     git("update-ref", "HEAD", parent, base_head)
 
