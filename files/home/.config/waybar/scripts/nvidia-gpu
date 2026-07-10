@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Emit a compact Waybar JSON payload for the first available NVIDIA GPU.
+# Emit a compact Waybar JSON payload for every available NVIDIA GPU.
 # Keep this script host-safe: non-NVIDIA machines should render nothing instead
 # of causing repeated Waybar errors.
 if ! command -v nvidia-smi >/dev/null 2>&1; then
@@ -9,18 +9,16 @@ if ! command -v nvidia-smi >/dev/null 2>&1; then
   exit 0
 fi
 
-query='utilization.gpu,temperature.gpu,memory.used,memory.total,power.draw,power.limit,fan.speed,name'
-if ! row="$(nvidia-smi --query-gpu="$query" --format=csv,noheader,nounits 2>/dev/null | head -n1)"; then
+query='index,utilization.gpu,temperature.gpu,memory.used,memory.total,power.draw,power.limit,fan.speed,name'
+if ! output="$(nvidia-smi --query-gpu="$query" --format=csv,noheader,nounits 2>/dev/null)"; then
   printf '{"text":"","tooltip":"nvidia-smi failed","class":"error"}\n'
   exit 0
 fi
 
-if [ -z "${row// }" ]; then
+if [ -z "${output// }" ]; then
   printf '{"text":"","tooltip":"No NVIDIA GPU reported by nvidia-smi","class":"missing"}\n'
   exit 0
 fi
-
-IFS=',' read -r util temp mem_used mem_total power power_limit fan name <<< "$row"
 
 trim() {
   local value="$1"
@@ -33,7 +31,7 @@ json_escape() {
   local value="$1"
   value=${value//\\/\\\\}
   value=${value//\"/\\\"}
-  value=${value//$'\n'/ }
+  value=${value//$'\n'/\\n}
   printf '%s' "$value"
 }
 
@@ -49,17 +47,35 @@ percent() {
   awk -v used="$used" -v total="$total" 'BEGIN { printf "%d", (used * 100 / total) + 0.5 }'
 }
 
-util="$(trim "$util")"
-temp="$(trim "$temp")"
-mem_used="$(trim "$mem_used")"
-mem_total="$(trim "$mem_total")"
-power="$(trim "$power")"
-power_limit="$(trim "$power_limit")"
-fan="$(trim "$fan")"
-name="$(trim "$name")"
-name_escaped="$(json_escape "$name")"
-vram_pct="$(percent "$mem_used" "$mem_total")"
+text='󰢮 '
+tooltip=''
+separator=' '
 
-printf '{"text":"󰢮  %s%%/%s%%","tooltip":"%s\\nGPU: %s%%\\nVRAM: %s%% (%s / %s MiB)\\nTemp: %s°C\\nPower: %s / %s W\\nFan: %s%%","class":"nvidia"}\n' \
-  "$util" "$vram_pct" \
-  "$name_escaped" "$util" "$vram_pct" "$mem_used" "$mem_total" "$temp" "$power" "$power_limit" "$fan"
+while IFS=',' read -r index util temp mem_used mem_total power power_limit fan name; do
+  index="$(trim "$index")"
+  util="$(trim "$util")"
+  temp="$(trim "$temp")"
+  mem_used="$(trim "$mem_used")"
+  mem_total="$(trim "$mem_total")"
+  power="$(trim "$power")"
+  power_limit="$(trim "$power_limit")"
+  fan="$(trim "$fan")"
+  name="$(trim "$name")"
+  vram_pct="$(percent "$mem_used" "$mem_total")"
+
+  text+="${separator}${index}:${util}%/${vram_pct}%"
+
+  if [ -n "$tooltip" ]; then
+    tooltip+=$'\n\n'
+  fi
+  tooltip+="GPU ${index}: ${name}"$'\n'
+  tooltip+="Utilization: ${util}%"$'\n'
+  tooltip+="VRAM: ${vram_pct}% (${mem_used} / ${mem_total} MiB)"$'\n'
+  tooltip+="Temp: ${temp}°C"$'\n'
+  tooltip+="Power: ${power} / ${power_limit} W"$'\n'
+  tooltip+="Fan: ${fan}%"
+
+done <<< "$output"
+
+printf '{"text":"%s","tooltip":"%s","class":"nvidia"}\n' \
+  "$(json_escape "$text")" "$(json_escape "$tooltip")"
