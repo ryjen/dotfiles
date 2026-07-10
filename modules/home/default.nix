@@ -21,6 +21,7 @@
     ./helix.nix
     ./git.nix
     ./gpg.nix
+    ./grimshot.nix
     ./hypr.nix
     ./input.nix
     ./keyring.nix
