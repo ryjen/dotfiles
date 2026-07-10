@@ -140,6 +140,16 @@
           touch "$out"
         '';
 
+        git-autocommit = pkgs.runCommand "git-autocommit" {
+          nativeBuildInputs = [
+            pkgs.git
+            pkgs.python3
+          ];
+        } ''
+          python3 ${./scripts/verify-git-autocommit.py} ${./files/home/.local/bin/git-autocommit}
+          touch "$out"
+        '';
+
         pre-commit-check = git-hooks.lib.${system}.run {
           src = self;
           hooks = {

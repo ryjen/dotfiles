@@ -115,6 +115,15 @@ in
     };
   };
 
-  home.file.".gitignore".source = ../../files/home/.gitignore;
+  home.file = {
+    ".gitignore".source = ../../files/home/.gitignore;
+    ".local/bin/git-autocommit" = {
+      source = ../../files/home/.local/bin/git-autocommit;
+      executable = true;
+    };
+    ".local/share/git-autocommit/system.md".source = ../../files/home/.local/share/git-autocommit/system.md;
+    ".local/share/git-autocommit/plan.md".source = ../../files/home/.local/share/git-autocommit/plan.md;
+    ".local/share/git-autocommit/schema.json".source = ../../files/home/.local/share/git-autocommit/schema.json;
+  };
   xdg.configFile."git/commit-message".source = ../../files/home/.config/git/commit-message;
 }
