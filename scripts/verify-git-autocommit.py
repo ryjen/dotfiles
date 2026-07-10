@@ -101,6 +101,39 @@ def main() -> int:
             second_tree = module.build_commit_tree(
                 first, snapshot, ["beta.txt", "delete.txt"]
             )
+
+            original_create = module.create_signed_commit_object
+            calls = 0
+
+            def create_with_index_race(tree: str, parent: str, message: str) -> str:
+                nonlocal calls
+                calls += 1
+                commit = run(
+                    "commit-tree", tree, "-p", parent, "-m", message, cwd=repo
+                )
+                if calls == 1:
+                    write(repo / "gamma.txt", "concurrent staged change\n")
+                    run("add", "gamma.txt", cwd=repo)
+                return commit
+
+            module.create_signed_commit_object = create_with_index_race
+            plan = [
+                {"message": "test: first group", "files": ["alpha.txt"]},
+                {
+                    "message": "test: second group",
+                    "files": ["beta.txt", "delete.txt"],
+                },
+            ]
+            try:
+                module.create_signed_commits(plan, base, snapshot)
+            except module.AutocommitError:
+                pass
+            else:
+                raise AssertionError("index race did not abort commit application")
+            finally:
+                module.create_signed_commit_object = original_create
+
+            assert run("rev-parse", "HEAD", cwd=repo) == base
         finally:
             os.chdir(previous)
 
