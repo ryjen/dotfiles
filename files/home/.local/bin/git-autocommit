@@ -43,7 +43,11 @@ class AutocommitError(Exception):
     pass
 
 
-def git(*args: str, check: bool = True, env: dict[str, str] | None = None) -> subprocess.CompletedProcess[str]:
+def git(
+    *args: str,
+    check: bool = True,
+    env: dict[str, str] | None = None,
+) -> subprocess.CompletedProcess[str]:
     try:
         return subprocess.run(
             ["git", *args],
@@ -76,17 +80,17 @@ def validate_config(config: dict[str, Any], path: Path) -> None:
     for key in ("base_url", "model", "prompt_dir"):
         if key in config and (not isinstance(config[key], str) or not config[key].strip()):
             raise AutocommitError(f"config {key} must be a non-empty string: {path}")
-    if "timeout_seconds" in config and (
-        not isinstance(config["timeout_seconds"], (int, float))
-        or isinstance(config["timeout_seconds"], bool)
-        or config["timeout_seconds"] <= 0
+    timeout = config.get("timeout_seconds")
+    if timeout is not None and (
+        not isinstance(timeout, (int, float))
+        or isinstance(timeout, bool)
+        or timeout <= 0
     ):
         raise AutocommitError(f"config timeout_seconds must be positive: {path}")
     for key in ("max_diff_bytes", "max_commits"):
-        if key in config and (
-            not isinstance(config[key], int)
-            or isinstance(config[key], bool)
-            or config[key] <= 0
+        value = config.get(key)
+        if value is not None and (
+            not isinstance(value, int) or isinstance(value, bool) or value <= 0
         ):
             raise AutocommitError(f"config {key} must be a positive integer: {path}")
     if "single_commit" in config and not isinstance(config["single_commit"], bool):
@@ -151,7 +155,9 @@ def resolve_settings(args: argparse.Namespace, config: dict[str, Any]) -> dict[s
         else positive_float(timeout_env, "GIT_AUTOCOMMIT_TIMEOUT")
         if timeout_env
         else float(config.get("timeout_seconds", DEFAULT_TIMEOUT)),
-        "max_diff_bytes": positive_int(max_diff_env, "GIT_AUTOCOMMIT_MAX_DIFF_BYTES")
+        "max_diff_bytes": positive_int(
+            max_diff_env, "GIT_AUTOCOMMIT_MAX_DIFF_BYTES"
+        )
         if max_diff_env
         else int(config.get("max_diff_bytes", DEFAULT_MAX_DIFF_BYTES)),
         "max_commits": positive_int(max_commits_env, "GIT_AUTOCOMMIT_MAX_COMMITS")
@@ -196,9 +202,8 @@ def staged_context(files: list[str], max_diff_bytes: int) -> str:
         encoded = diff.encode("utf-8")
         if len(encoded) > remaining:
             if remaining > 0:
-                chunks.append(
-                    f"File: {path}\n{encoded[:remaining].decode('utf-8', errors='replace')}\n[diff truncated]"
-                )
+                excerpt = encoded[:remaining].decode("utf-8", errors="replace")
+                chunks.append(f"File: {path}\n{excerpt}\n[diff truncated]")
             chunks.append("[remaining file diffs omitted by git-autocommit]")
             break
         chunks.append(f"File: {path}\n{diff}")
@@ -210,7 +215,9 @@ def resolve_prompt_dir(value: str) -> Path:
     prompt_dir = Path(value).expanduser()
     missing = [name for name in REQUIRED_PROMPTS if not (prompt_dir / name).is_file()]
     if missing:
-        raise AutocommitError(f"prompt directory {prompt_dir} is missing: {', '.join(missing)}")
+        raise AutocommitError(
+            f"prompt directory {prompt_dir} is missing: {', '.join(missing)}"
+        )
     return prompt_dir
 
 
@@ -224,7 +231,13 @@ def read_prompt(prompt_dir: Path, name: str) -> str:
     return value
 
 
-def render_plan_prompt(template: str, context: str, files: list[str], force_single: bool, max_commits: int) -> str:
+def render_plan_prompt(
+    template: str,
+    context: str,
+    files: list[str],
+    force_single: bool,
+    max_commits: int,
+) -> str:
     values = {
         "grouping_instruction": "Create exactly one commit containing every file."
         if force_single
@@ -242,7 +255,13 @@ def render_plan_prompt(template: str, context: str, files: list[str], force_sing
     return rendered
 
 
-def request_ai(system_prompt: str, user_prompt: str, base_url: str, model: str, timeout: float) -> str:
+def request_ai(
+    system_prompt: str,
+    user_prompt: str,
+    base_url: str,
+    model: str,
+    timeout: float,
+) -> str:
     payload = json.dumps(
         {
             "model": model,
@@ -293,7 +312,9 @@ def normalize_message(message: str) -> str:
     return message
 
 
-def parse_plan(raw: str, staged: list[str], max_commits: int) -> list[dict[str, object]]:
+def parse_plan(
+    raw: str, staged: list[str], max_commits: int
+) -> list[dict[str, object]]:
     try:
         document = json.loads(strip_fence(raw))
     except json.JSONDecodeError as error:
@@ -370,7 +391,13 @@ def build_commit_tree(parent: str, snapshot_tree: str, files: list[str]) -> str:
                 git("update-index", "--force-remove", "--", path, env=env)
             else:
                 mode, object_id = entry
-                git("update-index", "--add", "--cacheinfo", f"{mode},{object_id},{path}", env=env)
+                git(
+                    "update-index",
+                    "--add",
+                    "--cacheinfo",
+                    f"{mode},{object_id},{path}",
+                    env=env,
+                )
         return git("write-tree", env=env).stdout.strip()
 
 
@@ -379,20 +406,28 @@ def create_signed_commit_object(tree: str, parent: str, message: str) -> str:
         handle.write(message + "\n")
         message_path = Path(handle.name)
     try:
-        return git("commit-tree", tree, "-p", parent, "-S", "-F", str(message_path)).stdout.strip()
+        return git(
+            "commit-tree", tree, "-p", parent, "-S", "-F", str(message_path)
+        ).stdout.strip()
     finally:
         message_path.unlink(missing_ok=True)
 
 
-def create_signed_commits(plan: list[dict[str, object]], base_head: str, snapshot_tree: str) -> None:
+def create_signed_commits(
+    plan: list[dict[str, object]], base_head: str, snapshot_tree: str
+) -> None:
     parent = base_head
     for entry in plan:
         files = [str(path) for path in entry["files"]]
-        parent = create_signed_commit_object(
-            build_commit_tree(parent, snapshot_tree, files), parent, str(entry["message"])
-        )
+        tree = build_commit_tree(parent, snapshot_tree, files)
+        parent = create_signed_commit_object(tree, parent, str(entry["message"]))
     if git("rev-parse", f"{parent}^{{tree}}").stdout.strip() != snapshot_tree:
         raise AutocommitError("generated commits do not reproduce the original staged tree")
+
+    # Signing and object creation can take long enough for another process to stage
+    # changes. Recheck immediately before the compare-and-swap ref update so a newer
+    # index is never reinterpreted against the generated commit chain.
+    assert_snapshot_unchanged(base_head, snapshot_tree)
     git("update-ref", "HEAD", parent, base_head)
 
 
