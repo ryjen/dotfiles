@@ -102,6 +102,8 @@ def main() -> int:
                 first, snapshot, ["beta.txt", "delete.txt"]
             )
 
+            # Stage a new file while the generated commit chain is being built.
+            # The final snapshot check must reject it before moving HEAD.
             original_create = module.create_signed_commit_object
             calls = 0
 
