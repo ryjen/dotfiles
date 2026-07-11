@@ -14,6 +14,6 @@
 
   dotfiles.music = {
     enable = true;
-    musicDirectory = "/mnt/isotope/music";
+    musicDirectory = "/mnt/isotope/Music";
   };
 }
