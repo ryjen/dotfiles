@@ -63,6 +63,8 @@ User tool state, durable manifests, and package promotion are documented in `doc
 
 Repo-local hook governance is documented in `docs/architecture/adr-0002-hook-governance.md`.
 
+Optional Home Manager tools are documented in `docs/optional-tools.md`.
+
 ## Hyprland and Waybar ownership
 
 Hyprland and Waybar are managed as a session UX substrate rather than loose rice files.
@@ -128,11 +130,9 @@ If Hyprland fails to start or keybindings break:
 2. Run `dub-session-doctor`.
 3. Inspect `~/.local/state/dubnium/session-start.log`.
 4. Temporarily disable local overrides:
-
    ```bash
    mv ~/.config/hypr/custom.d ~/.config/hypr/custom.d.disabled
    ```
-
 5. Re-apply Home Manager or the Dubnium profile.
 
 ## Commands
