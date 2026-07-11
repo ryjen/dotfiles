@@ -6,11 +6,12 @@
 # user-facing toggle here when options are added, renamed, or removed.
 { config, ... }:
 {
-  # Personal identity. Replace placeholders in user.local.nix only.
+  # Personal identity. Replace placeholders in user.local.nix only. The Git
+  # module validates that these values are configured together and derives
+  # user.useConfigOnly when both are present.
   programs.git = {
     userName = "Your Name";
     userEmail = "you@example.com";
-    settings.user.useConfigOnly = true;
   };
 
   # Independently selectable agents.
