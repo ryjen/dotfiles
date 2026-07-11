@@ -1,14 +1,14 @@
 # Nix Bootstrap
 
-This repository is now Nix-first. Use `flake.nix` for both system and user config.
+This repository is Nix-first. Use `flake.nix` for both system and user configuration.
 
 ## Included
 
 - `flake.nix`
 - NixOS host config at `hosts/nixos/`
 - Home Manager user config at `home/USERNAME/home.nix`
-- ignored local user config at `home/USERNAME/user.nix`
-- tracked user config template at `home/USERNAME/user.example.nix`
+- ignored local selector at `home/USERNAME/user.local.nix`
+- tracked local-selector template at `home/USERNAME/user.example.nix`
 - host/profile selection in `home/USERNAME/profiles/`
 - shared NixOS modules in `modules/nixos/`
 - shared Home Manager modules in `modules/home/`
@@ -18,8 +18,8 @@ This repository is now Nix-first. Use `flake.nix` for both system and user confi
 ## First Use
 
 1. Replace `hosts/nixos/hardware-configuration.nix` with generated hardware config for the target machine.
-2. Copy `home/USERNAME/user.example.nix` to `home/USERNAME/user.nix` and set local identity and user-wide selections.
-3. Keep secrets local by default. Use `user.nix`, `~/.config/zsh/local.zsh`, `pass`, or host environment injection as appropriate; do not commit secrets.
+2. Copy `home/USERNAME/user.example.nix` to `home/USERNAME/user.local.nix` and set non-secret local identity and user-wide selections.
+3. Keep secrets out of `user.local.nix`; a `path:` flake copies it into the Nix store. Use `sops-nix`, `pass`, systemd credentials, or another runtime secret mechanism.
 4. Only if repo-managed secrets are required, copy `secrets.yaml.example` to `secrets.yaml`, fill values, and encrypt with `sops`.
 5. Initialize `pass` manually once GPG setup is in place.
 6. Review `home/USERNAME/profiles/nixos.nix` and enable only host-specific overlays that belong on that machine.
@@ -27,33 +27,41 @@ This repository is now Nix-first. Use `flake.nix` for both system and user confi
 
 ## Commands
 
-Evaluate the flake:
+Run local-selector commands from the repository root.
+
+Evaluate tracked configuration only:
 
 ```bash
 nix flake show
 nix flake check --no-build
 ```
 
-Build Home Manager activation:
+Evaluate with `user.local.nix` included:
 
 ```bash
-nix build .#homeConfigurations.USERNAME@nixos.activationPackage
+nix flake check "path:$PWD"
 ```
 
-Build NixOS system:
+Build Home Manager activation with local selections:
 
 ```bash
-nix build .#nixosConfigurations.nixos.config.system.build.toplevel
+nix build "path:$PWD#homeConfigurations.USERNAME@nixos.activationPackage"
 ```
 
-Switch Home Manager:
+Build NixOS with local selections:
 
 ```bash
-home-manager switch --flake .#USERNAME@nixos
+nix build "path:$PWD#nixosConfigurations.nixos.config.system.build.toplevel"
 ```
 
-Switch NixOS:
+Switch Home Manager with local selections:
 
 ```bash
-sudo nixos-rebuild switch --flake .#nixos
+home-manager switch --flake "path:$PWD#USERNAME@nixos"
+```
+
+Switch NixOS with local selections:
+
+```bash
+sudo nixos-rebuild switch --flake "path:$PWD#nixos"
 ```
