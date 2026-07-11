@@ -6,6 +6,7 @@
   programs.git = {
     userName = "Your Name";
     userEmail = "you@example.com";
+    settings.user.useConfigOnly = true;
   };
 
   # Program and capability selections belong here as explicit flags are added.
