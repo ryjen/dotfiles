@@ -4,6 +4,7 @@
   ...
 }:
 let
+  cfg = config.dotfiles.git;
   micranthaEnabled = config.dotfiles.profiles.micrantha.enable;
   gitEditor =
     if config.programs.neovim.enable then
@@ -14,6 +15,22 @@ let
       "vi";
 in
 {
+  options.dotfiles.git = {
+    userName = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = null;
+      example = "Jane Developer";
+      description = "Local Git author name. Set this in the ignored home/ryjen/user.nix file.";
+    };
+
+    userEmail = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = null;
+      example = "jane@example.com";
+      description = "Local Git author email. Set this in the ignored home/ryjen/user.nix file.";
+    };
+  };
+
   programs.git = {
     enable = true;
     ignores = [
@@ -22,12 +39,7 @@ in
       "*.log"
       "**/.claude/settings.local.json"
     ];
-    includes = [
-      {
-        path = "~/.config/git/local.config";
-      }
-    ]
-    ++ lib.optionals config.dotfiles.profiles.micrantha.enable [
+    includes = lib.optionals micranthaEnabled [
       {
         condition = "gitdir:~/**/micrantha/**";
         path = "~/.config/git/conf.d/micrantha";
@@ -74,7 +86,15 @@ in
       pull.rebase = true;
       push.default = "simple";
       rebase.autoStash = true;
-      user.useConfigOnly = true;
+      user = {
+        useConfigOnly = true;
+      }
+      // lib.optionalAttrs (cfg.userName != null) {
+        name = cfg.userName;
+      }
+      // lib.optionalAttrs (cfg.userEmail != null) {
+        email = cfg.userEmail;
+      };
       init.defaultBranch = "main";
       filter.lfs = {
         clean = "git-lfs clean -- %f";
