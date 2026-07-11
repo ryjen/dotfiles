@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+notify() {
+  if command -v notify-send >/dev/null 2>&1; then
+    notify-send "Music Retag" "$1" || true
+  else
+    printf 'music-retag-current: %s\n' "$1" >&2
+  fi
+}
+
+uri="$(playerctl --player=mpv metadata xesam:url 2>/dev/null || true)"
+
+if [ -z "$uri" ]; then
+  notify "No mpv track URL found"
+  exit 1
+fi
+
+case "$uri" in
+  file://*) ;;
+  *)
+    notify "Refusing non-local track"
+    exit 1
+    ;;
+esac
+
+path="$(python3 - "$uri" <<'PY'
+import sys
+from urllib.parse import unquote, urlparse
+
+parsed = urlparse(sys.argv[1])
+if parsed.scheme != "file":
+    raise SystemExit(1)
+print(unquote(parsed.path))
+PY
+)"
+
+if [ ! -f "$path" ]; then
+  notify "Current track is not a file: $path"
+  exit 1
+fi
+
+exec dub-terminal --title "beets retag" -e sh -lc '
+  set -eu
+  printf "Retagging current track with Beets:\n%s\n\n" "$1"
+  printf "This runs: beet import --single <current-file>\n\n"
+  beet import --single "$1"
+  printf "\nDone. Press Enter to close."
+  read _
+' sh "$path"
