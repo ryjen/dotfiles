@@ -4,7 +4,7 @@
 #
 # This file is the canonical catalog of supported local selections. Keep every
 # user-facing toggle here when options are added, renamed, or removed.
-{ ... }:
+{ config, ... }:
 {
   # Personal identity. Replace placeholders in user.local.nix only.
   programs.git = {
