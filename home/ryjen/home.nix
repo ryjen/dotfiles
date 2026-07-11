@@ -7,8 +7,8 @@
   imports = [
     ./layers/graphical.nix
     ./profiles/nixos.nix
-    ./user.nix
-  ];
+  ]
+  ++ lib.optional (builtins.pathExists ./user.local.nix) ./user.local.nix;
 
   home.username = username;
   home.homeDirectory = "/home/${username}";
