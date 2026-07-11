@@ -24,6 +24,9 @@ Dotfiles / Home Manager
 user.local.nix
   owns ignored, local, non-secret user-wide selections and Git identity
 
+user.example.nix
+  exhaustively documents every supported local toggle and representative value
+
 configctl
   owns explicit validation, composition, init, adopt, and reconciliation flows
   for mutable user configuration
@@ -95,11 +98,51 @@ CI validates the tracked configuration only. It does not validate a user's ignor
 
 `user.local.nix` may contain:
 
-- explicit program and capability enablement;
-- non-secret Git identity;
+- explicit program, capability, integration, and preset enablement;
+- non-secret Git identity through native Home Manager options;
 - non-secret local user preferences that affect Home Manager evaluation.
 
 It must not contain secrets. A `path:` flake source is copied into the Nix store. Use `sops-nix`, `pass`, systemd credentials, or another runtime secret mechanism for private values.
+
+## Selection granularity
+
+Use an explicit option for an independently selectable user-facing tool when all are true:
+
+1. the tool is independently visible to the user;
+2. it is independently configurable or useful; and
+3. disabling it does not inherently break another enabled feature.
+
+Examples:
+
+```nix
+dotfiles.programs.neovim.enable = true;
+dotfiles.programs.helix.enable = true;
+dotfiles.programs.beets.enable = true;
+```
+
+Use a capability option when several binaries, files, services, and integrations implement one user-facing experience:
+
+```nix
+dotfiles.desktop.screenshots.enable = true;
+dotfiles.features.music.enable = true;
+dotfiles.features.androidDevelopment.enable = true;
+dotfiles.integrations.micrantha.enable = true;
+```
+
+Do not expose a separate option for every implementation-only helper merely because it appears in `home.packages`.
+
+## `user.example.nix` completeness
+
+`home/ryjen/user.example.nix` is the canonical catalog of the supported local configuration surface. It must:
+
+- list every supported preset, program, feature, desktop, service, and integration toggle;
+- include supported native Home Manager local values such as Git identity;
+- group options by category with brief comments;
+- keep optional toggles disabled by default unless enabling them is harmless and intentional;
+- use placeholders rather than personal values;
+- be updated in the same change whenever a local option is added, renamed, or removed.
+
+CI or an evaluation check should detect supported local options that are absent from the example. A copied `user.example.nix` must remain a valid representative `user.local.nix` for path-flake evaluation.
 
 ## Feature ownership
 
@@ -119,11 +162,13 @@ Dependency rules:
 | Dependency type | Treatment |
 | --- | --- |
 | Internal runtime dependency | Install inside the owning feature module. |
-| Shared user-facing tool | Give it its own explicit enable option. |
+| Independently useful shared tool | Give it its own explicit enable option. |
 | Required cross-module capability | Set with `lib.mkDefault` or reject invalid combinations with an assertion. |
 | Optional integration | Give it a separate nested option and validate prerequisites. |
 
-## Profile boundaries
+## Presets and profile boundaries
+
+Presets may compose common selections, such as core CLI, developer, graphical, or media toolsets. Preset membership must be documented in `user.example.nix` and applied with `lib.mkDefault`, so individual options remain overrideable.
 
 Tracked profiles contain host-role information such as:
 
@@ -132,7 +177,7 @@ Tracked profiles contain host-role information such as:
 - host-specific paths;
 - tracked role-specific defaults.
 
-Profiles should not become a second taxonomy for user-facing program selection. Individual program or capability options remain the source of truth.
+Profiles may set feature defaults with `lib.mkDefault`, but must not become the only selection surface or duplicate a second tool taxonomy. Individual program or capability options remain the source of truth.
 
 ## Mutable and generated state
 
@@ -180,6 +225,7 @@ Dubnium consumers must:
 
 ## Non-goals
 
+- no flag for every transitive or implementation-only binary;
 - no silent promotion or reconciliation;
 - no automatic network-backed mutation during activation;
 - no host ownership of per-program Home Manager semantics;
