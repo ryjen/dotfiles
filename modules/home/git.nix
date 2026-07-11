@@ -22,12 +22,17 @@ in
       "*.log"
       "**/.claude/settings.local.json"
     ];
-    includes = lib.optionals micranthaEnabled [
-      {
-        condition = "gitdir:~/**/micrantha/**";
-        path = "~/.config/git/conf.d/micrantha";
-      }
-    ];
+    includes =
+      [
+        { path = "~/.config/git/includes.conf"; }
+        { path = "~/.config/git/local.conf"; }
+      ]
+      ++ lib.optionals micranthaEnabled [
+        {
+          condition = "gitdir:~/**/micrantha/**";
+          path = "~/.config/git/conf.d/micrantha";
+        }
+      ];
     settings = {
       alias = {
         ff = "flow feature";
