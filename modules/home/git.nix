@@ -24,6 +24,7 @@ in
     ];
     includes =
       [
+        { path = "~/.config/git/conf.d/user"; }
         { path = "~/.config/git/includes.conf"; }
         { path = "~/.config/git/local.conf"; }
       ]
