@@ -9,7 +9,7 @@
     pkgs.gnumake
     pkgs.openssh
     pkgs.pkg-config
-    pkgs.python311
+    pkgs.python3
     pkgs.ripgrep
     pkgs.uv
   ];
