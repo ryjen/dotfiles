@@ -7,8 +7,8 @@
 { config, ... }:
 {
   # Personal identity. Replace placeholders in user.local.nix only. The Git
-  # module validates that these values are configured together and derives
-  # user.useConfigOnly when both are present.
+  # module validates that these values are configured together and enforces
+  # user.useConfigOnly globally.
   programs.git = {
     userName = "Your Name";
     userEmail = "you@example.com";
