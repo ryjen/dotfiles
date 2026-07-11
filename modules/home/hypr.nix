@@ -137,6 +137,14 @@ in
 
     home.file = managedFiles;
 
+    home.activation.ensureHyprLocalConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      local_config="$HOME/.config/hypr/local.conf"
+      if [ ! -e "$local_config" ]; then
+        ${pkgs.coreutils}/bin/mkdir -p "$(${pkgs.coreutils}/bin/dirname "$local_config")"
+        ${pkgs.coreutils}/bin/printf '%s\n' '# Place host-local or user overrides here.' > "$local_config"
+      fi
+    '';
+
     home.activation.configureVarietyWallpaperFolders = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       variety_config="$HOME/.config/variety/variety.conf"
       variety_downloads="$HOME/Pictures/wallpaper/variety/downloaded"
