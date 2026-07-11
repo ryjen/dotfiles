@@ -7,6 +7,8 @@ Nix-first dotfiles for NixOS and Home Manager with a reusable baseline and opt-i
 - `flake.nix` defines the NixOS and Home Manager entrypoints.
 - `hosts/nixos/` contains the current NixOS host config.
 - `home/USERNAME/home.nix` is the user Home Manager entrypoint.
+- `home/USERNAME/user.local.nix` is the ignored local selector for non-secret user choices and Git identity.
+- `home/USERNAME/user.example.nix` is the tracked template for `user.local.nix`.
 - `home/USERNAME/layers/` contains reusable Home Manager module-set layers.
 - `home/USERNAME/profiles/` contains host/profile selections for a concrete machine.
 - `modules/nixos/` contains system modules.
@@ -14,6 +16,47 @@ Nix-first dotfiles for NixOS and Home Manager with a reusable baseline and opt-i
 - `files/home/` contains static user config files managed by Home Manager.
 - `files/system/` contains static system files used by NixOS modules.
 - `scripts/` contains supporting scripts used by flake apps and verification commands.
+
+## Local user configuration
+
+Create the ignored local selector from the tracked example:
+
+```bash
+cp home/USERNAME/user.example.nix home/USERNAME/user.local.nix
+```
+
+`user.local.nix` owns local, non-secret user-wide program/capability selections and Git identity. Host constraints, hardware/display details, host paths, and role-specific differences remain in tracked profiles.
+
+Because Git-backed flakes exclude ignored files, commands that must include `user.local.nix` must be run from the repository root with an explicit `path:` flake reference:
+
+```bash
+home-manager switch --flake "path:$PWD#USERNAME@HOST"
+```
+
+Tracked-only repository and CI verification continues to use ordinary Git-flake commands and intentionally does not include local selections:
+
+```bash
+nix flake check --no-build
+```
+
+To verify the local selection set instead:
+
+```bash
+nix flake check "path:$PWD"
+nix build "path:$PWD#homeConfigurations.USERNAME@HOST.activationPackage"
+```
+
+Do not put secrets in `user.local.nix`. A `path:` flake source is copied into the Nix store. Use `sops-nix`, `pass`, systemd credentials, or another runtime secret mechanism.
+
+The configuration contract is:
+
+```text
+user.local.nix selects local desired capabilities
+modules resolve implementation dependencies
+tracked host profiles constrain what each machine supports
+```
+
+Every user-facing program should eventually have an explicit enable flag. Internal runtime dependencies remain owned by the feature module; shared tools and optional integrations are modeled explicitly and validated.
 
 ## Profiles
 
@@ -143,7 +186,7 @@ View flake outputs:
 nix flake show
 ```
 
-Check evaluation:
+Check tracked evaluation:
 
 ```bash
 nix flake check --no-build
@@ -173,28 +216,28 @@ Run managed hooks manually across the repo:
 nix develop -c pre-commit run --all-files
 ```
 
-Apply Home Manager:
+Apply Home Manager with local selections from the repository root:
 
 ```bash
-home-manager switch --flake .#USERNAME@nixos
+home-manager switch --flake "path:$PWD#USERNAME@nixos"
 ```
 
-Apply NixOS:
+Apply NixOS with local selections from the repository root:
 
 ```bash
-sudo nixos-rebuild switch --flake .#nixos
+sudo nixos-rebuild switch --flake "path:$PWD#nixos"
 ```
 
-Build Home Manager activation package:
+Build Home Manager activation package with local selections:
 
 ```bash
-nix build .#homeConfigurations.USERNAME@nixos.activationPackage
+nix build "path:$PWD#homeConfigurations.USERNAME@nixos.activationPackage"
 ```
 
-Build NixOS system derivation:
+Build NixOS system derivation with local selections:
 
 ```bash
-nix build .#nixosConfigurations.nixos.config.system.build.toplevel
+nix build "path:$PWD#nixosConfigurations.nixos.config.system.build.toplevel"
 ```
 
 Containerized verification:
@@ -203,13 +246,13 @@ Containerized verification:
 nix run .#verify-container
 ```
 
-Lightweight verification outputs:
+Lightweight tracked verification outputs:
 
 ```bash
 nix flake check --no-build
 ```
 
-Home Manager host smoke checks:
+Tracked Home Manager host smoke checks:
 
 ```bash
 nix build .#homeConfigurations.ryjen@dubnium.activationPackage

@@ -8,7 +8,7 @@
     ./layers/lightweight.nix
     ./profiles/headless.nix
   ]
-  ++ lib.optional (builtins.pathExists ./git-local.nix) ./git-local.nix;
+  ++ lib.optional (builtins.pathExists ./user.local.nix) ./user.local.nix;
 
   home.username = username;
   home.homeDirectory = "/home/${username}";
