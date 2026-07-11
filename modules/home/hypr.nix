@@ -90,7 +90,7 @@ in
 
       ${managedHyprConfig}
 
-      source = ~/.config/hypr/local.conf
+      source = ${config.home.homeDirectory}/.config/hypr/local.conf
       source = ~/.config/hypr/custom.d/*.conf
     '';
 
