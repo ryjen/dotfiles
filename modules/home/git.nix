@@ -7,7 +7,6 @@ let
   micranthaEnabled = config.dotfiles.profiles.micrantha.enable;
   hasUserName = config.programs.git.userName != null;
   hasUserEmail = config.programs.git.userEmail != null;
-  hasIdentity = hasUserName && hasUserEmail;
   gitEditor =
     if config.programs.neovim.enable then
       "nvim"
@@ -79,6 +78,7 @@ in
       pull.rebase = true;
       push.default = "simple";
       rebase.autoStash = true;
+      user.useConfigOnly = true;
       init.defaultBranch = "main";
       filter.lfs = {
         clean = "git-lfs clean -- %f";
@@ -106,9 +106,6 @@ in
       core.pager = "bat -p";
       credential.helper = "!pass-git-helper $@";
       sequence.editor = gitEditor;
-    }
-    // lib.optionalAttrs hasIdentity {
-      user.useConfigOnly = true;
     }
     // lib.optionalAttrs micranthaEnabled {
       url."git+ssh://git@gitlab.com/micrantha" = {
