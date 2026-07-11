@@ -155,7 +155,7 @@
         "exec": "playerctl -a metadata --format '{\"text\": \"{{artist}} - {{title}}\", \"alt\": \"{{status}}\", \"class\": \"{{status}}\"}' --follow"
     },
     "custom/power": {
-        "format": "⏻ " ,
+        "format": "⏻ ",
         "on-click": "wlogout"
     }
 }
