@@ -257,13 +257,7 @@ configctl init verify uv-tools
 
 Some uv tools install additional executables inside their isolated tool environment that are not automatically exposed through `~/.local/bin`. Tool manifest entries may declare selected additional commands with `expose`.
 
-Current exposed commands:
-
-```text
-headroom-ai[all]: rtk
-```
-
-After `configctl` supports `expose`, applying `uv-tools` should link exposed commands into the configured uv tools bin path without declaring them as separate uv tool packages.
+No exposed commands are currently configured. The `rtk` binary is packaged in the flake (`pkgs/rtk.nix`) and installed system-wide via `environment.systemPackages`.
 
 ## Verification
 

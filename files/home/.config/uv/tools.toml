@@ -12,4 +12,3 @@ extraPackages = ["pip"]
 [[tools]]
 package = "headroom-ai[all]"
 python = "python3.12"
-expose = ["rtk"]
