@@ -47,6 +47,7 @@ in
 
   config = lib.mkIf cfg.enable {
     home.packages = with pkgs; [
+      beets
       easyeffects
       playerctl
       python3
@@ -98,6 +99,11 @@ in
 
     home.file.".local/bin/music-dislike" = {
       source = ../../files/home/.local/bin/music-dislike;
+      executable = true;
+    };
+
+    home.file.".local/bin/music-retag-current" = {
+      source = ../../files/home/.local/bin/music-retag-current;
       executable = true;
     };
   };
