@@ -110,7 +110,7 @@
         "tooltip": true
     },
     "custom/music": {
-        "exec": "music-status",
+        "exec": "~/.local/bin/music-status",
         "interval": 1,
         "return-type": "json",
         "format": " {}",
