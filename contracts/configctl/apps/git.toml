@@ -10,7 +10,7 @@ executor_may_validate = true
 executor_may_adopt = true
 executor_may_write_outputs = false
 renderer_required = false
-description = "Git loads unmanaged local configuration and configctl-managed include fragments from the Home Manager-generated global config."
+description = "Home Manager owns Git's root config, which loads a configctl-maintained include index plus an unmanaged local override file."
 
 [layout]
 root = "~/.config/git"
@@ -30,10 +30,10 @@ custom = [
 adopted = []
 runtime_includes = [
   "includes.conf",
-  "local.conf",
-  "conf.d/*"
+  "local.conf"
 ]
 auxiliary_outputs = [
+  "includes.conf",
   "commit-message"
 ]
 
