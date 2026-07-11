@@ -2,386 +2,186 @@
 
 ## Purpose
 
-This document defines the contract exported by this repository's Home Manager layer when it is consumed by host/platform repositories such as `ryjen/dubnium`.
+This document defines the Home Manager contract exported by `ryjen/dotfiles` for consumers such as `ryjen/dubnium`.
 
-The contract has two jobs:
+The goals are:
 
-1. keep Home Manager-managed user configuration reproducible; and
-2. make the boundary explicit enough that Dubnium can provide host prerequisites, diagnostics, and executors without duplicating user-layer policy.
+1. keep tracked Home Manager configuration reproducible;
+2. permit explicit, ignored local program selections during local builds and switches; and
+3. keep host, user, mutable-state, and secret ownership boundaries clear.
 
-This repository owns the user-layer policy. Dubnium may import this layer and inspect repo-authored manifests, but should not redefine per-tool Home Manager behavior.
-
-## Consumer model
-
-```text
-Dubnium host / NixOS layer
-  owns: host packages, system services, service enablement, operators, diagnostics
-
-Dotfiles Home Manager layer
-  owns: user packages, shell/session behavior, user config policy, user app manifests
-
-dubctl operator UX
-  owns: host-oriented operator commands, lifecycle wrappers, and read-only diagnostics
-  does not own: user config composition, init/adopt policy, or per-app Home Manager behavior
-
-configctl executor
-  owns: user config validation, composition, and explicit init/adopt workflows
-  consumes: dotfiles-authored contracts/manifests where the app config is user-owned
-```
-
-Rules:
-
-- Dubnium may import `home/ryjen/dubnium-home.nix` as the Dubnium-facing Home Manager entry point.
-- Stable Home Manager entrypoints import a named module-set layer plus a concrete profile.
-- `home/ryjen/layers/graphical.nix` imports the broad graphical Home Manager module hub.
-- `home/ryjen/layers/lightweight.nix` imports the lightweight non-graphical Home Manager module set.
-- Profile files under `home/ryjen/profiles/` express user-layer capability selection.
-- `dubctl` may expose host/operator UX and read-only diagnostics for this contract.
-- `configctl` may consume dotfiles-owned manifests for apps whose config is owned here.
-- Dubnium should not bake assumptions about individual dotfiles module internals into NixOS modules or activation scripts.
-
-## Durable layering model
-
-Home Manager composition is intentionally split into two axes:
+## Ownership model
 
 ```text
-home/ryjen/*-home.nix
-  imports: one module-set layer + one host/profile file + optional git-local.nix
+Dubnium / NixOS
+  owns host packages, system services, hardware prerequisites, diagnostics,
+  and host-oriented operator commands
 
-home/ryjen/layers/*.nix
-  imports: reusable Home Manager module sets
+Dotfiles / Home Manager
+  owns user packages, shell/session policy, user configuration, app manifests,
+  and user-facing feature options
 
-home/ryjen/profiles/*.nix
-  imports: capability profiles and sets host-specific profile options
+user.local.nix
+  owns ignored, local, non-secret user-wide selections and Git identity
+
+configctl
+  owns explicit validation, composition, init, adopt, and reconciliation flows
+  for mutable user configuration
 ```
 
-Layer files answer "which module set is imported?" Profile files answer "which capabilities and host-specific settings are enabled?"
+Dubnium must not duplicate per-program Home Manager policy or silently mutate user-owned configuration during system activation.
 
-This keeps the host matrix explicit:
+## Home Manager composition
 
-| Home Manager output | Module layer | Profile | Contract |
+Stable entry points import:
+
+```text
+one module-set layer
++ one concrete host/profile file
++ optional home/ryjen/user.local.nix
+```
+
+Current entry points:
+
+| Output | Module layer | Profile | Contract |
 | --- | --- | --- | --- |
 | `ryjen@dubnium` | `graphical.nix` | `dubnium.nix` | Graphical workstation; not laptop-specific. |
-| `ryjen@technetium` | `graphical.nix` | `technetium.nix` | Graphical laptop; owns Technetium Waybar battery config. |
-| `ryjen@nixos` | `graphical.nix` | `nixos.nix` | Compatibility workstation path; Dubnium-style, not laptop-specific. |
-| `ryjen@headless` | `lightweight.nix` | `headless.nix` | Non-graphical shell/server target. |
-| `ryjen@wsl` | `lightweight.nix` | `wsl.nix` | Non-graphical WSL-safe target with user systemd disabled. |
-| `ryjen@verify` | `lightweight.nix` | `verify.nix` | Lightweight verification target. |
+| `ryjen@technetium` | `graphical.nix` | `technetium.nix` | Graphical laptop; owns laptop-specific Waybar behavior. |
+| `ryjen@nixos` | `graphical.nix` | `nixos.nix` | Compatibility workstation output. |
+| `ryjen@headless` | `lightweight.nix` | `headless.nix` | Non-graphical shell/server output. |
+| `ryjen@wsl` | `lightweight.nix` | `wsl.nix` | WSL-safe output with user systemd disabled. |
+| `ryjen@verify` | `lightweight.nix` | `verify.nix` | Lightweight tracked verification output. |
 
-## Stable entry points
+Layer files answer which reusable module set is imported. Profile files express tracked host-role constraints and defaults. `user.local.nix` expresses local non-secret selections that should not be committed.
 
-### Dubnium-facing entry point
+## Local selector contract
 
-```text
-home/ryjen/dubnium-home.nix
-```
-
-This is the stable import target for Dubnium's Home Manager integration. It sets the user, home directory, Home Manager state version, imports the graphical module-set layer, imports the Dubnium profile, and conditionally imports local Git identity.
-
-### Module-set layers
+The ignored selector is:
 
 ```text
-home/ryjen/layers/graphical.nix
-home/ryjen/layers/lightweight.nix
+home/ryjen/user.local.nix
 ```
 
-These are the stable reusable module-set boundaries. Consumers should choose an entrypoint rather than directly importing these layers unless they intentionally own profile selection.
-
-### Module hubs
+The tracked template is:
 
 ```text
-modules/home/default.nix
-modules/home/verify.nix
+home/ryjen/user.example.nix
 ```
 
-These are internal aggregation points for reusable Home Manager modules. Dubnium may treat their existence as part of the integration contract through the named layers, but should avoid depending on the exact module lists unless a module is explicitly promoted into a manifest or documented profile contract.
+Create it with:
 
-Current module categories:
-
-| Category | Examples | Contract status |
-| --- | --- | --- |
-| Shell/session | `common.nix`, `session.nix`, `zsh.nix`, `starship.nix`, `direnv.nix` | user-layer policy |
-| Editors/terminals | `neovim.nix`, `helix.nix`, `tmux.nix`, `alacritty.nix` | user-layer policy |
-| Desktop/app config | `hypr.nix`, `browser.nix`, `input.nix`, `pinentry.nix` | user-layer policy; graphical layer only |
-| Developer tools | `git.nix`, `gpg.nix`, `android.nix`, `agents.nix`, `micrantha.nix` | profile-gated where appropriate |
-| Optional secret-backed config | `secrets.nix` | local/private input; not a host contract |
-
-This inventory is descriptive, not a compatibility guarantee.
-
-### Profile entry point
-
-```text
-home/ryjen/profiles/dubnium.nix
+```bash
+cp home/ryjen/user.example.nix home/ryjen/user.local.nix
 ```
 
-The Dubnium profile currently imports the workstation capability profile, enables the browser profile, disables Android and Micrantha-specific profiles, and selects the Dubnium Hypr adopted profile.
+Git-backed flakes exclude ignored files. Any build, check, or switch that must include `user.local.nix` must therefore evaluate the checkout as an explicit path flake from the repository root:
 
-Dubnium may use this as the user-layer profile contract. It should not infer that every workstation host must enable every optional system service.
+```bash
+home-manager switch --flake "path:$PWD#ryjen@dubnium"
+nix build "path:$PWD#homeConfigurations.ryjen@dubnium.activationPackage"
+nix flake check "path:$PWD"
+```
 
-## Ownership matrix
+Ordinary Git-flake commands intentionally validate tracked defaults without local selections:
 
-| Concern | Owner | Notes |
-| --- | --- | --- |
-| Host packages required before login | Dubnium/NixOS | Base system tools, graphical/session prerequisites, system service dependencies. |
-| System services and timers | Dubnium/NixOS | Enablement must be explicit; profiles should not silently enable heavy optional services. |
-| `dubctl` operator UX | Dubnium | Host-oriented wrappers and read-only diagnostics; not a user-config mutation engine. |
-| User packages | dotfiles/Home Manager | CLI/editor/user apps belong here unless needed before login or by system services. |
-| Node/npm global tooling | dotfiles/Home Manager | User-layer tool state; see the npm/Codex ownership design work. |
-| `configctl` executable | Dubnium | User-config executor implementation; must consume dotfiles manifests instead of encoding app policy. |
-| `configctl` app contracts/manifests | dotfiles, when app config is user-owned | Consumed by Dubnium tooling; defined close to the owned config. |
-| Runtime/generated app config | generated under user config dirs | Mark as generated; do not hand-edit. |
-| Mutable post-activation tool state | explicit `configctl init`/adopt contracts | Network-backed mutation must be opt-in and risk-gated. |
-| Local unmanaged overrides | user/machine local | `local.*` and local-only files are explicit opt-outs from repo management. |
-| Private secrets | host/user local secret mechanism | Must not be materialized into Nix-store-rendered user config. |
-| Public material | owning repo or generated config, depending on use | Do not label public identifiers as private secrets. |
+```bash
+nix flake check --no-build
+nix build .#homeConfigurations.ryjen@verify.activationPackage
+```
+
+CI validates the tracked configuration only. It does not validate a user's ignored local selection matrix.
+
+## Local selector restrictions
+
+`user.local.nix` may contain:
+
+- explicit program and capability enablement;
+- non-secret Git identity;
+- non-secret local user preferences that affect Home Manager evaluation.
+
+It must not contain secrets. A `path:` flake source is copied into the Nix store. Use `sops-nix`, `pass`, systemd credentials, or another runtime secret mechanism for private values.
+
+## Feature ownership
+
+Importing a module registry should define options without implicitly enabling optional user-facing programs.
+
+Each feature module owns:
+
+- its required runtime packages;
+- generated files;
+- wrappers and desktop entries;
+- shell/session integration;
+- user services and systemd units;
+- required assertions and dependency checks.
+
+Dependency rules:
+
+| Dependency type | Treatment |
+| --- | --- |
+| Internal runtime dependency | Install inside the owning feature module. |
+| Shared user-facing tool | Give it its own explicit enable option. |
+| Required cross-module capability | Set with `lib.mkDefault` or reject invalid combinations with an assertion. |
+| Optional integration | Give it a separate nested option and validate prerequisites. |
 
 ## Profile boundaries
 
-### Graphical profile
+Tracked profiles contain host-role information such as:
 
-`home/ryjen/profiles/graphical.nix` marks a profile as graphical-capable. It should remain capability metadata unless behavior needs to be shared by every graphical host.
+- graphical, laptop, workstation, headless, or WSL capability;
+- hardware/display constraints;
+- host-specific paths;
+- tracked role-specific defaults.
 
-### Workstation profile
+Profiles should not become a second taxonomy for user-facing program selection. Individual program or capability options remain the source of truth.
 
-`home/ryjen/profiles/workstation.nix` imports `graphical.nix` and enables workstation behavior. It is the correct place for user-layer GUI defaults: shell behavior, editor defaults, terminal defaults, browser/user app config, and desktop-session preferences.
+## Mutable and generated state
 
-It must not imply that host-level optional services such as n8n, GitHub runner, vLLM, k3s, or exposed local AI endpoints are enabled.
+Home Manager activation may:
 
-### Laptop profile
+- install declarative user packages;
+- generate deterministic user configuration;
+- expose session variables and PATH entries;
+- declare app contracts and manifests.
 
-`home/ryjen/profiles/laptop.nix` imports `graphical.nix` and marks laptop capability. Laptop-specific config must stay behind laptop profiles. Technetium is currently the only laptop profile and the only profile that force-selects `config-technetium.jsonc` for Waybar.
+Home Manager activation must not:
 
-### WSL/dev profile
+- perform network-backed mutation;
+- silently rewrite local files;
+- act as a general repair hook;
+- materialize secrets into Nix-store-rendered files;
+- make the host repository own per-app user policy.
 
-`home/ryjen/profiles/wsl.nix` imports the headless profile, marks WSL capability, and disables Home Manager user-systemd assumptions with `dotfiles.host.userSystemd.enable = false`.
+Use explicit `configctl init`, adopt, compose, or reconcile workflows for mutable first-run and post-activation state.
 
-WSL/dev support should prefer shell, editor, Git, language tooling, and path/session behavior. It should avoid desktop-only configuration and systemd assumptions unless explicitly guarded by the host layer.
+## Config layout
 
-### Developer/tooling profiles
-
-Developer profiles may enable user-level developer tools and user-owned initialization manifests. They should not require root-owned mutation or host activation hooks to repair user state.
-
-### Headless profile
-
-`home/ryjen/profiles/headless.nix` is the user-layer profile for shells, editors, Git, agents, and CLI tooling. It should not become a duplicate Dubnium host profile or a hidden service bundle.
-
-## Session environment contract
-
-Dotfiles owns user-visible session behavior:
-
-- shell PATH additions;
-- Home Manager session variables;
-- XDG user directories and state/cache/data separation;
-- editor/tool launch environment;
-- user service environment where Home Manager manages it.
-
-Dubnium owns host/session prerequisites:
-
-- system packages required before login;
-- display/session services;
-- systemd service units and environment for system services;
-- host-level validation that the user environment is visible where expected.
-
-When a value must be visible to shells, Hyprland, user services, and app launchers, prefer defining it once in the Home Manager layer and validating visibility from Dubnium diagnostics. Do not duplicate policy in host activation scripts.
-
-## Config layout contract
-
-Home Manager-managed configuration should use this shape when the target app can safely support layering:
+When an application supports layering, prefer:
 
 ```text
 ~/.config/<tool>/
-├── managed.*      # generated by Home Manager/dotfiles; never edit directly
-├── local.*        # machine-specific; never automatically promoted
+├── managed.*      # generated and owned by Home Manager
+├── local.*        # machine-local, never auto-promoted
 ├── custom.d/      # user-authored promotion candidates
-└── adopted.d/     # fragments already promoted or represented by managed config
+└── adopted.d/     # fragments already represented by managed config
 ```
 
-Ownership rules:
+Runtime and reconciliation metadata belongs under XDG state paths, not managed config directories.
 
-```text
-managed.*    -> governed source of truth
-local.*      -> machine-specific, ignored by promotion
-custom.d/*   -> promotion candidates
-adopted.d/*  -> archived/adopted fragments, ignored during normal load
-```
+## Consumer requirements
 
-Managed files should carry a generated-file header that identifies this repository as the source of truth and documents any active local/custom include hooks.
+Dubnium consumers must:
 
-Apps without native include semantics require explicit composition manifests. Those manifests belong in dotfiles when the app config is owned by dotfiles, even if Dubnium implements the composition executor.
-
-## Source, generated, mutable, and local-only state
-
-| State class | Example | Policy |
-| --- | --- | --- |
-| Source fragments | repo-managed module inputs, app fragments, manifests | Reviewed in Git; durable source of truth. |
-| Generated runtime config | composed `managed.*` output | Regenerated by Home Manager or explicit tooling; never hand-edit. |
-| Mutable user state | npm global install state, first-run tool initialization | Managed by explicit init/adopt contracts, not system activation. |
-| Local-only overrides | `local.*`, `git-local.nix`, machine-specific files | Never silently promoted, overwritten, or garbage-collected. |
-| Adoption metadata | hashes/provenance for adopted fragments | Stored under XDG state, not managed config paths. |
-
-## XDG state separation
-
-Use:
-
-```text
-XDG_STATE_HOME = ~/.local/state
-XDG_DATA_HOME  = ~/.local/share
-XDG_CACHE_HOME = ~/.cache
-```
-
-Runtime state must not be written into managed config paths.
-
-Adoption and reconciliation metadata belongs under XDG state, not under `~/.config/<tool>/`.
-
-## Mutable state policy
-
-Home Manager activation writes declarative user config. It is not a general lifecycle orchestrator.
-
-Allowed:
-
-- creating deterministic user config files;
-- installing declarative user packages;
-- exposing session variables and PATH entries;
-- writing generated user config from repo-managed inputs;
-- declaring app contracts/manifests for explicit tools to consume.
-
-Not allowed:
-
-- `sudo npm install -g` or root-owned user tool state;
-- network-backed mutation from NixOS system activation;
-- silently rewriting `local.*` files;
-- treating Home Manager activation as an all-purpose repair hook;
-- embedding private values in Nix-store-rendered files;
-- making Dubnium system activation own user app policy.
-
-`configctl init` and related adopt/reconcile flows should handle mutable first-run tool state. Those flows must be explicit, dry-run capable where practical, and risk-gated when they perform network or destructive actions.
-
-## Promotion semantics
-
-Promotion should produce:
-
-1. a managed configuration change in dotfiles; and
-2. adoption metadata proving a local fragment is represented by managed config.
-
-Promotion must be review-gated through Git. A tool may propose a promotion, but the durable state change is a reviewed repository change.
-
-`local.*` files are never promotion candidates. They are machine-specific escape hatches.
-
-## Reconciliation semantics
-
-Future reconciliation should be dry-run first.
-
-```text
-custom.d/* hash matches adoption metadata
-  -> candidate to move to adopted.d/
-
-custom.d/* differs from adopted hash
-  -> conflict
-
-local.*
-  -> ignore
-
-adopted.d/*
-  -> ignore unless explicitly garbage-collected
-```
-
-Reconciliation must not silently move, delete, or promote user-authored files.
-
-## Adoption metadata
-
-Future state path:
-
-```text
-~/.local/state/home-layering/adoptions.toml
-```
-
-or another repo-approved XDG state path.
-
-Example:
-
-```toml
-[[adoptions]]
-id = "hypr-keybinds-001"
-tool = "hypr"
-source = "custom.d/keybinds.conf"
-adopted_path = "adopted.d/keybinds.conf"
-hash = "sha256:..."
-promoted_at = "2026-05-31T18:00:00-07:00"
-promoted_by = "dubnium-workstation"
-
-[adoptions.managed]
-repo = "ryjen/dotfiles"
-path = "modules/home/hypr.nix"
-commit = "abc123"
-```
-
-## Dubnium consumption requirements
-
-Dubnium consumers should follow these constraints:
-
-- Import the stable Home Manager entry point instead of reassembling dotfiles modules.
-- Keep system activation limited to host-level prerequisites and deterministic system state.
-- Use `dubctl` for host/operator UX and read-only diagnostics, not user-config mutation policy.
-- Use `configctl` for user config validation, composition, init/adopt, and explicit mutation workflows.
-- Prefer diagnostics before adopt/init/composition mutation.
-- Treat dotfiles-owned manifests as contracts, not generated implementation detail.
-- Link implementation PRs back to the relevant cross-repository design work when changing boundaries.
-
-Related work:
-
-- npm global tooling and Codex ownership split.
-- dotfiles-owned config composition manifests.
-- dotfiles-owned init/adopt manifests.
-- canonical QART cleanup tracking.
-- `configctl adopt` and initial tool-state contracts.
-- `configctl` composition contracts.
-
-## Initial implementation target
-
-Start with Hyprland.
-
-Rationale:
-
-- machine-local display/input tweaks are common;
-- user keybinding experiments are common;
-- managed config can source local/custom fragments safely;
-- adopted fragments can be ignored; and
-- Dubnium can validate the convention without owning the policy.
-
-## QART notes
-
-### Questions
-
-- Which Home Manager modules are stable public contract versus internal organization?
-- Should profile selection be dotfiles-native, Dubnium-driven, or both?
-- Which tools need first-run mutable state after declarative config is applied?
-- Which desktop apps require generated runtime config because they lack native include semantics?
-- Which session variables must be visible consistently across shells, Hyprland, user services, and launchers?
-
-### Alternatives
-
-- Keep the boundary implicit and handle each issue ad hoc.
-- Move more responsibility into Dubnium system modules.
-- Move all user-layer contracts into dotfiles and keep Dubnium as executor/provider only.
-- Treat Home Manager activation as the lifecycle hook for every user tool.
-
-### Recommendation
-
-Keep dotfiles as the policy source for user state. Keep Dubnium responsible for host-level prerequisites, system services, validation, diagnostics, and host/operator UX through `dubctl`. Keep `configctl` focused on user-config validation, composition, and explicit init/adopt workflows that consume dotfiles-owned manifests.
-
-### Tradeoffs
-
-- Explicit contracts add doc and manifest maintenance overhead.
-- Some behavior now needs a two-repo change: dotfiles for policy, Dubnium for executor support.
-- The payoff is fewer cross-repo regressions, less hidden coupling, and safer separation between declarative user config, generated config, mutable tool state, and host activation.
+- import stable Home Manager entry points instead of reassembling module internals;
+- keep system activation limited to deterministic host-level state;
+- use `dubctl` for host diagnostics and operator UX;
+- use `configctl` for explicit user-config mutation workflows;
+- treat dotfiles-authored manifests as contracts;
+- avoid embedding assumptions about individual Home Manager module internals.
 
 ## Non-goals
 
-- no automatic mutation initially;
-- no silent promotion;
-- no global overlay filesystem;
-- no standalone `configctl` implementation in dotfiles;
-- no reconciliation apply mode until dry-run behavior is proven;
-- no host repository ownership of per-tool Home Manager semantics;
-- no network-backed user-state mutation from NixOS system activation;
-- no management of local-only/private files such as machine secrets or intentionally unmanaged `local.*` files.
+- no silent promotion or reconciliation;
+- no automatic network-backed mutation during activation;
+- no host ownership of per-program Home Manager semantics;
+- no management of machine secrets through `user.local.nix`;
+- no assumption that tracked CI validates ignored local selections.
