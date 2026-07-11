@@ -73,6 +73,8 @@ in
   config = lib.mkIf config.dotfiles.profiles.workstation.enable {
     home.packages = [
       pkgs.lm_sensors
+      pkgs.playerctl
+      pkgs.python3
       pkgs.variety
     ];
 
