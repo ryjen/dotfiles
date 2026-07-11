@@ -14,6 +14,6 @@
 
   dotfiles.music = {
     enable = lib.mkDefault true;
-    musicDirectory = "/mnt/isotope/Music";
+    musicDirectory = lib.mkDefault "/mnt/isotope/Music";
   };
 }
