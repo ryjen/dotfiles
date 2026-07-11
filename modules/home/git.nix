@@ -5,6 +5,7 @@
 }:
 let
   cfg = config.dotfiles.git;
+  hasGitIdentity = cfg.userName != null && cfg.userEmail != null;
   micranthaEnabled = config.dotfiles.profiles.micrantha.enable;
   gitEditor =
     if config.programs.neovim.enable then
@@ -20,16 +21,23 @@ in
       type = lib.types.nullOr lib.types.str;
       default = null;
       example = "Jane Developer";
-      description = "Local Git author name. Set this in the ignored home/ryjen/user.nix file.";
+      description = "Optional local Git author name, normally set in home/ryjen/user.local.nix.";
     };
 
     userEmail = lib.mkOption {
       type = lib.types.nullOr lib.types.str;
       default = null;
       example = "jane@example.com";
-      description = "Local Git author email. Set this in the ignored home/ryjen/user.nix file.";
+      description = "Optional local Git author email, normally set in home/ryjen/user.local.nix.";
     };
   };
+
+  assertions = [
+    {
+      assertion = (cfg.userName == null) == (cfg.userEmail == null);
+      message = "dotfiles.git.userName and dotfiles.git.userEmail must be configured together.";
+    }
+  ];
 
   programs.git = {
     enable = true;
@@ -86,15 +94,6 @@ in
       pull.rebase = true;
       push.default = "simple";
       rebase.autoStash = true;
-      user = {
-        useConfigOnly = true;
-      }
-      // lib.optionalAttrs (cfg.userName != null) {
-        name = cfg.userName;
-      }
-      // lib.optionalAttrs (cfg.userEmail != null) {
-        email = cfg.userEmail;
-      };
       init.defaultBranch = "main";
       filter.lfs = {
         clean = "git-lfs clean -- %f";
@@ -122,6 +121,13 @@ in
       core.pager = "bat -p";
       credential.helper = "!pass-git-helper $@";
       sequence.editor = gitEditor;
+    }
+    // lib.optionalAttrs hasGitIdentity {
+      user = {
+        useConfigOnly = true;
+        name = cfg.userName;
+        email = cfg.userEmail;
+      };
     }
     // lib.optionalAttrs micranthaEnabled {
       url."git+ssh://git@gitlab.com/micrantha" = {
