@@ -10,7 +10,7 @@ let
   musicWindow = pkgs.writeShellScript "music-window" ''
     set -euo pipefail
 
-    music_dir="''${MPV_MUSIC_DIR:-''${DUBNIUM_MUSIC_DIR:-$HOME/Music}}"
+    music_dir="''${MPV_MUSIC_DIR:-''${DUBNIUM_MUSIC_DIR:-${cfg.musicDirectory}}}"
 
     mpv_music_window_args=(
       --force-window=yes
