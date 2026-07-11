@@ -4,9 +4,6 @@
   ...
 }:
 let
-  gitUserName = config.programs.git.userName;
-  gitUserEmail = config.programs.git.userEmail;
-  hasGitIdentity = gitUserName != null && gitUserEmail != null;
   micranthaEnabled = config.dotfiles.profiles.micrantha.enable;
   gitEditor =
     if config.programs.neovim.enable then
@@ -17,13 +14,6 @@ let
       "vi";
 in
 {
-  assertions = [
-    {
-      assertion = (gitUserName == null) == (gitUserEmail == null);
-      message = "programs.git.userName and programs.git.userEmail must be configured together.";
-    }
-  ];
-
   programs.git = {
     enable = true;
     ignores = [
@@ -106,9 +96,6 @@ in
       core.pager = "bat -p";
       credential.helper = "!pass-git-helper $@";
       sequence.editor = gitEditor;
-    }
-    // lib.optionalAttrs hasGitIdentity {
-      user.useConfigOnly = true;
     }
     // lib.optionalAttrs micranthaEnabled {
       url."git+ssh://git@gitlab.com/micrantha" = {
