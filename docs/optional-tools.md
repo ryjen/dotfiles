@@ -2,12 +2,12 @@
 
 Optional tools are disabled by default and can be enabled from a Home Manager profile.
 
-## Grimshot
+## Grimblast
 
-Install the Grimshot screenshot helper with:
+Install the Hyprland-native Grimblast screenshot helper with:
 
 ```nix
-dotfiles.grimshot.enable = true;
+dotfiles.grimblast.enable = true;
 ```
 
-The module installs `pkgs.sway-contrib.grimshot` into the user environment.
+The module installs `pkgs.grimblast` into the user environment.
