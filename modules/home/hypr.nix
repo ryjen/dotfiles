@@ -94,12 +94,6 @@ in
       source = ~/.config/hypr/custom.d/*.conf
     '';
 
-    # Hyprland sources local.conf and custom.d/*.conf; ensure local.conf exists
-    # so Hyprland does not emit a globbing/missing-file error on reload.
-    xdg.configFile."hypr/local.conf".text = ''
-      # Place host-local or user overrides here.
-    '';
-
     xdg.configFile."hypr/adopted.d/machine.conf".source =
       adoptedProfiles.${config.dotfiles.hypr.adoptedProfile};
     xdg.configFile."hypr/custom.d/00-empty.conf".source =
@@ -142,6 +136,14 @@ in
       ../../files/home/.config/eww/adopted.d/empty.conf;
 
     home.file = managedFiles;
+
+    home.activation.ensureHyprLocalConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      local_config="$HOME/.config/hypr/local.conf"
+      if [ ! -e "$local_config" ]; then
+        ${pkgs.coreutils}/bin/mkdir -p "$(${pkgs.coreutils}/bin/dirname "$local_config")"
+        ${pkgs.coreutils}/bin/printf '%s\n' '# Place host-local or user overrides here.' > "$local_config"
+      fi
+    '';
 
     home.activation.configureVarietyWallpaperFolders = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       variety_config="$HOME/.config/variety/variety.conf"

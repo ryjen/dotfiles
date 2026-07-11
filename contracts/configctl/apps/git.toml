@@ -1,0 +1,54 @@
+schema_version = 1
+tool = "git"
+owner = "dotfiles"
+profile = "all"
+status = "active"
+strategy = "native-include"
+current_runtime_owner = "home-manager"
+target_runtime_owner = "home-manager"
+executor_may_validate = true
+executor_may_adopt = true
+executor_may_write_outputs = false
+renderer_required = false
+description = "Home Manager owns Git's root config, which loads a configctl-maintained include index plus an unmanaged local override file."
+
+[layout]
+root = "~/.config/git"
+standard = "configctl-v1"
+source_inputs = [
+  "modules/home/git.nix"
+]
+runtime_outputs = [
+  "config"
+]
+local = [
+  "local.conf"
+]
+custom = [
+  "conf.d/*"
+]
+adopted = []
+runtime_includes = [
+  "includes.conf",
+  "local.conf"
+]
+auxiliary_outputs = [
+  "includes.conf",
+  "commit-message"
+]
+
+[adoption]
+state_path = "~/.local/state/configctl/adoptions/git.toml"
+hash_algorithm = "sha256"
+mode = "review-gated"
+ignore = [
+  "local"
+]
+
+[validation]
+must_not_manage = [
+  "local"
+]
+must_exist_or_be_creatable = [
+  "custom"
+]
