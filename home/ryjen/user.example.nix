@@ -5,7 +5,7 @@
 # This file is the canonical catalog of supported portable user selections.
 # Keep only deliberate overrides active. Uncomment every portable option only
 # when maintaining a complete user-level desired-state file.
-{ ... }:
+{ config, ... }:
 {
   # Personal identity. Replace both placeholders together in user.local.nix.
   # The Git module enforces user.useConfigOnly globally.
