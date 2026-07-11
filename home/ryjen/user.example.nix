@@ -3,7 +3,7 @@
 #   home-manager switch --flake "path:$PWD#ryjen@dubnium"
 { ... }:
 {
-  dotfiles.git = {
+  programs.git = {
     userName = "Your Name";
     userEmail = "you@example.com";
   };
