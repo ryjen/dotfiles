@@ -7,6 +7,8 @@ Nix-first dotfiles for NixOS and Home Manager with a reusable baseline and opt-i
 - `flake.nix` defines the NixOS and Home Manager entrypoints.
 - `hosts/nixos/` contains the current NixOS host config.
 - `home/USERNAME/home.nix` is the user Home Manager entrypoint.
+- `home/USERNAME/user.nix` is the ignored local user selection and identity file.
+- `home/USERNAME/user.example.nix` is the tracked, current template for `user.nix`.
 - `home/USERNAME/layers/` contains reusable Home Manager module-set layers.
 - `home/USERNAME/profiles/` contains host/profile selections for a concrete machine.
 - `modules/nixos/` contains system modules.
@@ -14,6 +16,26 @@ Nix-first dotfiles for NixOS and Home Manager with a reusable baseline and opt-i
 - `files/home/` contains static user config files managed by Home Manager.
 - `files/system/` contains static system files used by NixOS modules.
 - `scripts/` contains supporting scripts used by flake apps and verification commands.
+
+## Local user configuration
+
+Create the ignored local configuration before applying a profile:
+
+```bash
+cp home/USERNAME/user.example.nix home/USERNAME/user.nix
+```
+
+`user.nix` is the single standard local override surface. It owns user-specific identity and user-wide program/capability selections. Keep machine constraints, hardware/display details, host paths, and role-specific differences in tracked host profiles.
+
+The configuration contract is:
+
+```text
+user.nix selects desired capabilities
+modules resolve implementation dependencies
+host profiles constrain what each machine supports
+```
+
+Every user-facing program should eventually have an explicit enable flag. Internal runtime dependencies remain owned by the feature module; shared tools and optional integrations are modeled explicitly and validated.
 
 ## Profiles
 
@@ -177,46 +199,4 @@ Apply Home Manager:
 
 ```bash
 home-manager switch --flake .#USERNAME@nixos
-```
-
-Apply NixOS:
-
-```bash
-sudo nixos-rebuild switch --flake .#nixos
-```
-
-Build Home Manager activation package:
-
-```bash
-nix build .#homeConfigurations.USERNAME@nixos.activationPackage
-```
-
-Build NixOS system derivation:
-
-```bash
-nix build .#nixosConfigurations.nixos.config.system.build.toplevel
-```
-
-Containerized verification:
-
-```bash
-nix run .#verify-container
-```
-
-Lightweight verification outputs:
-
-```bash
-nix flake check --no-build
-```
-
-Home Manager host smoke checks:
-
-```bash
-nix build .#homeConfigurations.ryjen@dubnium.activationPackage
-nix build .#homeConfigurations.ryjen@technetium.activationPackage
-nix build .#homeConfigurations.ryjen@nixos.activationPackage
-nix build .#homeConfigurations.ryjen@verify.activationPackage
-nix build .#homeConfigurations.ryjen@headless.activationPackage
-nix build .#homeConfigurations.ryjen@wsl.activationPackage
-nix run .#verify-session-files
 ```
