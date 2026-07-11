@@ -67,7 +67,7 @@ in
       };
 
       bindings = {
-        "Shift+DELETE" = "run ${config.home.homeDirectory}/.local/bin/music-dislike";
+        "Shift+DEL" = "run ${config.home.homeDirectory}/.local/bin/music-dislike";
       };
     };
 
@@ -77,7 +77,11 @@ in
       comment = "Open the local music library in mpv's graphical window";
       exec = "${musicWindow}";
       terminal = false;
-      categories = [ "Audio" "Music" "Player" ];
+      categories = [
+        "Audio"
+        "Music"
+        "Player"
+      ];
     };
 
     home.sessionVariables.DUBNIUM_MUSIC_DIR = cfg.musicDirectory;
