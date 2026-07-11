@@ -6,9 +6,8 @@
 # user-facing toggle here when options are added, renamed, or removed.
 { config, ... }:
 {
-  # Personal identity. Replace placeholders in user.local.nix only. The Git
-  # module validates that these values are configured together and enforces
-  # user.useConfigOnly globally.
+  # Personal identity. Replace both placeholders together in user.local.nix.
+  # The Git module enforces user.useConfigOnly globally.
   programs.git = {
     userName = "Your Name";
     userEmail = "you@example.com";
