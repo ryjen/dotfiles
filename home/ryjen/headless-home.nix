@@ -1,13 +1,14 @@
 {
   username,
+  lib,
   ...
 }:
 {
   imports = [
     ./layers/lightweight.nix
     ./profiles/headless.nix
-    ./user.nix
-  ];
+  ]
+  ++ lib.optional (builtins.pathExists ./user.local.nix) ./user.local.nix;
 
   home.username = username;
   home.homeDirectory = "/home/${username}";
