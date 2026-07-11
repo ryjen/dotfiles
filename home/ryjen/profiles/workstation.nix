@@ -1,4 +1,4 @@
-{ ... }:
+{ lib, ... }:
 {
   imports = [
     ./graphical.nix
@@ -6,7 +6,7 @@
 
   dotfiles.host.role = "workstation";
   dotfiles.profiles.workstation.enable = true;
-  dotfiles.agents.hermes.enable = true;
-  dotfiles.agents.antigravity.enable = true;
-  dotfiles.headroom.proxy.enable = true;
+  dotfiles.agents.hermes.enable = lib.mkDefault true;
+  dotfiles.agents.antigravity.enable = lib.mkDefault true;
+  dotfiles.headroom.proxy.enable = lib.mkDefault true;
 }
