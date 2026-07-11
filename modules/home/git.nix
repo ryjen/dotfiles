@@ -5,8 +5,6 @@
 }:
 let
   micranthaEnabled = config.dotfiles.profiles.micrantha.enable;
-  hasUserName = config.programs.git.userName != null;
-  hasUserEmail = config.programs.git.userEmail != null;
   gitEditor =
     if config.programs.neovim.enable then
       "nvim"
@@ -16,13 +14,6 @@ let
       "vi";
 in
 {
-  assertions = [
-    {
-      assertion = hasUserName == hasUserEmail;
-      message = "programs.git.userName and programs.git.userEmail must be configured together";
-    }
-  ];
-
   programs.git = {
     enable = true;
     ignores = [
