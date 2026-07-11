@@ -1,14 +1,13 @@
 {
   username,
-  lib,
   ...
 }:
 {
   imports = [
     ./layers/graphical.nix
     ./profiles/technetium.nix
-  ]
-  ++ lib.optional (builtins.pathExists ./user.nix) ./user.nix;
+    ./user.nix
+  ];
 
   home.username = username;
   home.homeDirectory = "/home/${username}";
