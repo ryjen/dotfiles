@@ -6,6 +6,33 @@
 }:
 let
   cfg = config.dotfiles.music;
+
+  musicWindow = pkgs.writeShellScript "music-window" ''
+    set -euo pipefail
+
+    music_dir="''${MPV_MUSIC_DIR:-''${DUBNIUM_MUSIC_DIR:-$HOME/Music}}"
+
+    mpv_music_window_args=(
+      --force-window=yes
+      --audio-display=embedded-first
+      --loop-playlist=inf
+      --save-position-on-quit
+    )
+
+    if [ "$#" -gt 0 ]; then
+      exec ${pkgs.mpv}/bin/mpv "''${mpv_music_window_args[@]}" "$@"
+    fi
+
+    if [ ! -d "$music_dir" ]; then
+      ${pkgs.libnotify}/bin/notify-send "Music Window" "Music directory not found: $music_dir" || true
+      exit 1
+    fi
+
+    exec ${pkgs.mpv}/bin/mpv \
+      "''${mpv_music_window_args[@]}" \
+      --shuffle \
+      "$music_dir"
+  '';
 in
 {
   options.dotfiles.music = {
@@ -47,7 +74,7 @@ in
       name = "Music Window";
       genericName = "Music Player";
       comment = "Open the local music library in mpv's graphical window";
-      exec = "${config.home.homeDirectory}/.local/bin/music-window";
+      exec = "${musicWindow}";
       terminal = false;
       categories = [ "Audio" "Music" "Player" ];
     };
@@ -60,7 +87,7 @@ in
     };
 
     home.file.".local/bin/music-window" = {
-      source = ../../files/home/.local/bin/music-window;
+      source = musicWindow;
       executable = true;
     };
 
