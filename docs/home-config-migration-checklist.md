@@ -22,7 +22,8 @@ This checklist captures relevant configuration found under `~/` that should be r
 
 ## Git
 
-- [x] Keep default Git identity outside the shared baseline by using [home/USERNAME/git-local.nix.example](/home/USERNAME/.local/src/dotfiles/home/USERNAME/git-local.nix.example) or an explicit overlay.
+- [x] Keep default Git identity outside the shared baseline by copying `home/USERNAME/user.example.nix` to ignored `home/USERNAME/user.local.nix` and setting `dotfiles.git.userName` plus `dotfiles.git.userEmail` together.
+- [x] Use an explicit `path:` flake reference for local builds and switches that must include `user.local.nix`; ordinary Git-flake and CI evaluation intentionally excludes it.
 - [x] Review include structure in [~/.config/git/includes.conf](/home/USERNAME/.config/git/includes.conf) and decide which includes belong in Home Manager.
 - [x] Move project-specific identity and transport behavior into explicit overlays instead of relying on [~/.config/git/local.conf](/home/USERNAME/.config/git/local.conf).
 - [x] Port useful global ignore rules from [~/.config/git/ignore](/home/USERNAME/.config/git/ignore).
