@@ -95,6 +95,7 @@ Important constraints:
 
 | Tool | Manifest | Strategy | Status | Current owner | Target owner |
 | --- | --- | --- | --- | --- | --- |
+| Git | `apps/git.toml` | native include | active | Home Manager | Home Manager |
 | Hyprland | `apps/hypr.toml` | native include | active | Home Manager | Home Manager |
 | Zsh | `apps/zsh.toml` | native include | active | Home Manager | Home Manager |
 | Hyprpaper | `apps/hyprpaper.toml` | compose | planned | Home Manager | configctl |
