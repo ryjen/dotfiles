@@ -25,7 +25,7 @@ Create the ignored local selector from the tracked example:
 cp home/USERNAME/user.example.nix home/USERNAME/user.local.nix
 ```
 
-`user.local.nix` owns local, non-secret user-wide program/capability selections and Git identity. Host constraints, hardware/display details, host paths, and role-specific differences remain in tracked profiles.
+`user.local.nix` owns local, non-secret portable user selections and Git identity. It may be sparse, containing only deliberate overrides, or complete, explicitly declaring every portable user-facing option. Tracked profiles provide portable defaults with `lib.mkDefault`; host identity, role/capability constraints, adopted desktop profiles, hardware/display details, and machine-specific paths remain authoritative in tracked profiles.
 
 Because Git-backed flakes exclude ignored files, commands that must include `user.local.nix` must be run from the repository root with an explicit `path:` flake reference:
 
@@ -51,9 +51,9 @@ Do not put secrets in `user.local.nix`. A `path:` flake source is copied into th
 The configuration contract is:
 
 ```text
-user.local.nix selects local desired capabilities
+tracked profiles provide host constraints and portable defaults
+user.local.nix overrides portable user selections
 modules resolve implementation dependencies
-tracked host profiles constrain what each machine supports
 ```
 
 Every user-facing program should eventually have an explicit enable flag. Internal runtime dependencies remain owned by the feature module; shared tools and optional integrations are modeled explicitly and validated.
