@@ -10,10 +10,10 @@
   dotfiles.profiles.micrantha.enable = lib.mkDefault false;
   dotfiles.profiles.office.enable = lib.mkDefault true;
   dotfiles.opsCadence.enable = lib.mkDefault true;
-  dotfiles.hypr.adoptedProfile = lib.mkDefault "dubnium";
+  dotfiles.hypr.adoptedProfile = "dubnium";
 
   dotfiles.music = {
     enable = lib.mkDefault true;
-    musicDirectory = lib.mkDefault "/mnt/isotope/Music";
+    musicDirectory = "/mnt/isotope/Music";
   };
 }
