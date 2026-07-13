@@ -16,6 +16,10 @@
       url = "git+ssh://git@github.com/ryjen/ops-cadence.git?ref=main&rev=d83511cb669a6ca1481f7a79ea5f1aac6ceabd36";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    git-autocommit = {
+      url = "github:ryjen/git-autocommit";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     sops-nix = {
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -34,6 +38,7 @@
       hermes-agent,
       antigravity-nix,
       ops-cadence,
+      git-autocommit,
       sops-nix,
       git-hooks,
       ...
@@ -56,6 +61,7 @@
               hermes-agent
               antigravity-nix
               ops-cadence
+              git-autocommit
               ;
           };
           modules = [
@@ -74,6 +80,7 @@
               hermes-agent
               antigravity-nix
               ops-cadence
+              git-autocommit
               ;
           };
           modules = [
@@ -90,6 +97,7 @@
                   hermes-agent
                   antigravity-nix
                   ops-cadence
+                  git-autocommit
                   ;
               };
               home-manager.users.${username} = {
@@ -140,15 +148,7 @@
           touch "$out"
         '';
 
-        git-autocommit = pkgs.runCommand "git-autocommit" {
-          nativeBuildInputs = [
-            pkgs.git
-            pkgs.python3
-          ];
-        } ''
-          python3 ${./scripts/verify-git-autocommit.py} ${./files/home/.local/bin/git-autocommit}
-          touch "$out"
-        '';
+        git-autocommit-package = git-autocommit.checks.${system}.default;
 
         pre-commit-check = git-hooks.lib.${system}.run {
           src = self;
@@ -204,6 +204,7 @@
 
       packages.${system} = {
         hermes-agent = hermes-agent.packages.${system}.default;
+        git-autocommit = git-autocommit.packages.${system}.default;
       };
 
       nixosConfigurations.nixos = mkNixosConfig ./home/ryjen/home.nix;
@@ -232,7 +233,7 @@
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
           home-manager.extraSpecialArgs = {
-            inherit self hermes-agent antigravity-nix ops-cadence;
+            inherit self hermes-agent antigravity-nix ops-cadence git-autocommit;
             username = dubniumUsername;
           };
           home-manager.users.${dubniumUsername} = {

@@ -76,6 +76,26 @@
         "type": "github"
       }
     },
+    "git-autocommit": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1783928797,
+        "narHash": "sha256-UNTbTtU2I3cxF7HCAWvmcz2QGLQd0V5TkdWL4tvEkwQ=",
+        "owner": "ryjen",
+        "repo": "git-autocommit",
+        "rev": "2c9b371c2e1fcc8dda3157d9f3a6279e171fe602",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ryjen",
+        "repo": "git-autocommit",
+        "type": "github"
+      }
+    },
     "git-hooks": {
       "inputs": {
         "flake-compat": "flake-compat",
@@ -269,6 +289,7 @@
     "root": {
       "inputs": {
         "antigravity-nix": "antigravity-nix",
+        "git-autocommit": "git-autocommit",
         "git-hooks": "git-hooks",
         "hermes-agent": "hermes-agent",
         "home-manager": "home-manager",
