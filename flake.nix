@@ -17,7 +17,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     git-autocommit = {
-      url = "github:ryjen/git-autocommit/agent/man-page-nix-flake";
+      url = "github:ryjen/git-autocommit";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     sops-nix = {
