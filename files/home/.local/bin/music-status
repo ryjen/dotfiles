@@ -6,25 +6,35 @@ status="$(playerctl --player=mpv status 2>/dev/null || true)"
 if [ -z "$status" ]; then
   python3 - <<'PY'
 import json
-print(json.dumps({"text": "stopped", "alt": "stopped", "class": "stopped", "tooltip": "mpv music stopped"}))
+print(json.dumps({
+    "text": " stopped",
+    "alt": "stopped",
+    "class": "stopped",
+    "tooltip": "MPV music is stopped\nLeft click to start playback",
+}))
 PY
   exit 0
 fi
 
 artist="$(playerctl --player=mpv metadata xesam:artist 2>/dev/null || true)"
 title="$(playerctl --player=mpv metadata xesam:title 2>/dev/null || true)"
+album="$(playerctl --player=mpv metadata xesam:album 2>/dev/null || true)"
 url="$(playerctl --player=mpv metadata xesam:url 2>/dev/null || true)"
+position="$(playerctl --player=mpv position 2>/dev/null || true)"
+length_us="$(playerctl --player=mpv metadata mpris:length 2>/dev/null || true)"
 
-python3 - "$status" "$artist" "$title" "$url" <<'PY'
+python3 - "$status" "$artist" "$title" "$album" "$url" "$position" "$length_us" <<'PY'
 import json
 import os
 import sys
 import time
 from urllib.parse import unquote, urlparse
 
-status, artist, title, url = sys.argv[1:5]
+status, artist, title, album, url, position_raw, length_us_raw = sys.argv[1:8]
+status = status.strip()
 artist = artist.strip()
 title = title.strip()
+album = album.strip()
 
 if artist and title:
     full_text = f"{artist} - {title}"
@@ -37,18 +47,57 @@ else:
     else:
         full_text = "mpv music"
 
+icon = {
+    "Playing": "",
+    "Paused": "",
+}.get(status, "")
+
 width = 36
 if len(full_text) > width:
     padded = f"{full_text}   •   "
     offset = int(time.time()) % len(padded)
-    text = (padded + padded)[offset:offset + width]
+    track_text = (padded + padded)[offset:offset + width]
 else:
-    text = full_text
+    track_text = full_text
+
+
+def parse_float(value):
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def format_duration(seconds):
+    if seconds is None or seconds < 0:
+        return "--:--"
+    total = int(seconds)
+    hours, remainder = divmod(total, 3600)
+    minutes, secs = divmod(remainder, 60)
+    if hours:
+        return f"{hours}:{minutes:02d}:{secs:02d}"
+    return f"{minutes}:{secs:02d}"
+
+position = parse_float(position_raw)
+length_us = parse_float(length_us_raw)
+length = length_us / 1_000_000 if length_us is not None else None
+
+metadata_lines = [
+    f"Status: {status}",
+    f"Track: {title or full_text}",
+]
+if artist:
+    metadata_lines.append(f"Artist: {artist}")
+if album:
+    metadata_lines.append(f"Album: {album}")
+metadata_lines.append(
+    f"Time: {format_duration(position)} / {format_duration(length)}"
+)
 
 print(json.dumps({
-    "text": text,
+    "text": f"{icon} {track_text}",
     "alt": status.lower(),
     "class": status.lower(),
-    "tooltip": f"mpv: {full_text}",
+    "tooltip": "\n".join(metadata_lines),
 }))
 PY
