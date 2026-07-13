@@ -8,6 +8,7 @@
     ./alacritty.nix
     ./android.nix
     ./bat.nix
+    ./bitwarden.nix
     ./browser.nix
     ./byobu.nix
     ./common.nix
