@@ -7,7 +7,7 @@ if [ -z "$status" ]; then
   python3 - <<'PY'
 import json
 print(json.dumps({
-    "text": " stopped",
+    "text": "■ stopped",
     "alt": "stopped",
     "class": "stopped",
     "tooltip": "MPV music is stopped\nLeft click to start playback",
@@ -48,9 +48,9 @@ else:
         full_text = "mpv music"
 
 icon = {
-    "Playing": "",
-    "Paused": "",
-}.get(status, "")
+    "Playing": "▶",
+    "Paused": "⏸",
+}.get(status, "■")
 
 width = 36
 if len(full_text) > width:
