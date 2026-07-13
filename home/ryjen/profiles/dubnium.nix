@@ -12,6 +12,9 @@
   dotfiles.opsCadence.enable = lib.mkDefault true;
   dotfiles.hypr.adoptedProfile = "dubnium";
 
+  dotfiles.bitwarden.cli.enable = lib.mkDefault true;
+  dotfiles.bitwarden.desktop.enable = lib.mkDefault true;
+
   dotfiles.music = {
     enable = lib.mkDefault true;
     musicDirectory = lib.mkDefault "/mnt/isotope/Music";
