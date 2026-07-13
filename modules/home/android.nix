@@ -11,7 +11,6 @@
     home.packages = with pkgs; [
       android-studio
       android-tools
-      curl
     ];
 
     home.activation.installAndroidAgentCli = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
@@ -22,15 +21,19 @@
         tmp="$(${pkgs.coreutils}/bin/mktemp)"
         trap '${pkgs.coreutils}/bin/rm -f "$tmp"' EXIT
 
-        ${pkgs.curl}/bin/curl \
+        if ${pkgs.curl}/bin/curl \
           --fail \
           --silent \
           --show-error \
           --location \
+          --connect-timeout 15 \
+          --max-time 120 \
           https://dl.google.com/android/cli/latest/linux_x86_64/android \
-          --output "$tmp"
-
-        ${pkgs.coreutils}/bin/install -m 0755 "$tmp" "$target"
+          --output "$tmp"; then
+          ${pkgs.coreutils}/bin/install -m 0755 "$tmp" "$target"
+        else
+          echo "warning: Android CLI download unavailable; install it from https://developer.android.com/tools/agents" >&2
+        fi
       fi
     '';
 
