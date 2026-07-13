@@ -103,7 +103,7 @@
         "exec": "~/.local/bin/music-status",
         "interval": 1,
         "return-type": "json",
-        "format": " {}",
+        "format": "{}",
         "escape": true,
         "on-click": "~/.local/bin/music-toggle",
         "on-click-right": "playerctl --player=mpv next",
