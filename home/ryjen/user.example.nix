@@ -29,6 +29,8 @@
   # dotfiles.pip.prefix = "${config.home.homeDirectory}/.local/share/pip";
   # dotfiles.pip.globalPackagesFile = ".config/pip/global-packages.txt";
 
+  # dotfiles.bitwarden.cli.enable = false;
+  # dotfiles.bitwarden.desktop.enable = false;
   # dotfiles.music.enable = false;
   # dotfiles.grimblast.enable = false;
   # dotfiles.graphical.keyring.enable = false;
