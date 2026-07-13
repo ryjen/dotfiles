@@ -29,6 +29,12 @@
   # dotfiles.pip.prefix = "${config.home.homeDirectory}/.local/share/pip";
   # dotfiles.pip.globalPackagesFile = ".config/pip/global-packages.txt";
 
+  # Bitwarden clients. The Dubnium workstation profile enables both by default;
+  # use these explicit selections when maintaining a complete local config.
+  # dotfiles.bitwarden.cli.enable = true;
+  # dotfiles.bitwarden.desktop.enable = true;
+  # Set either value to false to disable that client independently.
+
   # dotfiles.music.enable = false;
   # dotfiles.grimblast.enable = false;
   # dotfiles.graphical.keyring.enable = false;
