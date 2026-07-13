@@ -5,4 +5,8 @@ if playerctl --player=mpv status >/dev/null 2>&1; then
   exec playerctl --player=mpv play-pause
 fi
 
-exec music
+if command -v music >/dev/null 2>&1; then
+  exec music
+fi
+
+exit 0
