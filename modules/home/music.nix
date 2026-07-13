@@ -96,6 +96,11 @@ in
       executable = true;
     };
 
+    home.file.".local/bin/music-toggle" = {
+      source = ../../files/home/.local/bin/music-toggle;
+      executable = true;
+    };
+
     home.file.".local/bin/music-eq" = {
       source = ../../files/home/.local/bin/music-eq;
       executable = true;
