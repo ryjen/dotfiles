@@ -44,6 +44,7 @@ let
     "dub-terminal"
     "dub-waybar-reload"
     "music-status"
+    "music-toggle"
     "random-wallpaper"
     "random-quote"
   ];
