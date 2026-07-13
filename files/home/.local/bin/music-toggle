@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if playerctl --player=mpv status >/dev/null 2>&1; then
+  exec playerctl --player=mpv play-pause
+fi
+
+nohup music >/dev/null 2>&1 &
