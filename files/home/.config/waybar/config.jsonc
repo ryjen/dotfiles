@@ -105,7 +105,7 @@
         "return-type": "json",
         "format": " {}",
         "escape": true,
-        "on-click": "playerctl --player=mpv play-pause",
+        "on-click": "~/.local/bin/music-toggle",
         "on-click-right": "playerctl --player=mpv next",
         "on-click-middle": "playerctl --player=mpv previous",
         "on-click-backward": "music-eq",
