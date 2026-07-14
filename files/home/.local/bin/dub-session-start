@@ -8,6 +8,15 @@ exec >>"$log_dir/session-start.log" 2>&1
 
 printf '[%s] dub-session-start\n' "$(date --iso-8601=seconds)"
 
+# Home Manager session variables are generated for login shells, but Hyprland
+# can be started without one. Import them explicitly so graphical-session
+# processes such as Waybar inherit the same configured environment.
+hm_session_vars="${XDG_STATE_HOME:-$HOME/.local/state}/nix/profiles/profile/etc/profile.d/hm-session-vars.sh"
+if [ -r "$hm_session_vars" ]; then
+  # shellcheck disable=SC1090
+  . "$hm_session_vars"
+fi
+
 start_graphical_session_targets() {
   if ! command -v systemctl >/dev/null 2>&1; then
     printf '[skip] systemctl not found; graphical session targets unavailable\n'
@@ -15,6 +24,7 @@ start_graphical_session_targets() {
   fi
 
   systemctl --user import-environment \
+    DUBNIUM_MUSIC_DIR \
     WAYLAND_DISPLAY \
     XDG_CURRENT_DESKTOP \
     XDG_SESSION_DESKTOP \
