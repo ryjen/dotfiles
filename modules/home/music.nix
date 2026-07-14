@@ -86,6 +86,10 @@ in
 
     home.sessionVariables.DUBNIUM_MUSIC_DIR = cfg.musicDirectory;
 
+    home.file.".local/share/dubnium/music-env".text = ''
+      export DUBNIUM_MUSIC_DIR=${lib.escapeShellArg cfg.musicDirectory}
+    '';
+
     home.file.".local/bin/music" = {
       source = ../../files/home/.local/bin/music;
       executable = true;
