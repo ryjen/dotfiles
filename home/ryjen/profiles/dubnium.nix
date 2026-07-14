@@ -15,6 +15,7 @@
   dotfiles.bitwarden.cli.enable = lib.mkDefault true;
   dotfiles.bitwarden.desktop.enable = lib.mkDefault true;
 
+  # Canonical music directory for shells and graphical-session processes.
   dotfiles.music = {
     enable = lib.mkDefault true;
     musicDirectory = lib.mkDefault "/mnt/isotope/Music";
