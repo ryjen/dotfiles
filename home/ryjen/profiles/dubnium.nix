@@ -13,7 +13,7 @@
   dotfiles.hypr.adoptedProfile = "dubnium";
 
   dotfiles.bitwarden.cli.enable = lib.mkDefault true;
-  dotfiles.bitwarden.desktop.enable = lib.mkDefault true;
+  dotfiles.bitwarden.desktop.enable = lib.mkDefault false;
 
   # Canonical music directory for shells and graphical-session processes.
   dotfiles.music = {
