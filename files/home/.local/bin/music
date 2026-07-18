@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+if [ -r "$HOME/.local/share/dubnium/music-env" ]; then
+  # GUI launchers may not inherit Home Manager session variables.
+  . "$HOME/.local/share/dubnium/music-env"
+fi
+
 music_dir="${MPV_MUSIC_DIR:-${DUBNIUM_MUSIC_DIR:-$HOME/Music}}"
 
 mpv_music_args=(

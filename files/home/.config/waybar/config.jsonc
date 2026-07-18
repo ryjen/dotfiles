@@ -105,11 +105,11 @@
         "return-type": "json",
         "format": "{}",
         "escape": true,
-        "on-click": "music-toggle",
+        "on-click": "~/.local/bin/music-toggle",
         "on-click-right": "playerctl --player=mpv next",
         "on-click-middle": "playerctl --player=mpv previous",
-        "on-click-backward": "music-eq",
-        "on-click-forward": "music-eq service"
+        "on-click-backward": "~/.local/bin/music-eq",
+        "on-click-forward": "~/.local/bin/music-eq service"
     },
     "pulseaudio": {
         "format": "{volume}% {icon}  {format_source}",

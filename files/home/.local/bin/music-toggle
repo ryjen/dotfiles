@@ -5,6 +5,10 @@ if playerctl --player=mpv status >/dev/null 2>&1; then
   exec playerctl --player=mpv play-pause
 fi
 
-if command -v music >/dev/null 2>&1; then
+music_cmd="$HOME/.local/bin/music"
+
+if [ -x "$music_cmd" ]; then
+  nohup "$music_cmd" >/dev/null 2>&1 &
+elif command -v music >/dev/null 2>&1; then
   nohup music >/dev/null 2>&1 &
 fi
