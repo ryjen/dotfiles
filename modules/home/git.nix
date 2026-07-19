@@ -119,7 +119,7 @@ in
   };
 
   home.packages = [
-    git-autocommit.packages.${pkgs.system}.default
+    git-autocommit.packages.${pkgs.stdenv.hostPlatform.system}.default
   ];
 
   home.file = {
