@@ -134,7 +134,8 @@
             "headphone": "",
             "default": ["", "", ""]
         },
-        "on-click": "pavucontrol"
+        "tooltip-format": "Output: {desc}\nInput: {source_desc}",
+        "on-click-middle": "pavucontrol"
     },
     "network": {
         "format-wifi": "{essid} ({signalStrength}%) ",
