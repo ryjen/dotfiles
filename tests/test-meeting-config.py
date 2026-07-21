@@ -90,7 +90,7 @@ class MeetingConfigTest(unittest.TestCase):
     def test_hypr_source_order(self) -> None:
         source = (ROOT / "modules/home/hypr.nix").read_text()
         adopted = source.index("${managedHyprConfig}")
-        meeting = source.index("managed.d/meeting.conf")
+        meeting = source.index("custom.d/meeting.conf")
         local = source.index("/hypr/local.conf", meeting)
         custom = source.index("custom.d/*.conf", local)
         self.assertLess(adopted, meeting)

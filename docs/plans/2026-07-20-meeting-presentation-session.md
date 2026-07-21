@@ -68,7 +68,7 @@ Dubnium repository (workspace root):
 - Produces: `dotfiles.meeting.presentationOutput :: null | string`.
 - Produces: `dotfiles.meeting.cameraDevice :: null | string`.
 - Produces: `dotfiles.meeting.teamsClassRegex :: string` and `teamsTitleRegex :: string`.
-- Produces: `~/.config/hypr/managed.d/meeting.conf` sourced after adopted content and before local/custom content.
+- Produces: `~/.config/hypr/custom.d/meeting.conf` sourced after adopted content and before local/custom content.
 
 - [ ] **Step 1: Write failing static contract tests**
 
@@ -91,7 +91,7 @@ class MeetingConfigTest(unittest.TestCase):
     def test_hypr_source_order(self) -> None:
         source = (ROOT / "modules/home/hypr.nix").read_text()
         adopted = source.index("${managedHyprConfig}")
-        meeting = source.index("managed.d/meeting.conf")
+        meeting = source.index("custom.d/meeting.conf")
         local = source.index("/hypr/local.conf", meeting)
         custom = source.index("custom.d/*.conf", local)
         self.assertLess(adopted, meeting)
@@ -163,13 +163,13 @@ In `modules/home/hypr.nix`, source the generated fragment conditionally:
 ${managedHyprConfig}
 
 ${lib.optionalString config.dotfiles.meeting.enable ''
-  source = ${config.home.homeDirectory}/.config/hypr/managed.d/meeting.conf
+  source = ${config.home.homeDirectory}/.config/hypr/custom.d/meeting.conf
 ''}
 source = ${config.home.homeDirectory}/.config/hypr/local.conf
 source = ~/.config/hypr/custom.d/*.conf
 ```
 
-Change both adopted profiles from `bind = $mainMod, code:33, pseudo,` to `bind = $mainMod CTRL, code:33, pseudo,`. Update `contracts/configctl/apps/hypr.toml` so `modules/home/meeting.nix` and `managed.d/meeting.conf` are listed and runtime include order is meeting, local, custom.
+Change both adopted profiles from `bind = $mainMod, code:33, pseudo,` to `bind = $mainMod CTRL, code:33, pseudo,`. Update `contracts/configctl/apps/hypr.toml` so `modules/home/meeting.nix` and `custom.d/meeting.conf` are listed and runtime include order is local, custom.
 
 - [ ] **Step 5: Run focused and Nix evaluation checks**
 
@@ -177,9 +177,9 @@ Run:
 
 ```bash
 python3 -m unittest tests/test-meeting-config.py -v
-nix eval --raw "path:$PWD#homeConfigurations.\"ryjen@dubnium\".config.xdg.configFile.\"hypr/managed.d/meeting.conf\".text"
-nix eval --raw "path:$PWD#homeConfigurations.\"ryjen@technetium\".config.xdg.configFile.\"hypr/managed.d/meeting.conf\".text"
-nix eval --raw "path:$PWD#homeConfigurations.\"ryjen@meeting-verify\".config.xdg.configFile.\"hypr/managed.d/meeting.conf\".text"
+nix eval --raw "path:$PWD#homeConfigurations.\"ryjen@dubnium\".config.xdg.configFile.\"hypr/custom.d/meeting.conf\".text"
+nix eval --raw "path:$PWD#homeConfigurations.\"ryjen@technetium\".config.xdg.configFile.\"hypr/custom.d/meeting.conf\".text"
+nix eval --raw "path:$PWD#homeConfigurations.\"ryjen@meeting-verify\".config.xdg.configFile.\"hypr/custom.d/meeting.conf\".text"
 ```
 
 Expected: unit tests pass; all evaluations contain the bindings and ordered rules, normal graphical targets omit output mapping, and the fixture contains exactly `workspace = name:presentation, monitor:DP-1`.

@@ -52,7 +52,7 @@ in
       }
     ];
 
-    xdg.configFile."hypr/managed.d/meeting.conf".text = ''
+    xdg.configFile."hypr/custom.d/meeting.conf".text = ''
       ${lib.optionalString (
         cfg.presentationOutput != null
       ) "workspace = name:presentation, monitor:${cfg.presentationOutput}"}

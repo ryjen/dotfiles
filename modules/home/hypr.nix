@@ -91,9 +91,6 @@ in
 
       ${managedHyprConfig}
 
-      ${lib.optionalString config.dotfiles.meeting.enable ''
-        source = ${config.home.homeDirectory}/.config/hypr/managed.d/meeting.conf
-      ''}
       source = ${config.home.homeDirectory}/.config/hypr/local.conf
       source = ~/.config/hypr/custom.d/*.conf
     '';

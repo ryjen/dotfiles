@@ -4,7 +4,7 @@ Operator runbook for the Dubnium meeting and presentation workspace session.
 
 ## Ownership Boundaries
 
-- **Generated meeting fragment** (`hypr/managed.d/meeting.conf`): owned by
+- **Generated meeting fragment** (`hypr/custom.d/meeting.conf`): owned by
   `modules/home/meeting.nix`. Do not edit manually; changes are overwritten
   on activation.
 - **OBS immutable templates** (`files/home/.local/share/dubnium/obs/v1/`):

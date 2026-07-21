@@ -25,7 +25,7 @@ source_inputs = [
 ]
 runtime_outputs = [
   "hyprland.conf",
-  "managed.d/meeting.conf",
+  "custom.d/meeting.conf",
   "adopted.d/machine.conf",
   "custom.d/00-empty.conf"
 ]
@@ -39,7 +39,6 @@ adopted = [
   "adopted.d/*.conf"
 ]
 runtime_includes = [
-  "managed.d/meeting.conf",
   "local.conf",
   "custom.d/*.conf"
 ]
