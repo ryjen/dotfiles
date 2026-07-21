@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+version="dubctl-meeting-session 0.1.0"
+libexec="$HOME/.local/libexec"
+
+usage() {
+  printf 'usage: dubctl meeting session {start|stop|status [--json]|waybar {private|presentation}}\n'
+}
+
+case "${1-}" in
+  --help)
+    usage
+    exit 0
+    ;;
+  --version)
+    printf '%s\n' "$version"
+    exit 0
+    ;;
+  start|stop)
+    exec "$libexec/dubnium-meeting-mode" "$1"
+    ;;
+  status)
+    exec "$libexec/dubnium-meeting-mode" status "${2-}"
+    ;;
+  waybar)
+    exec "$libexec/dubnium-meeting-mode" waybar "${2-}"
+    ;;
+  "")
+    usage >&2
+    exit 64
+    ;;
+  *)
+    printf 'dubctl-meeting-session: unknown subcommand %s\n' "$1" >&2
+    usage >&2
+    exit 64
+    ;;
+esac

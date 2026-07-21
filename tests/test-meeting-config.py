@@ -182,6 +182,22 @@ class MeetingConfigTest(unittest.TestCase):
         self.assertNotIn("custom/backlight", workstation[0]["modules-right"])
         self.assertIn("custom/backlight", laptop[0]["modules-right"])
 
+    def test_dubctl_meeting_session_script_exists(self) -> None:
+        script = ROOT / "files/home/.local/bin/dubctl-meeting-session"
+        self.assertTrue(script.exists(), "dubctl-meeting-session script must exist")
+        content = script.read_text()
+        self.assertIn("--help", content)
+        self.assertIn("--version", content)
+        self.assertIn("start", content)
+        self.assertIn("stop", content)
+        self.assertIn("status", content)
+        self.assertIn("dubnium-meeting-mode", content)
+
+    def test_meeting_nix_installs_dubctl_meeting_session(self) -> None:
+        source = (ROOT / "modules/home/meeting.nix").read_text()
+        self.assertIn("dubctl-meeting-session", source)
+        self.assertIn("dubnium-meeting-mode", source)
+
 
 if __name__ == "__main__":
     unittest.main()

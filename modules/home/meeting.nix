@@ -107,6 +107,16 @@ in
       executable = true;
     };
 
+    home.file.".local/bin/dubctl-meeting" = {
+      source = ../../files/home/.local/bin/dubctl-meeting;
+      executable = true;
+    };
+
+    home.file.".local/bin/dubctl-meeting-session" = {
+      source = ../../files/home/.local/bin/dubctl-meeting-session;
+      executable = true;
+    };
+
     home.file.".local/libexec/dubnium-meeting-mode" = {
       source = ../../files/home/.local/libexec/dubnium-meeting-mode;
       executable = true;

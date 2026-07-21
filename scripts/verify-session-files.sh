@@ -154,12 +154,15 @@ for script in \
 	dub-editor \
 	dub-file-manager \
 	dub-launch \
+	dub-obs-hotkey \
 	dub-screenshot \
 	dub-session-doctor \
 	dub-session-reset \
 	dub-session-start \
 	dub-terminal \
-	dub-waybar-reload; do
+	dub-waybar-reload \
+	dubctl-meeting \
+	dubctl-meeting-session; do
 	check_exists "files/home/.local/bin/$script"
 done
 
