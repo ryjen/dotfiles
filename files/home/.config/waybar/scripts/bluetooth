@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Emit Bluetooth status for Waybar.
+# Tooltip shows adapter info, paired/connected/available devices with battery.
+# Click opens blueman-manager; right-click toggles bluetooth power.
+
+if ! command -v bluetoothctl >/dev/null 2>&1; then
+  printf '{"text":"","tooltip":"bluetoothctl not found","class":"missing"}\n'
+  exit 0
+fi
+
+json_escape() {
+  local value="$1"
+  value=${value//\\/\\\\}
+  value=${value//\"/\\\"}
+  value=${value//$'\n'/\\n}
+  printf '%s' "$value"
+}
+
+power_state="$(bluetoothctl show 2>/dev/null | awk '/Powered:/{print $2}')"
+
+if [ "$power_state" != "yes" ]; then
+  printf '{"text":"","tooltip":"Bluetooth: Off\\nRight-click to enable","class":"off"}\n'
+  exit 0
+fi
+
+adapter_name="$(bluetoothctl show 2>/dev/null | awk -F': ' '/Name/{print $2; exit}')"
+[ -z "$adapter_name" ] && adapter_name="default"
+
+tooltip="󰂯 Bluetooth: On"
+tooltip+="\\nAdapter: $adapter_name"
+
+connected_count=0
+paired_count=0
+
+tooltip+="\\n\\n── Connected ──"
+has_connected=false
+while IFS= read -r line; do
+  [ -z "$line" ] && continue
+  has_connected=true
+  mac="${line#Device: }"
+  mac="${mac%% *}"
+  info="$(bluetoothctl info "$mac" 2>/dev/null)"
+  alias="$(echo "$info" | awk -F': ' '/Alias/{print $2}')"
+  [ -z "$alias" ] && alias="$mac"
+  battery="$(echo "$info" | awk -F': ' '/Battery Percentage/{print $2}')"
+  connected_count=$((connected_count + 1))
+  tooltip+="\\n  $alias"
+  [ -n "$battery" ] && tooltip+=" ($battery)"
+done < <(bluetoothctl devices Connected 2>/dev/null)
+
+$has_connected || tooltip+="\\n  (none)"
+
+tooltip+="\\n\\n── Paired ──"
+has_paired=false
+while IFS= read -r line; do
+  [ -z "$line" ] && continue
+  has_paired=true
+  mac="${line#Device: }"
+  mac="${mac%% *}"
+  alias="$(bluetoothctl info "$mac" 2>/dev/null | awk -F': ' '/Alias/{print $2}')"
+  [ -z "$alias" ] && alias="$mac"
+  paired_count=$((paired_count + 1))
+  tooltip+="\\n  $alias"
+done < <(bluetoothctl devices Paired 2>/dev/null)
+
+$has_paired || tooltip+="\\n  (none)"
+
+tooltip+="\\n\\n── Available ──"
+scan_count=0
+while IFS= read -r line; do
+  [ -z "$line" ] && continue
+  mac="${line#Device: }"
+  mac="${mac%% *}"
+  alias="$(bluetoothctl info "$mac" 2>/dev/null | awk -F': ' '/Alias/{print $2}')"
+  [ -z "$alias" ] && alias="$mac"
+  scan_count=$((scan_count + 1))
+  [ $scan_count -gt 10 ] && tooltip+="\\n  ..." && break
+  tooltip+="\\n  $alias"
+done < <(bluetoothctl devices 2>/dev/null | grep -v -F -f <(bluetoothctl devices Paired 2>/dev/null || true) || true)
+
+[ $scan_count -eq 0 ] && tooltip+="\\n  (none)"
+
+tooltip+="\\n\\nLeft-click: Open Blueman"
+
+if [ $connected_count -gt 0 ]; then
+  text="󰂯 ${connected_count}"
+else
+  text="󰂯"
+fi
+
+printf '{"text":"%s","tooltip":"%s","class":"on"}\n' \
+  "$(json_escape "$text")" "$(json_escape "$tooltip")"
