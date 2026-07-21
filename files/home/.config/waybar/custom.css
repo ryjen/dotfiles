@@ -33,6 +33,17 @@
   background-color: transparent;
 }
 
+#custom-bluetooth {
+  color: #7aa2f7;
+}
+
+#custom-bluetooth.off,
+#custom-bluetooth.missing {
+  margin: 0;
+  padding: 0;
+  background-color: transparent;
+}
+
 #custom-meeting.active {
   color: #9ece6a;
 }
