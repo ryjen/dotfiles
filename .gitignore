@@ -2,6 +2,7 @@
 *.asc
 result
 .codex/
+__pycache__/
 /.pre-commit-config.yaml
 home/ryjen/git-local.nix
 home/ryjen/user.local.nix

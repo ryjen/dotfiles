@@ -228,6 +228,7 @@ start_mode() {
 		return 1
 	}
 	refresh_waybar
+	printf 'meeting mode activated\n'
 }
 
 restore_mode() {
@@ -297,6 +298,7 @@ restore_mode() {
 	fi
 	rm -f "$state_file" || return 1
 	refresh_waybar
+	printf 'meeting mode deactivated\n'
 }
 
 monitor_is_connected() {
