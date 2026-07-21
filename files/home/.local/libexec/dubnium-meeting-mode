@@ -1,0 +1,453 @@
+#!/usr/bin/env bash
+set -u
+
+umask 077
+
+state_home="${XDG_STATE_HOME:-$HOME/.local/state}"
+state_dir="$state_home/dubnium/meeting"
+state_file="$state_dir/state"
+active_marker="$state_dir/active"
+lock_file="$state_dir/lock"
+cliphist_unit="dubnium-cliphist.service"
+meeting_mode="dubnium-meeting"
+
+version=1
+phase=starting
+mako_was_active=false
+mako_added=false
+cliphist_was_active=false
+cliphist_stopped=false
+cliphist_query_status=unknown
+
+atomic_file() {
+	local destination="$1"
+	local value="$2"
+	local temporary
+
+	temporary="$(mktemp "$state_dir/.${destination##*/}.XXXXXX")" || return 1
+	if ! printf '%s' "$value" >"$temporary" || ! mv -f "$temporary" "$destination"; then
+		rm -f "$temporary"
+		return 1
+	fi
+}
+
+write_state() {
+	atomic_file "$state_file" "version=$version
+phase=$phase
+mako_was_active=$mako_was_active
+mako_added=$mako_added
+cliphist_was_active=$cliphist_was_active
+cliphist_stopped=$cliphist_stopped
+cliphist_query_status=$cliphist_query_status
+"
+}
+
+load_state() {
+	local line key value
+	local version_seen=0 phase_seen=0
+	local mako_was_active_seen=0 mako_added_seen=0
+	local cliphist_was_active_seen=0 cliphist_stopped_seen=0
+	local cliphist_query_status_seen=0
+
+	[ -r "$state_file" ] || return 1
+	while IFS= read -r line || [ -n "$line" ]; do
+		case "$line" in
+		*=*)
+			key="${line%%=*}"
+			value="${line#*=}"
+			;;
+		*) return 1 ;;
+		esac
+		case "$key" in
+		version)
+			((version_seen += 1))
+			[ "$version_seen" -eq 1 ] || return 1
+			version="$value"
+			;;
+		phase)
+			((phase_seen += 1))
+			[ "$phase_seen" -eq 1 ] || return 1
+			phase="$value"
+			;;
+		mako_was_active)
+			((mako_was_active_seen += 1))
+			[ "$mako_was_active_seen" -eq 1 ] || return 1
+			mako_was_active="$value"
+			;;
+		mako_added)
+			((mako_added_seen += 1))
+			[ "$mako_added_seen" -eq 1 ] || return 1
+			mako_added="$value"
+			;;
+		cliphist_was_active)
+			((cliphist_was_active_seen += 1))
+			[ "$cliphist_was_active_seen" -eq 1 ] || return 1
+			cliphist_was_active="$value"
+			;;
+		cliphist_stopped)
+			((cliphist_stopped_seen += 1))
+			[ "$cliphist_stopped_seen" -eq 1 ] || return 1
+			cliphist_stopped="$value"
+			;;
+		cliphist_query_status)
+			((cliphist_query_status_seen += 1))
+			[ "$cliphist_query_status_seen" -eq 1 ] || return 1
+			cliphist_query_status="$value"
+			;;
+		*) return 1 ;;
+		esac
+	done <"$state_file"
+
+	[ "$version_seen" -eq 1 ] || return 1
+	[ "$phase_seen" -eq 1 ] || return 1
+	[ "$mako_was_active_seen" -eq 1 ] || return 1
+	[ "$mako_added_seen" -eq 1 ] || return 1
+	[ "$cliphist_was_active_seen" -eq 1 ] || return 1
+	[ "$cliphist_stopped_seen" -eq 1 ] || return 1
+	[ "$cliphist_query_status_seen" -eq 1 ] || return 1
+	[ "$version" = 1 ] || return 1
+	case "$phase" in
+	starting | active | stopping | recovery-needed) ;;
+	*) return 1 ;;
+	esac
+	case "$mako_was_active:$mako_added:$cliphist_was_active:$cliphist_stopped" in
+	true:true:true:true | true:true:true:false | true:true:false:true | true:true:false:false | \
+		true:false:true:true | true:false:true:false | true:false:false:true | true:false:false:false | \
+		false:true:true:true | false:true:true:false | false:true:false:true | false:true:false:false | \
+		false:false:true:true | false:false:true:false | false:false:false:true | false:false:false:false) ;;
+	*) return 1 ;;
+	esac
+	case "$cliphist_query_status" in
+	unknown | 0 | 3 | 4) ;;
+	*) return 1 ;;
+	esac
+}
+
+refresh_waybar() {
+	if command -v pkill >/dev/null 2>&1; then
+		pkill -RTMIN+8 waybar >/dev/null 2>&1 || true
+	fi
+}
+
+mark_recovery_needed() {
+	phase=recovery-needed
+	write_state || true
+	refresh_waybar
+}
+
+start_mode() {
+	local cliphist_status modes
+
+	if [ -e "$active_marker" ]; then
+		if load_state && [ "$phase" = active ]; then
+			return 0
+		fi
+		printf 'dubnium-meeting-mode: recovery is required before start\n' >&2
+		return 1
+	fi
+	if [ -e "$state_file" ]; then
+		printf 'dubnium-meeting-mode: stale state requires recovery\n' >&2
+		return 1
+	fi
+
+	version=1
+	phase=starting
+	mako_was_active=false
+	mako_added=false
+	cliphist_was_active=false
+	cliphist_stopped=false
+	cliphist_query_status=unknown
+	write_state || return 1
+
+	# Block clipboard consumers before querying or changing clipboard ownership.
+	atomic_file "$active_marker" "active\n" || {
+		mark_recovery_needed
+		return 1
+	}
+
+	if command -v makoctl >/dev/null 2>&1 && modes="$(makoctl mode 2>/dev/null)"; then
+		if printf '%s\n' "$modes" | grep -Fx "$meeting_mode" >/dev/null 2>&1; then
+			mako_was_active=true
+			write_state || {
+				mark_recovery_needed
+				return 1
+			}
+		else
+			mako_added=true
+			write_state || {
+				mark_recovery_needed
+				return 1
+			}
+			if ! makoctl mode -a "$meeting_mode" >/dev/null 2>&1; then
+				mark_recovery_needed
+				return 1
+			fi
+		fi
+	fi
+
+	if ! command -v systemctl >/dev/null 2>&1; then
+		mark_recovery_needed
+		return 1
+	fi
+
+	systemctl --user is-active --quiet "$cliphist_unit"
+	cliphist_status=$?
+	case "$cliphist_status" in
+	0 | 3 | 4)
+		cliphist_query_status="$cliphist_status"
+		write_state || {
+			mark_recovery_needed
+			return 1
+		}
+		;;
+	*)
+		mark_recovery_needed
+		return 1
+		;;
+	esac
+
+	case "$cliphist_status" in
+	0)
+		cliphist_was_active=true
+		cliphist_stopped=true
+		write_state || {
+			mark_recovery_needed
+			return 1
+		}
+		if ! systemctl --user stop "$cliphist_unit"; then
+			mark_recovery_needed
+			return 1
+		fi
+		;;
+	3 | 4) ;;
+	esac
+
+	phase=active
+	write_state || {
+		mark_recovery_needed
+		return 1
+	}
+	refresh_waybar
+}
+
+restore_mode() {
+	local cliphist_status
+	local failed=false
+
+	if [ ! -e "$active_marker" ] && [ ! -e "$state_file" ]; then
+		return 0
+	fi
+	if ! load_state; then
+		printf 'dubnium-meeting-mode: ownership state is unavailable; preserving privacy marker\n' >&2
+		return 1
+	fi
+	if [ "$cliphist_query_status" = unknown ]; then
+		if ! command -v systemctl >/dev/null 2>&1; then
+			mark_recovery_needed
+			return 1
+		fi
+		systemctl --user is-active --quiet "$cliphist_unit"
+		cliphist_status=$?
+		case "$cliphist_status" in
+		0 | 3 | 4)
+			cliphist_query_status="$cliphist_status"
+			write_state || {
+				mark_recovery_needed
+				return 1
+			}
+			;;
+		*)
+			mark_recovery_needed
+			printf 'dubnium-meeting-mode: clipboard capture state remains unknown; preserving privacy marker\n' >&2
+			return 1
+			;;
+		esac
+	fi
+
+	phase=stopping
+	write_state || return 1
+
+	if [ "$mako_added" = true ]; then
+		if command -v makoctl >/dev/null 2>&1 && makoctl mode -r "$meeting_mode" >/dev/null 2>&1; then
+			mako_added=false
+			write_state || failed=true
+		else
+			failed=true
+		fi
+	fi
+
+	if [ "$cliphist_was_active" = true ] && [ "$cliphist_stopped" = true ]; then
+		if command -v systemctl >/dev/null 2>&1 && systemctl --user start "$cliphist_unit"; then
+			cliphist_stopped=false
+			write_state || failed=true
+		else
+			failed=true
+		fi
+	fi
+
+	if [ "$failed" = true ]; then
+		mark_recovery_needed
+		return 1
+	fi
+
+	# Ownership has been fully restored; only now may clipboard access resume.
+	if ! rm -f "$active_marker"; then
+		mark_recovery_needed
+		return 1
+	fi
+	rm -f "$state_file" || return 1
+	refresh_waybar
+}
+
+monitor_is_connected() {
+	local configured="$1"
+	local monitors
+
+	command -v jq >/dev/null 2>&1 || return 2
+	command -v hyprctl >/dev/null 2>&1 || return 2
+	monitors="$(hyprctl monitors -j 2>/dev/null)" || return 2
+	printf '%s\n' "$monitors" | jq -e --arg output "$configured" \
+		'type == "array" and any(.[]; type == "object" and (.name? | type == "string") and .name == $output)' \
+		>/dev/null 2>&1
+}
+
+status_values() {
+	local configured="${DUBNIUM_PRESENTATION_OUTPUT:-}"
+	local cliphist_status monitor_status modes
+
+	status_active=false
+	status_degraded=false
+	status_reason=""
+	status_phase=inactive
+	status_marker=false
+	[ -e "$active_marker" ] && status_marker=true
+	if load_state; then
+		status_phase="$phase"
+		[ "$phase" = active ] || status_degraded=true
+		if [ "$phase" = active ] && [ "$status_marker" = true ]; then
+			status_active=true
+		elif [ "$phase" = active ]; then
+			status_degraded=true
+			status_reason="privacy marker unavailable"
+		fi
+	elif [ "$status_marker" = true ] || [ -e "$state_file" ]; then
+		status_degraded=true
+		status_reason="ownership state unavailable"
+	fi
+
+	if [ "$status_active" = true ]; then
+		if ! command -v makoctl >/dev/null 2>&1; then
+			status_degraded=true
+			status_reason="${status_reason:+$status_reason; }notification control unavailable"
+		elif ! modes="$(makoctl mode 2>/dev/null)" || ! printf '%s\n' "$modes" | grep -Fx "$meeting_mode" >/dev/null 2>&1; then
+			status_degraded=true
+			status_reason="${status_reason:+$status_reason; }notification privacy mode inactive"
+		fi
+		if ! command -v systemctl >/dev/null 2>&1; then
+			status_degraded=true
+			status_reason="${status_reason:+$status_reason; }clipboard service control unavailable"
+		else
+			systemctl --user is-active --quiet "$cliphist_unit" >/dev/null 2>&1
+			cliphist_status=$?
+			case "$cliphist_status" in
+			0)
+				status_degraded=true
+				status_reason="${status_reason:+$status_reason; }clipboard capture service is active"
+				;;
+			3) ;;
+			4)
+				status_degraded=true
+				status_reason="${status_reason:+$status_reason; }clipboard capture unit unavailable"
+				;;
+			*)
+				phase=recovery-needed
+				cliphist_query_status=unknown
+				write_state || true
+				status_active=false
+				status_degraded=true
+				status_phase=recovery-needed
+				status_reason="${status_reason:+$status_reason; }clipboard service state unavailable"
+				;;
+			esac
+		fi
+	fi
+
+	if [ -n "$configured" ]; then
+		monitor_is_connected "$configured"
+		monitor_status=$?
+		if [ "$monitor_status" -ne 0 ]; then
+			status_degraded=true
+			if [ "$monitor_status" -eq 1 ]; then
+				status_reason="${status_reason:+$status_reason; }configured presentation output $configured is not connected"
+			else
+				status_reason="${status_reason:+$status_reason; }presentation output validation unavailable"
+			fi
+		fi
+	fi
+}
+
+json_escape() {
+	local value="$1"
+	value=${value//\\/\\\\}
+	value=${value//\"/\\\"}
+	value=${value//$'\t'/\\t}
+	value=${value//$'\r'/\\r}
+	value=${value//$'\n'/\\n}
+	printf '%s' "$value"
+}
+
+print_status_json() {
+	status_values
+	printf '{"active":%s,"degraded":%s,"phase":"%s","reason":"%s"}\n' \
+		"$status_active" "$status_degraded" "$(json_escape "$status_phase")" "$(json_escape "$status_reason")"
+}
+
+print_status() {
+	status_values
+	if [ "$status_degraded" = true ]; then
+		printf '%s: degraded%s\n' "$status_phase" "${status_reason:+ ($status_reason)}"
+	else
+		printf '%s\n' "$status_phase"
+	fi
+}
+
+print_waybar() {
+	local kind="$1"
+
+	if [ "$kind" = presentation ]; then
+		printf '{"text":"Presentation","class":"presentation"}\n'
+		return 0
+	fi
+	[ "$kind" = private ] || return 64
+
+	status_values
+	if [ "$status_active" = false ] && [ "$status_degraded" = false ]; then
+		printf '{"text":"","class":"inactive","tooltip":""}\n'
+	elif [ "$status_degraded" = true ]; then
+		printf '{"text":"Privacy degraded","class":"degraded","tooltip":"Meeting privacy needs attention"}\n'
+	else
+		printf '{"text":"Meeting privacy","class":"active","tooltip":"Meeting privacy is active"}\n'
+	fi
+}
+
+mkdir -p "$state_dir" || exit 1
+exec 9>"$lock_file"
+flock 9 || exit 1
+
+case "${1:-}" in
+start) start_mode ;;
+stop | recover) restore_mode ;;
+status)
+	case "${2:-}" in
+	"") print_status ;;
+	--json) print_status_json ;;
+	*) exit 64 ;;
+	esac
+	;;
+waybar) print_waybar "${2:-}" ;;
+can-capture) [ ! -e "$active_marker" ] && [ ! -e "$state_file" ] ;;
+*)
+	printf 'usage: dubnium-meeting-mode {start|stop|recover|status [--json]|waybar {private|presentation}|can-capture}\n' >&2
+	exit 64
+	;;
+esac

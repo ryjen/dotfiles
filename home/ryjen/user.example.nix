@@ -5,6 +5,7 @@
 # This file is the canonical catalog of supported portable user selections.
 # Keep only deliberate overrides active. Uncomment every portable option only
 # when maintaining a complete user-level desired-state file.
+# deadnix ignore
 { config, ... }:
 {
   # Personal identity. Replace both placeholders together in user.local.nix.
@@ -38,6 +39,14 @@
   # dotfiles.music.enable = false;
   # dotfiles.grimblast.enable = false;
   # dotfiles.graphical.keyring.enable = false;
+
+  # Meeting workspace support. Output names and camera identifiers are
+  # machine-local; inspect them before replacing these null placeholders.
+  # dotfiles.meeting.enable = false;
+  # dotfiles.meeting.presentationOutput = null; # For example, "DP-1".
+  # dotfiles.meeting.cameraDevice = null; # For example, "/dev/v4l/by-id/...".
+  # dotfiles.meeting.teamsClassRegex = "^(firefox|Microsoft-edge|microsoft-edge)$";
+  # dotfiles.meeting.teamsTitleRegex = "^Microsoft Teams.*$";
 
   # dotfiles.headroom.proxy.enable = false;
   # dotfiles.headroom.proxy.host = "127.0.0.1";

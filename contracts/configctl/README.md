@@ -108,6 +108,24 @@ Important constraints:
 | Variety | `init/variety.toml` | init | planned | Home Manager activation | configctl init |
 | Multi-agent worktrees skill | `init/multi-agent-worktrees.toml` | init | active, validate-only | dotfiles/manual copy | configctl init |
 
+### OBS presentation initialization
+
+`init/obs-presentation.toml` installs the versioned OBS profile `Dubnium Presentation` and scene collection `Dubnium Meeting Presentation` published by the meeting module. It is an explicit init workflow, not an app ownership or composition strategy. These explicit names must match both their target basenames and the names stored inside the templates. The normal contract declares only `mutable-user-state`; the executor conditionally requires `destructive` when `--replace` would replace actual existing state.
+
+Preview and perform a first install:
+
+```sh
+configctl init plan obs-presentation
+configctl init apply obs-presentation --allow mutable-user-state --yes
+configctl init verify obs-presentation
+```
+
+Existing differing OBS state is preserved unless replacement is requested explicitly. Replacement requires both risk approvals and is refused while OBS is running:
+
+```sh
+configctl init apply obs-presentation --replace --allow mutable-user-state,destructive --yes
+```
+
 ## Verification
 
 Run the repo-side verifier directly:
@@ -122,7 +140,7 @@ Or build the check derivation explicitly:
 nix build .#checks.x86_64-linux.configctl-contracts
 ```
 
-The verifier checks that init contracts are valid TOML, use supported risk labels, have unique IDs, and that enabled contracts have dotfiles-side validation rules. For `npm-globals`, `pip-globals`, and `uv-tools`, it also verifies that contract paths match the Home Manager-managed paths and that referenced package/tool manifests exist.
+The verifier checks that init contracts are valid TOML, use supported risk labels, have unique IDs, and that enabled contracts have dotfiles-side validation rules. For `npm-globals`, `pip-globals`, and `uv-tools`, it also verifies that contract paths match the Home Manager-managed paths and that referenced package/tool manifests exist. For `obs-presentation`, it requires the reviewed executor paths and behavior, the non-destructive default risk, the exact Camera Overlay structure, and no `device_id` key anywhere in the versioned OBS collection.
 
 ## Non-goals
 

@@ -9,22 +9,38 @@ fail() { printf '[fail] %s\n' "$*"; status=1; }
 
 check_file() {
   local path="$1"
-  [ -f "$path" ] && ok "$path exists" || fail "$path missing"
+  if [ -f "$path" ]; then
+    ok "$path exists"
+  else
+    fail "$path missing"
+  fi
 }
 
 check_dir() {
   local path="$1"
-  [ -d "$path" ] && ok "$path exists" || fail "$path missing"
+  if [ -d "$path" ]; then
+    ok "$path exists"
+  else
+    fail "$path missing"
+  fi
 }
 
 check_exe() {
   local name="$1"
-  command -v "$name" >/dev/null 2>&1 && ok "$name available" || fail "$name not found"
+  if command -v "$name" >/dev/null 2>&1; then
+    ok "$name available"
+  else
+    fail "$name not found"
+  fi
 }
 
 check_optional_exe() {
   local name="$1"
-  command -v "$name" >/dev/null 2>&1 && ok "$name available" || warn "$name not found"
+  if command -v "$name" >/dev/null 2>&1; then
+    ok "$name available"
+  else
+    warn "$name not found"
+  fi
 }
 
 printf 'Dubnium session doctor\n\n'
@@ -51,7 +67,11 @@ for script in \
   dub-terminal \
   dub-waybar-reload; do
   path="$HOME/.local/bin/$script"
-  [ -x "$path" ] && ok "$script executable" || fail "$script missing or not executable"
+  if [ -x "$path" ]; then
+    ok "$script executable"
+  else
+    fail "$script missing or not executable"
+  fi
 done
 
 check_exe hyprland
@@ -72,10 +92,21 @@ check_optional_exe dolphin
 check_optional_exe firefox
 check_optional_exe code
 
-if pgrep -f 'wl-paste --watch cliphist store' >/dev/null 2>&1; then
-  ok 'cliphist watcher running'
+if command -v systemctl >/dev/null 2>&1 && systemctl --user is-active --quiet dubnium-cliphist.service; then
+  ok 'cliphist service active'
 else
-  warn 'cliphist watcher not running'
+  warn 'cliphist service not active'
+fi
+
+meeting_helper="$HOME/.local/libexec/dubnium-meeting-mode"
+if [ -x "$meeting_helper" ]; then
+  if meeting_status="$("$meeting_helper" status 2>/dev/null)"; then
+    ok "meeting privacy status: $meeting_status"
+  else
+    warn 'meeting privacy status unavailable'
+  fi
+else
+  warn 'meeting privacy helper not installed'
 fi
 
 state_home="${XDG_STATE_HOME:-$HOME/.local/state}"

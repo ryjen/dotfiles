@@ -1,7 +1,6 @@
 (defvar quote_text "With the lights out, it's less dangerous")
 
 (defwindow quote_overlay
-  :monitor 0
   :geometry (geometry
     :x "0px"
     :y "40px"

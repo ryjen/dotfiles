@@ -198,6 +198,17 @@ Verify session files:
 nix run .#verify-session-files
 ```
 
+Run meeting-related session checks:
+
+```bash
+nix build .#checks.x86_64-linux.session-files
+nix build .#checks.x86_64-linux.obs-templates
+nix build .#checks.x86_64-linux.obs-hotkey-helper
+nix build .#checks.x86_64-linux.meeting-mode-tests
+```
+
+Meeting and presentation workflow is documented in `docs/meeting-presentation.md`.
+
 Verify npm global environment files:
 
 ```bash

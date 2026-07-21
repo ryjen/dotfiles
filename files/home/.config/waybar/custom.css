@@ -32,3 +32,21 @@
   padding: 0;
   background-color: transparent;
 }
+
+#custom-meeting.active {
+  color: #9ece6a;
+}
+
+#custom-meeting.degraded {
+  color: #e0af68;
+}
+
+window#waybar.presentation {
+  background-color: #111827;
+}
+
+window#waybar.presentation #workspaces,
+window#waybar.presentation #custom-meeting {
+  color: #f8fafc;
+  padding: 0 12px;
+}

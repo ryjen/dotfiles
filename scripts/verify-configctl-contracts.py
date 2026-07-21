@@ -7,6 +7,8 @@ This intentionally validates the repository contract surface only. The Dubnium
 
 from __future__ import annotations
 
+import configparser
+import json
 import sys
 import tomllib
 from pathlib import Path
@@ -45,7 +47,44 @@ SUPPORTED_ACTIVE_KINDS = {
     "pip-globals",
     "skill-deployment",
     "task-config",
+    "obs-presentation",
     "uv-tools",
+}
+
+OBS_PATHS = {
+    "templateProfile": "$XDG_DATA_HOME/dubnium/obs/v1/profile",
+    "templateCollection": "$XDG_DATA_HOME/dubnium/obs/v1/scene-collection.json",
+    "settings": "$XDG_CONFIG_HOME/dubnium/meeting/obs-init.json",
+    "profileTarget": "$XDG_CONFIG_HOME/obs-studio/basic/profiles/Dubnium Presentation",
+    "collectionTarget": "$XDG_CONFIG_HOME/obs-studio/basic/scenes/Dubnium Meeting Presentation.json",
+}
+
+OBS_NAMES = {
+    "profileName": "Dubnium Presentation",
+    "collectionName": "Dubnium Meeting Presentation",
+}
+
+OBS_BEHAVIOR = {
+    "createIfMissing": True,
+    "replace": False,
+    "backupBeforeReplace": True,
+    "atomicWrite": True,
+    "refuseWhileObsRunning": True,
+}
+
+OBS_FIELDS = {
+    "schemaVersion",
+    "id",
+    "kind",
+    "enabled",
+    "risk",
+    "profile",
+    "tags",
+    "description",
+    "dependsOn",
+    *OBS_PATHS,
+    *OBS_NAMES,
+    "behavior",
 }
 
 
@@ -278,12 +317,116 @@ def validate_task_config(path: Path, contract: dict[str, Any]) -> None:
         fail(f"{path}: task-config risk must be exactly mutable-user-state")
 
 
+def contains_key(value: Any, key: str) -> bool:
+    if isinstance(value, dict):
+        return key in value or any(contains_key(nested, key) for nested in value.values())
+    if isinstance(value, list):
+        return any(contains_key(nested, key) for nested in value)
+    return False
+
+
+def validate_obs_presentation(path: Path, contract: dict[str, Any]) -> None:
+    unsupported = sorted(set(contract) - OBS_FIELDS)
+    if unsupported:
+        fail(f"{path}: unsupported obs-presentation fields: {', '.join(unsupported)}")
+
+    if contract["risk"] != ["mutable-user-state"]:
+        fail(f'{path}: obs-presentation risk must be exactly ["mutable-user-state"]')
+
+    for field, expected in OBS_PATHS.items():
+        value = require_type(contract, path, field, str)
+        if value != expected:
+            fail(f"{path}: {field} must be {expected!r}")
+    for field, expected in OBS_NAMES.items():
+        value = require_type(contract, path, field, str)
+        if value != expected:
+            fail(f"{path}: {field} must be {expected!r}")
+
+    behavior = contract.get("behavior")
+    if not isinstance(behavior, dict):
+        fail(f"{path}: missing [behavior] table")
+    unsupported = sorted(set(behavior) - set(OBS_BEHAVIOR))
+    if unsupported:
+        fail(f"{path}: unsupported [behavior] fields: {', '.join(unsupported)}")
+    for field, expected in OBS_BEHAVIOR.items():
+        if behavior.get(field) is not expected:
+            fail(f"{path}: [behavior].{field} must be {str(expected).lower()}")
+
+    template_root = FILES_HOME / ".local/share/dubnium/obs/v1"
+    profile = template_root / "profile"
+    collection_path = template_root / "scene-collection.json"
+    if not profile.is_dir():
+        fail(f"{path}: referenced templateProfile does not exist: {profile.relative_to(ROOT)}")
+    if not collection_path.is_file():
+        fail(
+            f"{path}: referenced templateCollection does not exist: "
+            f"{collection_path.relative_to(ROOT)}"
+        )
+
+    profile_path = profile / "basic.ini"
+    if not profile_path.is_file():
+        fail(f"{path}: templateProfile is missing basic.ini")
+    parser = configparser.ConfigParser(interpolation=None)
+    parser.optionxform = str
+    try:
+        with profile_path.open(encoding="utf-8") as profile_file:
+            parser.read_file(profile_file)
+    except (OSError, configparser.Error) as exc:
+        fail(f"{profile_path}: invalid OBS profile: {exc}")
+    if parser.get("General", "Name", fallback=None) != contract["profileName"]:
+        fail(f"{profile_path}: [General].Name must match profileName")
+
+    try:
+        collection = json.loads(collection_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        fail(f"{collection_path}: invalid OBS scene collection JSON: {exc}")
+    if not isinstance(collection, dict):
+        fail(f"{collection_path}: OBS scene collection must be a JSON object")
+    if collection.get("name") != contract["collectionName"]:
+        fail(f"{collection_path}: collection name must match collectionName")
+    sources = collection.get("sources")
+    if not isinstance(sources, list):
+        fail(f"{collection_path}: sources must be a list")
+    cameras = [
+        source
+        for source in sources
+        if isinstance(source, dict)
+        and source.get("name") == "Camera Overlay"
+        and source.get("id") == "v4l2_input"
+    ]
+    if len(cameras) != 1:
+        fail(f"{collection_path}: expected exactly one Camera Overlay v4l2_input source")
+    camera = cameras[0]
+    if camera.get("settings") != {}:
+        fail(f"{collection_path}: camera settings must not contain device_id or other machine-local values")
+    camera_uuid = camera.get("uuid")
+    if not isinstance(camera_uuid, str) or not camera_uuid:
+        fail(f"{collection_path}: Camera Overlay must have a non-empty uuid")
+    camera_items = [
+        item
+        for source in sources
+        if isinstance(source, dict) and isinstance(source.get("settings"), dict)
+        for item in source["settings"].get("items", [])
+        if isinstance(item, dict)
+        and item.get("name") == "Camera Overlay"
+        and item.get("source_uuid") == camera_uuid
+    ]
+    if not camera_items:
+        fail(f"{collection_path}: no scene item references Camera Overlay")
+    if contains_key(collection, "device_id"):
+        fail(f"{collection_path}: device_id keys are forbidden in the versioned scene collection")
+
+
 def main() -> int:
     if not INIT_DIR.is_dir():
         fail(f"missing init contract directory: {INIT_DIR.relative_to(ROOT)}")
+    obs_contract_path = INIT_DIR / "obs-presentation.toml"
+    if not obs_contract_path.is_file():
+        fail(f"missing required OBS presentation init contract: {obs_contract_path.relative_to(ROOT)}")
 
     seen_ids: set[str] = set()
     active_contracts = 0
+    obs_enabled = False
 
     for path in sorted(INIT_DIR.glob("*.toml")):
         try:
@@ -304,9 +447,15 @@ def main() -> int:
             validate_skill_deployment(path, contract)
         elif kind == "task-config":
             validate_task_config(path, contract)
+        elif kind == "obs-presentation":
+            validate_obs_presentation(path, contract)
         if enabled:
             active_contracts += 1
+        if path == obs_contract_path and _contract_id == "obs-presentation" and kind == "obs-presentation":
+            obs_enabled = enabled
 
+    if not obs_enabled:
+        fail(f"{obs_contract_path}: OBS presentation init contract must be enabled")
     if active_contracts == 0:
         fail("expected at least one enabled init contract")
 

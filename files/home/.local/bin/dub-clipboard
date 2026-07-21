@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+state_home="${XDG_STATE_HOME:-$HOME/.local/state}"
+if [ -e "$state_home/dubnium/meeting/active" ] || [ -e "$state_home/dubnium/meeting/state" ]; then
+  printf 'dub-clipboard: unavailable while meeting privacy mode is active\n' >&2
+  exit 75
+fi
+
 launcher="${DUB_CLIPBOARD_LAUNCHER:-${DUB_LAUNCHER:-wofi}}"
 
 if ! command -v cliphist >/dev/null 2>&1; then
@@ -21,7 +27,7 @@ case "$launcher" in
     picker=(wofi --dmenu --prompt clipboard)
     ;;
   *)
-    picker=($launcher)
+    read -r -a picker <<<"$launcher"
     ;;
 esac
 

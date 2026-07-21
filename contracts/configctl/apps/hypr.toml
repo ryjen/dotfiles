@@ -17,6 +17,7 @@ root = "~/.config/hypr"
 standard = "configctl-v1"
 source_inputs = [
   "modules/home/hypr.nix",
+  "modules/home/meeting.nix",
   "files/home/.config/hypr/adopted.d/dubnium.conf",
   "files/home/.config/hypr/adopted.d/technetium.conf",
   "files/home/.config/hypr/adopted.d/empty.conf",
@@ -24,6 +25,7 @@ source_inputs = [
 ]
 runtime_outputs = [
   "hyprland.conf",
+  "managed.d/meeting.conf",
   "adopted.d/machine.conf",
   "custom.d/00-empty.conf"
 ]
@@ -37,6 +39,7 @@ adopted = [
   "adopted.d/*.conf"
 ]
 runtime_includes = [
+  "managed.d/meeting.conf",
   "local.conf",
   "custom.d/*.conf"
 ]

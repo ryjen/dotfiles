@@ -148,6 +148,43 @@ update = false
 prune = false
 ```
 
+## `obs-presentation` init contract
+
+`obs-presentation` installs the immutable meeting profile template and scene collection into OBS mutable user state. The handler consumes these required path fields:
+
+| Field | Required value |
+| --- | --- |
+| `templateProfile` | `$XDG_DATA_HOME/dubnium/obs/v1/profile` |
+| `templateCollection` | `$XDG_DATA_HOME/dubnium/obs/v1/scene-collection.json` |
+| `settings` | `$XDG_CONFIG_HOME/dubnium/meeting/obs-init.json` |
+| `profileName` | `Dubnium Presentation` |
+| `collectionName` | `Dubnium Meeting Presentation` |
+| `profileTarget` | `$XDG_CONFIG_HOME/obs-studio/basic/profiles/Dubnium Presentation` |
+| `collectionTarget` | `$XDG_CONFIG_HOME/obs-studio/basic/scenes/Dubnium Meeting Presentation.json` |
+
+Required normal risk:
+
+```toml
+risk = ["mutable-user-state"]
+```
+
+`destructive` is not a default contract risk. The executor requires it conditionally, in addition to `mutable-user-state`, only when explicit `--replace` would replace existing state.
+
+Required behavior:
+
+```toml
+[behavior]
+createIfMissing = true
+replace = false
+backupBeforeReplace = true
+atomicWrite = true
+refuseWhileObsRunning = true
+```
+
+`atomicWrite` requires staged publication for each target and coordinated rollback; it does not claim that the profile and collection form one filesystem-wide atomic transaction. Replacement must back up existing targets first and must be refused while OBS is running.
+
+The profile directory and scene collection are versioned assets published by Home Manager. `profileName` and `collectionName` are required nonempty explicit names. The executor validates them against the target basenames, the profile `basic.ini` `General.Name`, and the scene collection's top-level `name`. The contract verifier also checks the exact Camera Overlay structure and recursively rejects every `device_id` key anywhere in the versioned collection. The generated `settings` document is machine-local input and may contain only the optional camera identifier interpreted by the executor.
+
 ## App manifest
 
 App manifests are a dotfiles-side ownership and composition policy surface for `configctl adopt`, `status`, `doctor`, `promote`, and future compose workflows.

@@ -9,7 +9,5 @@
   dotfiles.profiles.android.enable = lib.mkDefault false;
   dotfiles.profiles.micrantha.enable = lib.mkDefault false;
   dotfiles.hypr.adoptedProfile = "technetium";
-
-  xdg.configFile."waybar/config.jsonc".source =
-    lib.mkForce ../../../files/home/.config/waybar/config-technetium.jsonc;
+  dotfiles.waybar.variant = "laptop";
 }

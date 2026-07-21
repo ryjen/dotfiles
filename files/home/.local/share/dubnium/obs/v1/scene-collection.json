@@ -1,0 +1,255 @@
+{
+  "current_program_scene": "Code Only",
+  "current_scene": "Code Only",
+  "groups": [],
+  "modules": {},
+  "name": "Dubnium Meeting Presentation",
+  "preview_locked": false,
+  "quick_transitions": [],
+  "saved_projectors": [],
+  "scene_order": [
+    {
+      "name": "Code Only"
+    },
+    {
+      "name": "Code + Camera"
+    }
+  ],
+  "sources": [
+    {
+      "balance": 0.5,
+      "enabled": true,
+      "flags": 0,
+      "hotkeys": {},
+      "id": "pipewire-screen-capture-source",
+      "mixers": 0,
+      "monitoring_type": 0,
+      "muted": false,
+      "name": "Screen Capture",
+      "prev_ver": 536936450,
+      "private_settings": {},
+      "push-to-mute": false,
+      "push-to-mute-delay": 0,
+      "push-to-talk": false,
+      "push-to-talk-delay": 0,
+      "settings": {},
+      "sync": 0,
+      "uuid": "0d12c900-9af3-4f95-89ba-6ed2ea443004",
+      "versioned_id": "pipewire-screen-capture-source",
+      "volume": 1.0
+    },
+    {
+      "balance": 0.5,
+      "enabled": true,
+      "flags": 0,
+      "hotkeys": {},
+      "id": "v4l2_input",
+      "mixers": 0,
+      "monitoring_type": 0,
+      "muted": false,
+      "name": "Camera Overlay",
+      "prev_ver": 536936450,
+      "private_settings": {},
+      "push-to-mute": false,
+      "push-to-mute-delay": 0,
+      "push-to-talk": false,
+      "push-to-talk-delay": 0,
+      "settings": {},
+      "sync": 0,
+      "uuid": "3ba59b00-b913-4486-b46c-a10a75aa124d",
+      "versioned_id": "v4l2_input",
+      "volume": 1.0
+    },
+    {
+      "balance": 0.5,
+      "enabled": true,
+      "flags": 0,
+      "hotkeys": {
+        "OBSBasic.SelectScene": [
+          {
+            "alt": true,
+            "control": true,
+            "key": "OBS_KEY_1",
+            "shift": false
+          }
+        ]
+      },
+      "id": "scene",
+      "mixers": 0,
+      "monitoring_type": 0,
+      "muted": false,
+      "name": "Code Only",
+      "prev_ver": 536936450,
+      "private_settings": {},
+      "push-to-mute": false,
+      "push-to-mute-delay": 0,
+      "push-to-talk": false,
+      "push-to-talk-delay": 0,
+      "settings": {
+        "custom_size": false,
+        "id_counter": 1,
+        "items": [
+          {
+            "align": 5,
+            "bounds": {
+              "x": 0.0,
+              "y": 0.0
+            },
+            "bounds_align": 0,
+            "bounds_crop": false,
+            "bounds_type": 0,
+            "crop_bottom": 0,
+            "crop_left": 0,
+            "crop_right": 0,
+            "crop_top": 0,
+            "group_item_backup": false,
+            "id": 1,
+            "locked": false,
+            "name": "Screen Capture",
+            "pos": {
+              "x": 0.0,
+              "y": 0.0
+            },
+            "private_settings": {},
+            "rot": 0.0,
+            "scale": {
+              "x": 1.0,
+              "y": 1.0
+            },
+            "scale_filter": "disable",
+            "show_transition": {
+              "duration": 0
+            },
+            "source_uuid": "0d12c900-9af3-4f95-89ba-6ed2ea443004",
+            "visible": false
+          }
+        ]
+      },
+      "sync": 0,
+      "uuid": "aeb692c1-ac87-4a3d-9001-f5d670f2ac8c",
+      "versioned_id": "scene",
+      "volume": 1.0
+    },
+    {
+      "balance": 0.5,
+      "enabled": true,
+      "flags": 0,
+      "hotkeys": {
+        "OBSBasic.SelectScene": [
+          {
+            "alt": true,
+            "control": true,
+            "key": "OBS_KEY_2",
+            "shift": false
+          }
+        ],
+        "libobs.hide_scene_item.2": [
+          {
+            "alt": true,
+            "control": true,
+            "key": "OBS_KEY_3",
+            "shift": false
+          }
+        ],
+        "libobs.show_scene_item.2": [
+          {
+            "alt": true,
+            "control": true,
+            "key": "OBS_KEY_3",
+            "shift": false
+          }
+        ]
+      },
+      "id": "scene",
+      "mixers": 0,
+      "monitoring_type": 0,
+      "muted": false,
+      "name": "Code + Camera",
+      "prev_ver": 536936450,
+      "private_settings": {},
+      "push-to-mute": false,
+      "push-to-mute-delay": 0,
+      "push-to-talk": false,
+      "push-to-talk-delay": 0,
+      "settings": {
+        "custom_size": false,
+        "id_counter": 2,
+        "items": [
+          {
+            "align": 5,
+            "bounds": {
+              "x": 0.0,
+              "y": 0.0
+            },
+            "bounds_align": 0,
+            "bounds_crop": false,
+            "bounds_type": 0,
+            "crop_bottom": 0,
+            "crop_left": 0,
+            "crop_right": 0,
+            "crop_top": 0,
+            "group_item_backup": false,
+            "id": 1,
+            "locked": false,
+            "name": "Screen Capture",
+            "pos": {
+              "x": 0.0,
+              "y": 0.0
+            },
+            "private_settings": {},
+            "rot": 0.0,
+            "scale": {
+              "x": 1.0,
+              "y": 1.0
+            },
+            "scale_filter": "disable",
+            "show_transition": {
+              "duration": 0
+            },
+            "source_uuid": "0d12c900-9af3-4f95-89ba-6ed2ea443004",
+            "visible": false
+          },
+          {
+            "align": 10,
+            "bounds": {
+              "x": 0.0,
+              "y": 0.0
+            },
+            "bounds_align": 0,
+            "bounds_crop": false,
+            "bounds_type": 0,
+            "crop_bottom": 0,
+            "crop_left": 0,
+            "crop_right": 0,
+            "crop_top": 0,
+            "group_item_backup": false,
+            "id": 2,
+            "locked": false,
+            "name": "Camera Overlay",
+            "pos": {
+              "x": 1888.0,
+              "y": 1048.0
+            },
+            "private_settings": {},
+            "rot": 0.0,
+            "scale": {
+              "x": 0.25,
+              "y": 0.25
+            },
+            "scale_filter": "disable",
+            "show_transition": {
+              "duration": 0
+            },
+            "source_uuid": "3ba59b00-b913-4486-b46c-a10a75aa124d",
+            "visible": false
+          }
+        ]
+      },
+      "sync": 0,
+      "uuid": "e60accac-bf12-4c44-9723-cd1d8823c197",
+      "versioned_id": "scene",
+      "volume": 1.0
+    }
+  ],
+  "transitions": []
+}

@@ -143,10 +143,65 @@
               touch "$out"
             '';
 
-        configctl-contracts = pkgs.runCommand "configctl-contracts" { nativeBuildInputs = [ pkgs.python3 ]; } ''
-          python3 ${./scripts/verify-configctl-contracts.py} ${self}
-          touch "$out"
-        '';
+        configctl-contracts =
+          pkgs.runCommand "configctl-contracts" { nativeBuildInputs = [ pkgs.python3 ]; }
+            ''
+              python3 ${./scripts/verify-configctl-contracts.py} ${self}
+              touch "$out"
+            '';
+
+        session-files =
+          pkgs.runCommand "session-files"
+            {
+              nativeBuildInputs = [
+                pkgs.bash
+                pkgs.python3
+              ];
+            }
+            ''
+              bash ${./scripts/verify-session-files.sh} ${self}
+              touch "$out"
+            '';
+
+        obs-templates =
+          pkgs.runCommand "obs-templates"
+            {
+              nativeBuildInputs = [ pkgs.python3 ];
+            }
+            ''
+              python3 ${./scripts/verify-obs-templates.py} ${self}
+              touch "$out"
+            '';
+
+        obs-hotkey-helper =
+          pkgs.runCommand "obs-hotkey-helper"
+            {
+              nativeBuildInputs = [
+                pkgs.bash
+                pkgs.coreutils
+                pkgs.jq
+              ];
+            }
+            ''
+              bash ${./tests/test-dub-obs-hotkey.sh} ${self}
+              touch "$out"
+            '';
+
+        meeting-mode-tests =
+          pkgs.runCommand "meeting-mode-tests"
+            {
+              nativeBuildInputs = [
+                pkgs.bash
+                pkgs.coreutils
+                pkgs.jq
+                pkgs.python3
+                pkgs.util-linux
+              ];
+            }
+            ''
+              bash ${./tests/test-meeting-mode.sh} ${self}
+              touch "$out"
+            '';
 
         git-autocommit-package = git-autocommit.checks.${system}.default;
 
@@ -190,7 +245,9 @@
       devShells.${system}.default =
         let
           inherit (self.checks.${system}.pre-commit-check) shellHook enabledPackages;
-          prePushHook = pkgs.writeShellScriptBin "pre-push-hook" (builtins.readFile ./scripts/pre-push-hook.sh);
+          prePushHook = pkgs.writeShellScriptBin "pre-push-hook" (
+            builtins.readFile ./scripts/pre-push-hook.sh
+          );
         in
         pkgs.mkShell {
           shellHook = shellHook + ''
@@ -216,6 +273,7 @@
       homeConfigurations."${username}@wsl" = mkHomeConfig ./home/ryjen/wsl-home.nix;
       homeConfigurations."${username}@dubnium" = mkHomeConfig ./home/ryjen/dubnium-home.nix;
       homeConfigurations."${username}@technetium" = mkHomeConfig ./home/ryjen/technetium-home.nix;
+      homeConfigurations."${username}@meeting-verify" = mkHomeConfig ./home/ryjen/meeting-verify-home.nix;
 
       nixosModules.dubnium-home-manager =
         {
@@ -233,7 +291,13 @@
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
           home-manager.extraSpecialArgs = {
-            inherit self hermes-agent antigravity-nix ops-cadence git-autocommit;
+            inherit
+              self
+              hermes-agent
+              antigravity-nix
+              ops-cadence
+              git-autocommit
+              ;
             username = dubniumUsername;
           };
           home-manager.users.${dubniumUsername} = {

@@ -1,5 +1,7 @@
-// -*- mode: jsonc -*-
+[
 {
+    "name": "normal",
+    "output": __DUBNIUM_NORMAL_OUTPUTS__,
     "layer": "top",
     "position": "top",
     "spacing": 10,
@@ -30,6 +32,7 @@
         "battery",
         "clock",
         "hyprland/language",
+        "custom/meeting",
         "custom/power"
     ],
     "hyprland/workspaces": {
@@ -184,5 +187,37 @@
     "custom/power": {
         "format": "⏻ ",
         "on-click": "wlogout"
+    },
+    "custom/meeting": {
+        "exec": "~/.local/libexec/dubnium-meeting-mode waybar private",
+        "interval": 2,
+        "return-type": "json"
+    }
+},
+{
+    "name": "presentation",
+    "output": __DUBNIUM_PRESENTATION_OUTPUT__,
+    "layer": "top",
+    "position": "top",
+    "height": 42,
+    "exclusive": true,
+    "ipc": true,
+    "modules-left": ["hyprland/workspaces#presentation"],
+    "modules-center": [],
+    "modules-right": ["custom/meeting#presentation"],
+    "hyprland/workspaces#presentation": {
+        "active-only": true,
+        "all-outputs": false,
+        "disable-click": true,
+        "disable-scroll": true,
+        "format": "Presentation",
+        "tooltip": false
+    },
+    "custom/meeting#presentation": {
+        "exec": "~/.local/libexec/dubnium-meeting-mode waybar presentation",
+        "interval": 2,
+        "return-type": "json",
+        "tooltip": false
     }
 }
+]

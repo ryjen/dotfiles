@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ "$#" != 1 ]]; then
+  printf 'usage: dub-obs-hotkey code-only|code-camera|camera-toggle\n' >&2
+  exit 2
+fi
+
+case "$1" in
+  code-only)
+    key=1
+    ;;
+  code-camera)
+    key=2
+    ;;
+  camera-toggle)
+    key=3
+    ;;
+  *)
+    printf 'usage: dub-obs-hotkey code-only|code-camera|camera-toggle\n' >&2
+    exit 2
+    ;;
+esac
+
+clients=$(hyprctl clients -j)
+addresses=$(
+  jq -ce '
+    [
+      .[]
+      | select(
+          .class == "com.obsproject.Studio"
+          and (((.title // "") | ascii_downcase | contains("projector")) | not)
+        )
+      | .address
+    ]
+    | if all(.[]; type == "string" and length > 0) then . else error("invalid OBS address") end
+  ' <<< "$clients"
+)
+count=$(jq -r 'length' <<< "$addresses")
+
+if [[ "$count" == 0 ]]; then
+  exit 0
+fi
+if [[ "$count" != 1 ]]; then
+  printf 'dub-obs-hotkey: refusing to target %s OBS control windows\n' "$count" >&2
+  exit 1
+fi
+
+address=$(jq -r '.[0]' <<< "$addresses")
+hyprctl dispatch sendshortcut CTRL "ALT,$key,address:$address"

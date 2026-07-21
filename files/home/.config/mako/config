@@ -8,3 +8,6 @@ border-color=#89b4faff
 border-size=2
 border-radius=10
 padding=12
+
+[mode=dubnium-meeting]
+invisible=1

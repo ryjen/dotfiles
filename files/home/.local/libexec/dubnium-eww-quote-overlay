@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -u
+
+command -v eww >/dev/null 2>&1 || exit 0
+
+eww_ready=false
+for attempt in {1..10}; do
+	if eww ping >/dev/null 2>&1; then
+		eww_ready=true
+		break
+	fi
+	[ "$attempt" -eq 10 ] || sleep 0.1
+done
+[ "$eww_ready" = true ] || exit 0
+
+eww close quote_overlay >/dev/null 2>&1 || true
+
+if [ -z "${DUBNIUM_PRESENTATION_OUTPUT:-}" ]; then
+	eww open quote_overlay --screen 0 >/dev/null 2>&1 || true
+	exit 0
+fi
+
+command -v hyprctl >/dev/null 2>&1 || exit 0
+command -v jq >/dev/null 2>&1 || exit 0
+
+monitors="$(hyprctl monitors -j 2>/dev/null)" || exit 0
+private_monitor="$({
+	printf '%s\n' "$monitors" | jq -er --arg presentation "$DUBNIUM_PRESENTATION_OUTPUT" '
+    if type != "array" or any(.[]; type != "object" or (.name | type) != "string") then
+      error("invalid monitor discovery")
+    else
+      [.[] | select(.name != $presentation) | .name] | if length > 0 then .[0] else empty end
+    end
+  '
+} 2>/dev/null)" || exit 0
+
+[ -n "$private_monitor" ] || exit 0
+eww open quote_overlay --screen "$private_monitor" >/dev/null 2>&1 || true

@@ -29,6 +29,7 @@
     ./lsd.nix
     ./lolcat.nix
     ./micrantha.nix
+    ./meeting.nix
     ./mise.nix
     ./music.nix
     ./neovim.nix
@@ -44,8 +45,9 @@
     ./tmux.nix
     ./uv.nix
     ./vscode.nix
+    ./waybar.nix
     ./zsh.nix
     ./zellij.nix
-    ]
+  ]
   ++ lib.optional (builtins.pathExists ../../secrets.yaml) ./secrets.nix;
 }

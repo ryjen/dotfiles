@@ -1,0 +1,23 @@
+schemaVersion = 1
+id = "obs-presentation"
+kind = "obs-presentation"
+enabled = true
+risk = ["mutable-user-state"]
+profile = "workstation"
+tags = ["obs", "meeting", "presentation"]
+description = "Install the versioned Dubnium OBS presentation profile and scene collection."
+
+templateProfile = "$XDG_DATA_HOME/dubnium/obs/v1/profile"
+templateCollection = "$XDG_DATA_HOME/dubnium/obs/v1/scene-collection.json"
+settings = "$XDG_CONFIG_HOME/dubnium/meeting/obs-init.json"
+profileName = "Dubnium Presentation"
+collectionName = "Dubnium Meeting Presentation"
+profileTarget = "$XDG_CONFIG_HOME/obs-studio/basic/profiles/Dubnium Presentation"
+collectionTarget = "$XDG_CONFIG_HOME/obs-studio/basic/scenes/Dubnium Meeting Presentation.json"
+
+[behavior]
+createIfMissing = true
+replace = false
+backupBeforeReplace = true
+atomicWrite = true
+refuseWhileObsRunning = true
