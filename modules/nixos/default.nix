@@ -3,6 +3,8 @@
 }:
 {
   imports = [
+    ./audio.nix
+    ./bluetooth.nix
     ./fonts.nix
     ./motd.nix
     ./podman.nix

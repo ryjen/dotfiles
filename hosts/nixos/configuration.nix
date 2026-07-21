@@ -13,6 +13,11 @@
   time.timeZone = "America/Vancouver";
   i18n.defaultLocale = "en_US.UTF-8";
 
+  dubnium = {
+    audio.enable = true;
+    bluetooth.enable = true;
+  };
+
   # This host is evaluated by CI as a generic NixOS verification target.
   # It is not an installer image and should not try to install GRUB to a
   # real disk during evaluation.
