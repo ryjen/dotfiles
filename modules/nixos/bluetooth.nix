@@ -1,19 +1,20 @@
 {
+  config,
+  lib,
   ...
 }:
+let
+  cfg = config.dubnium.bluetooth;
+in
 {
-  hardware.bluetooth = {
-    enable = true;
-    powerOnBoot = true;
-  };
+  options.dubnium.bluetooth.enable = lib.mkEnableOption "Bluetooth device support";
 
-  services.blueman.enable = true;
+  config = lib.mkIf cfg.enable {
+    hardware.bluetooth = {
+      enable = true;
+      powerOnBoot = true;
+    };
 
-  security.rtkit.enable = true;
-  services.pipewire = {
-    enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
-    pulse.enable = true;
+    services.blueman.enable = true;
   };
 }
