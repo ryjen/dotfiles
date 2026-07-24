@@ -32,7 +32,7 @@ user-session sockets are hidden. The host environment is cleared before launch,
 so shell API tokens and other inherited credentials are not exposed.
 
 The wrapper masks `/run` and selectively restores only the NixOS graphics driver
-paths and the runtime sockets OpenWork explicitly needs. It exposes Wayland, GPU
+paths and runtime sockets OpenWork explicitly needs. It exposes Wayland, GPU
 acceleration, PipeWire/PulseAudio when present, networking, and a filtered D-Bus
 connection limited to desktop portals and notifications. SSH-agent access is
 disabled by default.
