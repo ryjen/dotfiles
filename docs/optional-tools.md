@@ -27,7 +27,10 @@ and rebuild rather than a network-backed first launch.
 
 OpenWork runs in a Bubblewrap sandbox by default. Its private home is persisted
 under `$XDG_DATA_HOME/openwork-sandbox/home`; the real home directory, `/root`,
-`/mnt`, `/media`, temporary files, and unrelated user-session sockets are hidden.
+`/mnt`, `/media`, temporary files, system secret directories, and unrelated
+user-session sockets are hidden. The host environment is cleared before launch,
+so shell API tokens and other inherited credentials are not exposed.
+
 The wrapper exposes Wayland, GPU acceleration, PipeWire/PulseAudio when present,
 networking, and a filtered D-Bus connection limited to desktop portals and
 notifications. SSH-agent access is disabled by default.
