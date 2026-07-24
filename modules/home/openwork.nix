@@ -81,11 +81,13 @@ let
         --tmpfs /home
         --tmpfs /root
         --tmpfs /tmp
-        --tmpfs "$XDG_RUNTIME_DIR"
+        --tmpfs /run
         --proc /proc
         --dev /dev
         --dir "$HOME"
         --bind "$sandbox_home" "$HOME"
+        --dir /run/user
+        --dir "$XDG_RUNTIME_DIR"
         --dir "$proxy_dir"
         --bind "$proxy_socket" "$proxy_socket"
         --clearenv
@@ -110,9 +112,15 @@ let
         fi
       done
 
-      for hidden_path in /mnt /media /srv /run/secrets /run/credentials; do
+      for hidden_path in /mnt /media /srv; do
         if [[ -d "$hidden_path" ]]; then
           args+=(--tmpfs "$hidden_path")
+        fi
+      done
+
+      for driver_path in /run/opengl-driver /run/opengl-driver-32; do
+        if [[ -e "$driver_path" ]]; then
+          args+=(--ro-bind "$driver_path" "$driver_path")
         fi
       done
 
