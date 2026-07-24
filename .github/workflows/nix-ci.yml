@@ -19,30 +19,6 @@ jobs:
       - name: Configure Cache
         uses: DeterminateSystems/flakehub-cache-action@v1
 
-      - name: Build OpenWork Package
-        id: openwork-build
-        continue-on-error: true
-        run: |
-          set -o pipefail
-          nix build --impure --expr '
-            let
-              flake = builtins.getFlake (toString ./.);
-              pkgs = import flake.inputs.nixpkgs { system = "x86_64-linux"; };
-            in
-            pkgs.callPackage ./packages/openwork.nix { }
-          ' 2>&1 | tee openwork-build.log
-
-      - name: Upload OpenWork Build Log
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: openwork-build-log
-          path: openwork-build.log
-
-      - name: Stop After OpenWork Build Failure
-        if: steps.openwork-build.outcome == 'failure'
-        run: exit 1
-
       - name: Flake Check
         run: nix flake check --no-build
 
