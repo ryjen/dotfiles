@@ -8,7 +8,7 @@ let
   version = "0.17.40";
   src = fetchurl {
     url = "https://github.com/different-ai/openwork/releases/download/v${version}/openwork-linux-x86_64-${version}.AppImage";
-    hash = lib.fakeHash;
+    hash = "sha256-5XTyhwBvStZ+1ari2RI4T0wd/8tn/cYUFHZqInFfwFQ=";
   };
 in
 appimageTools.wrapType2 {
