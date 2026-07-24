@@ -14,19 +14,16 @@ The module installs `pkgs.grimblast` into the user environment.
 
 ## OpenWork
 
-Install the OpenWork desktop launcher with:
+Install the OpenWork desktop application with:
 
 ```nix
 dotfiles.openwork.enable = true;
 ```
 
-The module installs `appimage-run`, an `openwork` launcher, an explicit
-`openwork-update` command, and a desktop entry. The first launch downloads the
-latest upstream x86_64 AppImage when no cached version exists. Later upgrades
-remain explicit through `openwork-update`.
+The module installs a fixed OpenWork AppImage version through a Nix derivation.
+The version, upstream release URL, and content hash are committed under
+`packages/openwork.nix`; upgrades therefore require an explicit dotfiles change
+and rebuild rather than a network-backed first launch.
 
-Downloads are accepted only from the `different-ai/openwork` GitHub release
-path and must match the SHA-256 digest published in GitHub's release metadata.
-Versioned AppImages are retained under
-`$XDG_DATA_HOME/openwork/releases/`, with `OpenWork.AppImage` pointing to the
-active version.
+The module also installs a desktop entry and registers it as the default handler
+for `openwork://` links.
