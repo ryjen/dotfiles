@@ -76,8 +76,6 @@ let
         --tmpfs /home
         --tmpfs /root
         --tmpfs /tmp
-        --tmpfs /mnt
-        --tmpfs /media
         --tmpfs "$XDG_RUNTIME_DIR"
         --proc /proc
         --dev /dev
@@ -85,14 +83,36 @@ let
         --bind "$sandbox_home" "$HOME"
         --dir "$proxy_dir"
         --bind "$proxy_socket" "$proxy_socket"
+        --clearenv
         --setenv HOME "$HOME"
+        --setenv USER "''${USER:-ryjen}"
+        --setenv LOGNAME "''${LOGNAME:-''${USER:-ryjen}}"
+        --setenv PATH "$PATH"
+        --setenv SHELL "''${SHELL:-/bin/sh}"
+        --setenv LANG "''${LANG:-C.UTF-8}"
         --setenv XDG_CACHE_HOME "$HOME/.cache"
         --setenv XDG_CONFIG_HOME "$HOME/.config"
         --setenv XDG_DATA_HOME "$HOME/.local/share"
+        --setenv XDG_RUNTIME_DIR "$XDG_RUNTIME_DIR"
+        --setenv XDG_SESSION_TYPE "''${XDG_SESSION_TYPE:-wayland}"
+        --setenv WAYLAND_DISPLAY "$WAYLAND_DISPLAY"
         --setenv DBUS_SESSION_BUS_ADDRESS "unix:path=$proxy_socket"
       )
 
+      for variable in XDG_CURRENT_DESKTOP DESKTOP_SESSION ELECTRON_OZONE_PLATFORM_HINT; do
+        if [[ -n "''${!variable:-}" ]]; then
+          args+=(--setenv "$variable" "''${!variable}")
+        fi
+      done
+
+      for hidden_path in /mnt /media /srv /run/secrets /run/credentials; do
+        if [[ -d "$hidden_path" ]]; then
+          args+=(--tmpfs "$hidden_path")
+        fi
+      done
+
       if [[ -e "/dev/dri" ]]; then
+        args+=(--dir /dev/dri)
         args+=(--dev-bind /dev/dri /dev/dri)
       fi
 
