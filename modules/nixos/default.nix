@@ -3,6 +3,7 @@
 }:
 {
   imports = [
+    ./appimage.nix
     ./audio.nix
     ./bluetooth.nix
     ./fonts.nix
