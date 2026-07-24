@@ -14,6 +14,7 @@
   i18n.defaultLocale = "en_US.UTF-8";
 
   dubnium = {
+    appimage.enable = true;
     audio.enable = true;
     bluetooth.enable = true;
   };

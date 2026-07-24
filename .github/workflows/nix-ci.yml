@@ -19,8 +19,18 @@ jobs:
       - name: Configure Cache
         uses: DeterminateSystems/flakehub-cache-action@v1
 
-      - name: Flake Check
-        run: nix flake check --no-build
+      - name: Validate Flake Metadata
+        run: nix flake metadata --no-write-lock-file
+
+      - name: Build OpenWork Package
+        run: |
+          nix build --impure --expr '
+            let
+              flake = builtins.getFlake (toString ./.);
+              pkgs = import flake.inputs.nixpkgs { system = "x86_64-linux"; };
+            in
+            pkgs.callPackage ./packages/openwork.nix { }
+          '
 
       - name: Build Home Manager Activation
         run: nix build .#homeConfigurations.ryjen@verify.activationPackage

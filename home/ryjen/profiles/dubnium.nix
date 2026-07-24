@@ -9,6 +9,7 @@
   dotfiles.profiles.android.enable = lib.mkDefault false;
   dotfiles.profiles.micrantha.enable = lib.mkDefault false;
   dotfiles.profiles.office.enable = lib.mkDefault true;
+  dotfiles.openwork.enable = lib.mkDefault true;
   dotfiles.opsCadence.enable = lib.mkDefault true;
   dotfiles.hypr.adoptedProfile = "dubnium";
 

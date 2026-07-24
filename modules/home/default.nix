@@ -35,6 +35,7 @@
     ./neovim.nix
     ./npm.nix
     ./office.nix
+    ./openwork.nix
     ./ops-cadence.nix
     ./pass.nix
     ./pinentry.nix
