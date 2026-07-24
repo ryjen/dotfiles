@@ -20,7 +20,16 @@ jobs:
         uses: DeterminateSystems/flakehub-cache-action@v1
 
       - name: Flake Check
-        run: nix flake check --no-build
+        run: |
+          set -o pipefail
+          nix flake check --no-build 2>&1 | tee flake-check.log
+
+      - name: Upload Flake Check Log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: flake-check-log
+          path: flake-check.log
 
       - name: Build Home Manager Activation
         run: nix build .#homeConfigurations.ryjen@verify.activationPackage
