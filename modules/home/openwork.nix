@@ -28,16 +28,14 @@ let
 
       readonly sandbox_root="''${XDG_DATA_HOME:-$HOME/.local/share}/openwork-sandbox"
       readonly sandbox_home="$sandbox_root/home"
-      readonly proxy_dir="$XDG_RUNTIME_DIR/openwork-sandbox"
+      readonly proxy_dir="$(mktemp -d "$XDG_RUNTIME_DIR/openwork-sandbox.XXXXXX")"
       readonly proxy_socket="$proxy_dir/session-bus"
 
       mkdir -p \
         "$sandbox_home/.cache" \
         "$sandbox_home/.config" \
-        "$sandbox_home/.local/share" \
-        "$proxy_dir"
+        "$sandbox_home/.local/share"
       chmod 0700 "$sandbox_root" "$sandbox_home" "$proxy_dir"
-      rm -f "$proxy_socket"
 
       xdg-dbus-proxy \
         "$DBUS_SESSION_BUS_ADDRESS" \
@@ -46,13 +44,20 @@ let
         --talk=org.freedesktop.portal.Desktop \
         --talk=org.freedesktop.Notifications &
       proxy_pid=$!
+      app_pid=""
 
       cleanup() {
+        if [[ -n "$app_pid" ]]; then
+          kill "$app_pid" 2>/dev/null || true
+          wait "$app_pid" 2>/dev/null || true
+        fi
         kill "$proxy_pid" 2>/dev/null || true
         wait "$proxy_pid" 2>/dev/null || true
-        rm -f "$proxy_socket"
+        rm -rf "$proxy_dir"
       }
-      trap cleanup EXIT INT TERM
+      trap cleanup EXIT
+      trap 'exit 130' INT
+      trap 'exit 143' TERM
 
       for _ in $(seq 1 50); do
         [[ -S "$proxy_socket" ]] && break
@@ -159,7 +164,15 @@ let
         args+=(--bind "$resolved" "$resolved")
       done
 
-      exec bwrap "''${args[@]}" ${openworkPackage}/bin/openwork "$@"
+      bwrap "''${args[@]}" ${openworkPackage}/bin/openwork "$@" &
+      app_pid=$!
+
+      set +e
+      wait "$app_pid"
+      status=$?
+      set -e
+      app_pid=""
+      exit "$status"
     '';
   };
 
