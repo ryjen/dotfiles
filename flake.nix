@@ -225,10 +225,7 @@
 
             # Shell
             shellcheck.enable = true;
-            shfmt = {
-              enable = true;
-              entry = "${pkgs.shfmt}/bin/shfmt -i 2 -w";
-            };
+            shfmt.enable = true;
 
             # Git / file integrity
             check-merge-conflicts.enable = true;
