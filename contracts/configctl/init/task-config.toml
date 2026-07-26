@@ -4,5 +4,5 @@ kind = "task-config"
 enabled = true
 risk = ["mutable-user-state"]
 tags = ["task", "taskwarrior"]
-root = "~/.config/task"
+root = "$XDG_CONFIG_HOME/task"
 output = "$HOME/.taskrc"
