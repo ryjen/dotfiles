@@ -260,6 +260,7 @@
         };
 
       packages.${system} = {
+        openwork = pkgs.callPackage ./packages/openwork.nix { };
         hermes-agent = hermes-agent.packages.${system}.default;
         git-autocommit = git-autocommit.packages.${system}.default;
       };
