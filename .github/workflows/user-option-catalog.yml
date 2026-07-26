@@ -1,0 +1,51 @@
+name: User option catalog
+
+on:
+  pull_request:
+    paths:
+      - "flake.nix"
+      - "home/ryjen/**"
+      - "modules/home/**"
+      - "scripts/verify-user-option-catalog.py"
+      - ".github/workflows/user-option-catalog.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "flake.nix"
+      - "home/ryjen/**"
+      - "modules/home/**"
+      - "scripts/verify-user-option-catalog.py"
+      - ".github/workflows/user-option-catalog.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: user-option-catalog-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  verify:
+    name: Verify user option catalog
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify catalog and imports
+        id: verify
+        shell: bash
+        run: |
+          set +e
+          python3 scripts/verify-user-option-catalog.py "$GITHUB_WORKSPACE" > user-option-catalog-report.txt 2>&1
+          status=$?
+          cat user-option-catalog-report.txt
+          exit "$status"
+      - name: Upload bounded failure report
+        if: failure() && steps.verify.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: user-option-catalog-report
+          path: user-option-catalog-report.txt
+          if-no-files-found: error
+          retention-days: 3
