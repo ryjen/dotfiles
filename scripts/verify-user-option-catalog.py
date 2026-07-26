@@ -28,6 +28,8 @@ HOME_CONFIG = re.compile(r"mkHomeConfig\s+\./home/ryjen/([A-Za-z0-9_-]+\.nix)")
 LOCAL_IMPORT = "lib.optional (builtins.pathExists ./user.local.nix) ./user.local.nix"
 NON_PORTABLE_PREFIXES = ("host",)
 NON_PORTABLE_OPTIONS = {
+    # Package-valued implementation injection points are supplied by tracked
+    # modules and flake inputs, not by portable user selection files.
     "agents.antigravity.package",
     "opsCadence.package",
 }
