@@ -7,7 +7,57 @@ on:
   pull_request:
 
 jobs:
+  discover-checks:
+    runs-on: ubuntu-latest
+    outputs:
+      checks: ${{ steps.discover.outputs.checks }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@v17
+
+      - name: Discover Repository Checks
+        id: discover
+        shell: bash
+        run: |
+          set -euo pipefail
+          checks="$(nix eval --json .#checks.x86_64-linux --apply builtins.attrNames)"
+
+          if [ "$checks" = "[]" ]; then
+            echo "No repository checks were discovered" >&2
+            exit 1
+          fi
+
+          echo "checks=$checks" >> "$GITHUB_OUTPUT"
+
+  repository-check:
+    name: repository-check (${{ matrix.check }})
+    needs: discover-checks
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        check: ${{ fromJSON(needs.discover-checks.outputs.checks) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@v17
+
+      - name: Configure Cache
+        uses: DeterminateSystems/flakehub-cache-action@v1
+
+      - name: Build Repository Check
+        run: |
+          nix build ".#checks.x86_64-linux.\"${{ matrix.check }}\"" \
+            --no-link \
+            --print-build-logs
+
   flake:
+    needs: repository-check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -21,36 +71,6 @@ jobs:
 
       - name: Validate Flake Metadata
         run: nix flake metadata --no-write-lock-file
-
-      - name: Build Repository Checks
-        shell: bash
-        run: |
-          set -euo pipefail
-          mapfile -t checks < <(
-            nix eval --raw .#checks.x86_64-linux \
-              --apply 'checks: builtins.concatStringsSep "\n" (builtins.attrNames checks) + "\n"'
-          )
-
-          if [ "${#checks[@]}" -eq 0 ]; then
-            echo "No repository checks were discovered" >&2
-            exit 1
-          fi
-
-          for check in "${checks[@]}"; do
-            echo "::group::check: $check"
-            set +e
-            nix build ".#checks.x86_64-linux.\"${check}\"" \
-              --no-link \
-              --print-build-logs
-            status=$?
-            set -e
-            echo "::endgroup::"
-
-            if [ "$status" -ne 0 ]; then
-              echo "Repository check failed: $check" >&2
-              exit "$status"
-            fi
-          done
 
       - name: Build OpenWork Package
         run: nix build .#openwork --print-build-logs
