@@ -8,8 +8,8 @@ agents_module="$repo_root/modules/home/agents.nix"
 default_module="$repo_root/modules/home/default.nix"
 
 fail() {
-  echo "verify-npm-global-env: $*" >&2
-  exit 1
+	echo "verify-npm-global-env: $*" >&2
+	exit 1
 }
 
 [ -f "$npm_module" ] || fail "missing modules/home/npm.nix"
@@ -22,11 +22,11 @@ grep -q 'home.sessionPath' "$npm_module" || fail "npm module does not add npm bi
 grep -q 'pkgs.nodejs' "$npm_module" || fail "npm module does not install nodejs"
 
 if grep -q 'pkgs.codex' "$agents_module"; then
-  fail "pkgs.codex is still installed by agents.nix; Codex must have one owner"
+	fail "pkgs.codex is still installed by agents.nix; Codex must have one owner"
 fi
 
 if grep -q 'pkgs.nodejs' "$agents_module"; then
-  fail "pkgs.nodejs is still installed by agents.nix; nodejs should be owned by npm tooling"
+	fail "pkgs.nodejs is still installed by agents.nix; nodejs should be owned by npm tooling"
 fi
 
 grep -q '^@openai/codex$' "$manifest" || fail "npm package manifest does not declare @openai/codex"
