@@ -20,13 +20,14 @@ if [ ! -f "$flake_file" ]; then
 fi
 
 script_refs="$(
-  grep -Eo '\./scripts/[^"[:space:]}]+' "$flake_file" \
+  grep -E 'program = "\$\{\./scripts/' "$flake_file" \
+    | grep -Eo '\./scripts/[^}]+' \
     | sed 's|^\./||' \
     | sort -u
 )"
 
 if [ -z "$script_refs" ]; then
-  echo "no ./scripts/... references found in flake.nix"
+  echo "no directly executable ./scripts/... flake apps found"
   exit 0
 fi
 
