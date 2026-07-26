@@ -16,9 +16,9 @@
   };
 
   # Portable overrides. Tracked profiles provide defaults through mkDefault.
+  # Package implementation overrides intentionally remain tracked in modules.
   # dotfiles.agents.hermes.enable = false;
   # dotfiles.agents.antigravity.enable = false;
-  # dotfiles.agents.antigravity.package = null; # Replace with a package expression when overriding.
 
   # dotfiles.uv.enable = false;
   # dotfiles.uv.toolsFile = ".config/uv/tools.toml";
@@ -68,7 +68,6 @@
   # dotfiles.headroom.proxy.package = "${config.home.homeDirectory}/.local/libexec/headroom-proxy";
 
   # dotfiles.opsCadence.enable = false;
-  # dotfiles.opsCadence.package = null; # Replace with a package expression when overriding.
   # dotfiles.opsCadence.timers.enable = true;
 
   # Current grouped/profile selections. These remain listed until migrated to
