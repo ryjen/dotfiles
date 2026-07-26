@@ -38,13 +38,16 @@ jobs:
 
           for check in "${checks[@]}"; do
             echo "::group::check: $check"
-            if ! nix build ".#checks.x86_64-linux.\"${check}\"" \
+            if nix build ".#checks.x86_64-linux.\"${check}\"" \
               --no-link \
               --print-build-logs; then
+              echo "::endgroup::"
+            else
+              status=$?
+              echo "::endgroup::"
               echo "Repository check failed: $check" >&2
-              exit 1
+              exit "$status"
             fi
-            echo "::endgroup::"
           done
 
       - name: Build OpenWork Package
