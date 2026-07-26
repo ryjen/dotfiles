@@ -105,6 +105,11 @@ in
       };
     };
 
+    xdg.configFile."hypr/custom.d/40-guitar-pro.conf".text = ''
+      # Open the Guitar Pro reader through its desktop entry.
+      bind = SUPER, R, exec, ${pkgs.glib}/bin/gapplication launch org.musescore.MuseScore
+    '';
+
     home.sessionVariables.DUBNIUM_MUSIC_DIR = cfg.musicDirectory;
 
     home.file.".local/share/dubnium/music-env".text = ''
