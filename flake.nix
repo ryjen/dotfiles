@@ -119,34 +119,44 @@
 
         verify-session-files = {
           type = "app";
-          program = "${./scripts/verify-session-files.sh}";
+          program = "${pkgs.writeShellScript "verify-session-files" ''
+            exec ${pkgs.bash}/bin/bash ${./scripts/verify-session-files.sh} "$@"
+          ''}";
         };
 
         verify-neovim-config = {
           type = "app";
-          program = "${./scripts/verify-neovim-config.sh}";
+          program = "${pkgs.writeShellScript "verify-neovim-config" ''
+            exec ${pkgs.bash}/bin/bash ${./scripts/verify-neovim-config.sh} "$@"
+          ''}";
         };
 
         verify-configctl-contracts = {
           type = "app";
           program = "${pkgs.writeShellScript "verify-configctl-contracts" ''
-            exec ${pkgs.python3}/bin/python3 ${./scripts/verify-configctl-contracts.py} ${self}
+            exec ${pkgs.python3}/bin/python3 ${./checks/verify-configctl-contracts.py} ${self}
           ''}";
         };
       };
 
       checks.${system} = {
         flake-script-executables =
-          pkgs.runCommand "flake-script-executables" { nativeBuildInputs = [ pkgs.git ]; }
+          pkgs.runCommand "flake-script-executables"
+            {
+              nativeBuildInputs = [
+                pkgs.bash
+                pkgs.git
+              ];
+            }
             ''
-              ${./scripts/verify-flake-script-executables.sh} ${self}
+              bash ${./scripts/verify-flake-script-executables.sh} ${self}
               touch "$out"
             '';
 
         configctl-contracts =
           pkgs.runCommand "configctl-contracts" { nativeBuildInputs = [ pkgs.python3 ]; }
             ''
-              python3 ${./scripts/verify-configctl-contracts.py} ${self}
+              python3 ${./checks/verify-configctl-contracts.py} ${self}
               touch "$out"
             '';
 
@@ -262,6 +272,7 @@
       packages.${system} = {
         hermes-agent = hermes-agent.packages.${system}.default;
         git-autocommit = git-autocommit.packages.${system}.default;
+        openwork = pkgs.callPackage ./packages/openwork.nix { };
       };
 
       nixosConfigurations.nixos = mkNixosConfig ./home/ryjen/home.nix;

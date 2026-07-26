@@ -7,7 +7,111 @@ on:
   pull_request:
 
 jobs:
+  discover-checks:
+    runs-on: ubuntu-latest
+    outputs:
+      checks: ${{ steps.discover.outputs.checks }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@v17
+
+      - name: Discover Blocking Repository Checks
+        id: discover
+        shell: bash
+        run: |
+          set -euo pipefail
+          checks="$({
+            nix eval --json .#checks.x86_64-linux \
+              --apply 'checks: builtins.filter (name: name != "pre-commit-check") (builtins.attrNames checks)'
+          })"
+
+          if [ "$checks" = "[]" ]; then
+            echo "No blocking repository checks were discovered" >&2
+            exit 1
+          fi
+
+          echo "checks=$checks" >> "$GITHUB_OUTPUT"
+
+  repository-check:
+    name: repository-check (${{ matrix.check }})
+    needs: discover-checks
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        check: ${{ fromJSON(needs.discover-checks.outputs.checks) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@v17
+
+      - name: Configure Cache
+        uses: DeterminateSystems/flakehub-cache-action@v1
+
+      - name: Build Repository Check
+        shell: bash
+        run: |
+          set -o pipefail
+          nix build ".#checks.x86_64-linux.\"${{ matrix.check }}\"" \
+            --no-link \
+            --print-build-logs 2>&1 | tee repository-check.log
+
+      - name: Upload Failed Check Log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: repository-check-${{ matrix.check }}
+          path: repository-check.log
+          if-no-files-found: error
+          retention-days: 1
+
+  pre-commit-baseline:
+    name: pre-commit baseline (#115)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@v17
+
+      - name: Configure Cache
+        uses: DeterminateSystems/flakehub-cache-action@v1
+
+      - name: Measure Legacy Pre-commit Debt
+        id: baseline
+        shell: bash
+        run: |
+          set +e
+          set -o pipefail
+          nix build '.#checks.x86_64-linux."pre-commit-check"' \
+            --no-link \
+            --print-build-logs 2>&1 | tee pre-commit-baseline.log
+          status="${PIPESTATUS[0]}"
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+
+          if [ "$status" -ne 0 ]; then
+            echo "::warning title=Legacy pre-commit debt::pre-commit-check remains non-gating under issue #115; see the uploaded baseline log"
+          else
+            echo "pre-commit-check is clean; issue #115 can restore it to the blocking matrix"
+          fi
+
+      - name: Upload Baseline Log
+        if: steps.baseline.outputs.status != '0'
+        uses: actions/upload-artifact@v4
+        with:
+          name: pre-commit-baseline
+          path: pre-commit-baseline.log
+          if-no-files-found: error
+          retention-days: 1
+
   flake:
+    needs: repository-check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -23,17 +127,10 @@ jobs:
         run: nix flake metadata --no-write-lock-file
 
       - name: Build OpenWork Package
-        run: |
-          nix build --impure --expr '
-            let
-              flake = builtins.getFlake (toString ./.);
-              pkgs = import flake.inputs.nixpkgs { system = "x86_64-linux"; };
-            in
-            pkgs.callPackage ./packages/openwork.nix { }
-          '
+        run: nix build .#openwork --print-build-logs
 
       - name: Build Home Manager Activation
-        run: nix build .#homeConfigurations.ryjen@verify.activationPackage
+        run: nix build .#homeConfigurations.ryjen@verify.activationPackage --print-build-logs
 
       - name: Build NixOS System
-        run: nix build .#nixosConfigurations.verify.config.system.build.toplevel
+        run: nix build .#nixosConfigurations.verify.config.system.build.toplevel --print-build-logs
