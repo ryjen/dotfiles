@@ -130,23 +130,29 @@
         verify-configctl-contracts = {
           type = "app";
           program = "${pkgs.writeShellScript "verify-configctl-contracts" ''
-            exec ${pkgs.python3}/bin/python3 ${./scripts/verify-configctl-contracts.py} ${self}
+            exec ${pkgs.python3}/bin/python3 ${./checks/verify-configctl-contracts.py} ${self}
           ''}";
         };
       };
 
       checks.${system} = {
         flake-script-executables =
-          pkgs.runCommand "flake-script-executables" { nativeBuildInputs = [ pkgs.git ]; }
+          pkgs.runCommand "flake-script-executables"
+            {
+              nativeBuildInputs = [
+                pkgs.bash
+                pkgs.git
+              ];
+            }
             ''
-              ${./scripts/verify-flake-script-executables.sh} ${self}
+              bash ${./scripts/verify-flake-script-executables.sh} ${self}
               touch "$out"
             '';
 
         configctl-contracts =
           pkgs.runCommand "configctl-contracts" { nativeBuildInputs = [ pkgs.python3 ]; }
             ''
-              python3 ${./scripts/verify-configctl-contracts.py} ${self}
+              python3 ${./checks/verify-configctl-contracts.py} ${self}
               touch "$out"
             '';
 
@@ -215,7 +221,10 @@
 
             # Shell
             shellcheck.enable = true;
-            shfmt.enable = true;
+            shfmt = {
+              enable = true;
+              settings.indent_size = 2;
+            };
 
             # Git / file integrity
             check-merge-conflicts.enable = true;
