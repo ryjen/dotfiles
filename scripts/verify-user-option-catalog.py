@@ -12,6 +12,10 @@ OPTION_CONSTRUCTOR = r"lib\.mk(?:EnableOption|Option)\b"
 DIRECT_OPTION = re.compile(
     rf"^\s*options\.dotfiles\.([A-Za-z][A-Za-z0-9_.-]*)\s*=\s*{OPTION_CONSTRUCTOR}"
 )
+DIRECT_OPTION_PREFIX = re.compile(
+    r"^\s*options\.dotfiles\.([A-Za-z][A-Za-z0-9_.-]*)\s*=\s*$"
+)
+CONSTRUCTOR_LINE = re.compile(rf"^\s*{OPTION_CONSTRUCTOR}")
 OPTIONS_BLOCK = re.compile(
     r"^\s*options\.dotfiles(?:\.([A-Za-z][A-Za-z0-9_.-]*))?\s*=\s*\{\s*$"
 )
@@ -41,9 +45,15 @@ def declared_option_paths(text: str) -> set[str]:
     declared: set[str] = set()
     depth = 0
     scopes: list[tuple[int, tuple[str, ...]]] = []
+    pending_direct: str | None = None
 
     for raw_line in text.splitlines():
         line = raw_line.split("#", 1)[0].rstrip()
+
+        if pending_direct is not None and line.strip():
+            if CONSTRUCTOR_LINE.match(line):
+                declared.add(pending_direct)
+            pending_direct = None
 
         while scopes and depth < scopes[-1][0]:
             scopes.pop()
@@ -51,6 +61,10 @@ def declared_option_paths(text: str) -> set[str]:
         direct = DIRECT_OPTION.match(line)
         if direct:
             declared.add(direct.group(1))
+        else:
+            direct_prefix = DIRECT_OPTION_PREFIX.match(line)
+            if direct_prefix:
+                pending_direct = direct_prefix.group(1)
 
         block = OPTIONS_BLOCK.match(line)
         if block:
