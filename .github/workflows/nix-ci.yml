@@ -101,8 +101,6 @@ jobs:
             echo "pre-commit-check is clean; issue #115 can restore it to the blocking matrix"
           fi
 
-          exit 0
-
       - name: Upload Baseline Log
         if: steps.baseline.outputs.status != '0'
         uses: actions/upload-artifact@v4
