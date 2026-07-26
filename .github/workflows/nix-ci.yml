@@ -73,7 +73,6 @@ jobs:
   pre-commit-baseline:
     name: pre-commit baseline (#115)
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -85,15 +84,27 @@ jobs:
         uses: DeterminateSystems/flakehub-cache-action@v1
 
       - name: Measure Legacy Pre-commit Debt
+        id: baseline
         shell: bash
         run: |
+          set +e
           set -o pipefail
           nix build '.#checks.x86_64-linux."pre-commit-check"' \
             --no-link \
             --print-build-logs 2>&1 | tee pre-commit-baseline.log
+          status="${PIPESTATUS[0]}"
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+
+          if [ "$status" -ne 0 ]; then
+            echo "::warning title=Legacy pre-commit debt::pre-commit-check remains non-gating under issue #115; see the uploaded baseline log"
+          else
+            echo "pre-commit-check is clean; issue #115 can restore it to the blocking matrix"
+          fi
+
+          exit 0
 
       - name: Upload Baseline Log
-        if: failure()
+        if: steps.baseline.outputs.status != '0'
         uses: actions/upload-artifact@v4
         with:
           name: pre-commit-baseline
