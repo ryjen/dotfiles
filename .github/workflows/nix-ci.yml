@@ -22,18 +22,31 @@ jobs:
       - name: Validate Flake Metadata
         run: nix flake metadata --no-write-lock-file
 
-      - name: Build OpenWork Package
+      - name: Build Repository Checks
+        shell: bash
         run: |
-          nix build --impure --expr '
-            let
-              flake = builtins.getFlake (toString ./.);
-              pkgs = import flake.inputs.nixpkgs { system = "x86_64-linux"; };
-            in
-            pkgs.callPackage ./packages/openwork.nix { }
-          '
+          set -euo pipefail
+          checks_json="$(nix eval --json .#checks.x86_64-linux --apply builtins.attrNames)"
+          mapfile -t checks < <(jq -r '.[]' <<<"$checks_json")
+
+          if [ "${#checks[@]}" -eq 0 ]; then
+            echo "No repository checks were discovered" >&2
+            exit 1
+          fi
+
+          for check in "${checks[@]}"; do
+            echo "::group::check: $check"
+            nix build ".#checks.x86_64-linux.\"${check}\"" \
+              --no-link \
+              --print-build-logs
+            echo "::endgroup::"
+          done
+
+      - name: Build OpenWork Package
+        run: nix build .#openwork --print-build-logs
 
       - name: Build Home Manager Activation
-        run: nix build .#homeConfigurations.ryjen@verify.activationPackage
+        run: nix build .#homeConfigurations.ryjen@verify.activationPackage --print-build-logs
 
       - name: Build NixOS System
-        run: nix build .#nixosConfigurations.verify.config.system.build.toplevel
+        run: nix build .#nixosConfigurations.verify.config.system.build.toplevel --print-build-logs
