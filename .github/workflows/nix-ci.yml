@@ -51,10 +51,21 @@ jobs:
         uses: DeterminateSystems/flakehub-cache-action@v1
 
       - name: Build Repository Check
+        shell: bash
         run: |
+          set -o pipefail
           nix build ".#checks.x86_64-linux.\"${{ matrix.check }}\"" \
             --no-link \
-            --print-build-logs
+            --print-build-logs 2>&1 | tee repository-check.log
+
+      - name: Upload Failed Check Log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: repository-check-${{ matrix.check }}
+          path: repository-check.log
+          if-no-files-found: error
+          retention-days: 1
 
   flake:
     needs: repository-check
