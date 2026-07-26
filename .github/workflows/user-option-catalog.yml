@@ -33,4 +33,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Verify catalog and imports
-        run: python3 scripts/verify-user-option-catalog.py "$GITHUB_WORKSPACE"
+        id: verify
+        shell: bash
+        run: |
+          set +e
+          python3 scripts/verify-user-option-catalog.py "$GITHUB_WORKSPACE" > user-option-catalog-report.txt 2>&1
+          status=$?
+          cat user-option-catalog-report.txt
+          exit "$status"
+      - name: Upload bounded failure report
+        if: failure() && steps.verify.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: user-option-catalog-report
+          path: user-option-catalog-report.txt
+          if-no-files-found: error
+          retention-days: 3
