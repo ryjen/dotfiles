@@ -26,8 +26,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          checks_json="$(nix eval --json .#checks.x86_64-linux --apply builtins.attrNames)"
-          mapfile -t checks < <(jq -r '.[]' <<<"$checks_json")
+          mapfile -t checks < <(
+            nix eval --raw .#checks.x86_64-linux \
+              --apply 'checks: builtins.concatStringsSep "\n" (builtins.attrNames checks) + "\n"'
+          )
 
           if [ "${#checks[@]}" -eq 0 ]; then
             echo "No repository checks were discovered" >&2
