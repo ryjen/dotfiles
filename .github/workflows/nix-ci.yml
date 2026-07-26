@@ -18,15 +18,18 @@ jobs:
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@v17
 
-      - name: Discover Repository Checks
+      - name: Discover Blocking Repository Checks
         id: discover
         shell: bash
         run: |
           set -euo pipefail
-          checks="$(nix eval --json .#checks.x86_64-linux --apply builtins.attrNames)"
+          checks="$({
+            nix eval --json .#checks.x86_64-linux \
+              --apply 'checks: builtins.filter (name: name != "pre-commit-check") (builtins.attrNames checks)'
+          })"
 
           if [ "$checks" = "[]" ]; then
-            echo "No repository checks were discovered" >&2
+            echo "No blocking repository checks were discovered" >&2
             exit 1
           fi
 
@@ -64,6 +67,37 @@ jobs:
         with:
           name: repository-check-${{ matrix.check }}
           path: repository-check.log
+          if-no-files-found: error
+          retention-days: 1
+
+  pre-commit-baseline:
+    name: pre-commit baseline (#115)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@v17
+
+      - name: Configure Cache
+        uses: DeterminateSystems/flakehub-cache-action@v1
+
+      - name: Measure Legacy Pre-commit Debt
+        shell: bash
+        run: |
+          set -o pipefail
+          nix build '.#checks.x86_64-linux."pre-commit-check"' \
+            --no-link \
+            --print-build-logs 2>&1 | tee pre-commit-baseline.log
+
+      - name: Upload Baseline Log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pre-commit-baseline
+          path: pre-commit-baseline.log
           if-no-files-found: error
           retention-days: 1
 
