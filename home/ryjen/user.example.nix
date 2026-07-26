@@ -40,6 +40,17 @@
   # dotfiles.grimblast.enable = false;
   # dotfiles.graphical.keyring.enable = false;
 
+  # Hardware/profile variants that are safe to select locally.
+  # dotfiles.alacritty.adoptedProfile = "empty";
+  # dotfiles.waybar.variant = "workstation";
+
+  # OpenWork desktop app and sandbox boundary.
+  # dotfiles.openwork.enable = false;
+  # dotfiles.openwork.sandbox.enable = true;
+  # dotfiles.openwork.sandbox.workspacePaths = [ "${config.home.homeDirectory}/Projects" ];
+  # dotfiles.openwork.sandbox.allowNetwork = true;
+  # dotfiles.openwork.sandbox.allowSshAgent = false;
+
   # Meeting workspace support. Output names and camera identifiers are
   # machine-local; inspect them before replacing these null placeholders.
   # dotfiles.meeting.enable = false;
@@ -62,6 +73,7 @@
   # dotfiles.profiles.browser.enable = false;
   # dotfiles.profiles.micrantha.enable = false;
   # dotfiles.profiles.office.enable = false;
+  # dotfiles.profiles.workstation.enable = false;
 
   # Optional runtime path containing a GPG fingerprint. Do not place the key
   # itself or other secret material in this file.
