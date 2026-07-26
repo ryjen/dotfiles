@@ -42,6 +42,7 @@
 
   # Hardware/profile variants that are safe to select locally.
   # dotfiles.alacritty.adoptedProfile = "empty";
+  # dotfiles.hypr.adoptedProfile = "empty";
   # dotfiles.waybar.variant = "workstation";
 
   # OpenWork desktop app and sandbox boundary.
