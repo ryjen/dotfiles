@@ -1,12 +1,14 @@
 {
   username,
+  lib,
   ...
 }:
 {
   imports = [
     ./layers/graphical.nix
     ./profiles/dubnium.nix
-  ];
+  ]
+  ++ lib.optional (builtins.pathExists ./user.local.nix) ./user.local.nix;
 
   dotfiles.meeting.presentationOutput = "DP-1";
   dotfiles.meeting.cameraDevice = null;
