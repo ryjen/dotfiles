@@ -38,9 +38,12 @@ jobs:
 
           for check in "${checks[@]}"; do
             echo "::group::check: $check"
-            nix build ".#checks.x86_64-linux.\"${check}\"" \
+            if ! nix build ".#checks.x86_64-linux.\"${check}\"" \
               --no-link \
-              --print-build-logs
+              --print-build-logs; then
+              echo "Repository check failed: $check" >&2
+              exit 1
+            fi
             echo "::endgroup::"
           done
 
