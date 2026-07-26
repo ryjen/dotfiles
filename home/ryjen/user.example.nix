@@ -18,6 +18,7 @@
   # Portable overrides. Tracked profiles provide defaults through mkDefault.
   # dotfiles.agents.hermes.enable = false;
   # dotfiles.agents.antigravity.enable = false;
+  # dotfiles.agents.antigravity.package = null; # Replace with a package expression when overriding.
 
   # dotfiles.uv.enable = false;
   # dotfiles.uv.toolsFile = ".config/uv/tools.toml";
