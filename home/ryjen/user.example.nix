@@ -38,6 +38,7 @@
   # Set either value to false to disable that client independently.
 
   # dotfiles.music.enable = false;
+  # dotfiles.music.musicDirectory = "${config.home.homeDirectory}/Music";
   # dotfiles.grimblast.enable = false;
   # dotfiles.graphical.keyring.enable = false;
 
@@ -67,6 +68,7 @@
   # dotfiles.headroom.proxy.package = "${config.home.homeDirectory}/.local/libexec/headroom-proxy";
 
   # dotfiles.opsCadence.enable = false;
+  # dotfiles.opsCadence.package = null; # Replace with a package expression when overriding.
   # dotfiles.opsCadence.timers.enable = true;
 
   # Current grouped/profile selections. These remain listed until migrated to
