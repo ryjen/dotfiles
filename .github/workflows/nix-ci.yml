@@ -22,15 +22,11 @@ jobs:
       - name: Validate Flake Metadata
         run: nix flake metadata --no-write-lock-file
 
+      - name: Run Canonical Flake Checks
+        run: nix flake check --print-build-logs
+
       - name: Build OpenWork Package
-        run: |
-          nix build --impure --expr '
-            let
-              flake = builtins.getFlake (toString ./.);
-              pkgs = import flake.inputs.nixpkgs { system = "x86_64-linux"; };
-            in
-            pkgs.callPackage ./packages/openwork.nix { }
-          '
+        run: nix build .#openwork
 
       - name: Build Home Manager Activation
         run: nix build .#homeConfigurations.ryjen@verify.activationPackage
