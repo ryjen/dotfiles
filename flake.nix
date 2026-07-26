@@ -119,12 +119,16 @@
 
         verify-session-files = {
           type = "app";
-          program = "${./scripts/verify-session-files.sh}";
+          program = "${pkgs.writeShellScript "verify-session-files" ''
+            exec ${pkgs.bash}/bin/bash ${./scripts/verify-session-files.sh} "$@"
+          ''}";
         };
 
         verify-neovim-config = {
           type = "app";
-          program = "${./scripts/verify-neovim-config.sh}";
+          program = "${pkgs.writeShellScript "verify-neovim-config" ''
+            exec ${pkgs.bash}/bin/bash ${./scripts/verify-neovim-config.sh} "$@"
+          ''}";
         };
 
         verify-configctl-contracts = {
@@ -223,7 +227,7 @@
             shellcheck.enable = true;
             shfmt = {
               enable = true;
-              settings.indent_size = 2;
+              entry = "${pkgs.shfmt}/bin/shfmt -i 2 -w";
             };
 
             # Git / file integrity
