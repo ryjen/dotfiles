@@ -208,11 +208,16 @@
         pre-commit-check = git-hooks.lib.${system}.run {
           src = self;
           hooks = {
+            # Nix
             nixfmt.enable = true;
             statix.enable = true;
             deadnix.enable = true;
+
+            # Shell
             shellcheck.enable = true;
             shfmt.enable = true;
+
+            # Git / file integrity
             check-merge-conflicts.enable = true;
             check-added-large-files.enable = true;
             check-case-conflicts.enable = true;
@@ -227,7 +232,11 @@
             check-executables-have-shebangs.enable = true;
             forbid-new-submodules.enable = true;
             no-commit-to-branch.enable = true;
+
+            # Spelling
             typos.enable = true;
+
+            # GitHub Actions
             actionlint.enable = true;
           };
         };
@@ -242,6 +251,7 @@
         in
         pkgs.mkShell {
           shellHook = shellHook + ''
+            # Install custom pre-push hook (WIP, tag, submodule checks)
             mkdir -p .git/hooks
             cp -f ${prePushHook}/bin/pre-push-hook .git/hooks/pre-push
             chmod +x .git/hooks/pre-push
