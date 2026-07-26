@@ -49,6 +49,7 @@ in
     home.packages = with pkgs; [
       beets
       easyeffects
+      musescore
       playerctl
       python3
       trash-cli
