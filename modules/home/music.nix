@@ -49,6 +49,7 @@ in
     home.packages = with pkgs; [
       beets
       easyeffects
+      musescore
       playerctl
       python3
       trash-cli
@@ -71,18 +72,43 @@ in
       };
     };
 
-    xdg.desktopEntries.music-window = {
-      name = "Music Window";
-      genericName = "Music Player";
-      comment = "Open the local music library in mpv's graphical window";
-      exec = "${musicWindow}";
-      terminal = false;
-      categories = [
-        "Audio"
-        "Music"
-        "Player"
-      ];
+    xdg.desktopEntries = {
+      guitar-pro-reader = {
+        name = "Guitar Pro Reader";
+        genericName = "Guitar Tablature Reader";
+        comment = "Open and play Guitar Pro tablature with MuseScore";
+        exec = "${pkgs.musescore}/bin/mscore %F";
+        icon = "mscore";
+        terminal = false;
+        categories = [
+          "Audio"
+          "AudioVideo"
+          "Music"
+        ];
+        mimeType = [
+          "application/x-guitar-pro"
+          "application/x-guitar-pro5"
+        ];
+      };
+
+      music-window = {
+        name = "Music Window";
+        genericName = "Music Player";
+        comment = "Open the local music library in mpv's graphical window";
+        exec = "${musicWindow}";
+        terminal = false;
+        categories = [
+          "Audio"
+          "Music"
+          "Player"
+        ];
+      };
     };
+
+    xdg.configFile."hypr/custom.d/40-guitar-pro.conf".text = ''
+      # Open the Guitar Pro reader through its managed desktop entry.
+      bind = SUPER, R, exec, ${pkgs.gtk3}/bin/gtk-launch guitar-pro-reader
+    '';
 
     home.sessionVariables.DUBNIUM_MUSIC_DIR = cfg.musicDirectory;
 
