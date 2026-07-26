@@ -12,6 +12,7 @@ OPTION_NAMESPACE = re.compile(r"options\.dotfiles\.([A-Za-z][A-Za-z0-9_-]*)")
 CATALOG_NAMESPACE = re.compile(r"dotfiles\.([A-Za-z][A-Za-z0-9_-]*)\.")
 HOME_CONFIG = re.compile(r"mkHomeConfig\s+\./home/ryjen/([A-Za-z0-9_-]+\.nix)")
 LOCAL_IMPORT = "lib.optional (builtins.pathExists ./user.local.nix) ./user.local.nix"
+NON_PORTABLE_NAMESPACES = {"host"}
 
 
 def fail(messages: list[str]) -> None:
@@ -30,10 +31,11 @@ def main() -> None:
     declared: set[str] = set()
     for path in sorted(modules.rglob("*.nix")):
         declared.update(OPTION_NAMESPACE.findall(path.read_text(encoding="utf-8")))
+    portable = declared - NON_PORTABLE_NAMESPACES
 
     catalog_text = catalog_path.read_text(encoding="utf-8")
     catalogued = set(CATALOG_NAMESPACE.findall(catalog_text))
-    missing = sorted(declared - catalogued)
+    missing = sorted(portable - catalogued)
     if missing:
         errors.append(
             "user.example.nix is missing dotfiles option namespaces: " + ", ".join(missing)
@@ -57,7 +59,7 @@ def main() -> None:
         fail(errors)
 
     print(
-        f"user option catalog covers {len(declared)} namespaces across "
+        f"user option catalog covers {len(portable)} portable namespaces across "
         f"{len(configs)} Home Manager outputs"
     )
 
