@@ -27,6 +27,10 @@ CATALOG_OPTION = re.compile(r"dotfiles\.([A-Za-z][A-Za-z0-9_.-]*)\s*=")
 HOME_CONFIG = re.compile(r"mkHomeConfig\s+\./home/ryjen/([A-Za-z0-9_-]+\.nix)")
 LOCAL_IMPORT = "lib.optional (builtins.pathExists ./user.local.nix) ./user.local.nix"
 NON_PORTABLE_PREFIXES = ("host",)
+NON_PORTABLE_OPTIONS = {
+    "agents.antigravity.package",
+    "opsCadence.package",
+}
 
 
 def brace_delta(line: str) -> int:
@@ -90,6 +94,8 @@ def declared_option_paths(text: str) -> set[str]:
 
 
 def is_portable(path: str) -> bool:
+    if path in NON_PORTABLE_OPTIONS:
+        return False
     return not any(path == prefix or path.startswith(f"{prefix}.") for prefix in NON_PORTABLE_PREFIXES)
 
 
