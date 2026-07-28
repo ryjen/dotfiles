@@ -6,11 +6,25 @@
 }:
 let
   cfg = config.dotfiles.idle;
+  hyprctl = "${pkgs.hyprland}/bin/hyprctl";
+  hyprlock = "${pkgs.hyprlock}/bin/hyprlock";
+  pidof = "${pkgs.procps}/bin/pidof";
 in
 {
   options.dotfiles.idle.enable = lib.mkEnableOption "desktop idle locking and display power management";
 
   config = lib.mkIf (cfg.enable && config.dotfiles.profiles.workstation.enable) {
+    assertions = [
+      {
+        assertion = config.dotfiles.host.graphical.enable;
+        message = "dotfiles.idle.enable requires dotfiles.host.graphical.enable.";
+      }
+      {
+        assertion = config.dotfiles.host.userSystemd.enable;
+        message = "dotfiles.idle.enable requires Home Manager user systemd support.";
+      }
+    ];
+
     home.packages = [
       pkgs.hypridle
       pkgs.hyprlock
@@ -18,20 +32,20 @@ in
 
     xdg.configFile."hypr/hypridle.conf".text = ''
       general {
-          lock_cmd = pidof hyprlock || hyprlock
-          before_sleep_cmd = loginctl lock-session
-          after_sleep_cmd = hyprctl dispatch dpms on
+          lock_cmd = ${pidof} hyprlock || ${hyprlock}
+          before_sleep_cmd = ${pkgs.systemd}/bin/loginctl lock-session
+          after_sleep_cmd = ${hyprctl} dispatch dpms on
       }
 
       listener {
           timeout = 600
-          on-timeout = pidof hyprlock || hyprlock
+          on-timeout = ${pidof} hyprlock || ${hyprlock}
       }
 
       listener {
           timeout = 900
-          on-timeout = hyprctl dispatch dpms off
-          on-resume = hyprctl dispatch dpms on
+          on-timeout = ${hyprctl} dispatch dpms off
+          on-resume = ${hyprctl} dispatch dpms on
       }
     '';
 
@@ -60,7 +74,7 @@ in
 
       label {
           monitor =
-          text = cmd[update:1000] date +"%I:%M %p"
+          text = cmd[update:1000] ${pkgs.coreutils}/bin/date +"%I:%M %p"
           font_size = 64
           position = 0, 100
           halign = center
@@ -68,7 +82,7 @@ in
       }
     '';
 
-    systemd.user.services.dubnium-idle = lib.mkIf config.dotfiles.host.userSystemd.enable {
+    systemd.user.services.dubnium-idle = {
       Unit = {
         Description = "Dubnium desktop idle policy";
         After = [ "graphical-session.target" ];
