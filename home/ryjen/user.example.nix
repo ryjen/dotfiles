@@ -41,6 +41,7 @@
   # dotfiles.music.musicDirectory = "${config.home.homeDirectory}/Music";
   # dotfiles.grimblast.enable = false;
   # dotfiles.graphical.keyring.enable = false;
+  # dotfiles.idle.enable = false;
 
   # Hardware/profile variants that are safe to select locally.
   # dotfiles.alacritty.adoptedProfile = "empty";

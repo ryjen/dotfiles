@@ -24,6 +24,7 @@
     ./gpg.nix
     ./grimblast.nix
     ./hypr.nix
+    ./idle.nix
     ./input.nix
     ./keyring.nix
     ./lsd.nix

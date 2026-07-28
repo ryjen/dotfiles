@@ -139,7 +139,10 @@ in
     };
 
     systemd.user.services.dubnium-meeting-mode = lib.mkIf config.dotfiles.host.userSystemd.enable {
-      Unit.Description = "Dubnium meeting privacy mode";
+      Unit = {
+        Description = "Dubnium meeting privacy mode";
+        Conflicts = [ "dubnium-idle.service" ];
+      };
       Service = {
         Type = "oneshot";
         RemainAfterExit = true;
@@ -148,6 +151,7 @@ in
         }";
         ExecStart = "%h/.local/libexec/dubnium-meeting-mode start";
         ExecStop = "%h/.local/libexec/dubnium-meeting-mode stop";
+        ExecStopPost = "-${pkgs.systemd}/bin/systemctl --user --no-block start dubnium-idle.service";
       };
     };
 
