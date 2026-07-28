@@ -139,15 +139,20 @@ in
     };
 
     systemd.user.services.dubnium-meeting-mode = lib.mkIf config.dotfiles.host.userSystemd.enable {
-      Unit.Description = "Dubnium meeting privacy mode";
+      Unit = {
+        Description = "Dubnium meeting privacy mode";
+        Conflicts = [ "dubnium-idle.service" ];
+      };
       Service = {
         Type = "oneshot";
         RemainAfterExit = true;
         Environment = "DUBNIUM_PRESENTATION_OUTPUT=${
           lib.optionalString (cfg.presentationOutput != null) cfg.presentationOutput
         }";
+        ExecStartPre = "-${pkgs.systemd}/bin/systemctl --user stop dubnium-idle.service";
         ExecStart = "%h/.local/libexec/dubnium-meeting-mode start";
         ExecStop = "%h/.local/libexec/dubnium-meeting-mode stop";
+        ExecStopPost = "-${pkgs.systemd}/bin/systemctl --user start dubnium-idle.service";
       };
     };
 
