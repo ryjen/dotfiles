@@ -149,10 +149,9 @@ in
         Environment = "DUBNIUM_PRESENTATION_OUTPUT=${
           lib.optionalString (cfg.presentationOutput != null) cfg.presentationOutput
         }";
-        ExecStartPre = "-${pkgs.systemd}/bin/systemctl --user stop dubnium-idle.service";
         ExecStart = "%h/.local/libexec/dubnium-meeting-mode start";
         ExecStop = "%h/.local/libexec/dubnium-meeting-mode stop";
-        ExecStopPost = "-${pkgs.systemd}/bin/systemctl --user start dubnium-idle.service";
+        ExecStopPost = "-${pkgs.systemd}/bin/systemctl --user --no-block start dubnium-idle.service";
       };
     };
 
