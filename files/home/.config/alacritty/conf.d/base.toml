@@ -19,3 +19,11 @@ style = "Italic"
 [font.bold_italic]
 family = "Hack Nerd Font Mono"
 style = "Bold Italic"
+
+[selection]
+save_to_clipboard = true
+
+[keyboard]
+bindings = [
+  { key = "V", mods = "Control", action = "Paste" },
+]
