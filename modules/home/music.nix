@@ -9,6 +9,7 @@ let
 
   reaperPlugins = with pkgs; [
     dragonfly-reverb
+    drumgizmo
     guitarix-vst
     lsp-plugins
     surge-xt
@@ -69,6 +70,7 @@ in
       (with pkgs; [
         beets
         easyeffects
+        hydrogen
         musescore
         playerctl
         python3
