@@ -15,17 +15,25 @@ let
     surge-xt
   ];
 
+  reaperPluginBundle = pkgs.buildEnv {
+    name = "reaper-plugin-bundle";
+    paths = reaperPlugins;
+    pathsToLink = [
+      "/lib/clap"
+      "/lib/lv2"
+      "/lib/vst"
+      "/lib/vst3"
+    ];
+  };
+
   swsPluginName = "reaper_sws-${pkgs.stdenv.hostPlatform.uname.processor}.so";
 
-  pluginSearchPaths =
-    format:
-    (map (plugin: "${plugin}/lib/${format}") reaperPlugins)
-    ++ [
-      "${config.home.homeDirectory}/.${format}"
-      "${config.home.homeDirectory}/.nix-profile/lib/${format}"
-      "/etc/profiles/per-user/${config.home.username}/lib/${format}"
-      "/run/current-system/sw/lib/${format}"
-    ];
+  pluginSearchPaths = format: [
+    "${config.home.homeDirectory}/.${format}"
+    "${config.home.homeDirectory}/.nix-profile/lib/${format}"
+    "/etc/profiles/per-user/${config.home.username}/lib/${format}"
+    "/run/current-system/sw/lib/${format}"
+  ];
 
   musicWindow = pkgs.writeShellScript "music-window" ''
     set -euo pipefail
@@ -134,8 +142,62 @@ in
       bind = SUPER, R, exec, ${pkgs.gtk3}/bin/gtk-launch guitar-pro-reader
     '';
 
-    # Nix profiles do not use conventional FHS plugin directories. Prepend the
-    # selected store paths while retaining user, Home Manager, and system plugins.
+    # Populate the standard per-user plugin directories that REAPER scans.
+    # Recursive linking allows unrelated manually installed plugins to coexist.
+    home.file = {
+      ".clap" = {
+        source = "${reaperPluginBundle}/lib/clap";
+        recursive = true;
+      };
+      ".lv2" = {
+        source = "${reaperPluginBundle}/lib/lv2";
+        recursive = true;
+      };
+      ".vst" = {
+        source = "${reaperPluginBundle}/lib/vst";
+        recursive = true;
+      };
+      ".vst3" = {
+        source = "${reaperPluginBundle}/lib/vst3";
+        recursive = true;
+      };
+
+      ".local/share/dubnium/music-env".text = ''
+        export DUBNIUM_MUSIC_DIR=${lib.escapeShellArg cfg.musicDirectory}
+      '';
+
+      ".local/bin/music" = {
+        source = ../../files/home/.local/bin/music;
+        executable = true;
+      };
+
+      ".local/bin/music-window" = {
+        source = musicWindow;
+        executable = true;
+      };
+
+      ".local/bin/music-toggle" = {
+        source = ../../files/home/.local/bin/music-toggle;
+        executable = true;
+      };
+
+      ".local/bin/music-eq" = {
+        source = ../../files/home/.local/bin/music-eq;
+        executable = true;
+      };
+
+      ".local/bin/music-dislike" = {
+        source = ../../files/home/.local/bin/music-dislike;
+        executable = true;
+      };
+
+      ".local/bin/music-retag-current" = {
+        source = ../../files/home/.local/bin/music-retag-current;
+        executable = true;
+      };
+    };
+
+    # Also export the conventional search variables for other Linux audio hosts.
     home.sessionSearchVariables = {
       CLAP_PATH = pluginSearchPaths "clap";
       LV2_PATH = pluginSearchPaths "lv2";
@@ -153,39 +215,5 @@ in
       "${pkgs.reaper-sws-extension}/Scripts/sws_python.py";
     xdg.configFile."REAPER/Scripts/sws_python64.py".source =
       "${pkgs.reaper-sws-extension}/Scripts/sws_python64.py";
-
-    home.file.".local/share/dubnium/music-env".text = ''
-      export DUBNIUM_MUSIC_DIR=${lib.escapeShellArg cfg.musicDirectory}
-    '';
-
-    home.file.".local/bin/music" = {
-      source = ../../files/home/.local/bin/music;
-      executable = true;
-    };
-
-    home.file.".local/bin/music-window" = {
-      source = musicWindow;
-      executable = true;
-    };
-
-    home.file.".local/bin/music-toggle" = {
-      source = ../../files/home/.local/bin/music-toggle;
-      executable = true;
-    };
-
-    home.file.".local/bin/music-eq" = {
-      source = ../../files/home/.local/bin/music-eq;
-      executable = true;
-    };
-
-    home.file.".local/bin/music-dislike" = {
-      source = ../../files/home/.local/bin/music-dislike;
-      executable = true;
-    };
-
-    home.file.".local/bin/music-retag-current" = {
-      source = ../../files/home/.local/bin/music-retag-current;
-      executable = true;
-    };
   };
 }
