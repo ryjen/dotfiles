@@ -14,6 +14,8 @@ let
     surge-xt
   ];
 
+  swsPluginName = "reaper_sws-${pkgs.stdenv.hostPlatform.uname.processor}.so";
+
   pluginSearchPaths =
     format:
     (map (plugin: "${plugin}/lib/${format}") reaperPlugins)
@@ -71,7 +73,6 @@ in
         playerctl
         python3
         reaper
-        reaper-sws-extension
         trash-cli
       ])
       ++ reaperPlugins;
@@ -144,8 +145,8 @@ in
 
     # SWS is a REAPER extension rather than an audio plugin. Link its runtime
     # files into the REAPER resource directory while keeping the package immutable.
-    xdg.configFile."REAPER/UserPlugins/reaper_sws-x86_64.so".source =
-      "${pkgs.reaper-sws-extension}/UserPlugins/reaper_sws-x86_64.so";
+    xdg.configFile."REAPER/UserPlugins/${swsPluginName}".source =
+      "${pkgs.reaper-sws-extension}/UserPlugins/${swsPluginName}";
     xdg.configFile."REAPER/Scripts/sws_python.py".source =
       "${pkgs.reaper-sws-extension}/Scripts/sws_python.py";
     xdg.configFile."REAPER/Scripts/sws_python64.py".source =
