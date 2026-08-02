@@ -7,6 +7,23 @@
 let
   cfg = config.dotfiles.music;
 
+  reaperPlugins = with pkgs; [
+    dragonfly-reverb
+    guitarix-vst
+    lsp-plugins
+    surge-xt
+  ];
+
+  pluginSearchPaths =
+    format:
+    (map (plugin: "${plugin}/lib/${format}") reaperPlugins)
+    ++ [
+      "${config.home.homeDirectory}/.${format}"
+      "${config.home.homeDirectory}/.nix-profile/lib/${format}"
+      "/etc/profiles/per-user/${config.home.username}/lib/${format}"
+      "/run/current-system/sw/lib/${format}"
+    ];
+
   musicWindow = pkgs.writeShellScript "music-window" ''
     set -euo pipefail
 
@@ -36,7 +53,7 @@ let
 in
 {
   options.dotfiles.music = {
-    enable = lib.mkEnableOption "low-profile local music playback tooling";
+    enable = lib.mkEnableOption "local music playback and production tooling";
 
     musicDirectory = lib.mkOption {
       type = lib.types.str;
@@ -46,15 +63,18 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    home.packages = with pkgs; [
-      beets
-      easyeffects
-      musescore
-      playerctl
-      python3
-      reaper
-      trash-cli
-    ];
+    home.packages =
+      (with pkgs; [
+        beets
+        easyeffects
+        musescore
+        playerctl
+        python3
+        reaper
+        reaper-sws-extension
+        trash-cli
+      ])
+      ++ reaperPlugins;
 
     programs.mpv = {
       enable = true;
@@ -111,7 +131,25 @@ in
       bind = SUPER, R, exec, ${pkgs.gtk3}/bin/gtk-launch guitar-pro-reader
     '';
 
+    # Nix profiles do not use conventional FHS plugin directories. Prepend the
+    # selected store paths while retaining user, Home Manager, and system plugins.
+    home.sessionSearchVariables = {
+      CLAP_PATH = pluginSearchPaths "clap";
+      LV2_PATH = pluginSearchPaths "lv2";
+      VST3_PATH = pluginSearchPaths "vst3";
+      VST_PATH = pluginSearchPaths "vst";
+    };
+
     home.sessionVariables.DUBNIUM_MUSIC_DIR = cfg.musicDirectory;
+
+    # SWS is a REAPER extension rather than an audio plugin. Link its runtime
+    # files into the REAPER resource directory while keeping the package immutable.
+    xdg.configFile."REAPER/UserPlugins/reaper_sws-x86_64.so".source =
+      "${pkgs.reaper-sws-extension}/UserPlugins/reaper_sws-x86_64.so";
+    xdg.configFile."REAPER/Scripts/sws_python.py".source =
+      "${pkgs.reaper-sws-extension}/Scripts/sws_python.py";
+    xdg.configFile."REAPER/Scripts/sws_python64.py".source =
+      "${pkgs.reaper-sws-extension}/Scripts/sws_python64.py";
 
     home.file.".local/share/dubnium/music-env".text = ''
       export DUBNIUM_MUSIC_DIR=${lib.escapeShellArg cfg.musicDirectory}
