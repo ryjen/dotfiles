@@ -215,5 +215,8 @@ in
       "${pkgs.reaper-sws-extension}/Scripts/sws_python.py";
     xdg.configFile."REAPER/Scripts/sws_python64.py".source =
       "${pkgs.reaper-sws-extension}/Scripts/sws_python64.py";
+
+    # DrumGizmo provides the plugin engine only; users select a separately
+    # downloaded drum kit from within the plugin.
   };
 }
