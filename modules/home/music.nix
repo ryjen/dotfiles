@@ -52,6 +52,7 @@ in
       musescore
       playerctl
       python3
+      reaper
       trash-cli
     ];
 
