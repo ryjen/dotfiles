@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - perf/hermes-nixpkgs-follow
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -25,18 +26,6 @@ jobs:
 
           path = Path("flake.nix")
           text = path.read_text()
-          bad = '''    hermes-agent = {
-              url = "github:NousResearch/hermes-agent";
-              inputs.nixpkgs.follows = "nixpkgs";
-            };'''
-          bad2 = '''    hermes-agent = {
-          url = "github:NousResearch/hermes-agent";
-          inputs.nixpkgs.follows = "nixpkgs";
-        };'''
-          bad3 = '''    hermes-agent = {
-        url = "github:NousResearch/hermes-agent";
-        inputs.nixpkgs.follows = "nixpkgs";
-      };'''
           current = '''    hermes-agent = {
     url = "github:NousResearch/hermes-agent";
     inputs.nixpkgs.follows = "nixpkgs";
@@ -45,13 +34,9 @@ jobs:
       url = "github:NousResearch/hermes-agent";
       inputs.nixpkgs.follows = "nixpkgs";
     };'''
-          for candidate in (current, bad3, bad2, bad):
-              if candidate in text:
-                  text = text.replace(candidate, target, 1)
-                  break
-          else:
-              raise SystemExit("Hermes block not found")
-          path.write_text(text)
+          if current not in text:
+              raise SystemExit("unexpected Hermes input block")
+          path.write_text(text.replace(current, target, 1))
           Path(".github/workflows/fix-hermes-format.yml").unlink()
           PY
 
