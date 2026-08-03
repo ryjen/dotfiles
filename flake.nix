@@ -7,7 +7,10 @@
       url = "github:nix-community/home-manager/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    hermes-agent.url = "github:NousResearch/hermes-agent";
+    hermes-agent = {
+    url = "github:NousResearch/hermes-agent";
+    inputs.nixpkgs.follows = "nixpkgs";
+  };
     antigravity-nix = {
       url = "github:jacopone/antigravity-nix";
       inputs.nixpkgs.follows = "nixpkgs";
