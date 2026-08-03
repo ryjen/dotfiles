@@ -7,6 +7,7 @@
     ./audio.nix
     ./bluetooth.nix
     ./fonts.nix
+    ./maintenance.nix
     ./motd.nix
     ./podman.nix
     ./shell.nix
