@@ -1,0 +1,63 @@
+name: Fix Hermes input formatting
+
+on:
+  push:
+    branches:
+      - perf/hermes-nixpkgs-follow
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: perf/hermes-nixpkgs-follow
+          fetch-depth: 0
+
+      - name: Normalize Hermes input block
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path("flake.nix")
+          text = path.read_text()
+          bad = '''    hermes-agent = {
+              url = "github:NousResearch/hermes-agent";
+              inputs.nixpkgs.follows = "nixpkgs";
+            };'''
+          bad2 = '''    hermes-agent = {
+          url = "github:NousResearch/hermes-agent";
+          inputs.nixpkgs.follows = "nixpkgs";
+        };'''
+          bad3 = '''    hermes-agent = {
+        url = "github:NousResearch/hermes-agent";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };'''
+          current = '''    hermes-agent = {
+    url = "github:NousResearch/hermes-agent";
+    inputs.nixpkgs.follows = "nixpkgs";
+  };'''
+          target = '''    hermes-agent = {
+      url = "github:NousResearch/hermes-agent";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };'''
+          for candidate in (current, bad3, bad2, bad):
+              if candidate in text:
+                  text = text.replace(candidate, target, 1)
+                  break
+          else:
+              raise SystemExit("Hermes block not found")
+          path.write_text(text)
+          Path(".github/workflows/fix-hermes-format.yml").unlink()
+          PY
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add flake.nix .github/workflows/fix-hermes-format.yml
+          git diff --cached --check
+          git commit -m "style: normalize Hermes input block"
+          git push origin HEAD:perf/hermes-nixpkgs-follow
