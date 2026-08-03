@@ -112,6 +112,13 @@
     in
     {
       apps.${system} = {
+        benchmark-dubnium = {
+          type = "app";
+          program = "${pkgs.writeShellScript "benchmark-dubnium" ''
+            exec ${pkgs.python3}/bin/python3 ${./scripts/benchmark-nix-build.py} "$@"
+          ''}";
+        };
+
         verify-container = {
           type = "app";
           program = "${./scripts/verify-in-container.sh}";
@@ -140,6 +147,15 @@
       };
 
       checks.${system} = {
+        benchmark-nix-build-tests =
+          pkgs.runCommand "benchmark-nix-build-tests" { nativeBuildInputs = [ pkgs.python3 ]; }
+            ''
+              export PYTHONDONTWRITEBYTECODE=1
+              cd ${self}
+              python3 -m unittest discover -s tests -p 'test_benchmark_nix_build.py'
+              touch "$out"
+            '';
+
         flake-script-executables =
           pkgs.runCommand "flake-script-executables"
             {
