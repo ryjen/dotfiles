@@ -1,12 +1,5 @@
 #!/usr/bin/env python3
-"""Measure isolated Home Manager feature evaluation cost.
-
-The profiler creates temporary Nix expressions that instantiate the tracked
-Home Manager module catalog from the current flake and enable one controlled
-feature set at a time. It evaluates only activation-package drvPath values; it
-never realizes outputs, activates a generation, clears caches, or mutates the
-Nix store.
-"""
+"""Compare isolated Home Manager feature evaluation cost."""
 
 from __future__ import annotations
 
@@ -21,19 +14,7 @@ from pathlib import Path
 from typing import Any, Sequence
 
 MAX_REPEAT = 20
-DEFAULT_VARIANTS = (
-    "graphical-base",
-    "meeting",
-    "hermes",
-    "antigravity",
-    "headroom",
-    "openwork",
-    "ops-cadence",
-    "workstation-combined",
-    "dubnium-combined",
-)
-
-VARIANT_CONFIG = {
+VARIANTS = {
     "graphical-base": "",
     "meeting": "dotfiles.meeting.enable = true;",
     "hermes": "dotfiles.agents.hermes.enable = true;",
@@ -62,11 +43,12 @@ VARIANT_CONFIG = {
       dotfiles.music.musicDirectory = \"/mnt/isotope/Music\";
     """,
 }
+DEFAULT_VARIANTS = tuple(VARIANTS)
 
 
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Compare isolated Home Manager feature evaluation cost",
+        description="Compare isolated Home Manager feature evaluation cost"
     )
     parser.add_argument("--flake-dir", type=Path, default=Path("."))
     parser.add_argument("--repeat", type=int, default=3)
@@ -82,18 +64,17 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
 def validate(args: argparse.Namespace) -> str | None:
     if not args.flake_dir.is_dir():
         return "--flake-dir must be an existing directory"
-    if args.repeat < 1 or args.repeat > MAX_REPEAT:
+    if not 1 <= args.repeat <= MAX_REPEAT:
         return f"--repeat must be between 1 and {MAX_REPEAT}"
-    for variant in args.variants or DEFAULT_VARIANTS:
-        if variant not in VARIANT_CONFIG:
-            return f"unknown variant: {variant}"
-    return None
+    unknown = [name for name in args.variants or DEFAULT_VARIANTS if name not in VARIANTS]
+    return f"unknown variant: {unknown[0]}" if unknown else None
 
 
 def nix_expression(flake_dir: Path, config_text: str) -> str:
-    escaped = json.dumps(str(flake_dir))
+    root = json.dumps(str(flake_dir))
     return f'''let
-  flake = builtins.getFlake {escaped};
+  root = builtins.toPath {root};
+  flake = builtins.getFlake (toString root);
   system = "x86_64-linux";
   username = "ryjen";
   pkgs = import flake.inputs.nixpkgs {{
@@ -111,8 +92,8 @@ def nix_expression(flake_dir: Path, config_text: str) -> str:
       git-autocommit = flake.inputs.git-autocommit;
     }};
     modules = [
-      ({escaped} + "/home/ryjen/layers/graphical.nix")
-      ({escaped} + "/home/ryjen/profiles/graphical.nix")
+      (root + "/home/ryjen/layers/graphical.nix")
+      (root + "/home/ryjen/profiles/graphical.nix")
       flake.inputs.sops-nix.homeManagerModules.sops
       ({{ ... }}: {{
         home.username = username;
@@ -134,16 +115,14 @@ def evaluate(expression_path: Path, cwd: Path) -> tuple[float, int]:
         ["nix", "eval", "--impure", "--raw", "--file", str(expression_path)],
         cwd=cwd,
         stdout=subprocess.DEVNULL,
-        stderr=None,
         check=False,
-        text=True,
     )
     return round(time.perf_counter() - started, 6), completed.returncode
 
 
 def git_metadata(cwd: Path) -> dict[str, Any]:
     def capture(*command: str) -> str | None:
-        completed = subprocess.run(
+        result = subprocess.run(
             command,
             cwd=cwd,
             stdout=subprocess.PIPE,
@@ -151,7 +130,7 @@ def git_metadata(cwd: Path) -> dict[str, Any]:
             text=True,
             check=False,
         )
-        return completed.stdout.strip() if completed.returncode == 0 else None
+        return result.stdout.strip() if result.returncode == 0 else None
 
     revision = capture("git", "rev-parse", "HEAD")
     status = capture("git", "status", "--porcelain")
@@ -164,17 +143,23 @@ def git_metadata(cwd: Path) -> dict[str, Any]:
 
 def atomic_write(path: Path, payload: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    with tempfile.NamedTemporaryFile(
-        mode="w",
-        encoding="utf-8",
-        dir=path.parent,
-        prefix=f".{path.name}.",
-        suffix=".tmp",
-        delete=False,
-    ) as temporary:
-        temporary_path = Path(temporary.name)
-        temporary.write(payload)
-    temporary_path.replace(path)
+    temporary_path: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            dir=path.parent,
+            prefix=f".{path.name}.",
+            suffix=".tmp",
+            delete=False,
+        ) as temporary:
+            temporary_path = Path(temporary.name)
+            temporary.write(payload)
+        temporary_path.replace(path)
+    except OSError:
+        if temporary_path is not None:
+            temporary_path.unlink(missing_ok=True)
+        raise
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -185,20 +170,19 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 64
 
     flake_dir = args.flake_dir.resolve()
-    variants = tuple(dict.fromkeys(args.variants or DEFAULT_VARIANTS))
+    selected = tuple(dict.fromkeys(args.variants or DEFAULT_VARIANTS))
     results: list[dict[str, Any]] = []
 
     with tempfile.TemporaryDirectory(prefix="dotfiles-feature-eval-") as directory:
         temporary_dir = Path(directory)
-        for variant in variants:
-            expression_path = temporary_dir / f"{variant}.nix"
-            expression_path.write_text(
-                nix_expression(flake_dir, VARIANT_CONFIG[variant]),
-                encoding="utf-8",
+        for variant in selected:
+            expression = temporary_dir / f"{variant}.nix"
+            expression.write_text(
+                nix_expression(flake_dir, VARIANTS[variant]), encoding="utf-8"
             )
             samples: list[float] = []
             for iteration in range(1, args.repeat + 1):
-                elapsed, exit_code = evaluate(expression_path, flake_dir)
+                elapsed, exit_code = evaluate(expression, flake_dir)
                 if exit_code != 0:
                     print(
                         f"evaluation failed for {variant} iteration {iteration}",
@@ -219,12 +203,13 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     ranked = sorted(results, key=lambda item: item["median_seconds"])
     baseline = next(
-        item["median_seconds"] for item in ranked if item["variant"] == "graphical-base"
+        item["median_seconds"]
+        for item in ranked
+        if item["variant"] == "graphical-base"
     )
     for item in ranked:
         item["delta_from_graphical_base_seconds"] = round(
-            item["median_seconds"] - baseline,
-            6,
+            item["median_seconds"] - baseline, 6
         )
 
     result = {
