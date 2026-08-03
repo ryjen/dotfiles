@@ -28,7 +28,8 @@ let
 
       readonly sandbox_root="''${XDG_DATA_HOME:-$HOME/.local/share}/openwork-sandbox"
       readonly sandbox_home="$sandbox_root/home"
-      readonly proxy_dir="$(mktemp -d "$XDG_RUNTIME_DIR/openwork-sandbox.XXXXXX")"
+      proxy_dir="$(mktemp -d "$XDG_RUNTIME_DIR/openwork-sandbox.XXXXXX")"
+      readonly proxy_dir
       readonly proxy_socket="$proxy_dir/session-bus"
 
       mkdir -p \
@@ -46,6 +47,7 @@ let
       proxy_pid=$!
       app_pid=""
 
+      # shellcheck disable=SC2329 # Invoked indirectly by the EXIT trap.
       cleanup() {
         if [[ -n "$app_pid" ]]; then
           kill "$app_pid" 2>/dev/null || true
