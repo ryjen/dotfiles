@@ -4,6 +4,7 @@
     pkgs.cmake
     pkgs.ffmpeg
     pkgs.gcc
+    pkgs.gdu
     pkgs.gh
     pkgs.git
     pkgs.gnumake
