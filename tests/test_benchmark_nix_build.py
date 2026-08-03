@@ -58,6 +58,7 @@ class BenchmarkNixBuildTests(unittest.TestCase):
                     1,
                     ["fake"],
                     cwd=ROOT,
+                    capture_stdout=True,
                 )
         self.assertEqual(stdout.getvalue(), "")
         self.assertEqual(measurement.stdout, "child noise\n")
