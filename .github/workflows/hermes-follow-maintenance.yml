@@ -1,0 +1,51 @@
+name: Hermes nixpkgs follow maintenance
+
+on:
+  push:
+    branches:
+      - perf/hermes-nixpkgs-follow
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: perf/hermes-nixpkgs-follow
+          fetch-depth: 0
+
+      - name: Follow root nixpkgs for Hermes
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          flake_path = Path("flake.nix")
+          flake = flake_path.read_text()
+          old = '    hermes-agent.url = "github:NousResearch/hermes-agent";'
+          new = '''    hermes-agent = {
+              url = "github:NousResearch/hermes-agent";
+              inputs.nixpkgs.follows = "nixpkgs";
+            };'''
+          if old not in flake:
+              raise SystemExit("expected Hermes input declaration not found")
+          flake_path.write_text(flake.replace(old, new, 1))
+
+          lock_path = Path("flake.lock")
+          lock = json.loads(lock_path.read_text())
+          lock["nodes"]["hermes-agent"]["inputs"]["nixpkgs"] = ["nixpkgs"]
+          lock_path.write_text(json.dumps(lock, indent=2) + "\n")
+          PY
+
+      - name: Commit generated lock update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add flake.nix flake.lock
+          git diff --cached --check
+          git commit -m "perf: make Hermes follow root nixpkgs"
+          git push origin HEAD:perf/hermes-nixpkgs-follow
