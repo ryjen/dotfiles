@@ -139,5 +139,12 @@ jobs:
       - name: Build Home Manager Activation
         run: nix build .#homeConfigurations.ryjen@verify.activationPackage --print-build-logs
 
+      - name: Build Dubnium Home Manager Activation
+        run: |
+          nix build '.#homeConfigurations."ryjen@dubnium".activationPackage' \
+            --override-input ops-cadence path:./fixtures/ops-cadence \
+            --no-link \
+            --print-build-logs
+
       - name: Build NixOS System
         run: nix build .#nixosConfigurations.verify.config.system.build.toplevel --print-build-logs

@@ -1,7 +1,9 @@
 {
-  appimageTools,
+  appimage-run,
   fetchurl,
   lib,
+  runtimeShell,
+  stdenvNoCC,
 }:
 let
   pname = "openwork";
@@ -11,8 +13,24 @@ let
     hash = "sha256-5XTyhwBvStZ+1ari2RI4T0wd/8tn/cYUFHZqInFfwFQ=";
   };
 in
-appimageTools.wrapType2 {
+stdenvNoCC.mkDerivation {
   inherit pname version src;
+
+  dontUnpack = true;
+
+  installPhase = ''
+    runHook preInstall
+
+    install -Dm755 "$src" "$out/libexec/openwork/openwork.AppImage"
+    mkdir -p "$out/bin"
+    cat > "$out/bin/openwork" <<EOF
+#!${runtimeShell}
+exec ${appimage-run}/bin/appimage-run "$out/libexec/openwork/openwork.AppImage" "\$@"
+EOF
+    chmod +x "$out/bin/openwork"
+
+    runHook postInstall
+  '';
 
   meta = {
     description = "Open-source desktop app for sharing AI workflows";

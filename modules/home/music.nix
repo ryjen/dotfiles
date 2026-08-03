@@ -7,6 +7,42 @@
 let
   cfg = config.dotfiles.music;
 
+  reaperPlugins = with pkgs; [
+    dragonfly-reverb
+    drumgizmo
+    guitarix-vst
+    lsp-plugins
+    surge-xt
+  ];
+
+  # Not every plugin package ships every supported format. Build one stable
+  # directory per format and include only the formats each package provides.
+  pluginDirectory = format:
+    pkgs.runCommand "reaper-${format}-plugins" { } ''
+      mkdir -p "$out"
+
+      for package in ${lib.escapeShellArgs (map toString reaperPlugins)}; do
+        source="$package/lib/${format}"
+        if [ ! -d "$source" ]; then
+          continue
+        fi
+
+        for plugin in "$source"/*; do
+          [ -e "$plugin" ] || continue
+          ln -sfn "$plugin" "$out/$(basename "$plugin")"
+        done
+      done
+    '';
+
+  swsPluginName = "reaper_sws-${pkgs.stdenv.hostPlatform.uname.processor}.so";
+
+  pluginSearchPaths = format: [
+    "${config.home.homeDirectory}/.${format}"
+    "${config.home.homeDirectory}/.nix-profile/lib/${format}"
+    "/etc/profiles/per-user/${config.home.username}/lib/${format}"
+    "/run/current-system/sw/lib/${format}"
+  ];
+
   musicWindow = pkgs.writeShellScript "music-window" ''
     set -euo pipefail
 
@@ -36,7 +72,7 @@ let
 in
 {
   options.dotfiles.music = {
-    enable = lib.mkEnableOption "low-profile local music playback tooling";
+    enable = lib.mkEnableOption "local music playback and production tooling";
 
     musicDirectory = lib.mkOption {
       type = lib.types.str;
@@ -46,14 +82,18 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    home.packages = with pkgs; [
-      beets
-      easyeffects
-      musescore
-      playerctl
-      python3
-      trash-cli
-    ];
+    home.packages =
+      (with pkgs; [
+        beets
+        easyeffects
+        hydrogen
+        musescore
+        playerctl
+        python3
+        reaper
+        trash-cli
+      ])
+      ++ reaperPlugins;
 
     programs.mpv = {
       enable = true;
@@ -110,40 +150,78 @@ in
       bind = SUPER, R, exec, ${pkgs.gtk3}/bin/gtk-launch guitar-pro-reader
     '';
 
+    # Populate the standard per-user plugin directories that REAPER scans.
+    # Recursive linking allows unrelated manually installed plugins to coexist.
+    home.file = {
+      ".clap" = {
+        source = pluginDirectory "clap";
+        recursive = true;
+      };
+      ".lv2" = {
+        source = pluginDirectory "lv2";
+        recursive = true;
+      };
+      ".vst" = {
+        source = pluginDirectory "vst";
+        recursive = true;
+      };
+      ".vst3" = {
+        source = pluginDirectory "vst3";
+        recursive = true;
+      };
+
+      ".local/share/dubnium/music-env".text = ''
+        export DUBNIUM_MUSIC_DIR=${lib.escapeShellArg cfg.musicDirectory}
+      '';
+
+      ".local/bin/music" = {
+        source = ../../files/home/.local/bin/music;
+        executable = true;
+      };
+
+      ".local/bin/music-window" = {
+        source = musicWindow;
+        executable = true;
+      };
+
+      ".local/bin/music-toggle" = {
+        source = ../../files/home/.local/bin/music-toggle;
+        executable = true;
+      };
+
+      ".local/bin/music-eq" = {
+        source = ../../files/home/.local/bin/music-eq;
+        executable = true;
+      };
+
+      ".local/bin/music-dislike" = {
+        source = ../../files/home/.local/bin/music-dislike;
+        executable = true;
+      };
+
+      ".local/bin/music-retag-current" = {
+        source = ../../files/home/.local/bin/music-retag-current;
+        executable = true;
+      };
+    };
+
+    # Also export the conventional search variables for other Linux audio hosts.
+    home.sessionSearchVariables = {
+      CLAP_PATH = pluginSearchPaths "clap";
+      LV2_PATH = pluginSearchPaths "lv2";
+      VST3_PATH = pluginSearchPaths "vst3";
+      VST_PATH = pluginSearchPaths "vst";
+    };
+
     home.sessionVariables.DUBNIUM_MUSIC_DIR = cfg.musicDirectory;
 
-    home.file.".local/share/dubnium/music-env".text = ''
-      export DUBNIUM_MUSIC_DIR=${lib.escapeShellArg cfg.musicDirectory}
-    '';
-
-    home.file.".local/bin/music" = {
-      source = ../../files/home/.local/bin/music;
-      executable = true;
-    };
-
-    home.file.".local/bin/music-window" = {
-      source = musicWindow;
-      executable = true;
-    };
-
-    home.file.".local/bin/music-toggle" = {
-      source = ../../files/home/.local/bin/music-toggle;
-      executable = true;
-    };
-
-    home.file.".local/bin/music-eq" = {
-      source = ../../files/home/.local/bin/music-eq;
-      executable = true;
-    };
-
-    home.file.".local/bin/music-dislike" = {
-      source = ../../files/home/.local/bin/music-dislike;
-      executable = true;
-    };
-
-    home.file.".local/bin/music-retag-current" = {
-      source = ../../files/home/.local/bin/music-retag-current;
-      executable = true;
-    };
+    # SWS is a REAPER extension rather than an audio plugin. Link its runtime
+    # files into the REAPER resource directory while keeping the package immutable.
+    xdg.configFile."REAPER/UserPlugins/${swsPluginName}".source =
+      "${pkgs.reaper-sws-extension}/UserPlugins/${swsPluginName}";
+    xdg.configFile."REAPER/Scripts/sws_python.py".source =
+      "${pkgs.reaper-sws-extension}/Scripts/sws_python.py";
+    xdg.configFile."REAPER/Scripts/sws_python64.py".source =
+      "${pkgs.reaper-sws-extension}/Scripts/sws_python64.py";
   };
 }
