@@ -47,6 +47,7 @@ def run(
     command: Sequence[str],
     *,
     cwd: Path,
+    capture_stdout: bool = True,
     capture_stderr: bool = False,
     check: bool = False,
 ) -> subprocess.CompletedProcess[str]:
@@ -56,7 +57,7 @@ def run(
         cwd=cwd,
         check=check,
         text=True,
-        stdout=subprocess.PIPE,
+        stdout=subprocess.PIPE if capture_stdout else sys.stderr,
         stderr=subprocess.PIPE if capture_stderr else None,
         env=os.environ.copy(),
     )
@@ -171,11 +172,12 @@ def timed_command(
     command: Sequence[str],
     *,
     cwd: Path,
+    capture_stdout: bool = False,
 ) -> Measurement:
     started = time.perf_counter()
     stdout = ""
     try:
-        completed = run(command, cwd=cwd)
+        completed = run(command, cwd=cwd, capture_stdout=capture_stdout)
         exit_code = completed.returncode
         stdout = completed.stdout
     except OSError as error:
@@ -217,6 +219,7 @@ def evaluate_target(
         iteration,
         evaluation_command(target),
         cwd=cwd,
+        capture_stdout=True,
     )
     sample = measurement.sample
     if sample.exit_code != 0:
@@ -252,6 +255,7 @@ def realize_drv(
         iteration,
         realization_command(drv_path),
         cwd=cwd,
+        capture_stdout=True,
     )
     sample = measurement.sample
     if sample.exit_code != 0:
@@ -414,20 +418,22 @@ def validate_args(args: argparse.Namespace, repeat: int) -> str | None:
 
 def atomic_write_json(path: Path, payload: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    with tempfile.NamedTemporaryFile(
-        mode="w",
-        encoding="utf-8",
-        dir=path.parent,
-        prefix=f".{path.name}.",
-        suffix=".tmp",
-        delete=False,
-    ) as temporary:
-        temporary.write(payload)
-        temporary_path = Path(temporary.name)
+    temporary_path: Path | None = None
     try:
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            dir=path.parent,
+            prefix=f".{path.name}.",
+            suffix=".tmp",
+            delete=False,
+        ) as temporary:
+            temporary_path = Path(temporary.name)
+            temporary.write(payload)
         temporary_path.replace(path)
     except OSError:
-        temporary_path.unlink(missing_ok=True)
+        if temporary_path is not None:
+            temporary_path.unlink(missing_ok=True)
         raise
 
 
