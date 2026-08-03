@@ -15,16 +15,24 @@ let
     surge-xt
   ];
 
-  reaperPluginBundle = pkgs.buildEnv {
-    name = "reaper-plugin-bundle";
-    paths = reaperPlugins;
-    pathsToLink = [
-      "/lib/clap"
-      "/lib/lv2"
-      "/lib/vst"
-      "/lib/vst3"
-    ];
-  };
+  # Not every plugin package ships every supported format. Build one stable
+  # directory per format and include only the formats each package provides.
+  pluginDirectory = format:
+    pkgs.runCommand "reaper-${format}-plugins" { } ''
+      mkdir -p "$out"
+
+      for package in ${lib.escapeShellArgs (map toString reaperPlugins)}; do
+        source="$package/lib/${format}"
+        if [ ! -d "$source" ]; then
+          continue
+        fi
+
+        for plugin in "$source"/*; do
+          [ -e "$plugin" ] || continue
+          ln -sfn "$plugin" "$out/$(basename "$plugin")"
+        done
+      done
+    '';
 
   swsPluginName = "reaper_sws-${pkgs.stdenv.hostPlatform.uname.processor}.so";
 
@@ -146,19 +154,19 @@ in
     # Recursive linking allows unrelated manually installed plugins to coexist.
     home.file = {
       ".clap" = {
-        source = "${reaperPluginBundle}/lib/clap";
+        source = pluginDirectory "clap";
         recursive = true;
       };
       ".lv2" = {
-        source = "${reaperPluginBundle}/lib/lv2";
+        source = pluginDirectory "lv2";
         recursive = true;
       };
       ".vst" = {
-        source = "${reaperPluginBundle}/lib/vst";
+        source = pluginDirectory "vst";
         recursive = true;
       };
       ".vst3" = {
-        source = "${reaperPluginBundle}/lib/vst3";
+        source = pluginDirectory "vst3";
         recursive = true;
       };
 
