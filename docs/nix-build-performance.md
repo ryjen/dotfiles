@@ -1,0 +1,64 @@
+# Dubnium Nix build performance benchmarks
+
+The benchmark harness measures the tracked Dubnium Home Manager activation
+package without clearing caches, garbage-collecting the store, or activating a
+generation unless explicitly requested.
+
+## Commands
+
+```bash
+# Evaluation plus a dry-run realization plan
+nix run .#benchmark-dubnium -- plan --repeat 3
+
+# Measure evaluation and realization independently
+nix run .#benchmark-dubnium -- build --repeat 3
+
+# Run one plan followed by repeated build measurements
+nix run .#benchmark-dubnium -- suite --repeat 3 --json result.json
+
+# Explicitly realize and activate; defaults to one activation
+nix run .#benchmark-dubnium -- activate
+```
+
+The target must be a local output beginning with `.#`. Commands and Git
+provenance are evaluated relative to `--flake-dir`, which defaults to the
+current directory. External flake targets are rejected so benchmark results
+cannot accidentally claim provenance from an unrelated checkout.
+
+## Output contract
+
+Stdout contains exactly one JSON document. Nix and activation diagnostics are
+left on stderr, so this remains valid:
+
+```bash
+nix run .#benchmark-dubnium -- build --repeat 3 | jq .summary
+```
+
+The result records:
+
+- separate evaluation, realization, planning, and activation samples;
+- individual samples and median/minimum/maximum summaries;
+- the Git revision and dirty state when available;
+- Nix version and scheduler settings;
+- a fingerprint and count for substituters rather than cache URLs;
+- platform, architecture, and CPU count.
+
+Literal hostnames are omitted by default. Use `--include-hostname` only for a
+result that will remain private.
+
+## Baseline procedure
+
+Collect at least three samples for each representative scenario:
+
+1. warm/no-op `build`;
+2. a small tracked Home Manager configuration change;
+3. a representative custom-package source change;
+4. optional cold or partial-cache measurements performed manually and
+   documented separately.
+
+Do not delete the Nix store or run garbage collection as part of the benchmark.
+A cold experiment should use an isolated store or an explicitly documented
+machine state rather than destructively modifying the workstation.
+
+Attach the JSON result and a brief description of machine activity to issue
+#124. Keep CPU-intensive unrelated work idle so comparisons remain meaningful.
