@@ -1,4 +1,4 @@
-name: Hermes nixpkgs follow maintenance
+name: Finalize Hermes nixpkgs follow
 
 on:
   push:
@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 jobs:
-  update:
+  finalize:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
@@ -18,34 +18,45 @@ jobs:
           ref: perf/hermes-nixpkgs-follow
           fetch-depth: 0
 
-      - name: Follow root nixpkgs for Hermes
+      - name: Normalize and remove maintenance workflow
         run: |
           python3 - <<'PY'
-          import json
           from pathlib import Path
 
-          flake_path = Path("flake.nix")
-          flake = flake_path.read_text()
-          old = '    hermes-agent.url = "github:NousResearch/hermes-agent";'
-          new = '''    hermes-agent = {
-              url = "github:NousResearch/hermes-agent";
-              inputs.nixpkgs.follows = "nixpkgs";
-            };'''
-          if old not in flake:
-              raise SystemExit("expected Hermes input declaration not found")
-          flake_path.write_text(flake.replace(old, new, 1))
-
-          lock_path = Path("flake.lock")
-          lock = json.loads(lock_path.read_text())
-          lock["nodes"]["hermes-agent"]["inputs"]["nixpkgs"] = ["nixpkgs"]
-          lock_path.write_text(json.dumps(lock, indent=2) + "\n")
+          path = Path("flake.nix")
+          text = path.read_text()
+          old = '''    hermes-agent = {
+            url = "github:NousResearch/hermes-agent";
+            inputs.nixpkgs.follows = "nixpkgs";
+          };'''
+          old_unformatted = '''    hermes-agent = {
+          url = "github:NousResearch/hermes-agent";
+          inputs.nixpkgs.follows = "nixpkgs";
+        };'''
+          bad = '''    hermes-agent = {
+        url = "github:NousResearch/hermes-agent";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };'''
+          target = '''    hermes-agent = {
+      url = "github:NousResearch/hermes-agent";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };'''
+          if target not in text:
+              if bad in text:
+                  text = text.replace(bad, target, 1)
+              elif old_unformatted in text:
+                  text = text.replace(old_unformatted, target, 1)
+              elif old in text:
+                  text = text.replace(old, target, 1)
+              else:
+                  raise SystemExit("Hermes input block not found")
+          path.write_text(text)
+          Path(".github/workflows/hermes-follow-maintenance.yml").unlink()
           PY
 
-      - name: Commit generated lock update
-        run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add flake.nix flake.lock
+          git add flake.nix flake.lock .github/workflows/hermes-follow-maintenance.yml
           git diff --cached --check
-          git commit -m "perf: make Hermes follow root nixpkgs"
+          git commit -m "chore: finalize Hermes nixpkgs follow"
           git push origin HEAD:perf/hermes-nixpkgs-follow
