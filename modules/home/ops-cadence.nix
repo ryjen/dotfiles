@@ -230,6 +230,10 @@ in
       timeout_seconds = 30
     '';
 
+    systemd.user.tmpfiles.rules = lib.mkIf (cfg.timers.enable && config.dotfiles.host.userSystemd.enable) [
+      "d %h/.local/state/ops-cadence 0700 - - -"
+    ];
+
     systemd.user.services = lib.mkIf (cfg.timers.enable && config.dotfiles.host.userSystemd.enable) {
       opsctl-career-intelligence = mkOpsService "career-intelligence";
       opsctl-engineering-portfolio = mkOpsService "engineering-portfolio";
