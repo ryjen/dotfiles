@@ -25,7 +25,8 @@ The service definitions:
 - allow at most 15 minutes per report by default;
 - treat `opsctl` exit code `75` as a clean overlap skip;
 - use `UMask=0077`;
-- write only to `~/.local/state/ops-cadence`;
+- provision `~/.local/state/ops-cadence` declaratively with mode `0700` before the service sandbox is created;
+- write only to that state directory;
 - mount the remainder of the home directory read-only;
 - protect the system and temporary directory;
 - disable privilege escalation, realtime scheduling, SUID/SGID creation, and personality changes;
