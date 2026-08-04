@@ -2,6 +2,12 @@
 
 The `dotfiles.opsCadence` Home Manager module installs `opsctl`, writes its user configuration, and schedules three `systemd.user` timers on profiles that enable user systemd.
 
+## Runtime prerequisite
+
+The hardened unit definitions can be merged and evaluated independently, but native locking, `opsctl doctor`, `opsctl status --json`, and durable `run-status.json` require `ryjen/ops-cadence` commit `200baa53de06dac26bd1b96c2ab2847ff4a79c1b` or later.
+
+The dependency is private and remains SSH-pinned. Dotfiles issue #137 tracks the authorized Dubnium-local lock refresh, activation, and runtime verification. Do not treat this module merge alone as proof that the current runtime is installed or that the timers have executed on the host.
+
 ## Schedule
 
 | Report | Timer | Persistent |
@@ -26,7 +32,7 @@ The service definitions:
 - run at reduced CPU and idle I/O priority;
 - write stdout and stderr to the user journal.
 
-`opsctl` itself owns the cross-report lock and atomically records `run-status.json`, including report artifacts, source health, delivery state, duration, and redacted failure type.
+After the prerequisite runtime is pinned, `opsctl` owns the cross-report lock and atomically records `run-status.json`, including report artifacts, source health, delivery state, duration, and redacted failure type.
 
 ## Credentials
 
@@ -70,7 +76,7 @@ Expected files:
 
 The default workflow checkout is `~/.local/src/career-workflows`.
 
-Validate configuration and local contracts before activation:
+After completing issue #137, validate configuration and local contracts before activation:
 
 ```bash
 opsctl doctor --probe
