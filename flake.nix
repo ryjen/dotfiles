@@ -277,13 +277,23 @@
           prePushHook = pkgs.writeShellScriptBin "pre-push-hook" (
             builtins.readFile ./scripts/pre-push-hook.sh
           );
+          hardenHooks = pkgs.writeShellScriptBin "harden-pre-commit-hooks" (
+            builtins.readFile ./scripts/harden-pre-commit-hooks.sh
+          );
         in
         pkgs.mkShell {
           shellHook = shellHook + ''
-            # Install custom pre-push hook (WIP, tag, submodule checks)
-            mkdir -p .git/hooks
-            cp -f ${prePushHook}/bin/pre-push-hook .git/hooks/pre-push
-            chmod +x .git/hooks/pre-push
+            if git rev-parse --git-dir &>/dev/null; then
+              # Resolve the real git hooks dir so this works for standalone
+              # checkouts and submodules alike.
+              git_hook_dir="$(git rev-parse --path-format=absolute --git-common-dir)/hooks"
+              # Keep pre-commit-installed hooks working after store GC.
+              ${hardenHooks}/bin/harden-pre-commit-hooks "$git_hook_dir"
+              # Install custom pre-push hook (WIP, tag, submodule checks)
+              mkdir -p "$git_hook_dir"
+              cp -f ${prePushHook}/bin/pre-push-hook "$git_hook_dir/pre-push"
+              chmod +x "$git_hook_dir/pre-push"
+            fi
           '';
           buildInputs = enabledPackages;
         };
