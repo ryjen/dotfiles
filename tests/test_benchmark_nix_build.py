@@ -44,6 +44,56 @@ class BenchmarkNixBuildTests(unittest.TestCase):
         )
         self.assertNotIn(target, benchmark.realization_command(drv))
 
+    def test_evaluate_phase_does_not_realize_output(self) -> None:
+        successful = benchmark.Sample("evaluate", 1, 0.1, 0)
+        with mock.patch.object(
+            benchmark,
+            "evaluate_target",
+            return_value=(successful, "/nix/store/example.drv"),
+        ) as evaluate_target:
+            with mock.patch.object(benchmark, "realize_drv") as realize_drv:
+                samples = benchmark.benchmark_evaluate(
+                    benchmark.DEFAULT_TARGET,
+                    3,
+                    cwd=ROOT,
+                )
+        self.assertEqual(len(samples), 3)
+        self.assertTrue(all(sample.phase == "evaluate" for sample in samples))
+        self.assertEqual(evaluate_target.call_count, 3)
+        realize_drv.assert_not_called()
+
+    def test_main_routes_evaluate_phase_without_realization(self) -> None:
+        samples = [benchmark.Sample("evaluate", 1, 0.1, 0)]
+        stdout = io.StringIO()
+        with mock.patch.object(
+            benchmark,
+            "benchmark_evaluate",
+            return_value=samples,
+        ) as benchmark_evaluate:
+            with mock.patch.object(benchmark, "benchmark_build") as benchmark_build:
+                with mock.patch.object(
+                    benchmark,
+                    "repository_metadata",
+                    return_value={"available": True, "revision": "abc", "dirty": False},
+                ):
+                    with mock.patch.object(
+                        benchmark,
+                        "nix_metadata",
+                        return_value={"version": "nix", "settings": {}},
+                    ):
+                        with redirect_stdout(stdout):
+                            exit_code = benchmark.main(["evaluate", "--repeat", "5"])
+        self.assertEqual(exit_code, 0)
+        benchmark_evaluate.assert_called_once_with(
+            benchmark.DEFAULT_TARGET,
+            5,
+            cwd=ROOT,
+        )
+        benchmark_build.assert_not_called()
+        parsed = json.loads(stdout.getvalue())
+        self.assertEqual(parsed["requested_phase"], "evaluate")
+        self.assertEqual(parsed["repeat"], 5)
+
     def test_timed_command_keeps_child_stdout_out_of_json_stream(self) -> None:
         completed = subprocess.CompletedProcess(
             args=["fake"],
