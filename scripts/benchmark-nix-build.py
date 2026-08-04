@@ -156,7 +156,6 @@ def nix_metadata(cwd: Path) -> dict[str, Any]:
             "max-substitution-jobs": unwrap_nix_setting(
                 raw.get("max-substitution-jobs")
             ),
-            # Preserve comparability without exposing cache URLs or credentials.
             "substituters": substituter_fingerprint(raw.get("substituters")),
         }
 
@@ -267,6 +266,16 @@ def realize_drv(
     return sample, output_paths
 
 
+def benchmark_evaluate(target: str, repeat: int, *, cwd: Path) -> list[Sample]:
+    samples: list[Sample] = []
+    for iteration in range(1, repeat + 1):
+        evaluate_sample, drv_path = evaluate_target(target, iteration, cwd=cwd)
+        samples.append(evaluate_sample)
+        if drv_path is None:
+            break
+    return samples
+
+
 def benchmark_build(target: str, repeat: int, *, cwd: Path) -> list[Sample]:
     samples: list[Sample] = []
     for iteration in range(1, repeat + 1):
@@ -366,7 +375,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument(
         "phase",
-        choices=("plan", "build", "activate", "suite"),
+        choices=("evaluate", "plan", "build", "activate", "suite"),
         help="phase to benchmark; activation is explicit and may change user state",
     )
     parser.add_argument(
@@ -447,6 +456,8 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     cwd = args.flake_dir.resolve()
     samples: list[Sample] = []
+    if args.phase == "evaluate":
+        samples.extend(benchmark_evaluate(args.target, repeat, cwd=cwd))
     if args.phase in ("plan", "suite"):
         plan_repeat = 1 if args.phase == "suite" else repeat
         samples.extend(benchmark_plan(args.target, plan_repeat, cwd=cwd))
@@ -486,7 +497,6 @@ def main(argv: Sequence[str] | None = None) -> int:
             print(f"unable to write JSON result: {error}", file=sys.stderr)
             output_error = True
 
-    # Keep stdout machine-readable even when child commands or file writes fail.
     sys.stdout.write(payload)
 
     if output_error:
