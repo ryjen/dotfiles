@@ -32,6 +32,8 @@ def main() -> int:
         'ProtectSystem = "strict";': "read-only system protection",
         'ProtectHome = "read-only";': "read-only home protection",
         'ReadWritePaths = [ "%h/.local/state/ops-cadence" ];': "narrow state write path",
+        'systemd.user.tmpfiles.rules': "declarative state directory provisioning",
+        '"d %h/.local/state/ops-cadence 0700 - - -"': "private state directory mode",
         'LoadCredential = credentialLoads;': "systemd credential loading",
         'UnsetEnvironment = [': "ambient credential removal",
         '"GITHUB_TOKEN"': "GitHub token removal",
@@ -60,6 +62,7 @@ def main() -> int:
         'Restart = "always";': "unbounded restart loop",
         'ProtectHome = false;': "unprotected home access",
         'Persistent = false;': "missed-run suppression",
+        '"d %h/.local/state/ops-cadence 0777': "world-writable state directory",
     }
     for value, description in forbidden.items():
         forbid(content, value, description)
