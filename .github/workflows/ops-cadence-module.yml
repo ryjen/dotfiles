@@ -1,0 +1,32 @@
+name: Ops Cadence Module
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/ops-cadence-module.yml"
+      - "checks/verify-ops-cadence-timers.py"
+      - "modules/home/ops-cadence.nix"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/ops-cadence-module.yml"
+      - "checks/verify-ops-cadence-timers.py"
+      - "modules/home/ops-cadence.nix"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  invariants:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify timer invariants
+        run: python3 checks/verify-ops-cadence-timers.py .
