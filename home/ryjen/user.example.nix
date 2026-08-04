@@ -68,8 +68,21 @@
   # dotfiles.headroom.proxy.port = 8787;
   # dotfiles.headroom.proxy.package = "${config.home.homeDirectory}/.local/libexec/headroom-proxy";
 
+  # Personal read-only report scheduling and CareerOps contract inputs.
   # dotfiles.opsCadence.enable = false;
+  # dotfiles.opsCadence.careerops.enable = true;
+  # dotfiles.opsCadence.careerops.workflowsPath = "${config.home.homeDirectory}/.local/src/career-workflows";
+  # dotfiles.opsCadence.careerops.stateDir = "${config.home.homeDirectory}/.local/state/careerops";
+  # dotfiles.opsCadence.liveSources.enable = false;
+  # dotfiles.opsCadence.liveSources.gmail = false;
+  # dotfiles.opsCadence.liveSources.github = false;
+  # Runtime paths only; never place token contents in this file.
+  # dotfiles.opsCadence.credentials.githubTokenFile = null;
+  # dotfiles.opsCadence.credentials.gmailAccessTokenFile = null;
   # dotfiles.opsCadence.timers.enable = true;
+  # dotfiles.opsCadence.timers.timeout = "15min";
+  # dotfiles.opsCadence.timers.accuracy = "5min";
+  # dotfiles.opsCadence.timers.randomizedDelay = "5min";
 
   # Current grouped/profile selections. These remain listed until migrated to
   # stable tool, feature, desktop, service, or integration namespaces.
