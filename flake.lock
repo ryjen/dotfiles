@@ -83,11 +83,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1785734843,
-        "narHash": "sha256-6ZNfVQ4y/S7s0VVb97nQRW1Qja4HzGk1NBaCRd77rwQ=",
+        "lastModified": 1785881026,
+        "narHash": "sha256-FMlRt2BxpN7lKazsqJWpT5N90tGHFI5nf6n+1YSeNe4=",
         "owner": "ryjen",
         "repo": "git-autocommit",
-        "rev": "37ba90714b3c66df151ef40ecef5e072327ba1dd",
+        "rev": "16e36ed98ca75c158913a358b026a01745598111",
         "type": "github"
       },
       "original": {
@@ -164,22 +164,6 @@
       }
     },
     "nixpkgs": {
-      "locked": {
-        "lastModified": 1785318670,
-        "narHash": "sha256-dN6Ou5x/+23FZLEpYP3IffO+NyJFzUlGumt1uu3MMaY=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "0954f7ee2f6bb3dc7d4e3d0d8bcb8fd4bde4cfc5",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "ref": "nixos-unstable",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
-    "nixpkgs_2": {
       "locked": {
         "lastModified": 1785734586,
         "narHash": "sha256-ODZkEK9Gy50yg6h98u7KkitZ3oc/uuTFK00bh1CRdNA=",
@@ -295,7 +279,7 @@
         "git-hooks": "git-hooks",
         "hermes-agent": "hermes-agent",
         "home-manager": "home-manager",
-        "nixpkgs": "nixpkgs_2",
+        "nixpkgs": "nixpkgs",
         "ops-cadence": "ops-cadence",
         "sops-nix": "sops-nix"
       }
