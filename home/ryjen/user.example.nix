@@ -79,13 +79,21 @@
   # Optional loopback Dubnium platform APIs. SQLite remains exact state.
   # dotfiles.opsCadence.platform.memory.enable = false;
   # dotfiles.opsCadence.platform.memory.baseUrl = "http://127.0.0.1:8090";
+  # dotfiles.opsCadence.platform.memory.timeoutSeconds = 10;
   # dotfiles.opsCadence.platform.memory.scope = "workflow:ops-cadence";
   # dotfiles.opsCadence.platform.llm.enable = false;
   # dotfiles.opsCadence.platform.llm.baseUrl = "http://127.0.0.1:8080/v1";
   # dotfiles.opsCadence.platform.llm.model = "supervisor";
   # dotfiles.opsCadence.platform.llm.contractVersion = "dubnium.llm-gateway.v1";
+  # dotfiles.opsCadence.platform.llm.timeoutSeconds = 60;
   # dotfiles.opsCadence.platform.scheduler.enable = false;
   # dotfiles.opsCadence.platform.scheduler.baseUrl = "http://127.0.0.1:8091";
+  # dotfiles.opsCadence.platform.scheduler.timeoutSeconds = 10;
+  # dotfiles.opsCadence.platform.scheduler.schedules = {
+  #   career_intelligence = "ops-career-intelligence";
+  #   engineering_portfolio = "ops-engineering-portfolio";
+  #   weekly_review = "ops-weekly-review";
+  # };
   # Enabling the Dubnium scheduler requires direct Home Manager timers to be disabled.
   # dotfiles.opsCadence.timers.enable = true;
 
