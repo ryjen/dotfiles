@@ -66,7 +66,11 @@ def main() -> int:
         'loopbackUrl cfg.platform.memory.baseUrl': "loopback memory API assertion",
         'loopbackUrl cfg.platform.llm.baseUrl': "loopback LLM API assertion",
         'loopbackUrl cfg.platform.scheduler.baseUrl': "loopback scheduler API assertion",
+        'lib.all scheduleIdSafe (lib.attrNames cfg.platform.scheduler.schedules)': "bounded schedule name assertion",
         'lib.all scheduleIdSafe (lib.attrValues cfg.platform.scheduler.schedules)': "bounded schedule ID assertion",
+        '"career-intelligence" = "ops-career-intelligence";': "Career Intelligence scheduler alias",
+        '"engineering-portfolio" = "ops-engineering-portfolio";': "Engineering Portfolio scheduler alias",
+        '"weekly-review" = "ops-weekly-review";': "Weekly Review scheduler alias",
         '!(cfg.timers.enable && cfg.platform.scheduler.enable)': "single durable scheduler ownership",
         'Direct Home Manager timers and the Dubnium scheduler cannot both own durable ops-cadence scheduling.': "dual-scheduling rejection",
         'Persistent = true;': "missed-run persistence",
@@ -99,6 +103,9 @@ def main() -> int:
         '"d %h/.local/state/ops-cadence 0777': "world-writable state directory",
         '[llm]': "legacy ungoverned LLM configuration",
         'backend = "memory"': "semantic memory as exact report state",
+        'career_intelligence = "ops-career-intelligence";': "underscore scheduler alias",
+        'engineering_portfolio = "ops-engineering-portfolio";': "underscore scheduler alias",
+        'weekly_review = "ops-weekly-review";': "underscore scheduler alias",
     }
     for value, description in forbidden.items():
         forbid(content, value, description)
