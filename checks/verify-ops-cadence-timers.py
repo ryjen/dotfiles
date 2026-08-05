@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify security and scheduling invariants for the ops-cadence Home Manager module."""
+"""Verify security, platform, and scheduling invariants for the ops-cadence Home Manager module."""
 
 from __future__ import annotations
 
@@ -53,13 +53,28 @@ def main() -> int:
         '"KUBECONFIG"': "ambient Kubernetes credential removal",
         '"NPM_TOKEN"': "ambient npm credential removal",
         '"SSH_AUTH_SOCK"': "SSH agent removal",
-        'ExecStartPre = "${package}/bin/opsctl doctor --probe --json";': "pre-run contract probe",
+        'ExecStartPre = "${package}/bin/opsctl doctor --probe --json";': "pre-run contract and platform probe",
+        'backend = "sqlite"': "SQLite exact-state ownership",
+        'sqlite_path = "${config.home.homeDirectory}/.local/state/ops-cadence/ops.sqlite3"': "private SQLite path",
+        '[platform.memory]': "Dubnium memory configuration",
+        '[platform.llm]': "Dubnium LLM configuration",
+        '[platform.scheduler]': "Dubnium scheduler configuration",
+        '[platform.scheduler.schedules]': "allowlisted schedule mapping",
+        'model = "${cfg.platform.llm.model}"': "logical LLM alias",
+        'contract_version = "${cfg.platform.llm.contractVersion}"': "governed LLM contract",
+        'scope = "${cfg.platform.memory.scope}"': "bounded memory scope",
+        'loopbackUrl cfg.platform.memory.baseUrl': "loopback memory API assertion",
+        'loopbackUrl cfg.platform.llm.baseUrl': "loopback LLM API assertion",
+        'loopbackUrl cfg.platform.scheduler.baseUrl': "loopback scheduler API assertion",
+        'lib.all scheduleIdSafe (lib.attrValues cfg.platform.scheduler.schedules)': "bounded schedule ID assertion",
+        '!(cfg.timers.enable && cfg.platform.scheduler.enable)': "single durable scheduler ownership",
+        'Direct Home Manager timers and the Dubnium scheduler cannot both own durable ops-cadence scheduling.': "dual-scheduling rejection",
         'Persistent = true;': "missed-run persistence",
         'AccuracySec = cfg.timers.accuracy;': "timer accuracy bound",
         'RandomizedDelaySec = cfg.timers.randomizedDelay;': "timer jitter",
-        '"*-*-* 08:00:00"': "daily Career Intelligence schedule",
-        '"Mon *-*-* 09:30:00"': "Monday Engineering Portfolio schedule",
-        '"Fri *-*-* 16:30:00"': "Friday Weekly Review schedule",
+        '"*-*-* 08:00:00"': "transitional daily Career Intelligence schedule",
+        '"Mon *-*-* 09:30:00"': "transitional Monday Engineering Portfolio schedule",
+        '"Fri *-*-* 16:30:00"': "transitional Friday Weekly Review schedule",
         'enabled = ${lib.boolToString cfg.liveSources.enable}': "explicit live-source gate",
         'professional_context_snapshot_path = "${professionalContextPath}"': "professional-context snapshot path",
         'tracker_snapshot_path = "${careerOpsStateDir}/application-state.json"': "tracker projection path",
@@ -82,11 +97,13 @@ def main() -> int:
         'ProtectHome = false;': "unprotected home access",
         'Persistent = false;': "missed-run suppression",
         '"d %h/.local/state/ops-cadence 0777': "world-writable state directory",
+        '[llm]': "legacy ungoverned LLM configuration",
+        'backend = "memory"': "semantic memory as exact report state",
     }
     for value, description in forbidden.items():
         forbid(content, value, description)
 
-    print("ops-cadence timer invariants verified")
+    print("ops-cadence deployment invariants verified")
     return 0
 
 
