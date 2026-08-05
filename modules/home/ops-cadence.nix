@@ -9,6 +9,34 @@ let
   cfg = config.dotfiles.opsCadence;
   package = cfg.package;
   careerOpsStateDir = cfg.careerops.stateDir;
+  professionalContextPath =
+    if cfg.careerops.professionalContextSnapshotPath == null then
+      "${careerOpsStateDir}/professional-context.v1.json"
+    else
+      cfg.careerops.professionalContextSnapshotPath;
+  githubCredentialEnabled = cfg.liveSources.enable && cfg.liveSources.github;
+  gmailCredentialEnabled = cfg.liveSources.enable && cfg.liveSources.gmail;
+  credentialPathSafe =
+    value:
+    value == null
+    || (
+      (lib.hasPrefix "/" value || lib.hasPrefix "%h/" value)
+      && !lib.hasPrefix "/nix/store/" value
+      && !lib.hasInfix ":" value
+      && !lib.hasInfix "\n" value
+    );
+  loopbackUrl =
+    value:
+    lib.any (prefix: lib.hasPrefix prefix value) [
+      "http://127.0.0.1:"
+      "http://localhost:"
+      "http://[::1]:"
+      "https://127.0.0.1:"
+      "https://localhost:"
+      "https://[::1]:"
+    ]
+    && !lib.hasInfix "\n" value;
+  scheduleIdSafe = value: builtins.match "^[A-Za-z0-9._:-]{1,200}$" value != null;
   runtimePath = lib.makeBinPath [
     package
     pkgs.coreutils
@@ -16,16 +44,28 @@ let
     pkgs.nodejs
   ];
   credentialLoads =
-    lib.optional (cfg.credentials.githubTokenFile != null)
+    lib.optional (githubCredentialEnabled && cfg.credentials.githubTokenFile != null)
       "github-token:${cfg.credentials.githubTokenFile}"
-    ++ lib.optional (cfg.credentials.gmailAccessTokenFile != null)
+    ++ lib.optional (gmailCredentialEnabled && cfg.credentials.gmailAccessTokenFile != null)
       "gmail-access-token:${cfg.credentials.gmailAccessTokenFile}";
   credentialExports = ''
-    ${lib.optionalString (cfg.credentials.githubTokenFile != null) ''
-      export GITHUB_TOKEN="$(${pkgs.coreutils}/bin/cat "$CREDENTIALS_DIRECTORY/github-token")"
+    ${lib.optionalString githubCredentialEnabled ''
+      github_credential="$CREDENTIALS_DIRECTORY/github-token"
+      if [ ! -s "$github_credential" ] || [ "$(${pkgs.coreutils}/bin/wc -c < "$github_credential")" -gt 8192 ]; then
+        echo "opsctl credential validation failed: github-token" >&2
+        exit 78
+      fi
+      export GITHUB_TOKEN="$(${pkgs.coreutils}/bin/cat "$github_credential")"
+      unset github_credential
     ''}
-    ${lib.optionalString (cfg.credentials.gmailAccessTokenFile != null) ''
-      export GMAIL_ACCESS_TOKEN="$(${pkgs.coreutils}/bin/cat "$CREDENTIALS_DIRECTORY/gmail-access-token")"
+    ${lib.optionalString gmailCredentialEnabled ''
+      gmail_credential="$CREDENTIALS_DIRECTORY/gmail-access-token"
+      if [ ! -s "$gmail_credential" ] || [ "$(${pkgs.coreutils}/bin/wc -c < "$gmail_credential")" -gt 8192 ]; then
+        echo "opsctl credential validation failed: gmail-access-token" >&2
+        exit 78
+      fi
+      export GMAIL_ACCESS_TOKEN="$(${pkgs.coreutils}/bin/cat "$gmail_credential")"
+      unset gmail_credential
     ''}
   '';
   mkOpsRunner = report:
@@ -41,6 +81,7 @@ let
       Documentation = [
         "https://github.com/ryjen/ops-cadence"
         "https://github.com/ryjen/ops-cadence/blob/main/docs/timer-operations.md"
+        "https://github.com/ryjen/ops-cadence/blob/main/docs/security-boundaries.md"
       ];
       After = [ "default.target" ];
     };
@@ -52,16 +93,25 @@ let
         "XDG_CONFIG_HOME=%h/.config"
         "XDG_STATE_HOME=%h/.local/state"
         "PATH=${runtimePath}"
+        "PYTHONNOUSERSITE=1"
       ];
       UnsetEnvironment = [
+        "ANTHROPIC_API_KEY"
         "AWS_ACCESS_KEY_ID"
         "AWS_SECRET_ACCESS_KEY"
         "AWS_SESSION_TOKEN"
+        "CLOUDFLARE_API_TOKEN"
+        "DOCKER_CONFIG"
         "GH_TOKEN"
         "GITHUB_TOKEN"
         "GITLAB_TOKEN"
         "GOOGLE_APPLICATION_CREDENTIALS"
+        "GOOGLE_API_KEY"
         "GMAIL_ACCESS_TOKEN"
+        "HF_TOKEN"
+        "HUGGING_FACE_HUB_TOKEN"
+        "KUBECONFIG"
+        "NPM_TOKEN"
         "OPENAI_API_KEY"
         "SSH_AGENT_PID"
         "SSH_AUTH_SOCK"
@@ -86,6 +136,9 @@ let
       StandardOutput = "journal";
       StandardError = "journal";
       SyslogIdentifier = "opsctl-${report}";
+    }
+    // lib.optionalAttrs (cfg.careerops.enable && report == "career-intelligence") {
+      ExecStartPre = "${package}/bin/opsctl doctor --probe --json";
     };
   };
   mkOpsTimer = description: calendar: serviceName: {
@@ -128,6 +181,92 @@ in
         default = "${config.home.homeDirectory}/.local/state/careerops";
         description = "Directory containing minimized CareerOps JSON artifacts.";
       };
+
+      professionalContextSnapshotPath = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description = "Absolute path to the minimized professional-context snapshot; null uses stateDir/professional-context.v1.json.";
+      };
+    };
+
+    platform = {
+      memory = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Whether to use the loopback Dubnium memory API for minimized semantic context.";
+        };
+        baseUrl = lib.mkOption {
+          type = lib.types.str;
+          default = "http://127.0.0.1:8090";
+          description = "Loopback Dubnium memory API base URL.";
+        };
+        timeoutSeconds = lib.mkOption {
+          type = lib.types.ints.positive;
+          default = 10;
+          description = "Dubnium memory API timeout in seconds.";
+        };
+        scope = lib.mkOption {
+          type = lib.types.str;
+          default = "workflow:ops-cadence";
+          description = "Bounded semantic memory scope.";
+        };
+      };
+
+      llm = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Whether to use the governed loopback Dubnium LLM gateway.";
+        };
+        baseUrl = lib.mkOption {
+          type = lib.types.str;
+          default = "http://127.0.0.1:8080/v1";
+          description = "Loopback Dubnium LLM gateway base URL.";
+        };
+        model = lib.mkOption {
+          type = lib.types.str;
+          default = "supervisor";
+          description = "Governed logical LLM alias.";
+        };
+        contractVersion = lib.mkOption {
+          type = lib.types.str;
+          default = "dubnium.llm-gateway.v1";
+          description = "Expected governed LLM gateway contract version.";
+        };
+        timeoutSeconds = lib.mkOption {
+          type = lib.types.ints.positive;
+          default = 60;
+          description = "Dubnium LLM gateway timeout in seconds.";
+        };
+      };
+
+      scheduler = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Whether to use declared Dubnium schedules instead of direct Home Manager timers.";
+        };
+        baseUrl = lib.mkOption {
+          type = lib.types.str;
+          default = "http://127.0.0.1:8091";
+          description = "Loopback Dubnium scheduler API base URL.";
+        };
+        timeoutSeconds = lib.mkOption {
+          type = lib.types.ints.positive;
+          default = 10;
+          description = "Dubnium scheduler API timeout in seconds.";
+        };
+        schedules = lib.mkOption {
+          type = lib.types.attrsOf lib.types.str;
+          default = {
+            "career-intelligence" = "ops-career-intelligence";
+            "engineering-portfolio" = "ops-engineering-portfolio";
+            "weekly-review" = "ops-weekly-review";
+          };
+          description = "Allowlisted logical report names mapped to declaratively managed Dubnium schedule IDs.";
+        };
+      };
     };
 
     liveSources = {
@@ -168,7 +307,7 @@ in
       enable = lib.mkOption {
         type = lib.types.bool;
         default = true;
-        description = "Whether to create user-level systemd timers for opsctl reports.";
+        description = "Whether to create transitional user-level systemd timers for opsctl reports.";
       };
 
       timeout = lib.mkOption {
@@ -192,15 +331,114 @@ in
   };
 
   config = lib.mkIf cfg.enable {
+    assertions = [
+      {
+        assertion = !cfg.liveSources.gmail || cfg.liveSources.enable;
+        message = "dotfiles.opsCadence.liveSources.gmail requires liveSources.enable.";
+      }
+      {
+        assertion = !cfg.liveSources.github || cfg.liveSources.enable;
+        message = "dotfiles.opsCadence.liveSources.github requires liveSources.enable.";
+      }
+      {
+        assertion = !cfg.liveSources.enable || cfg.liveSources.gmail || cfg.liveSources.github;
+        message = "dotfiles.opsCadence.liveSources.enable requires at least one enabled live source.";
+      }
+      {
+        assertion = !githubCredentialEnabled || cfg.credentials.githubTokenFile != null;
+        message = "Enabled GitHub ingestion requires credentials.githubTokenFile.";
+      }
+      {
+        assertion = !gmailCredentialEnabled || cfg.credentials.gmailAccessTokenFile != null;
+        message = "Enabled Gmail ingestion requires credentials.gmailAccessTokenFile.";
+      }
+      {
+        assertion = credentialPathSafe cfg.credentials.githubTokenFile;
+        message = "credentials.githubTokenFile must be an absolute or %h-relative runtime path outside the Nix store, without colon or newline characters.";
+      }
+      {
+        assertion = credentialPathSafe cfg.credentials.gmailAccessTokenFile;
+        message = "credentials.gmailAccessTokenFile must be an absolute or %h-relative runtime path outside the Nix store, without colon or newline characters.";
+      }
+      {
+        assertion = lib.hasPrefix "/" cfg.careerops.workflowsPath;
+        message = "careerops.workflowsPath must be absolute.";
+      }
+      {
+        assertion = lib.hasPrefix "/" cfg.careerops.stateDir;
+        message = "careerops.stateDir must be absolute.";
+      }
+      {
+        assertion = lib.hasPrefix "/" professionalContextPath;
+        message = "careerops professional-context snapshot path must be absolute.";
+      }
+      {
+        assertion = loopbackUrl cfg.platform.memory.baseUrl;
+        message = "platform.memory.baseUrl must be an explicit loopback HTTP(S) URL.";
+      }
+      {
+        assertion = loopbackUrl cfg.platform.llm.baseUrl;
+        message = "platform.llm.baseUrl must be an explicit loopback HTTP(S) URL.";
+      }
+      {
+        assertion = loopbackUrl cfg.platform.scheduler.baseUrl;
+        message = "platform.scheduler.baseUrl must be an explicit loopback HTTP(S) URL.";
+      }
+      {
+        assertion = builtins.match "^[A-Za-z0-9._:-]{1,200}$" cfg.platform.llm.model != null;
+        message = "platform.llm.model must be a bounded logical alias.";
+      }
+      {
+        assertion = builtins.match "^[A-Za-z0-9._:-]{1,200}$" cfg.platform.llm.contractVersion != null;
+        message = "platform.llm.contractVersion must be a bounded contract identifier.";
+      }
+      {
+        assertion = builtins.match "^[A-Za-z0-9._:-]{1,200}$" cfg.platform.memory.scope != null;
+        message = "platform.memory.scope must be a bounded scope identifier.";
+      }
+      {
+        assertion = lib.all scheduleIdSafe (lib.attrNames cfg.platform.scheduler.schedules);
+        message = "Every platform.scheduler schedule name must use the bounded allowlisted identifier format.";
+      }
+      {
+        assertion = lib.all scheduleIdSafe (lib.attrValues cfg.platform.scheduler.schedules);
+        message = "Every platform.scheduler schedule ID must use the bounded allowlisted identifier format.";
+      }
+      {
+        assertion = !(cfg.timers.enable && cfg.platform.scheduler.enable);
+        message = "Direct Home Manager timers and the Dubnium scheduler cannot both own durable ops-cadence scheduling.";
+      }
+    ];
+
     home.packages = [ package ];
 
     xdg.configFile."ops-cadence/config.toml".text = ''
       [state]
-      backend = "memory"
+      backend = "sqlite"
+      sqlite_path = "${config.home.homeDirectory}/.local/state/ops-cadence/ops.sqlite3"
 
-      [llm]
-      base_url = "http://127.0.0.1:8080/v1"
-      model = "local"
+      [platform.memory]
+      enabled = ${lib.boolToString cfg.platform.memory.enable}
+      base_url = "${cfg.platform.memory.baseUrl}"
+      timeout_seconds = ${toString cfg.platform.memory.timeoutSeconds}
+      scope = "${cfg.platform.memory.scope}"
+
+      [platform.llm]
+      enabled = ${lib.boolToString cfg.platform.llm.enable}
+      base_url = "${cfg.platform.llm.baseUrl}"
+      model = "${cfg.platform.llm.model}"
+      contract_version = "${cfg.platform.llm.contractVersion}"
+      timeout_seconds = ${toString cfg.platform.llm.timeoutSeconds}
+
+      [platform.scheduler]
+      enabled = ${lib.boolToString cfg.platform.scheduler.enable}
+      base_url = "${cfg.platform.scheduler.baseUrl}"
+      timeout_seconds = ${toString cfg.platform.scheduler.timeoutSeconds}
+
+      [platform.scheduler.schedules]
+      ${lib.concatStringsSep "\n" (
+        lib.mapAttrsToList (name: scheduleId: ''${name} = "${scheduleId}"'') cfg.platform.scheduler.schedules
+      )}
 
       [sources.github]
       career_workflows = "ryjen/career-workflows"
@@ -221,6 +459,7 @@ in
       [careerops]
       enabled = ${lib.boolToString cfg.careerops.enable}
       workflows_path = "${cfg.careerops.workflowsPath}"
+      professional_context_snapshot_path = "${professionalContextPath}"
       tracker_snapshot_path = "${careerOpsStateDir}/application-state.json"
       discovery_bundle_path = "${careerOpsStateDir}/discovery-candidates.json"
       capacity_path = "${careerOpsStateDir}/execution-capacity.json"
