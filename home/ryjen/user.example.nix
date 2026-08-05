@@ -75,6 +75,20 @@
   # dotfiles.opsCadence.careerops.stateDir = "${config.home.homeDirectory}/.local/state/careerops";
   # null uses <stateDir>/professional-context.v1.json.
   # dotfiles.opsCadence.careerops.professionalContextSnapshotPath = null;
+
+  # Optional loopback Dubnium platform APIs. SQLite remains exact state.
+  # dotfiles.opsCadence.platform.memory.enable = false;
+  # dotfiles.opsCadence.platform.memory.baseUrl = "http://127.0.0.1:8090";
+  # dotfiles.opsCadence.platform.memory.scope = "workflow:ops-cadence";
+  # dotfiles.opsCadence.platform.llm.enable = false;
+  # dotfiles.opsCadence.platform.llm.baseUrl = "http://127.0.0.1:8080/v1";
+  # dotfiles.opsCadence.platform.llm.model = "supervisor";
+  # dotfiles.opsCadence.platform.llm.contractVersion = "dubnium.llm-gateway.v1";
+  # dotfiles.opsCadence.platform.scheduler.enable = false;
+  # dotfiles.opsCadence.platform.scheduler.baseUrl = "http://127.0.0.1:8091";
+  # Enabling the Dubnium scheduler requires direct Home Manager timers to be disabled.
+  # dotfiles.opsCadence.timers.enable = true;
+
   # dotfiles.opsCadence.liveSources.enable = false;
   # dotfiles.opsCadence.liveSources.gmail = false;
   # dotfiles.opsCadence.liveSources.github = false;
@@ -82,7 +96,6 @@
   # Enabling a live source requires its corresponding credential path.
   # dotfiles.opsCadence.credentials.githubTokenFile = "%h/.config/ops-cadence/secrets/github-token";
   # dotfiles.opsCadence.credentials.gmailAccessTokenFile = "%h/.config/ops-cadence/secrets/gmail-access-token";
-  # dotfiles.opsCadence.timers.enable = true;
   # dotfiles.opsCadence.timers.timeout = "15min";
   # dotfiles.opsCadence.timers.accuracy = "5min";
   # dotfiles.opsCadence.timers.randomizedDelay = "5min";
