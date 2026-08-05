@@ -260,9 +260,9 @@ in
         schedules = lib.mkOption {
           type = lib.types.attrsOf lib.types.str;
           default = {
-            career_intelligence = "ops-career-intelligence";
-            engineering_portfolio = "ops-engineering-portfolio";
-            weekly_review = "ops-weekly-review";
+            "career-intelligence" = "ops-career-intelligence";
+            "engineering-portfolio" = "ops-engineering-portfolio";
+            "weekly-review" = "ops-weekly-review";
           };
           description = "Allowlisted logical report names mapped to declaratively managed Dubnium schedule IDs.";
         };
@@ -395,6 +395,10 @@ in
       {
         assertion = builtins.match "^[A-Za-z0-9._:-]{1,200}$" cfg.platform.memory.scope != null;
         message = "platform.memory.scope must be a bounded scope identifier.";
+      }
+      {
+        assertion = lib.all scheduleIdSafe (lib.attrNames cfg.platform.scheduler.schedules);
+        message = "Every platform.scheduler schedule name must use the bounded allowlisted identifier format.";
       }
       {
         assertion = lib.all scheduleIdSafe (lib.attrValues cfg.platform.scheduler.schedules);
