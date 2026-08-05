@@ -5,6 +5,8 @@ on:
     paths:
       - ".github/workflows/ops-cadence-module.yml"
       - "checks/verify-ops-cadence-timers.py"
+      - "docs/ops-cadence-credential-isolation.md"
+      - "home/ryjen/user.example.nix"
       - "modules/home/ops-cadence.nix"
   push:
     branches:
@@ -12,6 +14,8 @@ on:
     paths:
       - ".github/workflows/ops-cadence-module.yml"
       - "checks/verify-ops-cadence-timers.py"
+      - "docs/ops-cadence-credential-isolation.md"
+      - "home/ryjen/user.example.nix"
       - "modules/home/ops-cadence.nix"
 
 permissions:
@@ -24,9 +28,12 @@ concurrency:
 jobs:
   invariants:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Verify timer invariants
         run: python3 checks/verify-ops-cadence-timers.py .
