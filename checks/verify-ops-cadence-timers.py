@@ -9,6 +9,8 @@ from pathlib import Path
 
 ROOT = Path(sys.argv[1]).resolve() if len(sys.argv) == 2 else Path.cwd().resolve()
 MODULE = ROOT / "modules" / "home" / "ops-cadence.nix"
+DOCS = ROOT / "docs" / "ops-cadence-timers.md"
+EXAMPLE = ROOT / "home" / "ryjen" / "user.example.nix"
 
 
 def require(content: str, value: str, description: str) -> None:
@@ -23,6 +25,8 @@ def forbid(content: str, value: str, description: str) -> None:
 
 def main() -> int:
     content = MODULE.read_text()
+    docs = DOCS.read_text()
+    example = EXAMPLE.read_text()
 
     required = {
         'SuccessExitStatus = [ "75" ];': "overlap exit handling",
@@ -32,7 +36,9 @@ def main() -> int:
         'ProtectSystem = "strict";': "read-only system protection",
         'ProtectHome = "read-only";': "read-only home protection",
         'ReadWritePaths = [ "%h/.local/state/ops-cadence" ];': "narrow state write path",
-        'systemd.user.tmpfiles.rules': "declarative state directory provisioning",
+        'systemd.user.tmpfiles.rules = lib.mkIf (cfg.timers.enable && config.dotfiles.host.userSystemd.enable)': "conditional state directory provisioning",
+        'systemd.user.services = lib.mkIf (cfg.timers.enable && config.dotfiles.host.userSystemd.enable)': "conditional service emission",
+        'systemd.user.timers = lib.mkIf (cfg.timers.enable && config.dotfiles.host.userSystemd.enable)': "conditional timer emission",
         '"d %h/.local/state/ops-cadence 0700 - - -"': "private state directory mode",
         'LoadCredential = credentialLoads;': "systemd credential loading",
         'githubCredentialEnabled = cfg.liveSources.enable && cfg.liveSources.github;': "GitHub credential capability gate",
@@ -90,6 +96,9 @@ def main() -> int:
     }
     for value, description in required.items():
         require(content, value, description)
+
+    require(docs, "dotfiles.opsCadence.timers.enable = false;", "documented timer-owner disable switch")
+    require(example, "timers.enable", "timer-owner option in user.example.nix")
 
     forbidden = {
         'lib.optional (cfg.credentials.githubTokenFile != null)': "credential loading without GitHub capability gate",
