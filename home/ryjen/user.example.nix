@@ -73,12 +73,15 @@
   # dotfiles.opsCadence.careerops.enable = true;
   # dotfiles.opsCadence.careerops.workflowsPath = "${config.home.homeDirectory}/.local/src/career-workflows";
   # dotfiles.opsCadence.careerops.stateDir = "${config.home.homeDirectory}/.local/state/careerops";
+  # null uses <stateDir>/professional-context.v1.json.
+  # dotfiles.opsCadence.careerops.professionalContextSnapshotPath = null;
   # dotfiles.opsCadence.liveSources.enable = false;
   # dotfiles.opsCadence.liveSources.gmail = false;
   # dotfiles.opsCadence.liveSources.github = false;
-  # Runtime paths only; never place token contents in this file.
-  # dotfiles.opsCadence.credentials.githubTokenFile = null;
-  # dotfiles.opsCadence.credentials.gmailAccessTokenFile = null;
+  # Runtime paths only; never place token contents in this file or the Nix store.
+  # Enabling a live source requires its corresponding credential path.
+  # dotfiles.opsCadence.credentials.githubTokenFile = "%h/.config/ops-cadence/secrets/github-token";
+  # dotfiles.opsCadence.credentials.gmailAccessTokenFile = "%h/.config/ops-cadence/secrets/gmail-access-token";
   # dotfiles.opsCadence.timers.enable = true;
   # dotfiles.opsCadence.timers.timeout = "15min";
   # dotfiles.opsCadence.timers.accuracy = "5min";
