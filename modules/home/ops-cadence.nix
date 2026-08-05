@@ -9,6 +9,22 @@ let
   cfg = config.dotfiles.opsCadence;
   package = cfg.package;
   careerOpsStateDir = cfg.careerops.stateDir;
+  professionalContextPath =
+    if cfg.careerops.professionalContextSnapshotPath == null then
+      "${careerOpsStateDir}/professional-context.v1.json"
+    else
+      cfg.careerops.professionalContextSnapshotPath;
+  githubCredentialEnabled = cfg.liveSources.enable && cfg.liveSources.github;
+  gmailCredentialEnabled = cfg.liveSources.enable && cfg.liveSources.gmail;
+  credentialPathSafe =
+    value:
+    value == null
+    || (
+      (lib.hasPrefix "/" value || lib.hasPrefix "%h/" value)
+      && !lib.hasPrefix "/nix/store/" value
+      && !lib.hasInfix ":" value
+      && !lib.hasInfix "\n" value
+    );
   runtimePath = lib.makeBinPath [
     package
     pkgs.coreutils
@@ -16,16 +32,28 @@ let
     pkgs.nodejs
   ];
   credentialLoads =
-    lib.optional (cfg.credentials.githubTokenFile != null)
+    lib.optional githubCredentialEnabled
       "github-token:${cfg.credentials.githubTokenFile}"
-    ++ lib.optional (cfg.credentials.gmailAccessTokenFile != null)
+    ++ lib.optional gmailCredentialEnabled
       "gmail-access-token:${cfg.credentials.gmailAccessTokenFile}";
   credentialExports = ''
-    ${lib.optionalString (cfg.credentials.githubTokenFile != null) ''
-      export GITHUB_TOKEN="$(${pkgs.coreutils}/bin/cat "$CREDENTIALS_DIRECTORY/github-token")"
+    ${lib.optionalString githubCredentialEnabled ''
+      github_credential="$CREDENTIALS_DIRECTORY/github-token"
+      if [ ! -s "$github_credential" ] || [ "$(${pkgs.coreutils}/bin/wc -c < "$github_credential")" -gt 8192 ]; then
+        echo "opsctl credential validation failed: github-token" >&2
+        exit 78
+      fi
+      export GITHUB_TOKEN="$(${pkgs.coreutils}/bin/cat "$github_credential")"
+      unset github_credential
     ''}
-    ${lib.optionalString (cfg.credentials.gmailAccessTokenFile != null) ''
-      export GMAIL_ACCESS_TOKEN="$(${pkgs.coreutils}/bin/cat "$CREDENTIALS_DIRECTORY/gmail-access-token")"
+    ${lib.optionalString gmailCredentialEnabled ''
+      gmail_credential="$CREDENTIALS_DIRECTORY/gmail-access-token"
+      if [ ! -s "$gmail_credential" ] || [ "$(${pkgs.coreutils}/bin/wc -c < "$gmail_credential")" -gt 8192 ]; then
+        echo "opsctl credential validation failed: gmail-access-token" >&2
+        exit 78
+      fi
+      export GMAIL_ACCESS_TOKEN="$(${pkgs.coreutils}/bin/cat "$gmail_credential")"
+      unset gmail_credential
     ''}
   '';
   mkOpsRunner = report:
@@ -41,6 +69,7 @@ let
       Documentation = [
         "https://github.com/ryjen/ops-cadence"
         "https://github.com/ryjen/ops-cadence/blob/main/docs/timer-operations.md"
+        "https://github.com/ryjen/ops-cadence/blob/main/docs/security-boundaries.md"
       ];
       After = [ "default.target" ];
     };
@@ -52,16 +81,25 @@ let
         "XDG_CONFIG_HOME=%h/.config"
         "XDG_STATE_HOME=%h/.local/state"
         "PATH=${runtimePath}"
+        "PYTHONNOUSERSITE=1"
       ];
       UnsetEnvironment = [
+        "ANTHROPIC_API_KEY"
         "AWS_ACCESS_KEY_ID"
         "AWS_SECRET_ACCESS_KEY"
         "AWS_SESSION_TOKEN"
+        "CLOUDFLARE_API_TOKEN"
+        "DOCKER_CONFIG"
         "GH_TOKEN"
         "GITHUB_TOKEN"
         "GITLAB_TOKEN"
         "GOOGLE_APPLICATION_CREDENTIALS"
+        "GOOGLE_API_KEY"
         "GMAIL_ACCESS_TOKEN"
+        "HF_TOKEN"
+        "HUGGING_FACE_HUB_TOKEN"
+        "KUBECONFIG"
+        "NPM_TOKEN"
         "OPENAI_API_KEY"
         "SSH_AGENT_PID"
         "SSH_AUTH_SOCK"
@@ -86,6 +124,9 @@ let
       StandardOutput = "journal";
       StandardError = "journal";
       SyslogIdentifier = "opsctl-${report}";
+    }
+    // lib.optionalAttrs (cfg.careerops.enable && report == "career-intelligence") {
+      ExecStartPre = "${package}/bin/opsctl doctor --probe --json";
     };
   };
   mkOpsTimer = description: calendar: serviceName: {
@@ -127,6 +168,12 @@ in
         type = lib.types.str;
         default = "${config.home.homeDirectory}/.local/state/careerops";
         description = "Directory containing minimized CareerOps JSON artifacts.";
+      };
+
+      professionalContextSnapshotPath = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description = "Absolute path to the minimized professional-context snapshot; null uses stateDir/professional-context.v1.json.";
       };
     };
 
@@ -192,6 +239,49 @@ in
   };
 
   config = lib.mkIf cfg.enable {
+    assertions = [
+      {
+        assertion = !cfg.liveSources.gmail || cfg.liveSources.enable;
+        message = "dotfiles.opsCadence.liveSources.gmail requires liveSources.enable.";
+      }
+      {
+        assertion = !cfg.liveSources.github || cfg.liveSources.enable;
+        message = "dotfiles.opsCadence.liveSources.github requires liveSources.enable.";
+      }
+      {
+        assertion = !cfg.liveSources.enable || cfg.liveSources.gmail || cfg.liveSources.github;
+        message = "dotfiles.opsCadence.liveSources.enable requires at least one enabled live source.";
+      }
+      {
+        assertion = !githubCredentialEnabled || cfg.credentials.githubTokenFile != null;
+        message = "Enabled GitHub ingestion requires credentials.githubTokenFile.";
+      }
+      {
+        assertion = !gmailCredentialEnabled || cfg.credentials.gmailAccessTokenFile != null;
+        message = "Enabled Gmail ingestion requires credentials.gmailAccessTokenFile.";
+      }
+      {
+        assertion = credentialPathSafe cfg.credentials.githubTokenFile;
+        message = "credentials.githubTokenFile must be an absolute or %h-relative runtime path outside the Nix store, without colon or newline characters.";
+      }
+      {
+        assertion = credentialPathSafe cfg.credentials.gmailAccessTokenFile;
+        message = "credentials.gmailAccessTokenFile must be an absolute or %h-relative runtime path outside the Nix store, without colon or newline characters.";
+      }
+      {
+        assertion = lib.hasPrefix "/" cfg.careerops.workflowsPath;
+        message = "careerops.workflowsPath must be absolute.";
+      }
+      {
+        assertion = lib.hasPrefix "/" cfg.careerops.stateDir;
+        message = "careerops.stateDir must be absolute.";
+      }
+      {
+        assertion = lib.hasPrefix "/" professionalContextPath;
+        message = "careerops professional-context snapshot path must be absolute.";
+      }
+    ];
+
     home.packages = [ package ];
 
     xdg.configFile."ops-cadence/config.toml".text = ''
@@ -221,6 +311,7 @@ in
       [careerops]
       enabled = ${lib.boolToString cfg.careerops.enable}
       workflows_path = "${cfg.careerops.workflowsPath}"
+      professional_context_snapshot_path = "${professionalContextPath}"
       tracker_snapshot_path = "${careerOpsStateDir}/application-state.json"
       discovery_bundle_path = "${careerOpsStateDir}/discovery-candidates.json"
       capacity_path = "${careerOpsStateDir}/execution-capacity.json"
