@@ -32,9 +32,9 @@ let
     pkgs.nodejs
   ];
   credentialLoads =
-    lib.optional githubCredentialEnabled
+    lib.optional (githubCredentialEnabled && cfg.credentials.githubTokenFile != null)
       "github-token:${cfg.credentials.githubTokenFile}"
-    ++ lib.optional gmailCredentialEnabled
+    ++ lib.optional (gmailCredentialEnabled && cfg.credentials.gmailAccessTokenFile != null)
       "gmail-access-token:${cfg.credentials.gmailAccessTokenFile}";
   credentialExports = ''
     ${lib.optionalString githubCredentialEnabled ''
