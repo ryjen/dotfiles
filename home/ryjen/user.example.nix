@@ -90,9 +90,9 @@
   # dotfiles.opsCadence.platform.scheduler.baseUrl = "http://127.0.0.1:8091";
   # dotfiles.opsCadence.platform.scheduler.timeoutSeconds = 10;
   # dotfiles.opsCadence.platform.scheduler.schedules = {
-  #   career_intelligence = "ops-career-intelligence";
-  #   engineering_portfolio = "ops-engineering-portfolio";
-  #   weekly_review = "ops-weekly-review";
+  #   "career-intelligence" = "ops-career-intelligence";
+  #   "engineering-portfolio" = "ops-engineering-portfolio";
+  #   "weekly-review" = "ops-weekly-review";
   # };
   # Enabling the Dubnium scheduler requires direct Home Manager timers to be disabled.
   # dotfiles.opsCadence.timers.enable = true;
