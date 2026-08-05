@@ -25,6 +25,18 @@ let
       && !lib.hasInfix ":" value
       && !lib.hasInfix "\n" value
     );
+  loopbackUrl =
+    value:
+    lib.any (prefix: lib.hasPrefix prefix value) [
+      "http://127.0.0.1:"
+      "http://localhost:"
+      "http://[::1]:"
+      "https://127.0.0.1:"
+      "https://localhost:"
+      "https://[::1]:"
+    ]
+    && !lib.hasInfix "\n" value;
+  scheduleIdSafe = value: builtins.match "^[A-Za-z0-9._:-]{1,200}$" value != null;
   runtimePath = lib.makeBinPath [
     package
     pkgs.coreutils
@@ -177,6 +189,86 @@ in
       };
     };
 
+    platform = {
+      memory = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Whether to use the loopback Dubnium memory API for minimized semantic context.";
+        };
+        baseUrl = lib.mkOption {
+          type = lib.types.str;
+          default = "http://127.0.0.1:8090";
+          description = "Loopback Dubnium memory API base URL.";
+        };
+        timeoutSeconds = lib.mkOption {
+          type = lib.types.ints.positive;
+          default = 10;
+          description = "Dubnium memory API timeout in seconds.";
+        };
+        scope = lib.mkOption {
+          type = lib.types.str;
+          default = "workflow:ops-cadence";
+          description = "Bounded semantic memory scope.";
+        };
+      };
+
+      llm = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Whether to use the governed loopback Dubnium LLM gateway.";
+        };
+        baseUrl = lib.mkOption {
+          type = lib.types.str;
+          default = "http://127.0.0.1:8080/v1";
+          description = "Loopback Dubnium LLM gateway base URL.";
+        };
+        model = lib.mkOption {
+          type = lib.types.str;
+          default = "supervisor";
+          description = "Governed logical LLM alias.";
+        };
+        contractVersion = lib.mkOption {
+          type = lib.types.str;
+          default = "dubnium.llm-gateway.v1";
+          description = "Expected governed LLM gateway contract version.";
+        };
+        timeoutSeconds = lib.mkOption {
+          type = lib.types.ints.positive;
+          default = 60;
+          description = "Dubnium LLM gateway timeout in seconds.";
+        };
+      };
+
+      scheduler = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Whether to use declared Dubnium schedules instead of direct Home Manager timers.";
+        };
+        baseUrl = lib.mkOption {
+          type = lib.types.str;
+          default = "http://127.0.0.1:8091";
+          description = "Loopback Dubnium scheduler API base URL.";
+        };
+        timeoutSeconds = lib.mkOption {
+          type = lib.types.ints.positive;
+          default = 10;
+          description = "Dubnium scheduler API timeout in seconds.";
+        };
+        schedules = lib.mkOption {
+          type = lib.types.attrsOf lib.types.str;
+          default = {
+            career_intelligence = "ops-career-intelligence";
+            engineering_portfolio = "ops-engineering-portfolio";
+            weekly_review = "ops-weekly-review";
+          };
+          description = "Allowlisted logical report names mapped to declaratively managed Dubnium schedule IDs.";
+        };
+      };
+    };
+
     liveSources = {
       enable = lib.mkOption {
         type = lib.types.bool;
@@ -215,7 +307,7 @@ in
       enable = lib.mkOption {
         type = lib.types.bool;
         default = true;
-        description = "Whether to create user-level systemd timers for opsctl reports.";
+        description = "Whether to create transitional user-level systemd timers for opsctl reports.";
       };
 
       timeout = lib.mkOption {
@@ -280,17 +372,69 @@ in
         assertion = lib.hasPrefix "/" professionalContextPath;
         message = "careerops professional-context snapshot path must be absolute.";
       }
+      {
+        assertion = loopbackUrl cfg.platform.memory.baseUrl;
+        message = "platform.memory.baseUrl must be an explicit loopback HTTP(S) URL.";
+      }
+      {
+        assertion = loopbackUrl cfg.platform.llm.baseUrl;
+        message = "platform.llm.baseUrl must be an explicit loopback HTTP(S) URL.";
+      }
+      {
+        assertion = loopbackUrl cfg.platform.scheduler.baseUrl;
+        message = "platform.scheduler.baseUrl must be an explicit loopback HTTP(S) URL.";
+      }
+      {
+        assertion = builtins.match "^[A-Za-z0-9._:-]{1,200}$" cfg.platform.llm.model != null;
+        message = "platform.llm.model must be a bounded logical alias.";
+      }
+      {
+        assertion = builtins.match "^[A-Za-z0-9._:-]{1,200}$" cfg.platform.llm.contractVersion != null;
+        message = "platform.llm.contractVersion must be a bounded contract identifier.";
+      }
+      {
+        assertion = builtins.match "^[A-Za-z0-9._:-]{1,200}$" cfg.platform.memory.scope != null;
+        message = "platform.memory.scope must be a bounded scope identifier.";
+      }
+      {
+        assertion = lib.all scheduleIdSafe (lib.attrValues cfg.platform.scheduler.schedules);
+        message = "Every platform.scheduler schedule ID must use the bounded allowlisted identifier format.";
+      }
+      {
+        assertion = !(cfg.timers.enable && cfg.platform.scheduler.enable);
+        message = "Direct Home Manager timers and the Dubnium scheduler cannot both own durable ops-cadence scheduling.";
+      }
     ];
 
     home.packages = [ package ];
 
     xdg.configFile."ops-cadence/config.toml".text = ''
       [state]
-      backend = "memory"
+      backend = "sqlite"
+      sqlite_path = "${config.home.homeDirectory}/.local/state/ops-cadence/ops.sqlite3"
 
-      [llm]
-      base_url = "http://127.0.0.1:8080/v1"
-      model = "local"
+      [platform.memory]
+      enabled = ${lib.boolToString cfg.platform.memory.enable}
+      base_url = "${cfg.platform.memory.baseUrl}"
+      timeout_seconds = ${toString cfg.platform.memory.timeoutSeconds}
+      scope = "${cfg.platform.memory.scope}"
+
+      [platform.llm]
+      enabled = ${lib.boolToString cfg.platform.llm.enable}
+      base_url = "${cfg.platform.llm.baseUrl}"
+      model = "${cfg.platform.llm.model}"
+      contract_version = "${cfg.platform.llm.contractVersion}"
+      timeout_seconds = ${toString cfg.platform.llm.timeoutSeconds}
+
+      [platform.scheduler]
+      enabled = ${lib.boolToString cfg.platform.scheduler.enable}
+      base_url = "${cfg.platform.scheduler.baseUrl}"
+      timeout_seconds = ${toString cfg.platform.scheduler.timeoutSeconds}
+
+      [platform.scheduler.schedules]
+      ${lib.concatStringsSep "\n" (
+        lib.mapAttrsToList (name: scheduleId: ''${name} = "${scheduleId}"'') cfg.platform.scheduler.schedules
+      )}
 
       [sources.github]
       career_workflows = "ryjen/career-workflows"
