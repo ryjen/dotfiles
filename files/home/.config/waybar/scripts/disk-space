@@ -19,10 +19,17 @@ human_bytes() {
   numfmt --to=iec-i --suffix=B --format='%.1f' "$1" 2>/dev/null || printf '%sB' "$1"
 }
 
+btrfs_metric() {
+  local label=$1
+  awk -F: -v label="$label" '$1 ~ "^[[:space:]]*" label "$" { value=$2; gsub(/^[[:space:]]+|[[:space:]]+$/, "", value); print value; exit }'
+}
+
 read -r root_size root_used root_free root_percent < <(
   df -B1 --output=size,used,avail,pcent / | awk 'NR == 2 { gsub(/%/, "", $4); print $1, $2, $3, $4 }'
 )
 root_device_id=$(findmnt --noheadings --output MAJ:MIN --target / | awk 'NR == 1 { print $1 }')
+root_source=$(findmnt --noheadings --output SOURCE --target / | awk 'NR == 1 { print $1 }')
+root_fstype=$(findmnt --noheadings --output FSTYPE --target / | awk 'NR == 1 { print $1 }')
 
 state=normal
 if (( root_percent >= critical_percent || root_free <= critical_free_bytes )); then
@@ -49,7 +56,7 @@ while IFS=$'\t' read -r device_id fstype target; do
   esac
 
   case "$target" in
-    /|/nix/store|/run/*|/proc/*|/sys/*|/dev/*|/var/lib/containers/*|/var/lib/docker/*) continue ;;
+    /|/boot|/boot/*|/nix/store|/run/*|/proc/*|/sys/*|/dev/*|/var/lib/containers/*|/var/lib/docker/*) continue ;;
   esac
 
   # Device identity avoids presenting Btrfs subvolumes as separate disks.
@@ -67,6 +74,49 @@ while IFS=$'\t' read -r device_id fstype target; do
     "$target" "$(human_bytes "$used")" "$(human_bytes "$free")" "$percent")
   tooltip+=$'\n'
 done < <(findmnt --real --raw --noheadings --output MAJ:MIN,FSTYPE,TARGET | tr -s ' ' '\t')
+
+if [[ "$root_fstype" == btrfs ]]; then
+  tooltip+=$'\n'
+  tooltip+=$(printf '<b>Btrfs root</b>  %s\n' "$root_source")
+
+  if command -v btrfs >/dev/null 2>&1 && command -v timeout >/dev/null 2>&1; then
+    usage_output=$(timeout 2s btrfs filesystem usage -b / 2>/dev/null || true)
+    show_output=$(timeout 2s btrfs filesystem show --raw / 2>/dev/null || true)
+
+    if [[ -n "$usage_output" ]]; then
+      device_size=$(printf '%s\n' "$usage_output" | btrfs_metric 'Device size')
+      allocated=$(printf '%s\n' "$usage_output" | btrfs_metric 'Device allocated')
+      unallocated=$(printf '%s\n' "$usage_output" | btrfs_metric 'Device unallocated')
+      estimated_free=$(printf '%s\n' "$usage_output" | btrfs_metric 'Free (estimated)')
+      missing=$(printf '%s\n' "$usage_output" | btrfs_metric 'Device missing')
+      data_ratio=$(printf '%s\n' "$usage_output" | btrfs_metric 'Data ratio')
+      metadata_ratio=$(printf '%s\n' "$usage_output" | btrfs_metric 'Metadata ratio')
+      device_count=$(printf '%s\n' "$show_output" | awk '/^[[:space:]]*devid[[:space:]]/ { count++ } END { print count + 0 }')
+
+      tooltip+=$(printf 'Devices: %s  Size: %s\n' "$device_count" "$(human_bytes "${device_size:-0}")")
+      tooltip+=$(printf 'Allocated: %s  Unallocated: %s\n' \
+        "$(human_bytes "${allocated:-0}")" "$(human_bytes "${unallocated:-0}")")
+      tooltip+=$(printf 'Estimated free: %s  Missing: %s\n' \
+        "$(human_bytes "${estimated_free:-0}")" "$(human_bytes "${missing:-0}")")
+      tooltip+=$(printf 'Data ratio: %s  Metadata ratio: %s\n' \
+        "${data_ratio:-unknown}" "${metadata_ratio:-unknown}")
+    else
+      tooltip+=$'Details: unavailable\n'
+    fi
+
+    quota_output=$(timeout 2s btrfs qgroup show -reF --raw / 2>&1 || true)
+    if [[ "$quota_output" == *"not enabled"* ]]; then
+      quota_status=disabled
+    elif [[ -n "$quota_output" ]] && [[ "$quota_output" != *"ERROR:"* ]]; then
+      quota_status=enabled
+    else
+      quota_status=unavailable
+    fi
+    tooltip+=$(printf 'Quotas: %s\n' "$quota_status")
+  else
+    tooltip+=$'Details: btrfs tools unavailable\n'
+  fi
+fi
 
 text=$(printf '󰋊 %s%%' "$root_percent")
 printf '{"text":"%s","tooltip":"%s","class":"%s","percentage":%s}\n' \
