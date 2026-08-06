@@ -24,6 +24,10 @@ btrfs_metric() {
   awk -F: -v label="$label" '{ key=$1; gsub(/^[[:space:]]+|[[:space:]]+$/, "", key); if (key == label) { value=$2; gsub(/^[[:space:]]+|[[:space:]]+$/, "", value); print value; exit } }'
 }
 
+btrfs_bytes_metric() {
+  btrfs_metric "$1" | awk '{ print $1 }'
+}
+
 read -r root_size root_used root_free root_percent < <(
   df -B1 --output=size,used,avail,pcent / | awk 'NR == 2 { gsub(/%/, "", $4); print $1, $2, $3, $4 }'
 )
@@ -84,14 +88,15 @@ if [[ "$root_fstype" == btrfs ]]; then
     show_output=$(timeout 2s btrfs filesystem show --raw / 2>/dev/null || true)
 
     if [[ -n "$usage_output" ]]; then
-      device_size=$(printf '%s\n' "$usage_output" | btrfs_metric 'Device size')
-      allocated=$(printf '%s\n' "$usage_output" | btrfs_metric 'Device allocated')
-      unallocated=$(printf '%s\n' "$usage_output" | btrfs_metric 'Device unallocated')
-      estimated_free=$(printf '%s\n' "$usage_output" | btrfs_metric 'Free (estimated)')
-      missing=$(printf '%s\n' "$usage_output" | btrfs_metric 'Device missing')
+      device_size=$(printf '%s\n' "$usage_output" | btrfs_bytes_metric 'Device size')
+      allocated=$(printf '%s\n' "$usage_output" | btrfs_bytes_metric 'Device allocated')
+      unallocated=$(printf '%s\n' "$usage_output" | btrfs_bytes_metric 'Device unallocated')
+      estimated_free=$(printf '%s\n' "$usage_output" | btrfs_bytes_metric 'Free (estimated)')
+      missing=$(printf '%s\n' "$usage_output" | btrfs_bytes_metric 'Device missing')
       data_ratio=$(printf '%s\n' "$usage_output" | btrfs_metric 'Data ratio')
       metadata_ratio=$(printf '%s\n' "$usage_output" | btrfs_metric 'Metadata ratio')
       device_count=$(printf '%s\n' "$show_output" | awk '/^[[:space:]]*devid[[:space:]]/ { count++ } END { print count + 0 }')
+      (( device_count > 0 )) || device_count=unknown
 
       tooltip+=$(printf 'Devices: %s  Size: %s\n' "$device_count" "$(human_bytes "${device_size:-0}")")
       tooltip+=$(printf 'Allocated: %s  Unallocated: %s\n' \
