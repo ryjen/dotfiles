@@ -4,6 +4,9 @@ The benchmark harness measures the tracked Dubnium Home Manager activation
 package without clearing caches, garbage-collecting the store, or activating a
 generation unless explicitly requested.
 
+Run the commands below from the repository root unless an explicit
+`--flake-dir` is supplied.
+
 ## Commands
 
 ```bash
