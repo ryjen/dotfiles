@@ -22,6 +22,7 @@ human_bytes() {
 read -r root_size root_used root_free root_percent < <(
   df -B1 --output=size,used,avail,pcent / | awk 'NR == 2 { gsub(/%/, "", $4); print $1, $2, $3, $4 }'
 )
+root_device_id=$(findmnt --noheadings --output MAJ:MIN --target / | awk 'NR == 1 { print $1 }')
 
 state=normal
 if (( root_percent >= critical_percent || root_free <= critical_free_bytes )); then
@@ -32,11 +33,15 @@ fi
 
 tooltip=$(printf '<b>Disk usage</b>\n%-22s %10s %10s %6s\n' 'Mount' 'Used' 'Free' 'Use')
 tooltip+=$'\n'
-root_seen=false
+tooltip+=$(printf '%-22s %10s %10s %5s%%' \
+  '/' "$(human_bytes "$root_used")" "$(human_bytes "$root_free")" "$root_percent")
+tooltip+=$'\n'
 
-declare -A seen_sources=()
-while IFS=$'\t' read -r source fstype target; do
-  [[ -n "$source" && -n "$target" ]] || continue
+declare -A seen_devices=()
+seen_devices[$root_device_id]=1
+
+while IFS=$'\t' read -r device_id fstype target; do
+  [[ -n "$device_id" && -n "$target" ]] || continue
 
   case "$fstype" in
     btrfs|ext2|ext3|ext4|xfs|zfs|f2fs|jfs|reiserfs|bcachefs|ntfs|ntfs3|exfat|vfat) ;;
@@ -44,13 +49,12 @@ while IFS=$'\t' read -r source fstype target; do
   esac
 
   case "$target" in
-    /nix/store|/run/*|/proc/*|/sys/*|/dev/*|/var/lib/containers/*|/var/lib/docker/*) continue ;;
+    /|/nix/store|/run/*|/proc/*|/sys/*|/dev/*|/var/lib/containers/*|/var/lib/docker/*) continue ;;
   esac
 
-  # Btrfs subvolumes often expose the same backing device at many mountpoints.
-  # Keep the first mount (normally /) so totals are not represented repeatedly.
-  [[ -z ${seen_sources[$source]+x} ]] || continue
-  seen_sources[$source]=1
+  # Device identity avoids presenting Btrfs subvolumes as separate disks.
+  [[ -z ${seen_devices[$device_id]+x} ]] || continue
+  seen_devices[$device_id]=1
 
   if ! read -r size used free percent < <(
     df -B1 --output=size,used,avail,pcent "$target" 2>/dev/null |
@@ -59,18 +63,10 @@ while IFS=$'\t' read -r source fstype target; do
     continue
   fi
 
-  [[ "$target" == / ]] && root_seen=true
   tooltip+=$(printf '%-22s %10s %10s %5s%%' \
     "$target" "$(human_bytes "$used")" "$(human_bytes "$free")" "$percent")
   tooltip+=$'\n'
-done < <(findmnt --real --raw --noheadings --output SOURCE,FSTYPE,TARGET | tr -s ' ' '\t')
-
-# Ensure the system filesystem is always represented even if findmnt output is unusual.
-if [[ "$root_seen" == false ]]; then
-  tooltip+=$(printf '%-22s %10s %10s %5s%%' \
-    '/' "$(human_bytes "$root_used")" "$(human_bytes "$root_free")" "$root_percent")
-  tooltip+=$'\n'
-fi
+done < <(findmnt --real --raw --noheadings --output MAJ:MIN,FSTYPE,TARGET | tr -s ' ' '\t')
 
 text=$(printf '󰋊 %s%%' "$root_percent")
 printf '{"text":"%s","tooltip":"%s","class":"%s","percentage":%s}\n' \
