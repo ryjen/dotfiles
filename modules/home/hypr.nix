@@ -157,10 +157,9 @@ in
 
       if [ ! -f "$variety_config" ] || ! ${pkgs.diffutils}/bin/cmp -s "$tmp" "$variety_config"; then
         ${pkgs.coreutils}/bin/install -m 0600 "$tmp" "$variety_config"
-      else
-        ${pkgs.coreutils}/bin/rm -f "$tmp"
       fi
-      chmod 600 "$variety_config"
+      ${pkgs.coreutils}/bin/rm -f "$tmp"
+      ${pkgs.coreutils}/bin/chmod 600 "$variety_config"
     '';
   };
 }
