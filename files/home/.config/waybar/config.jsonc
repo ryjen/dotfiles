@@ -27,6 +27,7 @@
         "power-profiles-daemon",
         "cpu",
         "memory",
+        "custom/disk",
         "temperature",
         "custom/fans",
         "custom/nvidia-gpu",
@@ -77,6 +78,13 @@
     "memory": {
         "format": "{}% ",
         "on-click": "alacritty --title 'btop' -e sh -c 'btop'"
+    },
+    "custom/disk": {
+        "exec": "~/.config/waybar/scripts/disk-space",
+        "interval": 30,
+        "return-type": "json",
+        "format": "{}",
+        "tooltip": true
     },
     "backlight": {
         "device": "intel_backlight",
