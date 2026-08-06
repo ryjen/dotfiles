@@ -21,7 +21,7 @@ human_bytes() {
 
 btrfs_metric() {
   local label=$1
-  awk -F: -v label="$label" '$1 ~ "^[[:space:]]*" label "$" { value=$2; gsub(/^[[:space:]]+|[[:space:]]+$/, "", value); print value; exit }'
+  awk -F: -v label="$label" '{ key=$1; gsub(/^[[:space:]]+|[[:space:]]+$/, "", key); if (key == label) { value=$2; gsub(/^[[:space:]]+|[[:space:]]+$/, "", value); print value; exit } }'
 }
 
 read -r root_size root_used root_free root_percent < <(
@@ -104,11 +104,10 @@ if [[ "$root_fstype" == btrfs ]]; then
       tooltip+=$'Details: unavailable\n'
     fi
 
-    quota_output=$(timeout 2s btrfs qgroup show -reF --raw / 2>&1 || true)
-    if [[ "$quota_output" == *"not enabled"* ]]; then
-      quota_status=disabled
-    elif [[ -n "$quota_output" ]] && [[ "$quota_output" != *"ERROR:"* ]]; then
+    if quota_output=$(timeout 2s btrfs qgroup show -reF --raw / 2>&1); then
       quota_status=enabled
+    elif [[ "$quota_output" == *"not enabled"* ]]; then
+      quota_status=disabled
     else
       quota_status=unavailable
     fi
