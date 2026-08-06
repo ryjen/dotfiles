@@ -75,12 +75,13 @@ def test_noop_activation_preserves_content_and_mtime(tmp_path: Path) -> None:
     config.chmod(0o600)
     fixed_time_ns = 1_700_000_000_000_000_000
     os.utime(config, ns=(fixed_time_ns, fixed_time_ns))
+    initial_mtime_ns = config.stat().st_mtime_ns
 
     result = _run_activation(tmp_path)
 
     assert result.returncode == 0, result.stderr
     assert config.read_text(encoding="utf-8") == expected
-    assert config.stat().st_mtime_ns == fixed_time_ns
+    assert config.stat().st_mtime_ns == initial_mtime_ns
     assert stat.S_IMODE(config.stat().st_mode) == 0o600
 
 
