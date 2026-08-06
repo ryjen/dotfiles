@@ -145,11 +145,6 @@ in
       };
     };
 
-    xdg.configFile."hypr/custom.d/40-guitar-pro.conf".text = ''
-      # Open the Guitar Pro reader through its managed desktop entry.
-      bind = SUPER, R, exec, ${pkgs.gtk3}/bin/gtk-launch guitar-pro-reader
-    '';
-
     # Populate the standard per-user plugin directories that REAPER scans.
     # Recursive linking allows unrelated manually installed plugins to coexist.
     home.file = {

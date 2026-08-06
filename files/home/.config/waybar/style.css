@@ -45,7 +45,7 @@ window#waybar {
     color: #7aa2f7;
 }
 
-#battery, #clock, #cpu, #memory, #temperature, #backlight, #custom-backlight, #network, #pulseaudio, #custom-music, #custom-media, #custom-bluetooth, #tray, #mode, #idle_inhibitor, #custom-power, #language {
+#battery, #clock, #cpu, #memory, #temperature, #backlight, #custom-backlight, #network, #pulseaudio, #custom-music, #custom-media, #custom-bluetooth, #custom-disk, #tray, #mode, #idle_inhibitor, #custom-power, #language {
     padding: 0 14px;
     margin: 4px 2px;
     border-radius: 8px;
@@ -65,6 +65,23 @@ window#waybar {
 #custom-music,
 #custom-media {
     color: #c0caf5;
+}
+
+#custom-disk {
+    color: #b4f9f8;
+}
+
+#custom-disk.warning {
+    color: #e0af68;
+}
+
+#custom-disk.critical {
+    color: #f38ba8;
+    animation-name: blink;
+    animation-duration: 0.5s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
 }
 
 #network {
@@ -95,7 +112,7 @@ window#waybar {
 #idle_inhibitor {
     font-family: "Symbols Nerd Font Mono", "JetBrainsMono Nerd Font Mono", "JetBrainsMono Nerd Font";
     font-size: 20px;
-    color: #bb9af7;
+    color: #7aa2f7;
     padding: 0 10px;
     min-width: 24px;
 }

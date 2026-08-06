@@ -48,12 +48,43 @@ in
 
       Service = {
         Type = "simple";
-        ExecStart = "${cfg.proxy.package} --host ${cfg.proxy.host} --port ${toString cfg.proxy.port}";
+        ExecStart = "${cfg.proxy.package} --host ${cfg.proxy.host} --port ${toString cfg.proxy.port} --backend litellm-opencode";
         Restart = "always";
         RestartSec = "5s";
         Environment = [
           "PATH=%h/.local/bin:%h/.local/share/pip/bin:%h/.venv/bin"
           "LD_LIBRARY_PATH=${lib.makeLibraryPath [ pkgs.stdenv.cc.cc.lib ]}"
+          "HEADROOM_BACKEND=litellm-opencode"
+          "HEADROOM_ANYLLM_PROVIDER=opencode"
+          "HEADROOM_ANTHROPIC_API_URL=http://127.0.0.1:8000/v1"
+          "HEADROOM_OPENAI_API_URL=http://127.0.0.1:8000/v1"
+          "HEADROOM_REGION=ca-central-1"
+          "HEADROOM_REQUEST_TIMEOUT=300"
+          "HEADROOM_MODE=token"
+          "HEADROOM_OPTIMIZATION_ENABLED=true"
+          "HEADROOM_CODE_AWARE_ENABLED=1"
+          "HEADROOM_MEMORY=true"
+          "HEADROOM_SUBSCRIPTION_POLL_INTERVAL=300"
+          "HEADROOM_COMPRESSION_MAX_WORKERS=4"
+          "HEADROOM_LOSSLESS=1"
+          "HEADROOM_NO_CCR_PROACTIVE_EXPANSION=1"
+          "HEADROOM_BUDGET=10.0"
+          "HEADROOM_BUDGET_PERIOD=daily"
+          "HEADROOM_TELEMETRY=on"
+          "HEADROOM_LOG_FILE=%h/.headroom/logs/proxy.log"
+          "HEADROOM_LOG_MESSAGES=true"
+          "HEADROOM_PROTECT_TOOL_RESULTS=bash,WebFetch"
+          "HEADROOM_RPM=60"
+          "HEADROOM_TPM=100000"
+          "HEADROOM_ENABLE_EMBEDDING_SERVER=true"
+          "HEADROOM_CODE_GRAPH=true"
+          "HEADROOM_NO_READ_LIFECYCLE=1"
+          "HEADROOM_NO_MEMORY_TOOLS=1"
+          "HEADROOM_NO_LEARN=1"
+          "HEADROOM_NO_SUBSCRIPTION_TRACKING=1"
+          "HEADROOM_NO_TELEMETRY=1"
+          "HEADROOM_NO_CC_R=1"
+          "HEADROOM_MIN_EVIDENCE=1"
         ];
       };
 

@@ -46,5 +46,9 @@ in
       source = ../../files/home/.config/waybar/scripts/nvidia-gpu;
       executable = true;
     };
+    xdg.configFile."waybar/scripts/disk-space" = {
+      source = ../../files/home/.config/waybar/scripts/disk-space;
+      executable = true;
+    };
   };
 }

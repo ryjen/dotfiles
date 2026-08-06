@@ -62,3 +62,42 @@ machine state rather than destructively modifying the workstation.
 
 Attach the JSON result and a brief description of machine activity to issue
 #124. Keep CPU-intensive unrelated work idle so comparisons remain meaningful.
+
+## Activation safety and idempotency
+
+Normal Home Manager activation is part of the measured critical path and must
+remain deterministic, bounded, and rollback-safe. Activation entries should:
+
+- avoid network access during a normal no-op activation;
+- preserve unmanaged user settings unless the option explicitly owns them;
+- compare generated content before replacing mutable files;
+- avoid metadata-only writes when content and permissions are already correct;
+- propagate real read, write, and filtering failures instead of masking them;
+- scope temporary files and cleanup traps so one activation entry cannot affect
+  later entries;
+- avoid broad service restarts, recursive scans, or package-manager operations
+  unless they are change-gated and justified.
+
+The Variety wallpaper activation contract is covered by a repository check:
+
+```bash
+nix build .#checks.x86_64-linux.variety-activation-tests
+```
+
+That check executes the activation body and verifies no-op modification-time
+stability, unmanaged-setting preservation, managed-setting enforcement,
+permission correction, error propagation, and cleanup-trap isolation.
+
+## Audit tracking
+
+Performance work is intentionally split into focused, reviewable boundaries:
+
+- #124 tracks the overall interactive Nix build and activation programme;
+- #127 coordinates source invalidation and Home Manager activation work;
+- #150 inventories and times remaining activation hooks and adjacent scripts;
+- #151 inventories and narrows custom derivation source boundaries.
+
+Confirmed problems should receive their own small issue and pull request rather
+than expanding the parent audits into a broad refactor. Intentional remaining
+network activity, broad source dependencies, scans, or restarts must be
+recorded with their rationale and failure behaviour.

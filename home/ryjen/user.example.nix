@@ -31,6 +31,14 @@
   # dotfiles.pip.prefix = "${config.home.homeDirectory}/.local/share/pip";
   # dotfiles.pip.globalPackagesFile = ".config/pip/global-packages.txt";
 
+  # Rootless Podman remains available without exposing its control socket.
+  # Unsigned compatibility exceptions must be fully qualified and narrowly scoped.
+  # dotfiles.podman.apiSocket.enable = false;
+  # dotfiles.podman.allowedUnsignedRegistries = [
+  #   "docker.io"
+  #   "ghcr.io"
+  # ];
+
   # Bitwarden clients. The Dubnium workstation profile enables both by default;
   # use these explicit selections when maintaining a complete local config.
   # dotfiles.bitwarden.cli.enable = true;
