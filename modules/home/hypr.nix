@@ -141,11 +141,10 @@ in
         "$variety_fetched" \
         "$variety_favorites"
 
-      touch "$variety_config"
-      chmod 600 "$variety_config"
-
       tmp="$(${pkgs.coreutils}/bin/mktemp)"
-      ${pkgs.gnugrep}/bin/grep -Ev '^(download_folder|fetched_folder|favorites_folder|copyto_folder|wallpaper_auto_rotate|change_enabled|change_on_start)[[:space:]]*=' "$variety_config" > "$tmp" || true
+      if [ -f "$variety_config" ]; then
+        ${pkgs.gnugrep}/bin/grep -Ev '^(download_folder|fetched_folder|favorites_folder|copyto_folder|wallpaper_auto_rotate|change_enabled|change_on_start)[[:space:]]*=' "$variety_config" > "$tmp" || true
+      fi
       {
         printf '%s\n' 'download_folder = ~/Pictures/wallpaper/variety/downloaded'
         printf '%s\n' 'fetched_folder = ~/Pictures/wallpaper/variety/fetched'
@@ -155,8 +154,12 @@ in
         printf '%s\n' 'change_enabled = False'
         printf '%s\n' 'change_on_start = False'
       } >> "$tmp"
-      cat "$tmp" > "$variety_config"
-      rm -f "$tmp"
+
+      if [ ! -f "$variety_config" ] || ! ${pkgs.diffutils}/bin/cmp -s "$tmp" "$variety_config"; then
+        ${pkgs.coreutils}/bin/install -m 0600 "$tmp" "$variety_config"
+      else
+        ${pkgs.coreutils}/bin/rm -f "$tmp"
+      fi
       chmod 600 "$variety_config"
     '';
   };
