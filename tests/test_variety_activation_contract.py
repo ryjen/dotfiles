@@ -24,7 +24,9 @@ MANAGED_LINES = [
 
 def _activation_script() -> str:
     content = HYPR_MODULE.read_text(encoding="utf-8")
-    body = content.split(ACTIVATION_START, maxsplit=1)[1].split("\n    '';", maxsplit=1)[0]
+    body = content.split(ACTIVATION_START, maxsplit=1)[1].split(
+        "\n    '';", maxsplit=1
+    )[0]
     script = textwrap.dedent(body)
     for nix_prefix in (
         "${pkgs.coreutils}/bin/",
