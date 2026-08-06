@@ -7,8 +7,8 @@ warning_free_bytes=${WAYBAR_DISK_WARNING_FREE_BYTES:-42949672960}
 critical_free_bytes=${WAYBAR_DISK_CRITICAL_FREE_BYTES:-16106127360}
 
 json_escape() {
-  local value=${1//$'\\'/\\\\}
-  value=${value//$'"'/\\"}
+  local value=${1//\\/\\\\}
+  value=${value//"/\\"}
   value=${value//$'\n'/\\n}
   value=${value//$'\r'/\\r}
   value=${value//$'\t'/\\t}
@@ -31,6 +31,8 @@ elif (( root_percent >= warning_percent || root_free <= warning_free_bytes )); t
 fi
 
 tooltip=$(printf '<b>Disk usage</b>\n%-22s %10s %10s %6s\n' 'Mount' 'Used' 'Free' 'Use')
+tooltip+=$'\n'
+root_seen=false
 
 declare -A seen_sources=()
 while IFS=$'\t' read -r source fstype target; do
@@ -57,14 +59,17 @@ while IFS=$'\t' read -r source fstype target; do
     continue
   fi
 
-  tooltip+=$(printf '%-22s %10s %10s %5s%%\n' \
+  [[ "$target" == / ]] && root_seen=true
+  tooltip+=$(printf '%-22s %10s %10s %5s%%' \
     "$target" "$(human_bytes "$used")" "$(human_bytes "$free")" "$percent")
-done < <(findmnt --real --raw --noheadings --output SOURCE,FSTYPE,TARGET --tab-file /proc/self/mountinfo | tr -s ' ' '\t')
+  tooltip+=$'\n'
+done < <(findmnt --real --raw --noheadings --output SOURCE,FSTYPE,TARGET | tr -s ' ' '\t')
 
 # Ensure the system filesystem is always represented even if findmnt output is unusual.
-if [[ "$tooltip" != *$'\n/'* ]]; then
-  tooltip+=$(printf '%-22s %10s %10s %5s%%\n' \
+if [[ "$root_seen" == false ]]; then
+  tooltip+=$(printf '%-22s %10s %10s %5s%%' \
     '/' "$(human_bytes "$root_used")" "$(human_bytes "$root_free")" "$root_percent")
+  tooltip+=$'\n'
 fi
 
 text=$(printf '󰋊 %s%%' "$root_percent")
