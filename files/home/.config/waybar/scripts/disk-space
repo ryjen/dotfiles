@@ -44,7 +44,7 @@ while IFS=$'\t' read -r device_id fstype target; do
   [[ -n "$device_id" && -n "$target" ]] || continue
 
   case "$fstype" in
-    btrfs|ext2|ext3|ext4|xfs|zfs|f2fs|jfs|reiserfs|bcachefs|ntfs|ntfs3|exfat|vfat) ;;
+    btrfs|ext2|ext3|ext4|xfs|zfs|f2fs|jfs|reiserfs|bcachefs|ntfs|ntfs3|fuseblk|exfat|vfat) ;;
     *) continue ;;
   esac
 
