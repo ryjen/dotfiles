@@ -141,23 +141,33 @@ in
         "$variety_fetched" \
         "$variety_favorites"
 
-      touch "$variety_config"
-      chmod 600 "$variety_config"
+      (
+        tmp="$(${pkgs.coreutils}/bin/mktemp)"
+        trap '${pkgs.coreutils}/bin/rm -f "$tmp"' EXIT
 
-      tmp="$(${pkgs.coreutils}/bin/mktemp)"
-      ${pkgs.gnugrep}/bin/grep -Ev '^(download_folder|fetched_folder|favorites_folder|copyto_folder|wallpaper_auto_rotate|change_enabled|change_on_start)[[:space:]]*=' "$variety_config" > "$tmp" || true
-      {
-        printf '%s\n' 'download_folder = ~/Pictures/wallpaper/variety/downloaded'
-        printf '%s\n' 'fetched_folder = ~/Pictures/wallpaper/variety/fetched'
-        printf '%s\n' 'favorites_folder = ~/Pictures/wallpaper/variety/favorites'
-        printf '%s\n' 'copyto_folder = ~/Pictures/wallpaper/variety/favorites'
-        printf '%s\n' 'wallpaper_auto_rotate = False'
-        printf '%s\n' 'change_enabled = False'
-        printf '%s\n' 'change_on_start = False'
-      } >> "$tmp"
-      cat "$tmp" > "$variety_config"
-      rm -f "$tmp"
-      chmod 600 "$variety_config"
+        if [ -f "$variety_config" ]; then
+          grep_status=0
+          ${pkgs.gnugrep}/bin/grep -Ev '^(download_folder|fetched_folder|favorites_folder|copyto_folder|wallpaper_auto_rotate|change_enabled|change_on_start)[[:space:]]*=' "$variety_config" > "$tmp" || grep_status=$?
+          if [ "$grep_status" -gt 1 ]; then
+            exit "$grep_status"
+          fi
+        fi
+        {
+          printf '%s\n' 'download_folder = ~/Pictures/wallpaper/variety/downloaded'
+          printf '%s\n' 'fetched_folder = ~/Pictures/wallpaper/variety/fetched'
+          printf '%s\n' 'favorites_folder = ~/Pictures/wallpaper/variety/favorites'
+          printf '%s\n' 'copyto_folder = ~/Pictures/wallpaper/variety/favorites'
+          printf '%s\n' 'wallpaper_auto_rotate = False'
+          printf '%s\n' 'change_enabled = False'
+          printf '%s\n' 'change_on_start = False'
+        } >> "$tmp"
+
+        if [ ! -f "$variety_config" ] || ! ${pkgs.diffutils}/bin/cmp -s "$tmp" "$variety_config"; then
+          ${pkgs.coreutils}/bin/install -m 0600 "$tmp" "$variety_config"
+        elif [ "$(${pkgs.coreutils}/bin/stat -c %a "$variety_config")" != "600" ]; then
+          ${pkgs.coreutils}/bin/chmod 600 "$variety_config"
+        fi
+      )
     '';
   };
 }

@@ -159,6 +159,24 @@
               touch "$out"
             '';
 
+        variety-activation-tests =
+          pkgs.runCommand "variety-activation-tests"
+            {
+              nativeBuildInputs = [
+                pkgs.bash
+                pkgs.coreutils
+                pkgs.diffutils
+                pkgs.gnugrep
+                pkgs.python3Packages.pytest
+              ];
+            }
+            ''
+              export PYTHONDONTWRITEBYTECODE=1
+              cd ${self}
+              pytest -q tests/test_variety_activation_contract.py
+              touch "$out"
+            '';
+
         flake-script-executables =
           pkgs.runCommand "flake-script-executables"
             {
