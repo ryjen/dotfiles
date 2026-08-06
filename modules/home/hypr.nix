@@ -142,6 +142,8 @@ in
         "$variety_favorites"
 
       tmp="$(${pkgs.coreutils}/bin/mktemp)"
+      trap '${pkgs.coreutils}/bin/rm -f "$tmp"' EXIT
+
       if [ -f "$variety_config" ]; then
         ${pkgs.gnugrep}/bin/grep -Ev '^(download_folder|fetched_folder|favorites_folder|copyto_folder|wallpaper_auto_rotate|change_enabled|change_on_start)[[:space:]]*=' "$variety_config" > "$tmp" || true
       fi
@@ -157,9 +159,9 @@ in
 
       if [ ! -f "$variety_config" ] || ! ${pkgs.diffutils}/bin/cmp -s "$tmp" "$variety_config"; then
         ${pkgs.coreutils}/bin/install -m 0600 "$tmp" "$variety_config"
+      elif [ "$(${pkgs.coreutils}/bin/stat -c %a "$variety_config")" != "600" ]; then
+        ${pkgs.coreutils}/bin/chmod 600 "$variety_config"
       fi
-      ${pkgs.coreutils}/bin/rm -f "$tmp"
-      ${pkgs.coreutils}/bin/chmod 600 "$variety_config"
     '';
   };
 }
