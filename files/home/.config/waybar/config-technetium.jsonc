@@ -140,7 +140,9 @@
         "on-click-right": "playerctl --player=mpv next",
         "on-click-middle": "playerctl --player=mpv previous",
         "on-click-backward": "~/.local/bin/music-eq",
-        "on-click-forward": "~/.local/bin/music-eq service"
+        "on-click-forward": "~/.local/bin/music-eq service",
+        "on-scroll-up": "playerctl --player=mpv position 10+",
+        "on-scroll-down": "playerctl --player=mpv position 10-"
     },
     "battery": {
         "states": {
