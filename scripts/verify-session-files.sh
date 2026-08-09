@@ -111,6 +111,14 @@ printf -- '\n--- Waybar templates ---\n'
 check_exists files/home/.config/waybar/config.jsonc
 check_exists files/home/.config/waybar/config-technetium.jsonc
 
+# --- Waybar scripts ---
+printf -- '\n--- Waybar scripts ---\n'
+for path in files/home/.config/waybar/scripts/*; do
+	[ -f "$path" ] || continue
+	check_bash "$path"
+	check_contains modules/home/waybar.nix "waybar/scripts/$(basename "$path")"
+done
+
 # --- OBS assets ---
 printf -- '\n--- OBS assets ---\n'
 check_exists files/home/.local/share/dubnium/obs/v1/profile/basic.ini

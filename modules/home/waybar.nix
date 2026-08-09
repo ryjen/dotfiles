@@ -50,5 +50,9 @@ in
       source = ../../files/home/.config/waybar/scripts/disk-space;
       executable = true;
     };
+    xdg.configFile."waybar/scripts/bluetooth" = {
+      source = ../../files/home/.config/waybar/scripts/bluetooth;
+      executable = true;
+    };
   };
 }
