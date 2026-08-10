@@ -18,71 +18,81 @@ json_escape() {
   printf '%s' "$value"
 }
 
-power_state="$(bluetoothctl show 2>/dev/null | awk '/Powered:/{print $2}')"
+# Capture `bluetoothctl show` once. Streaming it into `awk` that early-exits
+# (e.g. `... | awk '/Name/{print; exit}'`) makes bluetoothctl write into a
+# closed pipe and die with SIGPIPE (141); under `set -euo pipefail` that kills
+# the whole script before any JSON is emitted. Piping from a variable avoids it.
+show_output="$(bluetoothctl show 2>/dev/null)"
+power_state="$(printf '%s\n' "$show_output" | awk '/Powered:/{print $2}')"
 
 if [ "$power_state" != "yes" ]; then
   printf '{"text":"","tooltip":"Bluetooth: Off\\nRight-click to enable","class":"off"}\n'
   exit 0
 fi
 
-adapter_name="$(bluetoothctl show 2>/dev/null | awk -F': ' '/Name/{print $2; exit}')"
+adapter_name="$(printf '%s\n' "$show_output" | awk -F': ' '/Name/{print $2}')"
 [ -z "$adapter_name" ] && adapter_name="default"
 
 tooltip="󰂯 Bluetooth: On"
-tooltip+="\\nAdapter: $adapter_name"
+tooltip+="\nAdapter: $adapter_name"
 
 connected_count=0
 paired_count=0
 
-tooltip+="\\n\\n── Connected ──"
+# `bluetoothctl devices` lines look like:  Device CC:68:E0:.. Ryan's AirPods
+# (no colon after Device), so the MAC is the second whitespace field.
+device_mac() {
+  printf '%s\n' "$1" | awk '{print $2}'
+}
+
+tooltip+="\n\n── Connected ──"
 has_connected=false
 while IFS= read -r line; do
   [ -z "$line" ] && continue
   has_connected=true
-  mac="${line#Device: }"
-  mac="${mac%% *}"
+  mac="$(device_mac "$line")"
   info="$(bluetoothctl info "$mac" 2>/dev/null)"
-  alias="$(echo "$info" | awk -F': ' '/Alias/{print $2}')"
+  alias="$(printf '%s\n' "$info" | awk -F': ' '/Alias/{print $2}')"
   [ -z "$alias" ] && alias="$mac"
-  battery="$(echo "$info" | awk -F': ' '/Battery Percentage/{print $2}')"
+  battery="$(printf '%s\n' "$info" | awk -F': ' '/Battery Percentage/{print $2}')"
   connected_count=$((connected_count + 1))
-  tooltip+="\\n  $alias"
+  tooltip+="\n  $alias"
   [ -n "$battery" ] && tooltip+=" ($battery)"
 done < <(bluetoothctl devices Connected 2>/dev/null)
 
-$has_connected || tooltip+="\\n  (none)"
+$has_connected || tooltip+="\n  (none)"
 
-tooltip+="\\n\\n── Paired ──"
+tooltip+="\n\n── Paired ──"
 has_paired=false
 while IFS= read -r line; do
   [ -z "$line" ] && continue
   has_paired=true
-  mac="${line#Device: }"
-  mac="${mac%% *}"
-  alias="$(bluetoothctl info "$mac" 2>/dev/null | awk -F': ' '/Alias/{print $2}')"
+  mac="$(device_mac "$line")"
+  info="$(bluetoothctl info "$mac" 2>/dev/null)"
+  alias="$(printf '%s\n' "$info" | awk -F': ' '/Alias/{print $2}')"
   [ -z "$alias" ] && alias="$mac"
   paired_count=$((paired_count + 1))
-  tooltip+="\\n  $alias"
+  tooltip+="\n  $alias"
 done < <(bluetoothctl devices Paired 2>/dev/null)
 
-$has_paired || tooltip+="\\n  (none)"
+$has_paired || tooltip+="\n  (none)"
 
-tooltip+="\\n\\n── Available ──"
+tooltip+="\n\n── Available ──"
 scan_count=0
 while IFS= read -r line; do
   [ -z "$line" ] && continue
-  mac="${line#Device: }"
-  mac="${mac%% *}"
-  alias="$(bluetoothctl info "$mac" 2>/dev/null | awk -F': ' '/Alias/{print $2}')"
+  mac="$(device_mac "$line")"
+  info="$(bluetoothctl info "$mac" 2>/dev/null)"
+  alias="$(printf '%s\n' "$info" | awk -F': ' '/Alias/{print $2}')"
   [ -z "$alias" ] && alias="$mac"
   scan_count=$((scan_count + 1))
-  [ $scan_count -gt 10 ] && tooltip+="\\n  ..." && break
-  tooltip+="\\n  $alias"
+  [ $scan_count -gt 10 ] && tooltip+="\n  ..." && break
+  tooltip+="\n  $alias"
 done < <(bluetoothctl devices 2>/dev/null | grep -v -F -f <(bluetoothctl devices Paired 2>/dev/null || true) || true)
 
-[ $scan_count -eq 0 ] && tooltip+="\\n  (none)"
+[ $scan_count -eq 0 ] && tooltip+="\n  (none)"
 
-tooltip+="\\n\\nLeft-click: Open Blueman"
+tooltip+="\n\nLeft-click: Open Blueman"
 
 if [ $connected_count -gt 0 ]; then
   text="󰂯 ${connected_count}"

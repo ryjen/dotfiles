@@ -54,5 +54,20 @@ in
       source = ../../files/home/.config/waybar/scripts/bluetooth;
       executable = true;
     };
+
+    # Own the systemd unit via Home Manager instead of the package-provided one.
+    # The package unit hard-codes `Requisite=graphical-session.target`, which is
+    # dead in sessions launched directly via greetd -> start-hyprland (UWSM, the
+    # only thing that raises that target, is bypassed). With a dead Requisite the
+    # service can never start. HM's unit has no Requisite; we tie it to
+    # default.target (always active at login) so the bar comes up independently
+    # of the broken graphical-session.target, while ConditionEnvironment keeps
+    # it Wayland-only. This also stops the package's auto-linked unit from
+    # colliding with ours at ~/.config/systemd/user/waybar.service.
+    programs.waybar = {
+      enable = true;
+      systemd.enable = true;
+      systemd.targets = [ "default.target" ];
+    };
   };
 }
