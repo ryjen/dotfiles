@@ -51,6 +51,13 @@ in
       };
     };
 
+    sshAgent.enable = lib.mkOption {
+      type = lib.types.bool;
+      default = config.dotfiles.host.userSystemd.enable;
+      defaultText = lib.literalExpression "config.dotfiles.host.userSystemd.enable";
+      description = "Whether to run the Home Manager OpenSSH agent as a user systemd service.";
+    };
+
     podman = {
       apiSocket.enable = lib.mkEnableOption "the rootless Podman API socket";
 
@@ -69,6 +76,15 @@ in
   };
 
   config = {
+    assertions = [
+      {
+        assertion = !config.dotfiles.sshAgent.enable || config.dotfiles.host.userSystemd.enable;
+        message = "dotfiles.sshAgent.enable requires Home Manager user systemd support.";
+      }
+    ];
+
+    services.ssh-agent.enable = config.dotfiles.sshAgent.enable;
+
     home.packages = with pkgs; [
       bottom
       gdu
