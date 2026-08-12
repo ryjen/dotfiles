@@ -105,6 +105,9 @@ printf -- '\n--- Service declarations ---\n'
 check_contains modules/home/meeting.nix 'dubnium-meeting-mode'
 check_contains modules/home/meeting.nix 'dubnium-cliphist'
 check_contains modules/home/meeting.nix 'RemainAfterExit'
+check_contains modules/home/common.nix 'services\.ssh-agent\.enable'
+check_contains home/ryjen/profiles/dubnium.nix 'openwork\.sandbox\.allowSshAgent'
+check_contains modules/home/openwork.nix 'config\.services\.ssh-agent\.socket'
 
 # --- Waybar templates ---
 printf -- '\n--- Waybar templates ---\n'
