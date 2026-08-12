@@ -148,11 +148,18 @@ let
       fi
 
       ${lib.optionalString cfg.sandbox.allowSshAgent ''
-        if [[ -n "''${SSH_AUTH_SOCK:-}" && -S "$SSH_AUTH_SOCK" ]]; then
-          ssh_socket_dir="$(dirname "$SSH_AUTH_SOCK")"
+        agent_socket="''${SSH_AUTH_SOCK:-}"
+        ${lib.optionalString config.services.ssh-agent.enable ''
+          if [[ -z "$agent_socket" || ! -S "$agent_socket" ]]; then
+            agent_socket="$XDG_RUNTIME_DIR/${config.services.ssh-agent.socket}"
+          fi
+        ''}
+
+        if [[ -n "$agent_socket" && -S "$agent_socket" ]]; then
+          ssh_socket_dir="$(dirname "$agent_socket")"
           args+=(--dir "$ssh_socket_dir")
-          args+=(--bind "$SSH_AUTH_SOCK" "$SSH_AUTH_SOCK")
-          args+=(--setenv SSH_AUTH_SOCK "$SSH_AUTH_SOCK")
+          args+=(--bind "$agent_socket" "$agent_socket")
+          args+=(--setenv SSH_AUTH_SOCK "$agent_socket")
         fi
       ''}
 
@@ -215,7 +222,7 @@ in
       allowSshAgent = lib.mkOption {
         type = lib.types.bool;
         default = false;
-        description = "Expose SSH_AUTH_SOCK to the OpenWork sandbox";
+        description = "Expose the existing session SSH agent to the OpenWork sandbox";
       };
     };
   };

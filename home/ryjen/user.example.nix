@@ -39,6 +39,10 @@
   #   "ghcr.io"
   # ];
 
+  # The OpenSSH agent defaults on when Home Manager user systemd is available.
+  # Disable it when another trusted provider deliberately owns SSH_AUTH_SOCK.
+  # dotfiles.sshAgent.enable = false;
+
   # Bitwarden clients. The Dubnium workstation profile enables both by default;
   # use these explicit selections when maintaining a complete local config.
   # dotfiles.bitwarden.cli.enable = true;
