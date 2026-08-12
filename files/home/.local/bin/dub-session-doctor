@@ -98,6 +98,28 @@ else
   warn 'cliphist service not active'
 fi
 
+if command -v systemctl >/dev/null 2>&1; then
+  if systemctl --user is-enabled --quiet ssh-agent.service; then
+    ok 'ssh-agent service enabled'
+  else
+    warn 'ssh-agent service not enabled'
+  fi
+
+  if systemctl --user is-active --quiet ssh-agent.service; then
+    ok 'ssh-agent service active'
+  else
+    warn 'ssh-agent service not active'
+  fi
+else
+  warn 'systemctl not available; cannot check ssh-agent service'
+fi
+
+if [ -n "${SSH_AUTH_SOCK:-}" ] && [ -S "$SSH_AUTH_SOCK" ]; then
+  ok "SSH_AUTH_SOCK available: $SSH_AUTH_SOCK"
+else
+  warn 'SSH_AUTH_SOCK is unset or does not name a socket'
+fi
+
 meeting_helper="$HOME/.local/libexec/dubnium-meeting-mode"
 if [ -x "$meeting_helper" ]; then
   if meeting_status="$("$meeting_helper" status 2>/dev/null)"; then
