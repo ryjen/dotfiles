@@ -27,6 +27,10 @@
   # dotfiles.npm.prefix = "${config.home.homeDirectory}/.local/share/npm";
   # dotfiles.npm.globalPackagesFile = ".config/npm/global-packages.txt";
 
+  # OpenCode is installed through the mutable npm tool prefix. Its wrapper keeps
+  # the Wayland clipboard provider outside OpenCode's terminal job-control group.
+  # dotfiles.opencode.enable = false;
+
   # dotfiles.pip.enable = false;
   # dotfiles.pip.prefix = "${config.home.homeDirectory}/.local/share/pip";
   # dotfiles.pip.globalPackagesFile = ".config/pip/global-packages.txt";
