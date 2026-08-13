@@ -1,9 +1,11 @@
-# Hermes custom provider layers
+# Hermes custom YAML layers
 
-Place local override fragments here when a provider default should be shared by this dotfiles profile but remain outside the managed adopted layer.
+This directory is the repository-side home for Hermes configuration fragments promoted through `configctl`.
 
-The final runtime provider config is rendered by:
+Live user-authored fragments use:
 
-```bash
-configctl init apply hermes-config --allow mutable-user-state --yes
+```text
+~/.config/hermes/custom.d/*.yaml
 ```
+
+Machine-local overrides belong in `~/.config/hermes/local.yaml` and must not be promoted. The Hermes app contract remains write-disabled until parser-aware YAML composition is available in configctl.
