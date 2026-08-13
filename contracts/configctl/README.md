@@ -60,7 +60,7 @@ App manifests and migration-oriented init manifests may declare lifecycle fields
 | Field | Meaning |
 | --- | --- |
 | `status` | `active` or `planned`. |
-| `current_runtime_owner` | Current writer of runtime outputs or mutable state, usually `home-manager` today. |
+| `current_runtime_owner` | Current writer of runtime outputs or mutable state, usually `home-manager` today. Pre-existing user-owned configs may state `user` during an adoption migration. |
 | `target_runtime_owner` | Intended future writer after migration. |
 | `executor_may_validate` | Whether `configctl` may validate the contract now. |
 | `executor_may_adopt` | Whether `configctl` may use the adoption policy now. |
@@ -69,7 +69,7 @@ App manifests and migration-oriented init manifests may declare lifecycle fields
 
 These lifecycle fields are policy metadata for ownership transitions; they are not required by the Dubnium v1 `configctl init` schema unless a typed contract or repo-side verifier requires them.
 
-Planned compose manifests are intentionally not write-enabled while Home Manager still owns the runtime files.
+Planned compose manifests are intentionally not write-enabled while another owner still owns the runtime files. That owner may be Home Manager or, for a pre-existing configuration being adopted, the user. A user-owned compose migration must remain review-gated and write-disabled until parser-aware adoption/composition is available.
 
 ## Manifest semantics
 
@@ -98,6 +98,9 @@ Important constraints:
 | Git | `apps/git.toml` | native include | active | Home Manager | Home Manager |
 | Hyprland | `apps/hypr.toml` | native include | active | Home Manager | Home Manager |
 | Zsh | `apps/zsh.toml` | native include | active | Home Manager | Home Manager |
+| MPD | `apps/mpd.toml` | native include | active | Home Manager | Home Manager |
+| rmpc | `apps/rmpc.toml` | compose | planned | Home Manager | configctl |
+| beets | `apps/beets.toml` | compose | planned | user | configctl |
 | Hyprpaper | `apps/hyprpaper.toml` | compose | planned | Home Manager | configctl |
 | Mako | `apps/mako.toml` | compose | planned | Home Manager | configctl |
 | Eww | `apps/eww.toml` | compose | planned | Home Manager | configctl |
@@ -107,6 +110,8 @@ Important constraints:
 | uv tools | `init/uv-tools.toml` | init | active | explicit user state | configctl init |
 | Variety | `init/variety.toml` | init | planned | Home Manager activation | configctl init |
 | Multi-agent worktrees skill | `init/multi-agent-worktrees.toml` | init | active, validate-only | dotfiles/manual copy | configctl init |
+
+For the managed-music workflow, MPD can use configctl immediately because MPD has native optional include support. rmpc and beets remain explicitly planned/write-disabled until Dubnium's existing composition engine supports their structured formats and ownership gates; see `ryjen/dubnium#693`.
 
 ### OBS presentation initialization
 
@@ -140,7 +145,7 @@ Or build the check derivation explicitly:
 nix build .#checks.x86_64-linux.configctl-contracts
 ```
 
-The verifier checks that init contracts are valid TOML, use supported risk labels, have unique IDs, and that enabled contracts have dotfiles-side validation rules. For `npm-globals`, `pip-globals`, and `uv-tools`, it also verifies that contract paths match the Home Manager-managed paths and that referenced package/tool manifests exist. For `obs-presentation`, it requires the reviewed executor paths and behavior, the non-destructive default risk, the exact Camera Overlay structure, and no `device_id` key anywhere in the versioned OBS collection.
+The verifier checks that init contracts are valid TOML, use supported risk labels, have unique IDs, and that enabled contracts have dotfiles-side validation rules. For `npm-globals`, `pip-globals`, and `uv-tools`, it also verifies that contract paths match the Home Manager-managed paths and that referenced package/tool manifests exist. For `obs-presentation`, it requires the reviewed executor paths and behavior, the non-destructive default risk, the exact Camera Overlay structure, and no `device_id` key anywhere in the versioned OBS collection. The extended verifier also checks the managed-music app contracts so MPD remains active/native-include and rmpc/beets remain parser-gated, planned, and write-disabled until their executor support is implemented.
 
 ## Non-goals
 
