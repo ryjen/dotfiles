@@ -35,8 +35,13 @@ auxiliary_outputs = [
 ]
 
 [composition]
+# The adopted copy of the pre-existing user config is a deliberate composition
+# input for beets rather than a passive archive: preserving those settings is a
+# migration invariant. The Home Manager MPD fragment is layered on top, followed
+# by ordinary configctl local/custom overrides.
 source_order = [
-  "source_inputs",
+  "adopted",
+  "auxiliary_outputs",
   "local",
   "custom"
 ]
