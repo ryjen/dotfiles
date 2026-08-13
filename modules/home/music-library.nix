@@ -9,6 +9,9 @@ let
   musicCfg = config.dotfiles.music;
   playlistDirectory = "${config.xdg.dataHome}/mpd/playlists";
   rmpcConfig = builtins.readFile ../../files/home/.config/rmpc/base.ron;
+  mpdCustomProfilesRoot = ../../files/home/.config/mpd/custom.d;
+  mpdCustomProfile = mpdCustomProfilesRoot + "/${config.dotfiles.host.name}";
+  hasMpdCustomProfile = builtins.pathExists mpdCustomProfile;
 in
 {
   options.dotfiles.music.mpd.enable = lib.mkEnableOption "MPD-backed managed music-library playback";
@@ -46,9 +49,11 @@ in
           name "PipeWire"
         }
 
-        # MPD supports native optional includes. Keep Home Manager authoritative
-        # for the root config while configctl owns review-gated local/custom
-        # override layers. Local is loaded last so it has highest precedence.
+        # MPD supports native optional includes. Home Manager owns the root
+        # config and materializes promoted, profile-scoped configctl fragments.
+        # Unpromoted custom fragments override the promoted profile layer, and
+        # local.conf remains machine-local with highest precedence.
+        include_optional "${config.xdg.configHome}/mpd/custom.d/${config.dotfiles.host.name}/*.conf"
         include_optional "${config.xdg.configHome}/mpd/custom.d/*.conf"
         include_optional "${config.xdg.configHome}/mpd/local.conf"
       '';
@@ -64,23 +69,34 @@ in
       config = rmpcConfig;
     };
 
-    # Keep the main beets config user-owned. This drop-in can be included from
-    # ~/.config/beets/config.yaml without Home Manager replacing that file.
-    xdg.configFile."beets/dotfiles-mpd.yaml".text = ''
-      mpd:
-        host: 127.0.0.1
-        port: 6600
-      playlist:
-        auto: true
-        playlist_dir: ${builtins.toJSON playlistDirectory}
-        relative_to: ${builtins.toJSON musicCfg.musicDirectory}
-      smartplaylist:
-        playlist_dir: ${builtins.toJSON playlistDirectory}
-        relative_to: ${builtins.toJSON musicCfg.musicDirectory}
-        playlists:
-          - name: recently-added.m3u
-            query: "added:-4w.."
-    '';
+    xdg.configFile = {
+      # Keep the main beets config user-owned. This drop-in can be included
+      # from ~/.config/beets/config.yaml without replacing that file.
+      "beets/dotfiles-mpd.yaml".text = ''
+        mpd:
+          host: 127.0.0.1
+          port: 6600
+        playlist:
+          auto: true
+          playlist_dir: ${builtins.toJSON playlistDirectory}
+          relative_to: ${builtins.toJSON musicCfg.musicDirectory}
+        smartplaylist:
+          playlist_dir: ${builtins.toJSON playlistDirectory}
+          relative_to: ${builtins.toJSON musicCfg.musicDirectory}
+          playlists:
+            - name: recently-added.m3u
+              query: "added:-4w.."
+      '';
+    }
+    // lib.optionalAttrs hasMpdCustomProfile {
+      # configctl promote stores reviewed fragments under
+      # files/home/.config/mpd/custom.d/<profile>/. Project that profile back
+      # into the runtime tree without taking ownership of root custom.d/*.conf.
+      "mpd/custom.d/${config.dotfiles.host.name}" = {
+        source = mpdCustomProfile;
+        recursive = true;
+      };
+    };
 
     xdg.desktopEntries.music-library = {
       name = "Music Library";
