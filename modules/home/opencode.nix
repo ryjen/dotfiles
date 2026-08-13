@@ -12,6 +12,7 @@ let
   # process group. wl-copy backgrounds itself without creating a new session, so
   # suspending OpenCode with Ctrl-Z can also suspend the clipboard provider and
   # make a subsequent paste block. Keep the workaround scoped to OpenCode.
+  # Upstream: https://github.com/anomalyco/opencode/issues/42162
   wlCopyShim = pkgs.writeShellScriptBin "wl-copy" ''
     exec ${pkgs.util-linux}/bin/setsid ${pkgs.wl-clipboard}/bin/wl-copy "$@"
   '';
@@ -27,25 +28,23 @@ let
   '';
 in
 {
-  options.dotfiles.opencode.enable = lib.mkEnableOption "OpenCode terminal integration";
+  options.dotfiles.opencode.enable = lib.mkOption {
+    type = lib.types.bool;
+    default = false;
+    description = "Enable OpenCode terminal integration";
+  };
 
-  config = lib.mkMerge [
-    {
-      dotfiles.opencode.enable = lib.mkDefault (config.dotfiles.profiles.workstation.enable or false);
-    }
+  config = lib.mkIf cfg.enable {
+    assertions = [
+      {
+        assertion = config.dotfiles.npm.enable;
+        message = "dotfiles.opencode requires dotfiles.npm because OpenCode is installed through the mutable npm tool prefix";
+      }
+    ];
 
-    (lib.mkIf cfg.enable {
-      assertions = [
-        {
-          assertion = config.dotfiles.npm.enable;
-          message = "dotfiles.opencode requires dotfiles.npm because OpenCode is installed through the mutable npm tool prefix";
-        }
-      ];
-
-      # home.sessionPath is prepended to PATH. mkBefore keeps this wrapper ahead
-      # of the mutable npm bin directory while the wrapper itself executes the
-      # npm-managed OpenCode binary by absolute path.
-      home.sessionPath = lib.mkBefore [ "${opencodeWrapper}/bin" ];
-    })
-  ];
+    # home.sessionPath is prepended to PATH. mkBefore keeps this wrapper ahead
+    # of the mutable npm bin directory while the wrapper itself executes the
+    # npm-managed OpenCode binary by absolute path.
+    home.sessionPath = lib.mkBefore [ "${opencodeWrapper}/bin" ];
+  };
 }
