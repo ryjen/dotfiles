@@ -10,13 +10,14 @@ executor_may_validate = true
 executor_may_adopt = true
 executor_may_write_outputs = false
 renderer_required = false
-description = "Home Manager owns MPD's generated root config; MPD native include_optional directives load configctl local and custom overrides."
+description = "Home Manager owns MPD's generated root config; MPD native include_optional directives load configctl promoted, custom, and local overrides."
 
 [layout]
 root = "~/.config/mpd"
 standard = "configctl-v1"
 source_inputs = [
-  "modules/home/music-library.nix"
+  "modules/home/music-library.nix",
+  "files/home/.config/mpd/custom.d/dubnium/00-empty.conf"
 ]
 local = [
   "local.conf"
@@ -28,6 +29,7 @@ adopted = [
   "adopted.d/*.conf"
 ]
 runtime_includes = [
+  "custom.d/dubnium/*.conf",
   "custom.d/*.conf",
   "local.conf"
 ]
