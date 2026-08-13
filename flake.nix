@@ -177,6 +177,18 @@
               touch "$out"
             '';
 
+        opencode-clipboard-contract =
+          pkgs.runCommand "opencode-clipboard-contract"
+            {
+              nativeBuildInputs = [ pkgs.python3Packages.pytest ];
+            }
+            ''
+              export PYTHONDONTWRITEBYTECODE=1
+              cd ${self}
+              pytest -q tests/test_opencode_clipboard_contract.py
+              touch "$out"
+            '';
+
         flake-script-executables =
           pkgs.runCommand "flake-script-executables"
             {
