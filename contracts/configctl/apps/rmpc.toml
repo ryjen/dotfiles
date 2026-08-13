@@ -18,6 +18,9 @@ standard = "configctl-v1"
 source_inputs = [
   "files/home/.config/rmpc/base.ron"
 ]
+promoted_inputs = [
+  "files/home/.config/rmpc/custom.d/dubnium/*.ron"
+]
 runtime_outputs = [
   "config.ron"
 ]
@@ -34,6 +37,7 @@ adopted = [
 [composition]
 source_order = [
   "source_inputs",
+  "promoted_inputs",
   "local",
   "custom"
 ]
