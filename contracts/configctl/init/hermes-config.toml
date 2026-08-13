@@ -1,11 +1,7 @@
 schemaVersion = 1
-id = "hermes-config"
+id = "hermes-config-legacy"
 kind = "hermes-config"
-enabled = true
+enabled = false
 risk = ["mutable-user-state"]
-tags = ["hermes", "ai", "developer-tools"]
-root = "$XDG_CONFIG_HOME/hermes"
-output = "$HOME/.hermes/config.toml"
-localProviderName = "local"
-localBaseUrl = "http://127.0.0.1:8000/v1"
-localModel = "dubnium-local"
+description = "Deprecated pre-hermes config renderer contract; retained only as a migration marker."
+tags = ["hermes", "deprecated"]
