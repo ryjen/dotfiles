@@ -81,7 +81,7 @@
     },
     "custom/disk": {
         "exec": "~/.config/waybar/scripts/disk-space",
-        "interval": 30,
+        "interval": 5,
         "return-type": "json",
         "format": "{}",
         "tooltip": true
