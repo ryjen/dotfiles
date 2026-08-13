@@ -33,6 +33,7 @@
     ./meeting.nix
     ./mise.nix
     ./music.nix
+    ./music-library.nix
     ./neovim.nix
     ./npm.nix
     ./office.nix

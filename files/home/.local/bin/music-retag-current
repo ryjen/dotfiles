@@ -9,10 +9,21 @@ notify() {
   fi
 }
 
-uri="$(playerctl --player=mpv metadata xesam:url 2>/dev/null || true)"
+music_playerctl="${MUSIC_PLAYERCTL:-$HOME/.local/bin/music-playerctl}"
+player="mpv"
+
+if [ -x "$music_playerctl" ]; then
+  player="$($music_playerctl --player-name 2>/dev/null || true)"
+  if [ -z "$player" ]; then
+    notify "No MPD or mpv track found"
+    exit 1
+  fi
+fi
+
+uri="$(playerctl --player="$player" metadata xesam:url 2>/dev/null || true)"
 
 if [ -z "$uri" ]; then
-  notify "No mpv track URL found"
+  notify "No local track URL found for $player"
   exit 1
 fi
 

@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+playerctl_bin="${PLAYERCTL_BIN:-playerctl}"
+
+status_of() {
+  "$playerctl_bin" --player="$1" status 2>/dev/null || true
+}
+
+select_player() {
+  local player status wanted
+
+  if [ -n "${MUSIC_PLAYER:-}" ] \
+    && "$playerctl_bin" --player="$MUSIC_PLAYER" status >/dev/null 2>&1; then
+    printf '%s\n' "$MUSIC_PLAYER"
+    return 0
+  fi
+
+  # Prefer an actively playing source. If both are active, MPD wins because it
+  # is the managed-library backend. A playing mpv still wins over paused MPD.
+  for wanted in Playing Paused; do
+    for player in mpd mpv; do
+      status="$(status_of "$player")"
+      if [ "$status" = "$wanted" ]; then
+        printf '%s\n' "$player"
+        return 0
+      fi
+    done
+  done
+
+  # Finally prefer an available stopped MPD instance, then mpv. This allows a
+  # Waybar play action to resume the persistent MPD queue after login/restart.
+  for player in mpd mpv; do
+    if "$playerctl_bin" --player="$player" status >/dev/null 2>&1; then
+      printf '%s\n' "$player"
+      return 0
+    fi
+  done
+
+  return 1
+}
+
+if [ "${1:-}" = "--player-name" ]; then
+  select_player
+  exit $?
+fi
+
+player="$(select_player)" || {
+  printf 'music-playerctl: no MPD or mpv MPRIS player is available\n' >&2
+  exit 1
+}
+
+exec "$playerctl_bin" --player="$player" "$@"
