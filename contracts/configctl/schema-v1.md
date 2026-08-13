@@ -250,10 +250,11 @@ Planned compose contracts must set:
 
 ```toml
 status = "planned"
-current_runtime_owner = "home-manager"
 target_runtime_owner = "configctl"
 executor_may_write_outputs = false
 ```
+
+`current_runtime_owner` must state the actual current writer. It is normally `home-manager`, but may be `user` when a pre-existing user-owned configuration is being migrated. A user-owned planned compose contract must remain review-gated and write-disabled until parser-aware adoption/composition can preserve the existing configuration safely.
 
 ## Adoption
 
