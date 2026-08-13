@@ -8,6 +8,7 @@ let
   cfg = config.dotfiles.music.mpd;
   musicCfg = config.dotfiles.music;
   playlistDirectory = "${config.xdg.dataHome}/mpd/playlists";
+  rmpcConfig = builtins.readFile ../../files/home/.config/rmpc/base.ron;
 in
 {
   options.dotfiles.music.mpd.enable = lib.mkEnableOption "MPD-backed managed music-library playback";
@@ -44,6 +45,12 @@ in
           type "pipewire"
           name "PipeWire"
         }
+
+        # MPD supports native optional includes. Keep Home Manager authoritative
+        # for the root config while configctl owns review-gated local/custom
+        # override layers. Local is loaded last so it has highest precedence.
+        include_optional "${config.xdg.configHome}/mpd/custom.d/*.conf"
+        include_optional "${config.xdg.configHome}/mpd/local.conf"
       '';
     };
 
@@ -54,24 +61,7 @@ in
 
     programs.rmpc = {
       enable = true;
-      config = ''
-        (
-            address: "127.0.0.1:6600",
-            password: None,
-            theme: None,
-            cache_dir: None,
-            on_song_change: None,
-            volume_step: 5,
-            max_fps: 30,
-            scrolloff: 4,
-            wrap_navigation: false,
-            enable_mouse: true,
-            enable_config_hot_reload: true,
-            status_update_interval_ms: 1000,
-            select_current_song_on_change: true,
-            browser_song_sort: [Disc, Track, Artist, Title],
-        )
-      '';
+      config = rmpcConfig;
     };
 
     # Keep the main beets config user-owned. This drop-in can be included from
