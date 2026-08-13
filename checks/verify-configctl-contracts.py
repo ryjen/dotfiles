@@ -131,8 +131,16 @@ def validate_music_apps() -> None:
         validator.fail(f"{path}: target_runtime_owner must remain 'home-manager'")
     if mpd.get("renderer_required") is not False:
         validator.fail(f"{path}: renderer_required must be false")
-    if mpd["layout"].get("runtime_includes") != ["custom.d/*.conf", "local.conf"]:
-        validator.fail(f"{path}: runtime_includes must load custom overrides then local.conf")
+
+    expected_includes = [
+        "custom.d/dubnium/*.conf",
+        "custom.d/*.conf",
+        "local.conf",
+    ]
+    if mpd["layout"].get("runtime_includes") != expected_includes:
+        validator.fail(
+            f"{path}: runtime_includes must load promoted profile, live custom, then local overrides"
+        )
 
     validate_compose_app("rmpc", "ron")
     validate_compose_app("beets", "yaml")
