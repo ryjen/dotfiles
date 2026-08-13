@@ -5,6 +5,18 @@ warning_percent=${WAYBAR_DISK_WARNING_PERCENT:-80}
 critical_percent=${WAYBAR_DISK_CRITICAL_PERCENT:-90}
 warning_free_bytes=${WAYBAR_DISK_WARNING_FREE_BYTES:-42949672960}
 critical_free_bytes=${WAYBAR_DISK_CRITICAL_FREE_BYTES:-16106127360}
+io_warning_percent=${WAYBAR_DISK_IO_WARNING_PERCENT:-80}
+io_critical_percent=${WAYBAR_DISK_IO_CRITICAL_PERCENT:-95}
+io_max_sample_ms=${WAYBAR_DISK_IO_MAX_SAMPLE_MS:-60000}
+btrfs_cache_seconds=${WAYBAR_DISK_BTRFS_CACHE_SECONDS:-30}
+
+runtime_base=${XDG_RUNTIME_DIR:-/tmp/waybar-disk-${UID}}
+state_dir="${runtime_base}/waybar-disk"
+state_file="${state_dir}/io.state"
+btrfs_cache_file="${state_dir}/btrfs-root.cache"
+mkdir -p "$state_dir"
+chmod 700 "$state_dir" 2>/dev/null || true
+umask 077
 
 json_escape() {
   local value=${1//\\/\\\\}
@@ -19,6 +31,15 @@ human_bytes() {
   numfmt --to=iec-i --suffix=B --format='%.1f' "$1" 2>/dev/null || printf '%sB' "$1"
 }
 
+human_rate() {
+  local bytes_per_second=$1
+  if (( bytes_per_second <= 0 )); then
+    printf '0B/s'
+  else
+    numfmt --to=iec-i --suffix=B/s --format='%.1f' "$bytes_per_second" 2>/dev/null || printf '%sB/s' "$bytes_per_second"
+  fi
+}
+
 btrfs_metric() {
   local label=$1
   awk -F: -v label="$label" '{ key=$1; gsub(/^[[:space:]]+|[[:space:]]+$/, "", key); if (key == label) { value=$2; gsub(/^[[:space:]]+|[[:space:]]+$/, "", value); print value; exit } }'
@@ -28,12 +49,131 @@ btrfs_bytes_metric() {
   btrfs_metric "$1" | awk '{ print $1 }'
 }
 
+# Resolve a mounted block device through partitions/device-mapper/RAID to the
+# leaf physical block devices whose kernel I/O counters represent real work.
+declare -A resolved_devices=()
+resolve_physical_devices() {
+  local device_id=$1
+  local sys_path
+  sys_path=$(readlink -f "/sys/dev/block/${device_id}" 2>/dev/null || true)
+  [[ -n "$sys_path" ]] || return 0
+  resolve_sysfs_device "$sys_path"
+}
+
+resolve_sysfs_device() {
+  local sys_path=$1
+  local name slave parent
+  name=$(basename "$sys_path")
+
+  local -a slaves=()
+  shopt -s nullglob
+  slaves=("/sys/class/block/${name}/slaves/"*)
+  shopt -u nullglob
+  if (( ${#slaves[@]} > 0 )); then
+    for slave in "${slaves[@]}"; do
+      resolve_sysfs_device "$(readlink -f "$slave")"
+    done
+    return 0
+  fi
+
+  if [[ -f "/sys/class/block/${name}/partition" ]]; then
+    parent=$(basename "$(dirname "$sys_path")")
+    resolved_devices[$parent]=1
+  else
+    resolved_devices[$name]=1
+  fi
+}
+
+physical_devices_for_id() {
+  local device_id=$1
+  resolved_devices=()
+  resolve_physical_devices "$device_id"
+  printf '%s\n' "${!resolved_devices[@]}" | sed '/^$/d' | sort
+}
+
+# Kernel block statistics are cumulative. Persist one sample between Waybar
+# invocations and derive rates/utilization from the deltas.
+declare -A current_read_sectors=()
+declare -A current_write_sectors=()
+declare -A current_io_ms=()
+declare -A previous_read_sectors=()
+declare -A previous_write_sectors=()
+declare -A previous_io_ms=()
+declare -A previous_sample_ms=()
+declare -A io_read_bps=()
+declare -A io_write_bps=()
+declare -A io_util_percent=()
+
+while read -r _major _minor name _reads _reads_merged sectors_read _read_ms _writes _writes_merged sectors_written _write_ms _in_flight io_ms _rest; do
+  current_read_sectors[$name]=$sectors_read
+  current_write_sectors[$name]=$sectors_written
+  current_io_ms[$name]=$io_ms
+done < /proc/diskstats
+
+if [[ -r "$state_file" ]]; then
+  while IFS=$'\t' read -r name sample_ms read_sectors write_sectors io_ms; do
+    [[ -n "$name" ]] || continue
+    previous_sample_ms[$name]=$sample_ms
+    previous_read_sectors[$name]=$read_sectors
+    previous_write_sectors[$name]=$write_sectors
+    previous_io_ms[$name]=$io_ms
+  done < "$state_file"
+fi
+
+sample_ms=$(awk '{ printf "%.0f", $1 * 1000 }' /proc/uptime)
+for name in "${!current_io_ms[@]}"; do
+  io_read_bps[$name]=0
+  io_write_bps[$name]=0
+  io_util_percent[$name]=-1
+
+  if [[ -n ${previous_sample_ms[$name]+x} ]]; then
+    elapsed_ms=$(( sample_ms - previous_sample_ms[$name] ))
+    delta_read=$(( current_read_sectors[$name] - previous_read_sectors[$name] ))
+    delta_write=$(( current_write_sectors[$name] - previous_write_sectors[$name] ))
+    delta_io_ms=$(( current_io_ms[$name] - previous_io_ms[$name] ))
+
+    if (( elapsed_ms > 0 && elapsed_ms <= io_max_sample_ms && delta_read >= 0 && delta_write >= 0 && delta_io_ms >= 0 )); then
+      io_read_bps[$name]=$(( delta_read * 512 * 1000 / elapsed_ms ))
+      io_write_bps[$name]=$(( delta_write * 512 * 1000 / elapsed_ms ))
+      util=$(( delta_io_ms * 100 / elapsed_ms ))
+      (( util > 100 )) && util=100
+      io_util_percent[$name]=$util
+    fi
+  fi
+done
+
+state_tmp="${state_file}.tmp.$$"
+: > "$state_tmp"
+for name in "${!current_io_ms[@]}"; do
+  printf '%s\t%s\t%s\t%s\t%s\n' \
+    "$name" "$sample_ms" "${current_read_sectors[$name]}" "${current_write_sectors[$name]}" "${current_io_ms[$name]}" \
+    >> "$state_tmp"
+done
+mv -f "$state_tmp" "$state_file"
+
+io_metrics_for_device_id() {
+  local device_id=$1
+  local disk util max_util=-1 total_read=0 total_write=0
+  local -a disks=()
+  mapfile -t disks < <(physical_devices_for_id "$device_id")
+
+  for disk in "${disks[@]}"; do
+    util=${io_util_percent[$disk]:--1}
+    (( util > max_util )) && max_util=$util
+    total_read=$(( total_read + ${io_read_bps[$disk]:-0} ))
+    total_write=$(( total_write + ${io_write_bps[$disk]:-0} ))
+  done
+
+  printf '%s\t%s\t%s\t%s\n' "$(IFS=,; echo "${disks[*]:-unknown}")" "$max_util" "$total_read" "$total_write"
+}
+
 read -r root_size root_used root_free root_percent < <(
   df -B1 --output=size,used,avail,pcent / | awk 'NR == 2 { gsub(/%/, "", $4); print $1, $2, $3, $4 }'
 )
 root_device_id=$(findmnt --noheadings --output MAJ:MIN --target / | awk 'NR == 1 { print $1 }')
 root_source=$(findmnt --noheadings --output SOURCE --target / | awk 'NR == 1 { print $1 }')
 root_fstype=$(findmnt --noheadings --output FSTYPE --target / | awk 'NR == 1 { print $1 }')
+IFS=$'\t' read -r root_disks root_io_util root_read_bps root_write_bps < <(io_metrics_for_device_id "$root_device_id")
 
 state=normal
 if (( root_percent >= critical_percent || root_free <= critical_free_bytes )); then
@@ -42,10 +182,27 @@ elif (( root_percent >= warning_percent || root_free <= warning_free_bytes )); t
   state=warning
 fi
 
-tooltip=$(printf '<b>Disk usage</b>\n%-22s %10s %10s %6s\n' 'Mount' 'Used' 'Free' 'Use')
+if (( root_io_util >= io_critical_percent )); then
+  state=critical
+elif (( root_io_util >= io_warning_percent )) && [[ "$state" == normal ]]; then
+  state=warning
+fi
+
+format_io_percent() {
+  local value=$1
+  if (( value < 0 )); then
+    printf -- '--%%'
+  else
+    printf '%s%%' "$value"
+  fi
+}
+
+tooltip=$(printf '<b>Disk usage / I/O</b>\n%-16s %-18s %7s %7s %6s %6s %11s %11s\n' \
+  'Disk' 'Mount' 'Used' 'Free' 'Use' 'I/O' 'Read' 'Write')
 tooltip+=$'\n'
-tooltip+=$(printf '%-22s %10s %10s %5s%%' \
-  '/' "$(human_bytes "$root_used")" "$(human_bytes "$root_free")" "$root_percent")
+tooltip+=$(printf '%-16s %-18s %7s %7s %5s%% %6s %11s %11s' \
+  "$root_disks" '/' "$(human_bytes "$root_used")" "$(human_bytes "$root_free")" "$root_percent" \
+  "$(format_io_percent "$root_io_util")" "$(human_rate "$root_read_bps")" "$(human_rate "$root_write_bps")")
 tooltip+=$'\n'
 
 declare -A seen_devices=()
@@ -74,20 +231,23 @@ while IFS=$'\t' read -r device_id fstype target; do
     continue
   fi
 
-  tooltip+=$(printf '%-22s %10s %10s %5s%%' \
-    "$target" "$(human_bytes "$used")" "$(human_bytes "$free")" "$percent")
+  IFS=$'\t' read -r disks io_util read_bps write_bps < <(io_metrics_for_device_id "$device_id")
+  tooltip+=$(printf '%-16s %-18s %7s %7s %5s%% %6s %11s %11s' \
+    "$disks" "$target" "$(human_bytes "$used")" "$(human_bytes "$free")" "$percent" \
+    "$(format_io_percent "$io_util")" "$(human_rate "$read_bps")" "$(human_rate "$write_bps")")
   tooltip+=$'\n'
 done < <(findmnt --real --raw --noheadings --output MAJ:MIN,FSTYPE,TARGET | tr -s ' ' '\t')
 
-if [[ "$root_fstype" == btrfs ]]; then
-  tooltip+=$'\n'
-  tooltip+=$(printf '<b>Btrfs root</b>  %s\n' "$root_source")
+render_btrfs_details() {
+  printf '<b>Btrfs root</b>  %s\n' "$root_source"
 
   if command -v btrfs >/dev/null 2>&1 && command -v timeout >/dev/null 2>&1; then
+    local usage_output show_output quota_output quota_status
     usage_output=$(timeout 2s btrfs filesystem usage -b / 2>/dev/null || true)
     show_output=$(timeout 2s btrfs filesystem show --raw / 2>/dev/null || true)
 
     if [[ -n "$usage_output" ]]; then
+      local device_size allocated unallocated estimated_free missing data_ratio metadata_ratio device_count
       device_size=$(printf '%s\n' "$usage_output" | btrfs_bytes_metric 'Device size')
       allocated=$(printf '%s\n' "$usage_output" | btrfs_bytes_metric 'Device allocated')
       unallocated=$(printf '%s\n' "$usage_output" | btrfs_bytes_metric 'Device unallocated')
@@ -98,15 +258,15 @@ if [[ "$root_fstype" == btrfs ]]; then
       device_count=$(printf '%s\n' "$show_output" | awk '/^[[:space:]]*devid[[:space:]]/ { count++ } END { print count + 0 }')
       (( device_count > 0 )) || device_count=unknown
 
-      tooltip+=$(printf 'Devices: %s  Size: %s\n' "$device_count" "$(human_bytes "${device_size:-0}")")
-      tooltip+=$(printf 'Allocated: %s  Unallocated: %s\n' \
-        "$(human_bytes "${allocated:-0}")" "$(human_bytes "${unallocated:-0}")")
-      tooltip+=$(printf 'Estimated free: %s  Missing: %s\n' \
-        "$(human_bytes "${estimated_free:-0}")" "$(human_bytes "${missing:-0}")")
-      tooltip+=$(printf 'Data ratio: %s  Metadata ratio: %s\n' \
-        "${data_ratio:-unknown}" "${metadata_ratio:-unknown}")
+      printf 'Devices: %s  Size: %s\n' "$device_count" "$(human_bytes "${device_size:-0}")"
+      printf 'Allocated: %s  Unallocated: %s\n' \
+        "$(human_bytes "${allocated:-0}")" "$(human_bytes "${unallocated:-0}")"
+      printf 'Estimated free: %s  Missing: %s\n' \
+        "$(human_bytes "${estimated_free:-0}")" "$(human_bytes "${missing:-0}")"
+      printf 'Data ratio: %s  Metadata ratio: %s\n' \
+        "${data_ratio:-unknown}" "${metadata_ratio:-unknown}"
     else
-      tooltip+=$'Details: unavailable\n'
+      printf 'Details: unavailable\n'
     fi
 
     if quota_output=$(timeout 2s btrfs qgroup show -reF --raw / 2>&1); then
@@ -116,13 +276,29 @@ if [[ "$root_fstype" == btrfs ]]; then
     else
       quota_status=unavailable
     fi
-    tooltip+=$(printf 'Quotas: %s\n' "$quota_status")
+    printf 'Quotas: %s\n' "$quota_status"
   else
-    tooltip+=$'Details: btrfs tools unavailable\n'
+    printf 'Details: btrfs tools unavailable\n'
+  fi
+}
+
+if [[ "$root_fstype" == btrfs ]]; then
+  tooltip+=$'\n'
+  cache_now=$(date +%s)
+  cache_mtime=0
+  [[ -r "$btrfs_cache_file" ]] && cache_mtime=$(stat -c %Y "$btrfs_cache_file" 2>/dev/null || printf '0')
+  if (( cache_now - cache_mtime >= btrfs_cache_seconds )); then
+    cache_tmp="${btrfs_cache_file}.tmp.$$"
+    render_btrfs_details > "$cache_tmp"
+    mv -f "$cache_tmp" "$btrfs_cache_file"
+  fi
+  if [[ -r "$btrfs_cache_file" ]]; then
+    tooltip+=$(cat "$btrfs_cache_file")
+    tooltip+=$'\n'
   fi
 fi
 
-text=$(printf '󰋊 %s%%' "$root_percent")
+text=$(printf '󰋊 %s%%  󰓅 %s' "$root_percent" "$(format_io_percent "$root_io_util")")
 printf '{"text":"%s","tooltip":"%s","class":"%s","percentage":%s}\n' \
   "$(json_escape "$text")" \
   "$(json_escape "${tooltip%$'\n'}")" \
