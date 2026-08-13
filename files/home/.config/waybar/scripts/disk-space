@@ -7,12 +7,11 @@ warning_free_bytes=${WAYBAR_DISK_WARNING_FREE_BYTES:-42949672960}
 critical_free_bytes=${WAYBAR_DISK_CRITICAL_FREE_BYTES:-16106127360}
 io_warning_percent=${WAYBAR_DISK_IO_WARNING_PERCENT:-80}
 io_critical_percent=${WAYBAR_DISK_IO_CRITICAL_PERCENT:-95}
-io_max_sample_ms=${WAYBAR_DISK_IO_MAX_SAMPLE_MS:-60000}
+io_sample_seconds=${WAYBAR_DISK_IO_SAMPLE_SECONDS:-0.5}
 btrfs_cache_seconds=${WAYBAR_DISK_BTRFS_CACHE_SECONDS:-30}
 
 runtime_base=${XDG_RUNTIME_DIR:-/tmp/waybar-disk-${UID}}
 state_dir="${runtime_base}/waybar-disk"
-state_file="${state_dir}/io.state"
 btrfs_cache_file="${state_dir}/btrfs-root.cache"
 mkdir -p "$state_dir"
 chmod 700 "$state_dir" 2>/dev/null || true
@@ -49,8 +48,6 @@ btrfs_bytes_metric() {
   btrfs_metric "$1" | awk '{ print $1 }'
 }
 
-# Resolve a mounted block device through partitions/device-mapper/RAID to the
-# leaf physical block devices whose kernel I/O counters represent real work.
 declare -A resolved_devices=()
 resolve_physical_devices() {
   local device_id=$1
@@ -91,48 +88,37 @@ physical_devices_for_id() {
   printf '%s\n' "${!resolved_devices[@]}" | sed '/^$/d' | sort
 }
 
-# Kernel block statistics are cumulative. Persist one sample between Waybar
-# invocations and derive rates/utilization from the deltas.
-declare -A current_read_sectors=()
-declare -A current_write_sectors=()
-declare -A current_io_ms=()
-declare -A previous_read_sectors=()
-declare -A previous_write_sectors=()
-declare -A previous_io_ms=()
-declare -A previous_sample_ms=()
+declare -A first_read_sectors=()
+declare -A first_write_sectors=()
+declare -A first_io_ms=()
 declare -A io_read_bps=()
 declare -A io_write_bps=()
 declare -A io_util_percent=()
 
 while read -r _major _minor name _reads _reads_merged sectors_read _read_ms _writes _writes_merged sectors_written _write_ms _in_flight io_ms _rest; do
-  current_read_sectors[$name]=$sectors_read
-  current_write_sectors[$name]=$sectors_written
-  current_io_ms[$name]=$io_ms
+  first_read_sectors[$name]=$sectors_read
+  first_write_sectors[$name]=$sectors_written
+  first_io_ms[$name]=$io_ms
 done < /proc/diskstats
+sample_start_ms=$(awk '{ printf "%.0f", $1 * 1000 }' /proc/uptime)
 
-if [[ -r "$state_file" ]]; then
-  while IFS=$'\t' read -r name sample_ms read_sectors write_sectors io_ms; do
-    [[ -n "$name" ]] || continue
-    previous_sample_ms[$name]=$sample_ms
-    previous_read_sectors[$name]=$read_sectors
-    previous_write_sectors[$name]=$write_sectors
-    previous_io_ms[$name]=$io_ms
-  done < "$state_file"
-fi
+sleep "$io_sample_seconds"
 
-sample_ms=$(awk '{ printf "%.0f", $1 * 1000 }' /proc/uptime)
-for name in "${!current_io_ms[@]}"; do
+sample_end_ms=$(awk '{ printf "%.0f", $1 * 1000 }' /proc/uptime)
+elapsed_ms=$(( sample_end_ms - sample_start_ms ))
+(( elapsed_ms > 0 )) || elapsed_ms=1
+
+while read -r _major _minor name _reads _reads_merged sectors_read _read_ms _writes _writes_merged sectors_written _write_ms _in_flight io_ms _rest; do
   io_read_bps[$name]=0
   io_write_bps[$name]=0
   io_util_percent[$name]=-1
 
-  if [[ -n ${previous_sample_ms[$name]+x} ]]; then
-    elapsed_ms=$(( sample_ms - previous_sample_ms[$name] ))
-    delta_read=$(( current_read_sectors[$name] - previous_read_sectors[$name] ))
-    delta_write=$(( current_write_sectors[$name] - previous_write_sectors[$name] ))
-    delta_io_ms=$(( current_io_ms[$name] - previous_io_ms[$name] ))
+  if [[ -n ${first_io_ms[$name]+x} ]]; then
+    delta_read=$(( sectors_read - first_read_sectors[$name] ))
+    delta_write=$(( sectors_written - first_write_sectors[$name] ))
+    delta_io_ms=$(( io_ms - first_io_ms[$name] ))
 
-    if (( elapsed_ms > 0 && elapsed_ms <= io_max_sample_ms && delta_read >= 0 && delta_write >= 0 && delta_io_ms >= 0 )); then
+    if (( delta_read >= 0 && delta_write >= 0 && delta_io_ms >= 0 )); then
       io_read_bps[$name]=$(( delta_read * 512 * 1000 / elapsed_ms ))
       io_write_bps[$name]=$(( delta_write * 512 * 1000 / elapsed_ms ))
       util=$(( delta_io_ms * 100 / elapsed_ms ))
@@ -140,16 +126,7 @@ for name in "${!current_io_ms[@]}"; do
       io_util_percent[$name]=$util
     fi
   fi
-done
-
-state_tmp="${state_file}.tmp.$$"
-: > "$state_tmp"
-for name in "${!current_io_ms[@]}"; do
-  printf '%s\t%s\t%s\t%s\t%s\n' \
-    "$name" "$sample_ms" "${current_read_sectors[$name]}" "${current_write_sectors[$name]}" "${current_io_ms[$name]}" \
-    >> "$state_tmp"
-done
-mv -f "$state_tmp" "$state_file"
+done < /proc/diskstats
 
 io_metrics_for_device_id() {
   local device_id=$1
@@ -220,7 +197,6 @@ while IFS=$'\t' read -r device_id fstype target; do
     /|/boot|/boot/*|/nix/store|/run/*|/proc/*|/sys/*|/dev/*|/var/lib/containers/*|/var/lib/docker/*) continue ;;
   esac
 
-  # Device identity avoids presenting Btrfs subvolumes as separate disks.
   [[ -z ${seen_devices[$device_id]+x} ]] || continue
   seen_devices[$device_id]=1
 
