@@ -54,6 +54,8 @@ else:
     parsed = urlparse(url)
     if parsed.scheme == "file":
         full_text = os.path.basename(unquote(parsed.path)) or f"{player} music"
+    elif player == "mpd" and url:
+        full_text = os.path.basename(url.rstrip("/")) or "mpd music"
     else:
         full_text = f"{player} music"
 
