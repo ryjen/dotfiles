@@ -223,10 +223,11 @@ Common fields:
 | `root` | Runtime config directory for the tool. |
 | `standard` | Layout convention identifier, usually `configctl-v1`. |
 | `source_inputs` | Repo-owned modules, fragments, or static source files used to produce runtime configuration. |
+| `promoted_inputs` | Repo-owned, profile-scoped fragments created by `configctl promote`; compose contracts consume these explicitly so reviewed fragments survive rebuilds. |
 | `runtime_outputs` | Final files the app reads. |
 | `local` | Local-only unmanaged paths. |
-| `custom` | User-authored promotion candidates. |
-| `adopted` | Archive/evidence paths. |
+| `custom` | Live user-authored promotion candidates. |
+| `adopted` | Archive/evidence paths; a migration contract may also declare them as semantic composition inputs when preserving pre-existing user config. |
 | `runtime_includes` | Paths directly loaded by apps with native include support. |
 | `auxiliary_outputs` | Runtime helper files that are not composition outputs. |
 
@@ -234,17 +235,25 @@ All path role fields use arrays, even when they contain one item.
 
 `source_inputs` must describe source-of-truth inputs, not generated runtime outputs. Runtime outputs belong under `runtime_outputs` or `auxiliary_outputs`.
 
+`promoted_inputs` are repository-relative paths and must be bounded to the same profile-scoped destination used by `configctl promote`:
+
+```text
+files/home/.config/<tool>/custom.d/<profile>/*
+```
+
+They are distinct from live runtime `custom` fragments. A compose contract should normally order promoted inputs before local/live custom overrides, so reviewed repository state is reproducible while current local edits can still take precedence before promotion.
+
 ## Composition
 
 `[composition]` is required when `strategy = "compose"`.
 
 | Field | Meaning |
 | --- | --- |
-| `source_order` | Ordered layout role names used as composition inputs. |
+| `source_order` | Ordered layout role names used as composition inputs. May include `promoted_inputs` when profile-scoped promoted fragments are supported. |
 | `output_role` | Layout role name for rendered outputs. |
 | `write_mode` | Output write mode, currently `atomic`. |
 | `dry_run_required` | Must be true before output writing is enabled. |
-| `requires_parser` | Optional parser requirements such as `jsonc` or `css`. |
+| `requires_parser` | Optional parser requirements such as `jsonc`, `yaml`, or `ron`. |
 
 Planned compose contracts must set:
 
@@ -253,6 +262,8 @@ status = "planned"
 target_runtime_owner = "configctl"
 executor_may_write_outputs = false
 ```
+
+A compose contract must not become write-enabled by flipping only `executor_may_write_outputs`. Output ownership activation is an explicit lifecycle transition: the contract must be `active`, its target owner must be `configctl`, and `current_runtime_owner` must accurately reflect the handoff state enforced by the executor.
 
 `current_runtime_owner` must state the actual current writer. It is normally `home-manager`, but may be `user` when a pre-existing user-owned configuration is being migrated. A user-owned planned compose contract must remain review-gated and write-disabled until parser-aware adoption/composition can preserve the existing configuration safely.
 
