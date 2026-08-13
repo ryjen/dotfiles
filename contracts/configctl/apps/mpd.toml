@@ -1,0 +1,51 @@
+schema_version = 1
+tool = "mpd"
+owner = "dotfiles"
+profile = "dubnium"
+status = "active"
+strategy = "native-include"
+current_runtime_owner = "home-manager"
+target_runtime_owner = "home-manager"
+executor_may_validate = true
+executor_may_adopt = true
+executor_may_write_outputs = false
+renderer_required = false
+description = "Home Manager owns MPD's generated root config; MPD native include_optional directives load configctl local and custom overrides."
+
+[layout]
+root = "~/.config/mpd"
+standard = "configctl-v1"
+source_inputs = [
+  "modules/home/music-library.nix"
+]
+local = [
+  "local.conf"
+]
+custom = [
+  "custom.d/*.conf"
+]
+adopted = [
+  "adopted.d/*.conf"
+]
+runtime_includes = [
+  "custom.d/*.conf",
+  "local.conf"
+]
+
+[adoption]
+state_path = "~/.local/state/configctl/adoptions/mpd.toml"
+hash_algorithm = "sha256"
+mode = "review-gated"
+ignore = [
+  "local",
+  "adopted"
+]
+
+[validation]
+must_not_manage = [
+  "local"
+]
+must_exist_or_be_creatable = [
+  "custom",
+  "adopted"
+]
