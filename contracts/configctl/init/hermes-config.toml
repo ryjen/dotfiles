@@ -1,7 +1,0 @@
-schemaVersion = 1
-id = "hermes-config-legacy"
-kind = "hermes-config"
-enabled = false
-risk = ["mutable-user-state"]
-description = "Deprecated pre-hermes config renderer contract; retained only as a migration marker."
-tags = ["hermes", "deprecated"]
