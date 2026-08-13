@@ -1,20 +1,45 @@
-# Hermes provider config layers
+# Hermes configctl ownership
 
-This directory contains source layers for the configctl-owned Hermes provider config.
+Hermes configuration is governed through the configctl ownership model.
+
+Source root:
+
+```text
+~/.config/hermes/
+├── base.yaml
+├── local.yaml
+├── custom.d/*.yaml
+└── adopted.d/*.yaml
+```
 
 Runtime output:
 
 ```text
-~/.hermes/config.toml
+~/.hermes/config.yaml
 ```
 
-Layer order:
+Ownership rules:
 
-1. `adopted.d/*.toml`
-2. `custom.d/*.toml`
-3. `local.toml`
+- `base.yaml` is the stable dotfiles-owned base.
+- `local.yaml` is machine-local and must not be promoted or overwritten.
+- `custom.d/*.yaml` contains user-authored promotion candidates.
+- `adopted.d/*.yaml` contains adopted/archive evidence and is not part of normal composition.
 
-Managed providers:
+The app contract is `contracts/configctl/apps/hermes.toml`. It is intentionally `planned` and write-disabled until Dubnium configctl has parser-aware YAML composition. Until then, Home Manager publishes `base.yaml` directly to `~/.hermes/config.yaml`, preserving current runtime behavior without giving two writers authority over the same file.
 
-- `nous-cloud`: default cloud provider.
-- `local`: local OpenAI-compatible provider at `http://127.0.0.1:8000/v1` using model alias `dubnium-local`.
+The init contract is layout-only:
+
+```bash
+configctl init plan hermes
+configctl init apply hermes --allow mutable-user-state --yes
+configctl init verify hermes
+```
+
+Normal layer workflows use:
+
+```bash
+configctl status hermes
+configctl adopt hermes
+configctl promote hermes <fragment.yaml>
+configctl reconcile hermes
+```
