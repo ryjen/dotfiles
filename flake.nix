@@ -74,6 +74,7 @@
         };
       mkNixosConfig =
         profileModule:
+        extraModules:
         nixpkgs.lib.nixosSystem {
           inherit system;
           specialArgs = {
@@ -110,7 +111,8 @@
                 ];
               };
             }
-          ];
+          ]
+          ++ extraModules;
         };
     in
     {
@@ -334,8 +336,19 @@
         openwork = pkgs.callPackage ./packages/openwork.nix { };
       };
 
-      nixosConfigurations.nixos = mkNixosConfig ./home/ryjen/home.nix;
-      nixosConfigurations.verify = mkNixosConfig ./home/ryjen/verify-home.nix;
+      nixosConfigurations.nixos = mkNixosConfig ./home/ryjen/home.nix [ ];
+      nixosConfigurations.verify = mkNixosConfig ./home/ryjen/verify-home.nix [
+        {
+          # CI-only evaluation of the optional loop-storage contract. Building
+          # this configuration never creates or mounts the image.
+          dubnium.unreal.storage = {
+            enable = true;
+            backingMount = "/tmp";
+            imagePath = "/tmp/unreal-storage-verify.ext4";
+            mountPoint = "/srv/unreal-verify";
+          };
+        }
+      ];
 
       homeConfigurations."${username}@nixos" = mkHomeConfig ./home/ryjen/home.nix;
       homeConfigurations."${username}@verify" = mkHomeConfig ./home/ryjen/verify-home.nix;
@@ -344,6 +357,9 @@
       homeConfigurations."${username}@dubnium" = mkHomeConfig ./home/ryjen/dubnium-home.nix;
       homeConfigurations."${username}@technetium" = mkHomeConfig ./home/ryjen/technetium-home.nix;
       homeConfigurations."${username}@meeting-verify" = mkHomeConfig ./home/ryjen/meeting-verify-home.nix;
+      homeConfigurations."${username}@unreal-verify" = mkHomeConfig ./home/ryjen/unreal-verify-home.nix;
+
+      nixosModules.unreal-storage = ./modules/nixos/unreal-storage.nix;
 
       nixosModules.dubnium-home-manager =
         {
