@@ -21,8 +21,9 @@ let
         exit 77
       fi
 
-      if [[ $# -ne 1 || -z "$1" || "$1" == -* ]]; then
+      if [[ $# -ne 1 || ! "$1" =~ ^[1-9][0-9]*[KMGT]$ ]]; then
         echo "usage: sudo unreal-storage-init SIZE" >&2
+        echo "SIZE must be an integer followed by K, M, G, or T." >&2
         echo "example: sudo unreal-storage-init 500G" >&2
         exit 64
       fi
@@ -59,23 +60,34 @@ let
         echo "the image will still work, but physical allocation may grow less efficiently" >&2
       fi
 
-      install -d -m 0755 -- "$(dirname -- "$image")"
-      truncate -s "$size" -- "$image"
-      chmod 0600 -- "$image"
-
-      tmp_mount="$(mktemp -d /run/unreal-storage-init.XXXXXX)"
+      tmp_mount=""
       success=0
       cleanup() {
-        if mountpoint -q -- "$tmp_mount"; then
+        if [[ -n "$tmp_mount" ]] && mountpoint -q -- "$tmp_mount"; then
           umount -- "$tmp_mount" || true
         fi
-        rmdir -- "$tmp_mount" 2>/dev/null || true
+        if [[ -n "$tmp_mount" ]]; then
+          rmdir -- "$tmp_mount" 2>/dev/null || true
+        fi
         if [[ $success -ne 1 ]]; then
           rm -f -- "$image"
         fi
       }
       trap cleanup EXIT
 
+      install -d -m 0755 -- "$(dirname -- "$image")"
+      truncate -s "$size" -- "$image"
+      chmod 0600 -- "$image"
+
+      logical_bytes="$(stat -c %s -- "$image")"
+      available_bytes="$(df --output=avail -B1 -- "$backing_mount" | tail -n 1 | tr -d ' ')"
+      if (( logical_bytes > available_bytes )); then
+        echo "Requested logical image size exceeds current free space on $backing_mount." >&2
+        echo "requested: $logical_bytes bytes; available: $available_bytes bytes" >&2
+        exit 75
+      fi
+
+      tmp_mount="$(mktemp -d /run/unreal-storage-init.XXXXXX)"
       mkfs.ext4 -F -L unreal-store "$image"
       mount -o loop,noatime "$image" "$tmp_mount"
 
