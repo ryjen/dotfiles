@@ -2,7 +2,7 @@
   config,
   lib,
   pkgs,
-  username,
+  username ? "ryjen",
   ...
 }:
 let
@@ -155,7 +155,7 @@ in
 
     owner = lib.mkOption {
       type = lib.types.str;
-      default = username;
+      default = lib.attrByPath [ "dubnium" "user" "name" ] username config;
       description = "User that owns the root and initial directories created in a new image";
     };
 
