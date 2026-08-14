@@ -14,6 +14,11 @@
   dotfiles.opsCadence.enable = lib.mkDefault true;
   dotfiles.hypr.adoptedProfile = "dubnium";
 
+  # When Unreal is explicitly enabled, use the native Linux filesystem mounted
+  # from the optional isotope-backed storage image. This path selection alone
+  # does not enable Unreal or the storage module.
+  dotfiles.unreal.engineRoot = lib.mkDefault "/srv/unreal/Engine/5.8";
+
   dotfiles.bitwarden.cli.enable = lib.mkDefault true;
   dotfiles.bitwarden.desktop.enable = lib.mkDefault false;
 
