@@ -35,6 +35,19 @@ jobs:
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@v17
 
+      - name: Verify Generated Lockfile
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp flake.lock flake.lock.committed
+          nix flake lock
+          if ! cmp -s flake.lock.committed flake.lock; then
+            echo "flake.lock is not the Nix-generated lock for flake.nix" >&2
+            git diff --no-index -- flake.lock.committed flake.lock || true
+            exit 1
+          fi
+          rm flake.lock.committed
+
       - name: Discover Blocking Repository Checks
         id: discover
         shell: bash
