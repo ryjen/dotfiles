@@ -344,6 +344,7 @@
       homeConfigurations."${username}@dubnium" = mkHomeConfig ./home/ryjen/dubnium-home.nix;
       homeConfigurations."${username}@technetium" = mkHomeConfig ./home/ryjen/technetium-home.nix;
       homeConfigurations."${username}@meeting-verify" = mkHomeConfig ./home/ryjen/meeting-verify-home.nix;
+      homeConfigurations."${username}@unreal-verify" = mkHomeConfig ./home/ryjen/unreal-verify-home.nix;
 
       nixosModules.dubnium-home-manager =
         {
