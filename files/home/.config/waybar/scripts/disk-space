@@ -10,12 +10,26 @@ io_critical_percent=${WAYBAR_DISK_IO_CRITICAL_PERCENT:-95}
 io_sample_seconds=${WAYBAR_DISK_IO_SAMPLE_SECONDS:-0.5}
 btrfs_cache_seconds=${WAYBAR_DISK_BTRFS_CACHE_SECONDS:-30}
 
-runtime_base=${XDG_RUNTIME_DIR:-/tmp/waybar-disk-${UID}}
-state_dir="${runtime_base}/waybar-disk"
-btrfs_cache_file="${state_dir}/btrfs-root.cache"
-mkdir -p "$state_dir"
-chmod 700 "$state_dir" 2>/dev/null || true
+if [[ -n ${XDG_RUNTIME_DIR:-} ]]; then
+  state_base=$XDG_RUNTIME_DIR
+elif [[ -n ${XDG_CACHE_HOME:-} ]]; then
+  state_base=$XDG_CACHE_HOME
+elif [[ -n ${HOME:-} ]]; then
+  state_base=$HOME/.cache
+else
+  printf 'disk-space: no private runtime/cache directory available\n' >&2
+  exit 1
+fi
+
 umask 077
+state_dir="${state_base}/waybar-disk"
+install -d -m 700 -- "$state_dir"
+if [[ -L "$state_dir" || ! -d "$state_dir" || ! -O "$state_dir" ]]; then
+  printf 'disk-space: refusing unsafe state directory: %s\n' "$state_dir" >&2
+  exit 1
+fi
+chmod 700 -- "$state_dir"
+btrfs_cache_file="${state_dir}/btrfs-root.cache"
 
 json_escape() {
   local value=${1//\\/\\\\}
@@ -95,15 +109,39 @@ resolve_physical_devices_by_source() {
   resolve_sysfs_device "$sys_path"
 }
 
+resolve_physical_devices_by_sources() {
+  local target=$1
+  local line candidate
+
+  # SOURCES is a multi-value column. In raw output util-linux may emit more
+  # than one device on the same line, so split each returned line into paths.
+  while IFS= read -r line; do
+    for candidate in $line; do
+      resolve_physical_devices_by_source "$candidate"
+    done
+  done < <(findmnt --noheadings --raw --output SOURCES --target "$target" 2>/dev/null || true)
+}
+
 physical_devices_for_mount() {
   local device_id=$1
   local source=$2
+  local target=$3
+  local fstype=$4
   resolved_devices=()
 
-  # Prefer the resolved block source. This is reliable for kernel ntfs3 mounts
-  # and also handles /dev/disk/by-* aliases. Fall back to MAJ:MIN for sources
-  # such as Btrfs subvolumes where SOURCE is not a plain block-device path.
-  resolve_physical_devices_by_source "$source"
+  # Btrfs may span multiple devices. Resolve every source carrying the
+  # filesystem UUID so max utilization cannot hide a saturated member.
+  if [[ "$fstype" == btrfs ]]; then
+    resolve_physical_devices_by_sources "$target"
+  else
+    # SOURCE is reliable for kernel ntfs3 mounts and /dev/disk/by-* aliases.
+    resolve_physical_devices_by_source "$source"
+  fi
+
+  # Preserve the ordinary source and MAJ:MIN paths as fail-safe fallbacks.
+  if (( ${#resolved_devices[@]} == 0 )); then
+    resolve_physical_devices_by_source "$source"
+  fi
   if (( ${#resolved_devices[@]} == 0 )); then
     resolve_physical_devices_by_id "$device_id"
   fi
@@ -154,9 +192,11 @@ done < /proc/diskstats
 io_metrics_for_mount() {
   local device_id=$1
   local source=$2
+  local target=$3
+  local fstype=$4
   local disk util max_util=-1 total_read=0 total_write=0
   local -a disks=()
-  mapfile -t disks < <(physical_devices_for_mount "$device_id" "$source")
+  mapfile -t disks < <(physical_devices_for_mount "$device_id" "$source" "$target" "$fstype")
 
   for disk in "${disks[@]}"; do
     util=${io_util_percent[$disk]:--1}
@@ -174,7 +214,7 @@ read -r root_size root_used root_free root_percent < <(
 root_device_id=$(findmnt --noheadings --output MAJ:MIN --target / | awk 'NR == 1 { print $1 }')
 root_source=$(findmnt --noheadings --output SOURCE --target / | awk 'NR == 1 { print $1 }')
 root_fstype=$(findmnt --noheadings --output FSTYPE --target / | awk 'NR == 1 { print $1 }')
-IFS=$'\t' read -r root_disks root_io_util root_read_bps root_write_bps < <(io_metrics_for_mount "$root_device_id" "$root_source")
+IFS=$'\t' read -r root_disks root_io_util root_read_bps root_write_bps < <(io_metrics_for_mount "$root_device_id" "$root_source" / "$root_fstype")
 
 state=normal
 if (( root_percent >= critical_percent || root_free <= critical_free_bytes )); then
@@ -231,7 +271,7 @@ while IFS=$'\t' read -r device_id source fstype target; do
     continue
   fi
 
-  IFS=$'\t' read -r disks io_util read_bps write_bps < <(io_metrics_for_mount "$device_id" "$source")
+  IFS=$'\t' read -r disks io_util read_bps write_bps < <(io_metrics_for_mount "$device_id" "$source" "$target" "$fstype")
   tooltip+=$(printf '%-16s %-18s %7s %7s %5s%% %6s %11s %11s' \
     "$disks" "$target" "$(human_bytes "$used")" "$(human_bytes "$free")" "$percent" \
     "$(format_io_percent "$io_util")" "$(human_rate "$read_bps")" "$(human_rate "$write_bps")")
@@ -286,14 +326,14 @@ if [[ "$root_fstype" == btrfs ]]; then
   tooltip+=$'\n'
   cache_now=$(date +%s)
   cache_mtime=0
-  [[ -r "$btrfs_cache_file" ]] && cache_mtime=$(stat -c %Y "$btrfs_cache_file" 2>/dev/null || printf '0')
+  [[ -r "$btrfs_cache_file" && ! -L "$btrfs_cache_file" ]] && cache_mtime=$(stat -c %Y "$btrfs_cache_file" 2>/dev/null || printf '0')
   if (( cache_now - cache_mtime >= btrfs_cache_seconds )); then
-    cache_tmp="${btrfs_cache_file}.tmp.$$"
+    cache_tmp=$(mktemp --tmpdir="$state_dir" btrfs-root.cache.XXXXXX)
     render_btrfs_details > "$cache_tmp"
-    mv -f "$cache_tmp" "$btrfs_cache_file"
+    mv -f -- "$cache_tmp" "$btrfs_cache_file"
   fi
-  if [[ -r "$btrfs_cache_file" ]]; then
-    tooltip+=$(cat "$btrfs_cache_file")
+  if [[ -r "$btrfs_cache_file" && ! -L "$btrfs_cache_file" ]]; then
+    tooltip+=$(cat -- "$btrfs_cache_file")
     tooltip+=$'\n'
   fi
 fi
