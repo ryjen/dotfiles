@@ -23,11 +23,18 @@ let
       engine_root=${lib.escapeShellArg cfg.engineRoot}
       parent="$(dirname -- "$engine_root")"
 
+      if [[ ! -f "$archive" ]]; then
+        echo "Unreal Engine archive is not a regular file: $archive" >&2
+        exit 66
+      fi
+
       if [[ -e "$engine_root" ]]; then
         echo "Unreal Engine install already exists: $engine_root" >&2
         echo "Choose a different dotfiles.unreal.engineRoot for another version." >&2
         exit 73
       fi
+
+      unzip -tq -- "$archive" >/dev/null
 
       while IFS= read -r entry; do
         case "$entry" in
@@ -98,6 +105,20 @@ in
   };
 
   config = lib.mkIf cfg.enable {
+    assertions = [
+      {
+        assertion = lib.hasPrefix "/" cfg.engineRoot;
+        message = "dotfiles.unreal.engineRoot must be an absolute path";
+      }
+      {
+        assertion =
+          cfg.engineRoot != "/"
+          && cfg.engineRoot != "/nix/store"
+          && !lib.hasPrefix "/nix/store/" cfg.engineRoot;
+        message = "dotfiles.unreal.engineRoot must be mutable storage outside / and /nix/store";
+      }
+    ];
+
     home.packages = [
       unrealEditor
       unrealInstaller
