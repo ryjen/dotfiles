@@ -49,14 +49,6 @@ btrfs_bytes_metric() {
 }
 
 declare -A resolved_devices=()
-resolve_physical_devices() {
-  local device_id=$1
-  local sys_path
-  sys_path=$(readlink -f "/sys/dev/block/${device_id}" 2>/dev/null || true)
-  [[ -n "$sys_path" ]] || return 0
-  resolve_sysfs_device "$sys_path"
-}
-
 resolve_sysfs_device() {
   local sys_path=$1
   local name slave parent
@@ -81,10 +73,41 @@ resolve_sysfs_device() {
   fi
 }
 
-physical_devices_for_id() {
+resolve_physical_devices_by_id() {
   local device_id=$1
+  local sys_path
+  sys_path=$(readlink -f "/sys/dev/block/${device_id}" 2>/dev/null || true)
+  [[ -n "$sys_path" ]] || return 0
+  resolve_sysfs_device "$sys_path"
+}
+
+resolve_physical_devices_by_source() {
+  local source=$1
+  local source_path name sys_path
+
+  [[ "$source" == /dev/* ]] || return 0
+  source_path=$(readlink -f -- "$source" 2>/dev/null || true)
+  [[ -n "$source_path" ]] || return 0
+
+  name=$(basename "$source_path")
+  sys_path=$(readlink -f "/sys/class/block/${name}" 2>/dev/null || true)
+  [[ -n "$sys_path" ]] || return 0
+  resolve_sysfs_device "$sys_path"
+}
+
+physical_devices_for_mount() {
+  local device_id=$1
+  local source=$2
   resolved_devices=()
-  resolve_physical_devices "$device_id"
+
+  # Prefer the resolved block source. This is reliable for kernel ntfs3 mounts
+  # and also handles /dev/disk/by-* aliases. Fall back to MAJ:MIN for sources
+  # such as Btrfs subvolumes where SOURCE is not a plain block-device path.
+  resolve_physical_devices_by_source "$source"
+  if (( ${#resolved_devices[@]} == 0 )); then
+    resolve_physical_devices_by_id "$device_id"
+  fi
+
   printf '%s\n' "${!resolved_devices[@]}" | sed '/^$/d' | sort
 }
 
@@ -128,11 +151,12 @@ while read -r _major _minor name _reads _reads_merged sectors_read _read_ms _wri
   fi
 done < /proc/diskstats
 
-io_metrics_for_device_id() {
+io_metrics_for_mount() {
   local device_id=$1
+  local source=$2
   local disk util max_util=-1 total_read=0 total_write=0
   local -a disks=()
-  mapfile -t disks < <(physical_devices_for_id "$device_id")
+  mapfile -t disks < <(physical_devices_for_mount "$device_id" "$source")
 
   for disk in "${disks[@]}"; do
     util=${io_util_percent[$disk]:--1}
@@ -150,7 +174,7 @@ read -r root_size root_used root_free root_percent < <(
 root_device_id=$(findmnt --noheadings --output MAJ:MIN --target / | awk 'NR == 1 { print $1 }')
 root_source=$(findmnt --noheadings --output SOURCE --target / | awk 'NR == 1 { print $1 }')
 root_fstype=$(findmnt --noheadings --output FSTYPE --target / | awk 'NR == 1 { print $1 }')
-IFS=$'\t' read -r root_disks root_io_util root_read_bps root_write_bps < <(io_metrics_for_device_id "$root_device_id")
+IFS=$'\t' read -r root_disks root_io_util root_read_bps root_write_bps < <(io_metrics_for_mount "$root_device_id" "$root_source")
 
 state=normal
 if (( root_percent >= critical_percent || root_free <= critical_free_bytes )); then
@@ -185,7 +209,7 @@ tooltip+=$'\n'
 declare -A seen_devices=()
 seen_devices[$root_device_id]=1
 
-while IFS=$'\t' read -r device_id fstype target; do
+while IFS=$'\t' read -r device_id source fstype target; do
   [[ -n "$device_id" && -n "$target" ]] || continue
 
   case "$fstype" in
@@ -207,12 +231,12 @@ while IFS=$'\t' read -r device_id fstype target; do
     continue
   fi
 
-  IFS=$'\t' read -r disks io_util read_bps write_bps < <(io_metrics_for_device_id "$device_id")
+  IFS=$'\t' read -r disks io_util read_bps write_bps < <(io_metrics_for_mount "$device_id" "$source")
   tooltip+=$(printf '%-16s %-18s %7s %7s %5s%% %6s %11s %11s' \
     "$disks" "$target" "$(human_bytes "$used")" "$(human_bytes "$free")" "$percent" \
     "$(format_io_percent "$io_util")" "$(human_rate "$read_bps")" "$(human_rate "$write_bps")")
   tooltip+=$'\n'
-done < <(findmnt --real --raw --noheadings --output MAJ:MIN,FSTYPE,TARGET | tr -s ' ' '\t')
+done < <(findmnt --real --raw --noheadings --output MAJ:MIN,SOURCE,FSTYPE,TARGET | tr -s ' ' '\t')
 
 render_btrfs_details() {
   printf '<b>Btrfs root</b>  %s\n' "$root_source"
