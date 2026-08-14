@@ -64,7 +64,14 @@ filesystem image:
 └── Toolchains/
 ```
 
-The NixOS storage support is also disabled by default. Enable its mount contract
+The NixOS storage support is also disabled by default. When dotfiles is consumed
+as a flake input, import the exported module into the host's NixOS module list:
+
+```nix
+dotfiles.nixosModules.unreal-storage
+```
+
+Importing the module alone has no runtime effect. Enable its mount contract
 explicitly:
 
 ```nix
