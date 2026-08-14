@@ -16,7 +16,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     ops-cadence = {
-      url = "git+ssh://git@github.com/ryjen/ops-cadence.git?ref=main&rev=d83511cb669a6ca1481f7a79ea5f1aac6ceabd36";
+      url = "github:ryjen/ops-cadence/d83511cb669a6ca1481f7a79ea5f1aac6ceabd36";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     git-autocommit = {
