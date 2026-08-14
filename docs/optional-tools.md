@@ -30,15 +30,18 @@ Linux installed-build ZIP from Epic and install it with:
 unreal-install ~/Downloads/Linux_Unreal_Engine_5.8.zip
 ```
 
-By default the archive is extracted to `$XDG_DATA_HOME/unreal-engine`. The helper
-refuses to replace an existing installation and validates that the archive
-contains `Engine/Binaries/Linux/UnrealEditor` before publishing the directory.
-To keep multiple versions, choose a distinct root in local Home Manager config:
+The portable module default is `$XDG_DATA_HOME/unreal-engine`. The Dubnium
+profile overrides only the destination to `/mnt/isotope/Unreal/5.8` so the large
+mutable engine tree stays off the root filesystem; it does not enable Unreal.
+The helper refuses to replace an existing installation and validates that the
+archive contains `Engine/Binaries/Linux/UnrealEditor` before publishing the
+directory. To keep multiple versions on another profile, choose a distinct root
+in local Home Manager config:
 
 ```nix
 dotfiles.unreal = {
   enable = true;
-  engineRoot = "/mnt/isotope/Unreal/5.8";
+  engineRoot = "/path/to/Unreal/5.8";
 };
 ```
 
@@ -48,10 +51,10 @@ Launch the editor from the desktop entry or with:
 unreal-editor
 ```
 
-The launcher exports `UE_ROOT` and runs the external Epic binary through
-`steam-run`, providing an FHS-compatible runtime for NixOS without making the
-engine payload part of the system closure. Project files and engine-generated
-state remain normal mutable user data.
+The launcher exports `UE_ROOT` and runs the external Epic binary through the
+free `steam-run` FHS runtime, providing NixOS compatibility without making the
+engine payload or Steam client part of the system closure. Project files and
+engine-generated state remain normal mutable user data.
 
 ## OpenWork
 
