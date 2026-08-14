@@ -11,7 +11,6 @@
   dotfiles.profiles.office.enable = lib.mkDefault true;
   dotfiles.openwork.enable = lib.mkDefault true;
   dotfiles.openwork.sandbox.allowSshAgent = lib.mkDefault true;
-  dotfiles.opsCadence.enable = lib.mkDefault true;
   dotfiles.hypr.adoptedProfile = "dubnium";
 
   # When Unreal is explicitly enabled, use the native Linux filesystem mounted
