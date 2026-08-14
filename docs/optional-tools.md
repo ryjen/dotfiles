@@ -43,11 +43,83 @@ dotfiles.unreal = {
 
 Prefer a native Linux filesystem for `engineRoot`. A Linux Unreal installation
 contains executable toolchains and expects normal POSIX path, permission,
-symlink, and case semantics. Do not make NTFS, exFAT, VFAT, CIFS, or another
-non-POSIX filesystem the default without validating the actual mount semantics.
+symlink, and case semantics. Direct NTFS/exFAT/VFAT/CIFS engine and build trees
+should therefore be treated as compatibility configurations rather than the
+portable default.
 
-The installer refuses to replace an existing engine and validates that the
-archive contains `Engine/Binaries/Linux/UnrealEditor` before publishing the
+### Dubnium isotope-backed storage
+
+Dubnium can keep the large engine, projects, and toolchains physically on the
+`/mnt/isotope` drive while exposing them to Unreal through a native ext4
+filesystem image:
+
+```text
+/mnt/isotope/Unreal/unreal.ext4
+             |
+             | loop-mounted ext4
+             v
+/srv/unreal/
+├── Engine/
+├── Projects/
+└── Toolchains/
+```
+
+The NixOS storage support is also disabled by default. Enable its mount contract
+explicitly:
+
+```nix
+dubnium.unreal.storage.enable = true;
+```
+
+Enabling the module does **not** create or format an image. It adds the guarded
+`unreal-storage-init` helper and an ext4 loop mount at `/srv/unreal` using
+`loop,noatime,nofail,x-systemd.automount`. The mount declares `/mnt/isotope` as a
+dependency when that filesystem is managed by NixOS.
+
+After switching to the configuration, explicitly create an image of the desired
+logical capacity:
+
+```bash
+sudo unreal-storage-init 500G
+```
+
+The initializer:
+
+- refuses to run unless `/mnt/isotope` is an actual mounted filesystem, avoiding
+  accidental creation of a huge image on the root filesystem;
+- refuses to replace an existing image;
+- creates and formats only `/mnt/isotope/Unreal/unreal.ext4`;
+- temporarily loop-mounts the new ext4 filesystem to establish user ownership
+  and the `Engine`, `Projects`, and `Toolchains` directories;
+- removes a newly created image if initialization fails before completion;
+- warns when the backing filesystem is `ntfs3` without its `sparse` mount option;
+- reports the image's actual allocated size with `du` after initialization.
+
+`500G` is only an example. Choose the logical upper bound appropriate for the
+isotope drive. With backing-filesystem sparse-file support, physical allocation
+can grow as ext4 data is written rather than consuming the complete logical size
+immediately.
+
+The Dubnium Home Manager profile selects:
+
+```nix
+dotfiles.unreal.engineRoot = "/srv/unreal/Engine/5.8";
+```
+
+but does not enable either Unreal or its storage. This keeps the normal machine
+configuration unchanged until both features are deliberately selected.
+
+Keep the hot Zen/DDC cache on native system storage by default:
+
+```text
+$XDG_CACHE_HOME/unreal-engine/zen
+```
+
+The authenticated Epic ZIP and other inert downloads can live directly under
+`/mnt/isotope/Unreal/` without requiring POSIX execution semantics.
+
+The Unreal installer refuses to replace an existing engine and validates that
+the archive contains `Engine/Binaries/Linux/UnrealEditor` before publishing the
 staged directory.
 
 Launch the editor from the desktop entry or with:
@@ -62,8 +134,7 @@ engine payload or Steam client part of the system closure.
 
 Epic's Installed Build deployment model is intentionally compatible with a
 read-only engine distribution. The wrapper therefore keeps Zen/DDC mutation in
-a separate writable cache root, defaulting to
-`$XDG_CACHE_HOME/unreal-engine/zen`. The engine directory can be treated as
+a separate writable cache root. The engine directory can be treated as
 immutable after installation as long as workflows that intentionally modify the
 engine are handled separately.
 
