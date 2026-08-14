@@ -20,7 +20,6 @@ and then enables these feature sets independently:
 - Antigravity;
 - Headroom proxy;
 - OpenWork;
-- ops-cadence;
 - the workstation combination;
 - the Dubnium combination.
 

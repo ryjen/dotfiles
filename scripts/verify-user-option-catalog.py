@@ -31,7 +31,6 @@ NON_PORTABLE_OPTIONS = {
     # Package-valued implementation injection points are supplied by tracked
     # modules and flake inputs, not by portable user selection files.
     "agents.antigravity.package",
-    "opsCadence.package",
 }
 
 
@@ -137,8 +136,6 @@ def main() -> None:
         if LOCAL_IMPORT not in text:
             errors.append(f"{path.relative_to(root)} does not optionally import user.local.nix")
 
-    # The NixOS-integrated module imports dubnium-home.nix directly, so ensure
-    # it is covered even if its standalone homeConfiguration is later removed.
     dubnium_home = root / "home" / "ryjen" / "dubnium-home.nix"
     if LOCAL_IMPORT not in dubnium_home.read_text(encoding="utf-8"):
         errors.append("home/ryjen/dubnium-home.nix does not optionally import user.local.nix")
