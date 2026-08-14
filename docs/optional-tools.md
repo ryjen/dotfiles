@@ -73,8 +73,9 @@ dubnium.unreal.storage.enable = true;
 
 Enabling the module does **not** create or format an image. It adds the guarded
 `unreal-storage-init` helper and an ext4 loop mount at `/srv/unreal` using
-`loop,noatime,nofail,x-systemd.automount`. The mount declares `/mnt/isotope` as a
-dependency when that filesystem is managed by NixOS.
+`loop,noatime,nodev,nosuid,nofail,x-systemd.automount`. The mount declares
+`/mnt/isotope` as a dependency path; NixOS resolves whichever configured
+filesystem is responsible for that path before attempting the loop mount.
 
 After switching to the configuration, explicitly create an image of the desired
 logical capacity:
@@ -87,13 +88,18 @@ The initializer:
 
 - refuses to run unless `/mnt/isotope` is an actual mounted filesystem, avoiding
   accidental creation of a huge image on the root filesystem;
-- refuses to replace an existing image;
+- refuses to replace an existing image and uses a no-clobber creation step to
+  protect against a concurrent path appearing after the initial check;
+- validates that the resolved image parent remains beneath the resolved backing
+  mount before creating the image;
 - creates and formats only `/mnt/isotope/Unreal/unreal.ext4`;
-- rejects a requested logical size larger than the backing filesystem's current
-  available space;
-- temporarily loop-mounts the new ext4 filesystem to establish user ownership
-  and the `Engine`, `Projects`, and `Toolchains` directories;
-- removes a newly created image if initialization fails before completion;
+- rejects a requested logical size larger than the backing filesystem's
+  pre-creation available space;
+- temporarily loop-mounts the new ext4 filesystem with `nodev,nosuid` to
+  establish user ownership and the `Engine`, `Projects`, and `Toolchains`
+  directories;
+- removes a newly created image if initialization fails and the temporary mount
+  can be safely unmounted, but preserves the image if emergency unmount fails;
 - warns when the backing filesystem is `ntfs3` without its `sparse` mount option;
 - reports the image's actual allocated size with `du` after initialization.
 
