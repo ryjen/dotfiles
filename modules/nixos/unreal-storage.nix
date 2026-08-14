@@ -60,30 +60,53 @@ let
         echo "the image will still work, but physical allocation may grow less efficiently" >&2
       fi
 
+      available_bytes="$(df --output=avail -B1 -- "$backing_mount" | tail -n 1 | tr -d ' ')"
+
       tmp_mount=""
       success=0
+      image_created=0
       cleanup() {
+        preserve_image=0
         if [[ -n "$tmp_mount" ]] && mountpoint -q -- "$tmp_mount"; then
-          umount -- "$tmp_mount" || true
+          if ! umount -- "$tmp_mount"; then
+            echo "warning: failed to unmount $tmp_mount; preserving $image" >&2
+            preserve_image=1
+          fi
         fi
-        if [[ -n "$tmp_mount" ]]; then
+        if [[ -n "$tmp_mount" ]] && ! mountpoint -q -- "$tmp_mount"; then
           rmdir -- "$tmp_mount" 2>/dev/null || true
         fi
-        if [[ $success -ne 1 ]]; then
+        if [[ $success -ne 1 && $image_created -eq 1 && $preserve_image -eq 0 ]]; then
           rm -f -- "$image"
         fi
       }
       trap cleanup EXIT
 
-      install -d -m 0755 -- "$(dirname -- "$image")"
-      truncate -s "$size" -- "$image"
+      image_parent="$(dirname -- "$image")"
+      install -d -m 0755 -- "$image_parent"
+
+      resolved_backing="$(realpath -e -- "$backing_mount")"
+      resolved_parent="$(realpath -e -- "$image_parent")"
+      case "$resolved_parent" in
+        "$resolved_backing"|"$resolved_backing"/*) ;;
+        *)
+          echo "Resolved image parent escapes backing mount: $resolved_parent" >&2
+          exit 78
+          ;;
+      esac
+
+      if ! (set -o noclobber; : > "$image") 2>/dev/null; then
+        echo "Refusing to replace an image path created concurrently: $image" >&2
+        exit 73
+      fi
+      image_created=1
       chmod 0600 -- "$image"
+      truncate -s "$size" -- "$image"
 
       logical_bytes="$(stat -c %s -- "$image")"
-      available_bytes="$(df --output=avail -B1 -- "$backing_mount" | tail -n 1 | tr -d ' ')"
       if (( logical_bytes > available_bytes )); then
-        echo "Requested logical image size exceeds current free space on $backing_mount." >&2
-        echo "requested: $logical_bytes bytes; available: $available_bytes bytes" >&2
+        echo "Requested logical image size exceeds free space on $backing_mount." >&2
+        echo "requested: $logical_bytes bytes; pre-creation available: $available_bytes bytes" >&2
         exit 75
       fi
 
