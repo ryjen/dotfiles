@@ -200,27 +200,6 @@
         "type": "github"
       }
     },
-    "ops-cadence": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1783317191,
-        "narHash": "sha256-VvHc4JRHDmx6caFGjfA6rka+gKnRlYzWi9ndIehU+/E=",
-        "owner": "ryjen",
-        "repo": "ops-cadence",
-        "rev": "d83511cb669a6ca1481f7a79ea5f1aac6ceabd36",
-        "type": "github"
-      },
-      "original": {
-        "owner": "ryjen",
-        "repo": "ops-cadence",
-        "rev": "d83511cb669a6ca1481f7a79ea5f1aac6ceabd36",
-        "type": "github"
-      }
-    },
     "pyproject-build-systems": {
       "inputs": {
         "nixpkgs": [
@@ -279,7 +258,6 @@
         "hermes-agent": "hermes-agent",
         "home-manager": "home-manager",
         "nixpkgs": "nixpkgs",
-        "ops-cadence": "ops-cadence",
         "sops-nix": "sops-nix"
       }
     },
