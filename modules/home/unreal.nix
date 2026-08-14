@@ -74,7 +74,7 @@ let
     name = "unreal-editor";
     runtimeInputs = [
       pkgs.coreutils
-      pkgs.steam-run
+      pkgs.steam.run-free
     ];
     text = ''
       engine_root=${lib.escapeShellArg cfg.engineRoot}
