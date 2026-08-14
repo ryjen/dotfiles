@@ -55,6 +55,7 @@
 
   # dotfiles.music.enable = false;
   # dotfiles.music.musicDirectory = "${config.home.homeDirectory}/Music";
+  # dotfiles.music.mpd.enable = false;
   # dotfiles.grimblast.enable = false;
   # dotfiles.graphical.keyring.enable = false;
   # dotfiles.idle.enable = false;

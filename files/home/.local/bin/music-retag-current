@@ -9,31 +9,68 @@ notify() {
   fi
 }
 
-uri="$(playerctl --player=mpv metadata xesam:url 2>/dev/null || true)"
+if [ -r "$HOME/.local/share/dubnium/music-env" ]; then
+  # GUI launchers may not inherit Home Manager session variables.
+  . "$HOME/.local/share/dubnium/music-env"
+fi
+
+music_dir="${DUBNIUM_MUSIC_DIR:-$HOME/Music}"
+music_playerctl="${MUSIC_PLAYERCTL:-$HOME/.local/bin/music-playerctl}"
+player="mpv"
+
+if [ -x "$music_playerctl" ]; then
+  player="$($music_playerctl --player-name 2>/dev/null || true)"
+  if [ -z "$player" ]; then
+    notify "No MPD or mpv track found"
+    exit 1
+  fi
+fi
+
+uri="$(playerctl --player="$player" metadata xesam:url 2>/dev/null || true)"
 
 if [ -z "$uri" ]; then
-  notify "No mpv track URL found"
+  notify "No local track path found for $player"
   exit 1
 fi
 
-case "$uri" in
-  file://*) ;;
-  *)
-    notify "Refusing non-local track"
-    exit 1
-    ;;
-esac
-
-path="$(python3 - "$uri" <<'PY'
+path="$(python3 - "$player" "$uri" "$music_dir" <<'PY'
 import sys
+from pathlib import Path
 from urllib.parse import unquote, urlparse
 
-parsed = urlparse(sys.argv[1])
-if parsed.scheme != "file":
+player, raw, music_root = sys.argv[1:4]
+
+if raw.startswith("file://"):
+    parsed = urlparse(raw)
+    if parsed.scheme != "file":
+        raise SystemExit(1)
+    candidate = Path(unquote(parsed.path))
+elif player == "mpd":
+    # mpd-mpris exposes MPD's database path directly. For a local MPD library
+    # this is normally relative to music_directory, not a file:// URI.
+    if "://" in raw:
+        raise SystemExit(1)
+    candidate = Path(raw)
+    if not candidate.is_absolute():
+        candidate = Path(music_root) / candidate
+else:
     raise SystemExit(1)
-print(unquote(parsed.path))
+
+candidate = candidate.expanduser().resolve()
+
+if player == "mpd":
+    root = Path(music_root).expanduser().resolve()
+    try:
+        candidate.relative_to(root)
+    except ValueError:
+        raise SystemExit(1)
+
+print(candidate)
 PY
-)"
+)" || {
+  notify "Could not resolve current $player track under the music library"
+  exit 1
+}
 
 if [ ! -f "$path" ]; then
   notify "Current track is not a file: $path"

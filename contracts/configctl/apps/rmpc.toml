@@ -1,0 +1,58 @@
+schema_version = 1
+tool = "rmpc"
+owner = "dotfiles"
+profile = "dubnium"
+status = "planned"
+strategy = "compose"
+current_runtime_owner = "home-manager"
+target_runtime_owner = "configctl"
+executor_may_validate = true
+executor_may_adopt = true
+executor_may_write_outputs = false
+renderer_required = true
+description = "rmpc has a single RON runtime config and needs configctl composition before output ownership can move from Home Manager."
+
+[layout]
+root = "~/.config/rmpc"
+standard = "configctl-v1"
+source_inputs = [
+  "files/home/.config/rmpc/base.ron"
+]
+promoted_inputs = [
+  "files/home/.config/rmpc/custom.d/dubnium/*.ron"
+]
+runtime_outputs = [
+  "config.ron"
+]
+local = [
+  "local.ron"
+]
+custom = [
+  "custom.d/*.ron"
+]
+adopted = [
+  "adopted.d/*.ron"
+]
+
+[composition]
+source_order = [
+  "source_inputs",
+  "promoted_inputs",
+  "local",
+  "custom"
+]
+output_role = "runtime_outputs"
+write_mode = "atomic"
+dry_run_required = true
+requires_parser = [
+  "ron"
+]
+
+[adoption]
+state_path = "~/.local/state/configctl/adoptions/rmpc.toml"
+hash_algorithm = "sha256"
+mode = "review-gated"
+ignore = [
+  "local",
+  "adopted"
+]

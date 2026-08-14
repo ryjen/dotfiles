@@ -1,0 +1,66 @@
+schema_version = 1
+tool = "beets"
+owner = "dotfiles"
+profile = "dubnium"
+status = "planned"
+strategy = "compose"
+current_runtime_owner = "user"
+target_runtime_owner = "configctl"
+executor_may_validate = true
+executor_may_adopt = true
+executor_may_write_outputs = false
+renderer_required = true
+description = "The existing beets config remains user-owned today; configctl must adopt and compose it with the dotfiles MPD fragment without clobbering personal metadata/import settings."
+
+[layout]
+root = "~/.config/beets"
+standard = "configctl-v1"
+source_inputs = [
+  "modules/home/music-library.nix"
+]
+promoted_inputs = [
+  "files/home/.config/beets/custom.d/dubnium/*.yaml"
+]
+runtime_outputs = [
+  "config.yaml"
+]
+local = [
+  "local.yaml"
+]
+custom = [
+  "custom.d/*.yaml"
+]
+adopted = [
+  "adopted.d/*.yaml"
+]
+auxiliary_outputs = [
+  "dotfiles-mpd.yaml"
+]
+
+[composition]
+# The adopted copy of the pre-existing user config is a deliberate composition
+# input for beets rather than a passive archive: preserving those settings is a
+# migration invariant. The Home Manager MPD fragment is layered on top, followed
+# by reviewed profile-promoted fragments, then local/live custom overrides.
+source_order = [
+  "adopted",
+  "auxiliary_outputs",
+  "promoted_inputs",
+  "local",
+  "custom"
+]
+output_role = "runtime_outputs"
+write_mode = "atomic"
+dry_run_required = true
+requires_parser = [
+  "yaml"
+]
+
+[adoption]
+state_path = "~/.local/state/configctl/adoptions/beets.toml"
+hash_algorithm = "sha256"
+mode = "review-gated"
+ignore = [
+  "local",
+  "adopted"
+]
