@@ -209,17 +209,16 @@
       "locked": {
         "lastModified": 1783317191,
         "narHash": "sha256-VvHc4JRHDmx6caFGjfA6rka+gKnRlYzWi9ndIehU+/E=",
-        "ref": "main",
+        "owner": "ryjen",
+        "repo": "ops-cadence",
         "rev": "d83511cb669a6ca1481f7a79ea5f1aac6ceabd36",
-        "revCount": 2,
-        "type": "git",
-        "url": "ssh://git@github.com/ryjen/ops-cadence.git"
+        "type": "github"
       },
       "original": {
-        "ref": "main",
+        "owner": "ryjen",
+        "repo": "ops-cadence",
         "rev": "d83511cb669a6ca1481f7a79ea5f1aac6ceabd36",
-        "type": "git",
-        "url": "ssh://git@github.com/ryjen/ops-cadence.git"
+        "type": "github"
       }
     },
     "pyproject-build-systems": {
