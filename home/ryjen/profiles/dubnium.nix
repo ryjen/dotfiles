@@ -14,10 +14,6 @@
   dotfiles.opsCadence.enable = lib.mkDefault true;
   dotfiles.hypr.adoptedProfile = "dubnium";
 
-  # Keep the large mutable Unreal installed build off the root filesystem while
-  # leaving the editor support itself opt-in.
-  dotfiles.unreal.engineRoot = lib.mkDefault "/mnt/isotope/Unreal/5.8";
-
   dotfiles.bitwarden.cli.enable = lib.mkDefault true;
   dotfiles.bitwarden.desktop.enable = lib.mkDefault false;
 
