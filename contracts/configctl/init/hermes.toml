@@ -1,0 +1,12 @@
+schemaVersion = 1
+id = "hermes"
+kind = "hermes"
+enabled = true
+risk = ["mutable-user-state"]
+tags = ["hermes", "ai", "developer-tools"]
+home = "$HOME/.hermes"
+configDir = "$XDG_CONFIG_HOME/hermes"
+configFile = "$XDG_CONFIG_HOME/hermes/local.yaml"
+
+[behavior]
+createMissing = true

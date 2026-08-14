@@ -18,17 +18,15 @@ if spec is None or spec.loader is None:
 validator = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(validator)
 
-validator.SUPPORTED_ACTIVE_KINDS.add("hermes-config")
+validator.SUPPORTED_ACTIVE_KINDS.add("hermes")
 original_validate_common = validator.validate_common
 
 
-def validate_hermes_config(path: Path, contract: dict[str, Any]) -> None:
+def validate_hermes(path: Path, contract: dict[str, Any]) -> None:
     expected_strings = {
-        "root": "$XDG_CONFIG_HOME/hermes",
-        "output": "$HOME/.hermes/config.toml",
-        "localProviderName": "local",
-        "localBaseUrl": "http://127.0.0.1:8000/v1",
-        "localModel": "dubnium-local",
+        "home": "$HOME/.hermes",
+        "configDir": "$XDG_CONFIG_HOME/hermes",
+        "configFile": "$XDG_CONFIG_HOME/hermes/local.yaml",
     }
     for key, expected in expected_strings.items():
         value = validator.require_type(contract, path, key, str)
@@ -36,7 +34,15 @@ def validate_hermes_config(path: Path, contract: dict[str, Any]) -> None:
             validator.fail(f"{path}: {key} must be {expected!r}")
 
     if set(contract["risk"]) != {"mutable-user-state"}:
-        validator.fail(f"{path}: hermes-config risk must be exactly mutable-user-state")
+        validator.fail(f"{path}: hermes risk must be exactly mutable-user-state")
+
+    behavior = contract.get("behavior")
+    if not isinstance(behavior, dict):
+        validator.fail(f"{path}: missing [behavior] table")
+    if set(behavior) != {"createMissing"}:
+        validator.fail(f"{path}: hermes behavior may contain only createMissing")
+    if behavior.get("createMissing") is not True:
+        validator.fail(f"{path}: [behavior].createMissing must be true")
 
 
 def validate_common(
@@ -45,8 +51,8 @@ def validate_common(
     seen_ids: set[str],
 ) -> tuple[str, str, bool]:
     result = original_validate_common(path, contract, seen_ids)
-    if result[1] == "hermes-config":
-        validate_hermes_config(path, contract)
+    if result[1] == "hermes":
+        validate_hermes(path, contract)
     return result
 
 

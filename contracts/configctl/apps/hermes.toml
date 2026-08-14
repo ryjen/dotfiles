@@ -1,0 +1,63 @@
+schema_version = 1
+tool = "hermes"
+owner = "dotfiles"
+profile = "workstation"
+status = "planned"
+strategy = "compose"
+current_runtime_owner = "home-manager"
+target_runtime_owner = "configctl"
+executor_may_validate = true
+executor_may_adopt = true
+executor_may_write_outputs = false
+renderer_required = true
+description = "Hermes uses YAML runtime configuration; Home Manager publishes the stable base today while configctl owns the layered source model and is the target runtime writer after parser-aware YAML composition is proven."
+
+[layout]
+root = "~/.config/hermes"
+standard = "configctl-v1"
+source_inputs = [
+  "files/home/.config/hermes/base.yaml"
+]
+runtime_outputs = [
+  "~/.hermes/config.yaml"
+]
+local = [
+  "local.yaml"
+]
+custom = [
+  "custom.d/*.yaml"
+]
+adopted = [
+  "adopted.d/*.yaml"
+]
+
+[composition]
+source_order = [
+  "source_inputs",
+  "custom",
+  "local"
+]
+output_role = "runtime_outputs"
+write_mode = "atomic"
+dry_run_required = true
+requires_parser = [
+  "yaml"
+]
+
+[adoption]
+state_path = "~/.local/state/configctl/adoptions/hermes.toml"
+hash_algorithm = "sha256"
+mode = "review-gated"
+ignore = [
+  "local",
+  "adopted"
+]
+
+[validation]
+must_not_manage = [
+  "local"
+]
+must_exist_or_be_creatable = [
+  "custom",
+  "adopted"
+]
