@@ -46,6 +46,7 @@
     ./starship.nix
     ./taskwarrior.nix
     ./tmux.nix
+    ./unreal.nix
     ./uv.nix
     ./vscode.nix
     ./waybar.nix
