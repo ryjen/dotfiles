@@ -64,6 +64,11 @@
   # dotfiles.hypr.adoptedProfile = "empty";
   # dotfiles.waybar.variant = "workstation";
 
+  # Unreal Editor support remains disabled unless explicitly selected. The Epic
+  # installed-build payload stays outside the Nix store as mutable user data.
+  # dotfiles.unreal.enable = false;
+  # dotfiles.unreal.engineRoot = "${config.xdg.dataHome}/unreal-engine";
+
   # OpenWork desktop app and sandbox boundary.
   # dotfiles.openwork.enable = false;
   # dotfiles.openwork.sandbox.enable = true;
