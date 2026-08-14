@@ -133,8 +133,11 @@ jobs:
       - name: Validate Flake Metadata
         run: nix flake metadata --no-write-lock-file
 
-      - name: Evaluate Enabled Unreal Configuration
-        run: nix eval '.#homeConfigurations."ryjen@unreal-verify".activationPackage.drvPath' --raw
+      - name: Build Enabled Unreal Configuration
+        run: |
+          nix build '.#homeConfigurations."ryjen@unreal-verify".activationPackage' \
+            --no-link \
+            --print-build-logs
 
       - name: Build OpenWork Package
         run: nix build .#openwork --print-build-logs
