@@ -112,7 +112,7 @@ let
 
       tmp_mount="$(mktemp -d /run/unreal-storage-init.XXXXXX)"
       mkfs.ext4 -F -L unreal-store "$image"
-      mount -o loop,noatime "$image" "$tmp_mount"
+      mount -o loop,noatime,nodev,nosuid "$image" "$tmp_mount"
 
       chown "$owner:$group" "$tmp_mount"
       chmod 0755 "$tmp_mount"
@@ -199,6 +199,8 @@ in
       options = [
         "loop"
         "noatime"
+        "nodev"
+        "nosuid"
         "nofail"
         "x-systemd.automount"
         "x-systemd.idle-timeout=15min"
