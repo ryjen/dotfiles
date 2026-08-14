@@ -30,3 +30,17 @@ unset BW_SESSION
 Avoid placing `BW_SESSION` in shell startup files, tracked environment files, command wrappers, or the Nix store.
 
 The Firefox profile already installs the Bitwarden browser extension through managed browser policy. Configure its self-hosted server URL separately from the desktop and CLI clients.
+
+## SSH-agent ownership
+
+Installing the Bitwarden desktop or CLI clients does not make Bitwarden the SSH-agent owner. Dotfiles uses the Home Manager OpenSSH `ssh-agent.service` by default on hosts with user systemd support.
+
+If Bitwarden is deliberately configured to provide SSH-agent functionality in the future, switch ownership explicitly rather than running two agents:
+
+```nix
+dotfiles.sshAgent.enable = false;
+```
+
+Then verify that the selected provider exposes the intended `SSH_AUTH_SOCK` to trusted consumers. Sandbox access remains a separate capability; for example, OpenWork receives an agent socket only when `dotfiles.openwork.sandbox.allowSshAgent = true`.
+
+See [`ssh-agent.md`](ssh-agent.md) for the session ownership, forwarding, sandbox delegation, diagnostics, and security contract.
