@@ -17,6 +17,15 @@
     appimage.enable = true;
     audio.enable = true;
     bluetooth.enable = true;
+
+    # CI-only evaluation of the optional loop-storage contract. The build never
+    # creates or mounts this image; it only proves the enabled NixOS module.
+    unreal.storage = {
+      enable = true;
+      backingMount = "/tmp";
+      imagePath = "/tmp/unreal-storage-verify.ext4";
+      mountPoint = "/srv/unreal-verify";
+    };
   };
 
   # This host is evaluated by CI as a generic NixOS verification target.
