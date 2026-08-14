@@ -89,6 +89,8 @@ The initializer:
   accidental creation of a huge image on the root filesystem;
 - refuses to replace an existing image;
 - creates and formats only `/mnt/isotope/Unreal/unreal.ext4`;
+- rejects a requested logical size larger than the backing filesystem's current
+  available space;
 - temporarily loop-mounts the new ext4 filesystem to establish user ownership
   and the `Engine`, `Projects`, and `Toolchains` directories;
 - removes a newly created image if initialization fails before completion;
@@ -98,7 +100,9 @@ The initializer:
 `500G` is only an example. Choose the logical upper bound appropriate for the
 isotope drive. With backing-filesystem sparse-file support, physical allocation
 can grow as ext4 data is written rather than consuming the complete logical size
-immediately.
+immediately. A sparse image is not a capacity boundary for the backing drive:
+keep free-space headroom on `/mnt/isotope` and monitor it so the host filesystem
+cannot fill while ext4 still believes it has writable blocks.
 
 The Dubnium Home Manager profile selects:
 
