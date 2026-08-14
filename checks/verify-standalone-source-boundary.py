@@ -44,6 +44,8 @@ def main() -> int:
         "checks/verify-ops-cadence-timers.py",
         ".github/workflows/ops-cadence-module.yml",
         "fixtures/ops-cadence/flake.nix",
+        "docs/ops-cadence-timers.md",
+        "docs/ops-cadence-credential-isolation.md",
     )
     for relative in removed_paths:
         if (root / relative).exists():
