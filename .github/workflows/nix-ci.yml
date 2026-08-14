@@ -14,7 +14,17 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  source-boundary:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify Standalone Source Boundary
+        run: python3 checks/verify-standalone-source-boundary.py .
+
   discover-checks:
+    needs: source-boundary
     runs-on: ubuntu-latest
     outputs:
       checks: ${{ steps.discover.outputs.checks }}
@@ -148,7 +158,6 @@ jobs:
       - name: Build Dubnium Home Manager Activation
         run: |
           nix build '.#homeConfigurations."ryjen@dubnium".activationPackage' \
-            --override-input ops-cadence path:./fixtures/ops-cadence \
             --no-link \
             --print-build-logs
 
