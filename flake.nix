@@ -324,7 +324,7 @@
               # Install custom pre-push hook (WIP, tag, submodule checks)
               mkdir -p "$git_hook_dir"
               cp -f ${prePushHook}/bin/pre-push-hook "$git_hook_dir/pre-push"
-              chmod +x ${prePushHook}/bin/pre-push-hook "$git_hook_dir/pre-push"
+              chmod +x "$git_hook_dir/pre-push"
             fi
           '';
           buildInputs = enabledPackages;
