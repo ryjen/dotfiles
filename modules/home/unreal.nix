@@ -78,7 +78,9 @@ let
     ];
     text = ''
       engine_root=${lib.escapeShellArg cfg.engineRoot}
+      cache_root=${lib.escapeShellArg cfg.cacheRoot}
       editor="$engine_root/Engine/Binaries/Linux/UnrealEditor"
+      zen_data="$cache_root/zen"
 
       if [[ ! -x "$editor" ]]; then
         echo "Unreal Editor is not installed at: $editor" >&2
@@ -87,8 +89,13 @@ let
         exit 127
       fi
 
+      mkdir -p -- "$zen_data"
       export UE_ROOT="$engine_root"
-      exec steam-run "$editor" "$@"
+
+      # Epic's Installed Build model supports a read-only engine distribution.
+      # Keep Zen/DDC mutation in an explicit user-writable cache location rather
+      # than relying on engine-relative cache state.
+      exec env "UE-ZenDataPath=$zen_data" steam-run "$editor" "$@"
     '';
   };
 in
@@ -99,8 +106,15 @@ in
     engineRoot = lib.mkOption {
       type = lib.types.str;
       default = "${config.xdg.dataHome}/unreal-engine";
-      example = "/mnt/isotope/Unreal/5.8";
-      description = "Mutable directory containing the extracted Unreal Engine Linux installed build";
+      example = "/data/unreal/5.8";
+      description = "Directory containing the extracted Unreal Engine Linux installed build";
+    };
+
+    cacheRoot = lib.mkOption {
+      type = lib.types.str;
+      default = "${config.xdg.cacheHome}/unreal-engine";
+      example = "/data/cache/unreal-engine";
+      description = "Writable cache root used for Unreal Zen/DDC state";
     };
   };
 
@@ -115,7 +129,18 @@ in
           cfg.engineRoot != "/"
           && cfg.engineRoot != "/nix/store"
           && !lib.hasPrefix "/nix/store/" cfg.engineRoot;
-        message = "dotfiles.unreal.engineRoot must be mutable storage outside / and /nix/store";
+        message = "dotfiles.unreal.engineRoot must live outside / and /nix/store";
+      }
+      {
+        assertion = lib.hasPrefix "/" cfg.cacheRoot;
+        message = "dotfiles.unreal.cacheRoot must be an absolute path";
+      }
+      {
+        assertion =
+          cfg.cacheRoot != "/"
+          && cfg.cacheRoot != "/nix/store"
+          && !lib.hasPrefix "/nix/store/" cfg.cacheRoot;
+        message = "dotfiles.unreal.cacheRoot must be writable storage outside / and /nix/store";
       }
     ];
 
