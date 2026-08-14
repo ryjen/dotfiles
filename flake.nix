@@ -74,6 +74,7 @@
         };
       mkNixosConfig =
         profileModule:
+        extraModules:
         nixpkgs.lib.nixosSystem {
           inherit system;
           specialArgs = {
@@ -110,7 +111,8 @@
                 ];
               };
             }
-          ];
+          ]
+          ++ extraModules;
         };
     in
     {
@@ -322,7 +324,7 @@
               # Install custom pre-push hook (WIP, tag, submodule checks)
               mkdir -p "$git_hook_dir"
               cp -f ${prePushHook}/bin/pre-push-hook "$git_hook_dir/pre-push"
-              chmod +x "$git_hook_dir/pre-push"
+              chmod +x ${prePushHook}/bin/pre-push-hook "$git_hook_dir/pre-push"
             fi
           '';
           buildInputs = enabledPackages;
@@ -334,8 +336,19 @@
         openwork = pkgs.callPackage ./packages/openwork.nix { };
       };
 
-      nixosConfigurations.nixos = mkNixosConfig ./home/ryjen/home.nix;
-      nixosConfigurations.verify = mkNixosConfig ./home/ryjen/verify-home.nix;
+      nixosConfigurations.nixos = mkNixosConfig ./home/ryjen/home.nix [ ];
+      nixosConfigurations.verify = mkNixosConfig ./home/ryjen/verify-home.nix [
+        {
+          # CI-only evaluation of the optional loop-storage contract. Building
+          # this configuration never creates or mounts the image.
+          dubnium.unreal.storage = {
+            enable = true;
+            backingMount = "/tmp";
+            imagePath = "/tmp/unreal-storage-verify.ext4";
+            mountPoint = "/srv/unreal-verify";
+          };
+        }
+      ];
 
       homeConfigurations."${username}@nixos" = mkHomeConfig ./home/ryjen/home.nix;
       homeConfigurations."${username}@verify" = mkHomeConfig ./home/ryjen/verify-home.nix;
