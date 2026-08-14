@@ -12,6 +12,47 @@ dotfiles.grimblast.enable = true;
 
 The module installs `pkgs.grimblast` into the user environment.
 
+## Unreal Editor
+
+Unreal Editor support is intentionally disabled by default. Enable the launcher,
+installer helper, and desktop entry with:
+
+```nix
+dotfiles.unreal.enable = true;
+```
+
+The Unreal Engine payload itself is not committed to dotfiles or copied into the
+Nix store. Epic's Linux installed builds require an authenticated Epic Games
+download and are large mutable archives. After enabling the module, download the
+Linux installed-build ZIP from Epic and install it with:
+
+```bash
+unreal-install ~/Downloads/Linux_Unreal_Engine_5.8.zip
+```
+
+By default the archive is extracted to `$XDG_DATA_HOME/unreal-engine`. The helper
+refuses to replace an existing installation and validates that the archive
+contains `Engine/Binaries/Linux/UnrealEditor` before publishing the directory.
+To keep multiple versions, choose a distinct root in local Home Manager config:
+
+```nix
+dotfiles.unreal = {
+  enable = true;
+  engineRoot = "/mnt/isotope/Unreal/5.8";
+};
+```
+
+Launch the editor from the desktop entry or with:
+
+```bash
+unreal-editor
+```
+
+The launcher exports `UE_ROOT` and runs the external Epic binary through
+`steam-run`, providing an FHS-compatible runtime for NixOS without making the
+engine payload part of the system closure. Project files and engine-generated
+state remain normal mutable user data.
+
 ## OpenWork
 
 Install the OpenWork desktop application with:
