@@ -359,6 +359,8 @@
       homeConfigurations."${username}@meeting-verify" = mkHomeConfig ./home/ryjen/meeting-verify-home.nix;
       homeConfigurations."${username}@unreal-verify" = mkHomeConfig ./home/ryjen/unreal-verify-home.nix;
 
+      nixosModules.unreal-storage = ./modules/nixos/unreal-storage.nix;
+
       nixosModules.dubnium-home-manager =
         {
           config,
