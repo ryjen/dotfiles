@@ -11,7 +11,7 @@ ryjen/dotfiles
 Dubnium
   System services for vLLM, Ollama, Plano daemons, GPUs, logs, ports, and runtime state
 
-ryjen/model-router
+hackelia-micrantha/modolia
   Schemas, policy semantics, route decision records, and longer-lived governance design
 
 Anthesis
