@@ -32,7 +32,7 @@ login/user systemd
 
 ## Alternate SSH-agent providers
 
-Exactly one component should deliberately own the SSH-agent socket. If Bitwarden, 1Password, KeePassXC, a forwarded agent, or another trusted provider is selected as the agent implementation, disable the Home Manager OpenSSH agent explicitly:
+Exactly one component should deliberately own the local SSH-agent socket. If Bitwarden, 1Password, KeePassXC, or another trusted local provider is selected as the agent implementation, disable the Home Manager OpenSSH agent explicitly:
 
 ```nix
 dotfiles.sshAgent.enable = false;
@@ -42,7 +42,7 @@ Installing an alternate password-manager client alone does not make it the SSH-a
 
 ## Shell and forwarded-agent behavior
 
-Home Manager initializes interactive shells for its session agent while preserving an already valid `SSH_AUTH_SOCK`. This matters for SSH forwarding: a forwarded agent should not be overwritten simply because the local session also has an OpenSSH agent service.
+Home Manager initializes interactive shells for its session agent while preserving an already valid `SSH_AUTH_SOCK`. This matters for SSH forwarding: a forwarded agent may temporarily override the local socket for that SSH session without requiring the local `ssh-agent.service` to be disabled.
 
 Applications that do not inherit the shell environment should not require a second agent. Consumers that need local SSH authority should either inherit the session socket or use the canonical Home Manager runtime socket through an explicit integration.
 
@@ -118,9 +118,10 @@ Do not solve socket propagation problems by globally exposing credential sockets
 
 ## Security invariants
 
-- one deliberate SSH-agent owner per session;
+- one deliberate local SSH-agent owner per session;
 - no per-terminal `ssh-agent` processes;
-- alternate providers require an explicit ownership change;
+- alternate local providers require an explicit ownership change;
+- forwarded agents may override the socket contextually without changing local service ownership;
 - sandbox access is deny-by-default and capability-scoped;
 - OpenWork consumes but does not create the agent;
 - SSH-agent sockets are never exposed to untrusted CI or unrelated containers;
