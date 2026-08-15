@@ -14,7 +14,6 @@
     enableCompletion = true;
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
-    historySubstringSearch.enable = true;
 
     history = {
       size = 100000;
@@ -57,8 +56,16 @@
       autoload -U down-line-or-beginning-search
       zle -N up-line-or-beginning-search
       zle -N down-line-or-beginning-search
-      bindkey "^[[A" up-line-or-beginning-search
-      bindkey "^[[B" down-line-or-beginning-search
+      zmodload zsh/terminfo
+
+      # Prefix-aware history navigation. Bind both common cursor encodings plus
+      # the terminal-advertised sequence so arrows work in normal/application mode.
+      for key in "^[[A" "^[OA" "''${terminfo[kcuu1]}"; do
+        [[ -n "$key" ]] && bindkey "$key" up-line-or-beginning-search
+      done
+      for key in "^[[B" "^[OB" "''${terminfo[kcud1]}"; do
+        [[ -n "$key" ]] && bindkey "$key" down-line-or-beginning-search
+      done
 
       # extra variables
       export GPG_TTY=$(tty)
