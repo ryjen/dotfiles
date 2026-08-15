@@ -182,9 +182,11 @@ class MeetingConfigTest(unittest.TestCase):
         self.assertNotIn("custom/backlight", workstation[0]["modules-right"])
         self.assertIn("custom/backlight", laptop[0]["modules-right"])
 
-    def test_dubctl_meeting_session_script_exists(self) -> None:
-        script = ROOT / "files/home/.local/bin/dubctl-meeting-session"
-        self.assertTrue(script.exists(), "dubctl-meeting-session script must exist")
+    def test_meeting_session_script_is_not_a_dubctl_extension(self) -> None:
+        script = ROOT / "files/home/.local/bin/dub-meeting-session"
+        self.assertTrue(script.exists(), "dub-meeting-session script must exist")
+        self.assertFalse((ROOT / "files/home/.local/bin/dubctl-meeting").exists())
+        self.assertFalse((ROOT / "files/home/.local/bin/dubctl-meeting-session").exists())
         content = script.read_text()
         self.assertIn("--help", content)
         self.assertIn("--version", content)
@@ -192,10 +194,12 @@ class MeetingConfigTest(unittest.TestCase):
         self.assertIn("stop", content)
         self.assertIn("status", content)
         self.assertIn("dubnium-meeting-mode", content)
+        self.assertNotIn("dubctl meeting", content)
 
-    def test_meeting_nix_installs_dubctl_meeting_session(self) -> None:
+    def test_meeting_nix_installs_non_dubctl_session_helper(self) -> None:
         source = (ROOT / "modules/home/meeting.nix").read_text()
-        self.assertIn("dubctl-meeting-session", source)
+        self.assertIn("dub-meeting-session", source)
+        self.assertNotIn("dubctl-meeting", source)
         self.assertIn("dubnium-meeting-mode", source)
 
 
