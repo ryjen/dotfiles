@@ -30,6 +30,15 @@ check_exists() {
 	fi
 }
 
+check_not_exists() {
+	local path="$1"
+	if [ -e "$path" ]; then
+		fail "$path must not exist"
+	else
+		ok "$path absent"
+	fi
+}
+
 check_contains() {
 	local path="$1" pattern="$2"
 	if grep -qE "$pattern" "$path"; then
@@ -78,6 +87,10 @@ printf -- '\n--- Meeting module ---\n'
 check_exists modules/home/meeting.nix
 check_exists modules/home/default.nix
 check_contains modules/home/default.nix 'meeting\.nix'
+check_exists files/home/.local/bin/dub-meeting-session
+check_not_exists files/home/.local/bin/dubctl-meeting
+check_not_exists files/home/.local/bin/dubctl-meeting-session
+check_not_contains modules/home/meeting.nix 'dubctl-meeting'
 
 # --- Source/rule order: meeting.conf sourced before local/custom ---
 printf -- '\n--- Source/rule order ---\n'
@@ -165,15 +178,14 @@ for script in \
 	dub-editor \
 	dub-file-manager \
 	dub-launch \
+	dub-meeting-session \
 	dub-obs-hotkey \
 	dub-screenshot \
 	dub-session-doctor \
 	dub-session-reset \
 	dub-session-start \
 	dub-terminal \
-	dub-waybar-reload \
-	dubctl-meeting \
-	dubctl-meeting-session; do
+	dub-waybar-reload; do
 	check_exists "files/home/.local/bin/$script"
 done
 
