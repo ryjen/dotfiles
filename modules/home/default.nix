@@ -42,6 +42,7 @@
     ./pass.nix
     ./pinentry.nix
     ./pip.nix
+    ./playwright.nix
     ./session.nix
     ./starship.nix
     ./taskwarrior.nix

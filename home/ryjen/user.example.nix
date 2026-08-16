@@ -31,6 +31,10 @@
   # the Wayland clipboard provider outside OpenCode's terminal job-control group.
   # dotfiles.opencode.enable = false;
 
+  # Playwright is Nix-managed so browser binaries remain immutable and version-
+  # aligned with the packaged CLI instead of being downloaded into a user cache.
+  # dotfiles.playwright.enable = false;
+
   # dotfiles.pip.enable = false;
   # dotfiles.pip.prefix = "${config.home.homeDirectory}/.local/share/pip";
   # dotfiles.pip.globalPackagesFile = ".config/pip/global-packages.txt";
