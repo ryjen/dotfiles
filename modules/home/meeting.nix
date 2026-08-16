@@ -107,13 +107,8 @@ in
       executable = true;
     };
 
-    home.file.".local/bin/dubctl-meeting" = {
-      source = ../../files/home/.local/bin/dubctl-meeting;
-      executable = true;
-    };
-
-    home.file.".local/bin/dubctl-meeting-session" = {
-      source = ../../files/home/.local/bin/dubctl-meeting-session;
+    home.file.".local/bin/dub-meeting-session" = {
+      source = ../../files/home/.local/bin/dub-meeting-session;
       executable = true;
     };
 

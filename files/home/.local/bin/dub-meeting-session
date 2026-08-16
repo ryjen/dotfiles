@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-version="dubctl-meeting-session 0.1.0"
+version="dub-meeting-session 0.1.0"
 libexec="$HOME/.local/libexec"
 
 usage() {
-  printf 'usage: dubctl meeting session {start|stop|status [--json]|waybar {private|presentation}}\n'
+  printf 'usage: dub-meeting-session {start|stop|status [--json]|waybar {private|presentation}}\n'
 }
 
 case "${1-}" in
@@ -31,7 +31,7 @@ case "${1-}" in
     exit 64
     ;;
   *)
-    printf 'dubctl-meeting-session: unknown subcommand %s\n' "$1" >&2
+    printf 'dub-meeting-session: unknown subcommand %s\n' "$1" >&2
     usage >&2
     exit 64
     ;;
