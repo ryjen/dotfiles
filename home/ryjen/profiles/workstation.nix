@@ -11,4 +11,5 @@
   dotfiles.agents.hermes.enable = lib.mkDefault true;
   dotfiles.agents.antigravity.enable = lib.mkDefault true;
   dotfiles.headroom.proxy.enable = lib.mkDefault true;
+  dotfiles.playwright.enable = lib.mkDefault true;
 }
