@@ -8,20 +8,21 @@ let
   cfg = config.dotfiles.playwright;
 in
 {
-  options.dotfiles.playwright.enable = lib.mkEnableOption "Nix-managed Playwright browser automation tooling";
+  options.dotfiles.playwright.enable = lib.mkEnableOption "Nix-managed browser runtime for Playwright automation";
 
   config = lib.mkIf cfg.enable {
     home.packages = [
-      pkgs.playwright-test
-      pkgs.playwright-driver.browsers
+      pkgs.chromium
     ];
 
     home.sessionVariables = {
-      # Keep Playwright's browser runtime immutable and Nix-owned. Do not run
-      # `playwright install`/`npx playwright install` on NixOS; those commands
-      # attempt to populate a mutable browser cache with non-Nix binaries.
-      PLAYWRIGHT_BROWSERS_PATH = "${pkgs.playwright-driver.browsers}";
-      PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS = "true";
+      # Let projects own their Playwright npm version while Nix owns the browser
+      # executable. This avoids coupling project Playwright releases to the
+      # browser revision bundled by nixpkgs's playwright-driver package.
+      PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH = "${pkgs.chromium}/bin/chromium";
+
+      # Project installs should not download Playwright-managed browser bundles
+      # when a Nix-provided Chromium runtime is available.
       PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = "1";
     };
   };
