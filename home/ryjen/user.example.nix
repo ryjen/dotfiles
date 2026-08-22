@@ -57,6 +57,7 @@
   # dotfiles.bitwarden.desktop.enable = true;
   # Set either value to false to disable that client independently.
 
+  # dotfiles.ebooks.enable = false;
   # dotfiles.music.enable = false;
   # dotfiles.music.musicDirectory = "${config.home.homeDirectory}/Music";
   # dotfiles.music.mpd.enable = false;
