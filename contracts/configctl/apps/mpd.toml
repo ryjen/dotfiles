@@ -10,7 +10,21 @@ executor_may_validate = true
 executor_may_adopt = true
 executor_may_write_outputs = false
 renderer_required = false
-description = "Home Manager owns MPD's generated root config; MPD native include_optional directives load configctl promoted, custom, and local overrides."
+description = "Home Manager owns MPD's generated root config; MPD native include_optional directives load reviewed promoted, live custom, and local overrides."
+
+[materialization]
+promoted = "home-manager"
+runtime_projection = [
+  "custom.d/{machine_profile}/*.conf"
+]
+runtime_consumption = [
+  "custom.d/{machine_profile}/*.conf"
+]
+precedence = [
+  "promoted",
+  "custom",
+  "local"
+]
 
 [layout]
 root = "~/.config/mpd"
@@ -29,7 +43,7 @@ adopted = [
   "adopted.d/*.conf"
 ]
 runtime_includes = [
-  "custom.d/dubnium/*.conf",
+  "custom.d/{machine_profile}/*.conf",
   "custom.d/*.conf",
   "local.conf"
 ]
