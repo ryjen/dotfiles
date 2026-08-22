@@ -128,11 +128,9 @@ in
     xdg.configFile."eww/adopted.d/00-empty.conf".source =
       ../../files/home/.config/eww/adopted.d/empty.conf;
 
-    xdg.configFile = lib.mkIf hasHyprPromotedProfile {
-      "hypr/custom.d/${machineProfileName}" = {
-        source = hyprPromotedProfile;
-        recursive = true;
-      };
+    xdg.configFile."hypr/custom.d/${machineProfileName}" = lib.mkIf hasHyprPromotedProfile {
+      source = hyprPromotedProfile;
+      recursive = true;
     };
 
     home.file = managedFiles;
