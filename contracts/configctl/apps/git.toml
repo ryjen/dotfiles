@@ -10,7 +10,21 @@ executor_may_validate = true
 executor_may_adopt = true
 executor_may_write_outputs = false
 renderer_required = false
-description = "Home Manager owns Git's root config, which loads a configctl-maintained include index plus an unmanaged local override file."
+description = "Home Manager owns Git's root config, which loads a managed promoted include index, the root include index, and an unmanaged local override file."
+
+[materialization]
+promoted = "home-manager"
+runtime_projection = [
+  "conf.d/{machine_profile}/*"
+]
+runtime_consumption = [
+  "includes-promoted.conf"
+]
+precedence = [
+  "promoted",
+  "custom",
+  "local"
+]
 
 [layout]
 root = "~/.config/git"
@@ -29,10 +43,12 @@ custom = [
 ]
 adopted = []
 runtime_includes = [
+  "includes-promoted.conf",
   "includes.conf",
   "local.conf"
 ]
 auxiliary_outputs = [
+  "includes-promoted.conf",
   "includes.conf",
   "commit-message"
 ]
