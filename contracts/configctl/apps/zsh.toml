@@ -10,7 +10,21 @@ executor_may_validate = true
 executor_may_adopt = true
 executor_may_write_outputs = false
 renderer_required = false
-description = "Zsh sources unmanaged local config and config.d promotion candidates from managed init content."
+description = "Zsh sources Home Manager-projected reviewed fragments, live promotion candidates, and machine-local overrides."
+
+[materialization]
+promoted = "home-manager"
+runtime_projection = [
+  "config.d/{machine_profile}/*"
+]
+runtime_consumption = [
+  "config.d/{machine_profile}/*"
+]
+precedence = [
+  "promoted",
+  "custom",
+  "local"
+]
 
 [layout]
 root = "~/.config/zsh"
@@ -32,8 +46,9 @@ adopted = [
   "adopted.d/*"
 ]
 runtime_includes = [
-  "local.zsh",
-  "config.d/*"
+  "config.d/{machine_profile}/*",
+  "config.d/*",
+  "local.zsh"
 ]
 
 [adoption]

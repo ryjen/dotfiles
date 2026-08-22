@@ -1,9 +1,24 @@
 {
   config,
+  lib,
   pkgs,
   ...
 }:
+let
+  machineProfile = config.dotfiles.host.name;
+  machineProfileName = if machineProfile == null then "unconfigured" else machineProfile;
+  zshPromotedProfilesRoot = ../../files/home/.config/zsh/config.d;
+  zshPromotedProfile = zshPromotedProfilesRoot + "/${machineProfileName}";
+  hasZshPromotedProfile = machineProfile != null && builtins.pathExists zshPromotedProfile;
+in
 {
+  xdg.configFile = lib.mkIf hasZshPromotedProfile {
+    "zsh/config.d/${machineProfileName}" = {
+      source = zshPromotedProfile;
+      recursive = true;
+    };
+  };
+
   home.file.".zshenv".text = ''
     export ZDOTDIR="${config.xdg.configHome}/zsh"
   '';
@@ -76,15 +91,23 @@
         task todo
       fi
 
-      # machine-local overrides; unmanaged by Home Manager and never automatically promoted
-      [ -f "$HOME/.config/zsh/local.zsh" ] && source "$HOME/.config/zsh/local.zsh"
+      # Reviewed profile-scoped fragments promoted into dotfiles. Home Manager
+      # materializes this namespace without taking ownership of root config.d.
+      if [ -d "$HOME/.config/zsh/config.d/${machineProfileName}" ]; then
+        for file in "$HOME/.config/zsh/config.d/${machineProfileName}/"*; do
+          [ -f "$file" ] && source "$file"
+        done
+      fi
 
-      # promotion candidates; managed by configctl
+      # Live user-authored promotion candidates override reviewed fragments.
       if [ -d "$HOME/.config/zsh/config.d" ]; then
         for file in "$HOME/.config/zsh/config.d/"*; do
           [ -f "$file" ] && source "$file"
         done
       fi
+
+      # Machine-local overrides remain unmanaged and have highest precedence.
+      [ -f "$HOME/.config/zsh/local.zsh" ] && source "$HOME/.config/zsh/local.zsh"
     '';
 
     loginExtra = ''

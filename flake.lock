@@ -83,11 +83,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1786857411,
-        "narHash": "sha256-SohIfRMqAl2dwzw710DxDLz85vJfpz5Kc/hD8VvE0d0=",
+        "lastModified": 1787361112,
+        "narHash": "sha256-SeyGlD8LhbfdQJUU3KiPN8GbjBkbxt5fZNySHz38nVo=",
         "owner": "ryjen",
         "repo": "git-autocommit",
-        "rev": "b38cbebe0162bca6811e7ef50b82eb2463759389",
+        "rev": "1d9774be8cf664c13f725175f090bc3b72410f20",
         "type": "github"
       },
       "original": {

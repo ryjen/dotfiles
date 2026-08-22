@@ -10,7 +10,21 @@ executor_may_validate = true
 executor_may_adopt = true
 executor_may_write_outputs = false
 renderer_required = false
-description = "Taskwarrior uses native include directives for layered fragments."
+description = "Taskwarrior loads a Home Manager-generated promoted include index before live custom and local overrides."
+
+[materialization]
+promoted = "home-manager"
+runtime_projection = [
+  "custom.d/{machine_profile}/index.rc"
+]
+runtime_consumption = [
+  "custom.d/promoted.rc"
+]
+precedence = [
+  "promoted",
+  "custom",
+  "local"
+]
 
 [layout]
 root = "~/.config/task"
@@ -33,8 +47,12 @@ adopted = [
   "adopted.d/*.rc"
 ]
 runtime_includes = [
-  "local.rc",
-  "custom.d/index.rc"
+  "custom.d/promoted.rc",
+  "custom.d/index.rc",
+  "local.rc"
+]
+auxiliary_outputs = [
+  "custom.d/promoted.rc"
 ]
 
 [adoption]

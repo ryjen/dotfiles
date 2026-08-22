@@ -12,6 +12,9 @@ executor_may_write_outputs = false
 renderer_required = true
 description = "The existing beets config remains user-owned today; configctl must adopt and compose it with the dotfiles MPD fragment without clobbering personal metadata/import settings."
 
+[materialization]
+promoted = "direct-render"
+
 [layout]
 root = "~/.config/beets"
 standard = "configctl-v1"
