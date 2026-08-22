@@ -243,8 +243,8 @@ def validate_materialization(path: Path, contract: dict[str, Any]) -> tuple[str,
 
     if strategy == "compose" and owner != "direct-render":
         fail(f"{path}: compose apps must consume promoted state with direct-render")
-    if strategy == "native-include" and owner != "home-manager":
-        fail(f"{path}: active native-include apps must keep promoted projection under Home Manager")
+    if strategy == "native-include" and owner not in {"home-manager", "configctl-sync"}:
+        fail(f"{path}: native-include promoted materialization must be home-manager or configctl-sync")
 
     if owner in {"direct-render", "none"}:
         forbidden = sorted(set(materialization) - {"promoted"})
