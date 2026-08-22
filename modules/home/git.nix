@@ -7,6 +7,23 @@
 }:
 let
   micranthaEnabled = config.dotfiles.profiles.micrantha.enable;
+  machineProfile = config.dotfiles.host.name;
+  machineProfileName = if machineProfile == null then "unconfigured" else machineProfile;
+  gitPromotedProfilesRoot = ../../files/home/.config/git/conf.d;
+  gitPromotedProfile = gitPromotedProfilesRoot + "/${machineProfileName}";
+  hasGitPromotedProfile = machineProfile != null && builtins.pathExists gitPromotedProfile;
+  gitPromotedEntries = if hasGitPromotedProfile then builtins.readDir gitPromotedProfile else { };
+  gitPromotedFiles = builtins.attrNames (
+    lib.filterAttrs (_name: type: type == "regular") gitPromotedEntries
+  );
+  gitPromotedIncludeText =
+    if gitPromotedFiles == [ ] then
+      "# No reviewed Git promoted profile for ${machineProfileName}.\n"
+    else
+      "[include]\n"
+      + lib.concatMapStrings (
+        name: "  path = ~/.config/git/conf.d/${machineProfileName}/${name}\n"
+      ) gitPromotedFiles;
   gitEditor =
     if config.programs.neovim.enable then
       "nvim"
@@ -27,6 +44,9 @@ in
     includes =
       [
         { path = "~/.config/git/conf.d/user"; }
+        # Reviewed profile-scoped configctl promotion is lower precedence than
+        # the live root include index and machine-local override.
+        { path = "~/.config/git/includes-promoted.conf"; }
         { path = "~/.config/git/includes.conf"; }
         { path = "~/.config/git/local.conf"; }
       ]
@@ -61,7 +81,7 @@ in
         done = "push origin HEAD";
         unstage = "reset HEAD --";
         del = "branch -D";
-        br = "branch --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(contents:subject) %(color:green)(%(committerdate:relative)) [%(authorname)]' --sort=-committerdate";
+        br = "branch --format='%(HEAD) %(color:yellow)%(refname:short) %(color:reset) - %(contents:subject) %(color:green)(%(committerdate:relative)) [%(authorname)]' --sort=-committerdate";
         cleanup-merged = "!f(){ git fetch && git branch --merged | grep -v '* ' | xargs git branch --delete; };f";
         amend = "commit --amend --reuse-message=HEAD";
         fixup = "rebase -i HEAD~2";
@@ -127,5 +147,13 @@ in
     ".local/share/git-autocommit/system.md".source = ../../files/home/.local/share/git-autocommit/system.md;
     ".local/share/git-autocommit/plan.md".source = ../../files/home/.local/share/git-autocommit/plan.md;
   };
+
   xdg.configFile."git/commit-message".source = ../../files/home/.config/git/commit-message;
+  xdg.configFile."git/includes-promoted.conf".text = gitPromotedIncludeText;
+  xdg.configFile = lib.mkIf hasGitPromotedProfile {
+    "git/conf.d/${machineProfileName}" = {
+      source = gitPromotedProfile;
+      recursive = true;
+    };
+  };
 }
