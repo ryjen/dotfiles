@@ -7,11 +7,13 @@
 let
   cfg = config.dotfiles.music.mpd;
   musicCfg = config.dotfiles.music;
+  machineProfile = config.dotfiles.host.name;
+  machineProfileName = if machineProfile == null then "unconfigured" else machineProfile;
   playlistDirectory = "${config.xdg.dataHome}/mpd/playlists";
   rmpcConfig = builtins.readFile ../../files/home/.config/rmpc/base.ron;
   mpdCustomProfilesRoot = ../../files/home/.config/mpd/custom.d;
-  mpdCustomProfile = mpdCustomProfilesRoot + "/${config.dotfiles.host.name}";
-  hasMpdCustomProfile = builtins.pathExists mpdCustomProfile;
+  mpdCustomProfile = mpdCustomProfilesRoot + "/${machineProfileName}";
+  hasMpdCustomProfile = machineProfile != null && builtins.pathExists mpdCustomProfile;
 in
 {
   options.dotfiles.music.mpd.enable = lib.mkEnableOption "MPD-backed managed music-library playback";
@@ -53,7 +55,7 @@ in
         # config and materializes promoted, profile-scoped configctl fragments.
         # Unpromoted custom fragments override the promoted profile layer, and
         # local.conf remains machine-local with highest precedence.
-        include_optional "${config.xdg.configHome}/mpd/custom.d/${config.dotfiles.host.name}/*.conf"
+        include_optional "${config.xdg.configHome}/mpd/custom.d/${machineProfileName}/*.conf"
         include_optional "${config.xdg.configHome}/mpd/custom.d/*.conf"
         include_optional "${config.xdg.configHome}/mpd/local.conf"
       '';
@@ -92,7 +94,7 @@ in
       # configctl promote stores reviewed fragments under
       # files/home/.config/mpd/custom.d/<profile>/. Project that profile back
       # into the runtime tree without taking ownership of root custom.d/*.conf.
-      "mpd/custom.d/${config.dotfiles.host.name}" = {
+      "mpd/custom.d/${machineProfileName}" = {
         source = mpdCustomProfile;
         recursive = true;
       };
