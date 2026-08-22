@@ -10,7 +10,21 @@ executor_may_validate = true
 executor_may_adopt = true
 executor_may_write_outputs = false
 renderer_required = false
-description = "Hyprland uses native source directives for unmanaged local and custom fragments."
+description = "Hyprland uses native source directives for reviewed promoted, live custom, and machine-local fragments."
+
+[materialization]
+promoted = "home-manager"
+runtime_projection = [
+  "custom.d/{machine_profile}/*.conf"
+]
+runtime_consumption = [
+  "custom.d/{machine_profile}/*.conf"
+]
+precedence = [
+  "promoted",
+  "custom",
+  "local"
+]
 
 [layout]
 root = "~/.config/hypr"
@@ -39,8 +53,9 @@ adopted = [
   "adopted.d/*.conf"
 ]
 runtime_includes = [
-  "local.conf",
-  "custom.d/*.conf"
+  "custom.d/{machine_profile}/*.conf",
+  "custom.d/*.conf",
+  "local.conf"
 ]
 
 [adoption]
