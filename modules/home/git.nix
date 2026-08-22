@@ -150,10 +150,8 @@ in
 
   xdg.configFile."git/commit-message".source = ../../files/home/.config/git/commit-message;
   xdg.configFile."git/includes-promoted.conf".text = gitPromotedIncludeText;
-  xdg.configFile = lib.mkIf hasGitPromotedProfile {
-    "git/conf.d/${machineProfileName}" = {
-      source = gitPromotedProfile;
-      recursive = true;
-    };
+  xdg.configFile."git/conf.d/${machineProfileName}" = lib.mkIf hasGitPromotedProfile {
+    source = gitPromotedProfile;
+    recursive = true;
   };
 }
