@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import sys
 import tomllib
+from fnmatch import fnmatchcase
 from pathlib import Path, PurePosixPath
 from typing import Any
 
@@ -15,6 +16,7 @@ MACHINE_PROFILE_TOKEN = "{machine_profile}"
 MATERIALIZATION_OWNERS = {"home-manager", "configctl-sync", "direct-render", "none"}
 BROAD_ACTIVATION_PROFILES = {"all", "workstation"}
 EXPECTED_PRECEDENCE = ["promoted", "custom", "local"]
+GLOB_CHARS = "*?["
 
 # Repository-level proof that every Home Manager-owned projection is both
 # materialized and consumed. These markers intentionally describe the stable
@@ -127,13 +129,70 @@ def expanded_pattern(pattern: str, machine_profile: str, *, field: str, path: Pa
     return candidate
 
 
+def has_glob(value: str) -> bool:
+    return any(char in value for char in GLOB_CHARS)
+
+
 def static_path_prefix(pattern: PurePosixPath) -> PurePosixPath:
     parts: list[str] = []
     for part in pattern.parts:
-        if any(char in part for char in "*?["):
+        if has_glob(part):
             break
         parts.append(part)
     return PurePosixPath(*parts)
+
+
+def component_patterns_overlap(left: str, right: str) -> bool:
+    left_glob = has_glob(left)
+    right_glob = has_glob(right)
+    if not left_glob and not right_glob:
+        return left == right
+    if left_glob and not right_glob:
+        return fnmatchcase(right, left)
+    if right_glob and not left_glob:
+        return fnmatchcase(left, right)
+    # Exact glob-language intersection is deliberately not implemented here.
+    # Two glob expressions at the same path component are treated as a
+    # potential overlap so the ownership validator fails closed.
+    return True
+
+
+def path_patterns_overlap(left: PurePosixPath, right: PurePosixPath) -> bool:
+    left_parts = left.parts
+    right_parts = right.parts
+
+    if len(left_parts) == len(right_parts):
+        return all(
+            component_patterns_overlap(left_part, right_part)
+            for left_part, right_part in zip(left_parts, right_parts, strict=True)
+        )
+
+    # A concrete path can also own a directory containing the other path. A
+    # glob component does not match '/', so a shorter glob pattern cannot own
+    # a deeper descendant merely through `*` or `?`.
+    shorter, longer = (
+        (left_parts, right_parts) if len(left_parts) < len(right_parts) else (right_parts, left_parts)
+    )
+    if any(has_glob(part) for part in shorter):
+        return False
+    return tuple(longer[: len(shorter)]) == tuple(shorter)
+
+
+def validate_overlap_matcher() -> None:
+    cases = (
+        ("custom.d/dubnium/*.conf", "custom.d/dubnium/managed.conf", True),
+        ("custom.d/dubnium/*.conf", "custom.d/dubnium/managed.yaml", False),
+        ("custom.d/dubnium/*.conf", "custom.d/dubnium/nested/managed.conf", False),
+        ("custom.d/dubnium", "custom.d/dubnium/managed.conf", True),
+        ("custom.d/dubnium/*.conf", "custom.d/dubnium/*.yaml", True),
+    )
+    for left, right, expected in cases:
+        actual = path_patterns_overlap(PurePosixPath(left), PurePosixPath(right))
+        if actual != expected:
+            fail(
+                "internal overlap matcher regression: "
+                f"{left!r} vs {right!r} expected {expected}, got {actual}"
+            )
 
 
 def overlaps_projection(
@@ -143,14 +202,12 @@ def overlaps_projection(
     field: str,
     path: Path,
 ) -> None:
-    projection_prefix = static_path_prefix(projection)
     for raw in patterns:
         if raw.startswith(("~", "$")):
             continue
         other = safe_relative(raw, field=field, path=path)
-        other_prefix = static_path_prefix(other)
-        if projection_prefix == other_prefix:
-            fail(f"{path}: promoted projection overlaps {field}: {projection_prefix}")
+        if path_patterns_overlap(projection, other):
+            fail(f"{path}: promoted projection overlaps {field}: {projection} vs {other}")
 
 
 def validate_explicit_promoted_inputs(contract: dict[str, Any], layout: dict[str, Any], path: Path) -> None:
@@ -252,6 +309,8 @@ def validate_materialization(path: Path, contract: dict[str, Any]) -> tuple[str,
 def main() -> int:
     if not APP_DIR.is_dir():
         fail(f"missing app-contract directory: {APP_DIR}")
+
+    validate_overlap_matcher()
 
     results: dict[str, str] = {}
     for path in sorted(APP_DIR.glob("*.toml")):
