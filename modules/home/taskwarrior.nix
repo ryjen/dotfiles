@@ -38,8 +38,8 @@ in
         # No reviewed Taskwarrior promoted profile for ${machineProfileName}.
       '';
 
-  xdg.configFile = lib.mkIf hasTaskPromotedIndex {
-    "task/custom.d/${machineProfileName}/index.rc".source = taskPromotedIndex;
+  xdg.configFile."task/custom.d/${machineProfileName}/index.rc" = lib.mkIf hasTaskPromotedIndex {
+    source = taskPromotedIndex;
   };
 
   # Configctl layer directories
