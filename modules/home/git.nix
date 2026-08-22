@@ -81,7 +81,7 @@ in
         done = "push origin HEAD";
         unstage = "reset HEAD --";
         del = "branch -D";
-        br = "branch --format='%(HEAD) %(color:yellow)%(refname:short) %(color:reset) - %(contents:subject) %(color:green)(%(committerdate:relative)) [%(authorname)]' --sort=-committerdate";
+        br = "branch --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(contents:subject) %(color:green)(%(committerdate:relative)) [%(authorname)]' --sort=-committerdate";
         cleanup-merged = "!f(){ git fetch && git branch --merged | grep -v '* ' | xargs git branch --delete; };f";
         amend = "commit --amend --reuse-message=HEAD";
         fixup = "rebase -i HEAD~2";
