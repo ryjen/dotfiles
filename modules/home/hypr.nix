@@ -11,6 +11,12 @@ let
     empty = ../../files/home/.config/hypr/adopted.d/empty.conf;
   };
 
+  machineProfile = config.dotfiles.host.name;
+  machineProfileName = if machineProfile == null then "unconfigured" else machineProfile;
+  hyprPromotedProfilesRoot = ../../files/home/.config/hypr/custom.d;
+  hyprPromotedProfile = hyprPromotedProfilesRoot + "/${machineProfileName}";
+  hasHyprPromotedProfile = machineProfile != null && builtins.pathExists hyprPromotedProfile;
+
   managedHyprConfig = builtins.readFile adoptedProfiles.${config.dotfiles.hypr.adoptedProfile};
 
   defaultWallpapers =
@@ -82,8 +88,9 @@ in
     xdg.configFile."hypr/hyprland.conf".text = ''
       # GENERATED FILE — DO NOT EDIT DIRECTLY
       # source-of-truth: ryjen/dotfiles
-      # local-layer: ~/.config/hypr/local.conf
+      # promoted-layer: ~/.config/hypr/custom.d/<machine-profile>/*.conf
       # custom-layer: ~/.config/hypr/custom.d/*.conf
+      # local-layer: ~/.config/hypr/local.conf
       # adopted-layer: ~/.config/hypr/adopted.d/*
       #
       # adopted.d is retained for adopted/archive fragments and is not sourced
@@ -91,8 +98,9 @@ in
 
       ${managedHyprConfig}
 
-      source = ${config.home.homeDirectory}/.config/hypr/local.conf
+      ${lib.optionalString hasHyprPromotedProfile "source = ~/.config/hypr/custom.d/${machineProfileName}/*.conf"}
       source = ~/.config/hypr/custom.d/*.conf
+      source = ${config.home.homeDirectory}/.config/hypr/local.conf
     '';
 
     xdg.configFile."hypr/adopted.d/machine.conf".source =
@@ -119,6 +127,13 @@ in
       ../../files/home/.config/eww/custom.d/empty.conf;
     xdg.configFile."eww/adopted.d/00-empty.conf".source =
       ../../files/home/.config/eww/adopted.d/empty.conf;
+
+    xdg.configFile = lib.mkIf hasHyprPromotedProfile {
+      "hypr/custom.d/${machineProfileName}" = {
+        source = hyprPromotedProfile;
+        recursive = true;
+      };
+    };
 
     home.file = managedFiles;
 
