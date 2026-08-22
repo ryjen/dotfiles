@@ -16,6 +16,7 @@
     ./cowsay.nix
     ./devtools.nix
     ./direnv.nix
+    ./ebooks.nix
     ./fortunes.nix
     ./fzf.nix
     ./headroom.nix

@@ -6,6 +6,7 @@
 
   dotfiles.host.role = "workstation";
   dotfiles.profiles.workstation.enable = true;
+  dotfiles.ebooks.enable = lib.mkDefault true;
   dotfiles.opencode.enable = lib.mkDefault true;
   dotfiles.meeting.enable = lib.mkDefault true;
   dotfiles.agents.hermes.enable = lib.mkDefault true;
