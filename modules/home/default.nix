@@ -5,7 +5,6 @@
 {
   imports = [
     ./agents.nix
-    ./alacritty.nix
     ./android.nix
     ./bat.nix
     ./bitwarden.nix
@@ -28,6 +27,7 @@
     ./idle.nix
     ./input.nix
     ./keyring.nix
+    ./kitty.nix
     ./lsd.nix
     ./lolcat.nix
     ./micrantha.nix
