@@ -272,11 +272,13 @@ def validate_materialization(path: Path, contract: dict[str, Any]) -> tuple[str,
 
     local = optional_string_list(layout, "local", path)
     runtime_outputs = optional_string_list(layout, "runtime_outputs", path)
+    auxiliary_outputs = optional_string_list(layout, "auxiliary_outputs", path)
     for machine_profile in ("dubnium", "technetium"):
         for raw in projection:
             expanded = expanded_pattern(raw, machine_profile, field="materialization.runtime_projection", path=path)
             overlaps_projection(expanded, local, field="layout.local", path=path)
             overlaps_projection(expanded, runtime_outputs, field="layout.runtime_outputs", path=path)
+            overlaps_projection(expanded, auxiliary_outputs, field="layout.auxiliary_outputs", path=path)
             # The projection must be nested beneath, not equal to, the root live custom layer.
             for custom_raw in require_string_list(layout, "custom", path):
                 custom = safe_relative(custom_raw, field="layout.custom", path=path)
