@@ -66,7 +66,7 @@
   # dotfiles.idle.enable = false;
 
   # Hardware/profile variants that are safe to select locally.
-  # dotfiles.alacritty.adoptedProfile = "empty";
+  # dotfiles.kitty.adoptedProfile = "empty";
   # dotfiles.hypr.adoptedProfile = "empty";
   # dotfiles.waybar.variant = "workstation";
 
