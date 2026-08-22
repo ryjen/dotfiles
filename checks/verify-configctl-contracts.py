@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Extend configctl contract validation with Hermes and managed-music app contracts."""
+"""Extend configctl contract validation with Hermes, managed music, and materialization policy."""
 
 from __future__ import annotations
 
@@ -12,6 +12,7 @@ from typing import Any
 
 REPO_ROOT = Path(sys.argv[1]).resolve() if len(sys.argv) == 2 else Path.cwd().resolve()
 LEGACY_VALIDATOR = REPO_ROOT / "scripts" / "verify-configctl-contracts.py"
+MATERIALIZATION_VALIDATOR = REPO_ROOT / "checks" / "verify-configctl-materialization.py"
 APP_DIR = REPO_ROOT / "contracts" / "configctl" / "apps"
 
 spec = importlib.util.spec_from_file_location("configctl_contracts", LEGACY_VALIDATOR)
@@ -172,7 +173,7 @@ def validate_music_apps() -> None:
         validator.fail(f"{path}: renderer_required must be false")
 
     expected_includes = [
-        "custom.d/dubnium/*.conf",
+        "custom.d/{machine_profile}/*.conf",
         "custom.d/*.conf",
         "local.conf",
     ]
@@ -195,10 +196,25 @@ def validate_music_apps() -> None:
     )
 
 
+def validate_materialization() -> None:
+    materialization_spec = importlib.util.spec_from_file_location(
+        "configctl_materialization",
+        MATERIALIZATION_VALIDATOR,
+    )
+    if materialization_spec is None or materialization_spec.loader is None:
+        raise SystemExit(f"unable to load materialization validator: {MATERIALIZATION_VALIDATOR}")
+    materialization = importlib.util.module_from_spec(materialization_spec)
+    materialization_spec.loader.exec_module(materialization)
+    result = materialization.main()
+    if result != 0:
+        raise SystemExit(result)
+
+
 validator.validate_common = validate_common
 legacy_result = validator.main()
 if legacy_result != 0:
     raise SystemExit(legacy_result)
 validate_music_apps()
-print("validated managed-music configctl app contracts")
+validate_materialization()
+print("validated managed-music and promoted-materialization configctl app contracts")
 raise SystemExit(0)
