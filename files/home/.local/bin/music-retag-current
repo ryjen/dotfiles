@@ -77,7 +77,7 @@ if [ ! -f "$path" ]; then
   exit 1
 fi
 
-exec dub-terminal --title "beets retag" -e sh -lc '
+exec dub-terminal --title "beets retag" sh -lc '
   set -eu
   printf "Retagging current track with Beets:\n%s\n\n" "$1"
   printf "This runs: beet import --single <current-file>\n\n"
