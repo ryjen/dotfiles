@@ -58,7 +58,7 @@
         "rewrite": {
             "(.*) — Mozilla Firefox": "󰈹 Firefox",
             "(.*) - Visual Studio Code": "󰨞 Code",
-            "(.*) - Alacritty": " Terminal",
+            "(.*) - kitty": " Terminal",
             "": "Desktop"
         }
     },
@@ -73,11 +73,11 @@
     },
     "cpu": {
         "format": "{usage}% ",
-        "on-click": "alacritty --title 'btop' -e sh -c 'btop'"
+        "on-click": "~/.local/bin/dub-terminal --title 'btop' btop"
     },
     "memory": {
         "format": "{}% ",
-        "on-click": "alacritty --title 'btop' -e sh -c 'btop'"
+        "on-click": "~/.local/bin/dub-terminal --title 'btop' btop"
     },
     "custom/disk": {
         "exec": "~/.config/waybar/scripts/disk-space",
@@ -156,7 +156,7 @@
         "format-discharging": "{icon} {capacity}%",
         "format-full": "󰁹 {capacity}%",
         "format-icons": ["󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
-        "on-click": "alacritty -e sudo powertop",
+        "on-click": "~/.local/bin/dub-terminal sudo powertop",
         "tooltip": true,
         "interval": 5,
         "bat": "BAT0"

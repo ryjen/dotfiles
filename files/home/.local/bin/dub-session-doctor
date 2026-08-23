@@ -76,7 +76,7 @@ done
 
 check_exe hyprland
 check_exe waybar
-check_exe alacritty
+check_exe kitty
 check_exe wofi
 check_exe grim
 check_exe slurp

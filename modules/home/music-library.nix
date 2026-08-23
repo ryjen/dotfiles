@@ -104,7 +104,7 @@ in
       name = "Music Library";
       genericName = "Music Library";
       comment = "Browse and control the managed music library with rmpc";
-      exec = "${pkgs.alacritty}/bin/alacritty --title \"Music Library\" -e ${pkgs.rmpc}/bin/rmpc";
+      exec = "${pkgs.kitty}/bin/kitty --title \"Music Library\" ${pkgs.rmpc}/bin/rmpc";
       terminal = false;
       categories = [
         "Audio"
