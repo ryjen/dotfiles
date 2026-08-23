@@ -40,7 +40,7 @@ This checklist captures relevant configuration found under `~/` that should be r
 ## Terminal and CLI Tools
 
 - [ ] Confirm whether [~/.config/starship.toml](/home/USERNAME/.config/starship.toml) should fully replace the current minimal starship module settings.
-- [ ] Confirm whether Alacritty config should be managed based on [~/.config/alacritty/alacritty.toml](/home/USERNAME/.config/alacritty/alacritty.toml).
+- [x] Replace Alacritty with a layered Home Manager-managed Kitty configuration while preserving terminal behavior.
 - [ ] Review whether Byobu needs any persistent config beyond the current autostart behavior.
 - [ ] Confirm whether the current Taskwarrior migration should incorporate any of the older include-based structure referenced by [~/.taskrc.orig](/home/USERNAME/.taskrc.orig).
 - [ ] Decide whether empty or generated config trees such as `~/.config/task`, `~/.config/byobu`, and `~/.config/profile.d` should remain unmanaged.
