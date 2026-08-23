@@ -73,6 +73,13 @@ for path in files/home/.local/libexec/*; do
 	check_bash "$path"
 done
 
+# --- Terminal launcher compatibility ---
+printf -- '\n--- Terminal launcher compatibility ---\n'
+check_exists files/home/.local/bin/dub-terminal
+check_contains files/home/.local/bin/dub-terminal 'TERMINAL:-kitty'
+check_exists files/home/.local/bin/music-retag-current
+check_not_contains files/home/.local/bin/music-retag-current 'dub-terminal([[:space:]].*)?[[:space:]]-e([[:space:]]|$)'
+
 # --- Hyprland profiles: code:33 migration ---
 printf -- '\n--- Hyprland profiles ---\n'
 for conf in \
