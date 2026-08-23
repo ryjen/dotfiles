@@ -1,0 +1,16 @@
+#!/run/current-system/sw/bin/sh
+set -eu
+
+uv_headroom="${HOME}/.local/bin/headroom"
+pip_headroom="${HOME}/.local/share/pip/bin/headroom"
+
+if [ -x "$uv_headroom" ]; then
+  exec "$uv_headroom" mcp serve "$@"
+fi
+
+if [ -x "$pip_headroom" ]; then
+  exec "$pip_headroom" mcp serve "$@"
+fi
+
+printf '%s\n' "headroom-mcp: no executable headroom found at $uv_headroom or $pip_headroom" >&2
+exit 127
