@@ -157,6 +157,7 @@ check_exists files/home/.local/bin/dub-obs-hotkey
 # --- Contracts ---
 printf -- '\n--- Contracts ---\n'
 check_exists contracts/configctl/init/obs-presentation.toml
+check_exists contracts/configctl/apps/kitty.toml
 
 # --- Docs ---
 printf -- '\n--- Docs ---\n'
