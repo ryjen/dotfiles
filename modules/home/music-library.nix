@@ -104,7 +104,7 @@ in
       name = "Music Library";
       genericName = "Music Library";
       comment = "Browse and control the managed music library with rmpc";
-      exec = "${pkgs.kitty}/bin/kitty --title \"Music Library\" ${pkgs.rmpc}/bin/rmpc";
+      exec = "${config.home.homeDirectory}/.local/bin/dub-terminal --title \"Music Library\" ${pkgs.rmpc}/bin/rmpc";
       terminal = false;
       categories = [
         "Audio"

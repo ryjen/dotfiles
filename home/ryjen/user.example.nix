@@ -55,7 +55,9 @@
   # use these explicit selections when maintaining a complete local config.
   # dotfiles.bitwarden.cli.enable = true;
   # dotfiles.bitwarden.desktop.enable = true;
-  # Set either value to false to disable that client independently.
+  # dotfiles.bitwarden.serverUrl = null;
+  # Set either client value to false to disable it independently. Set serverUrl
+  # to an explicit http(s) origin when using a self-hosted Bitwarden/Vaultwarden.
 
   # dotfiles.ebooks.enable = false;
   # dotfiles.music.enable = false;
@@ -95,6 +97,9 @@
   # dotfiles.headroom.proxy.host = "127.0.0.1";
   # dotfiles.headroom.proxy.port = 8787;
   # dotfiles.headroom.proxy.package = "${config.home.homeDirectory}/.local/libexec/headroom-proxy";
+  # dotfiles.headroom.proxy.upstreamUrl = "http://127.0.0.1:8000/v1";
+  # dotfiles.headroom.mcp.enable = false;
+  # dotfiles.headroom.mcp.package = "${config.home.homeDirectory}/.local/libexec/headroom-mcp";
 
   # Current grouped/profile selections. These remain listed until migrated to
   # stable tool, feature, desktop, service, or integration namespaces.

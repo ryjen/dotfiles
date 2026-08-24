@@ -38,6 +38,14 @@ HOME_MANAGER_MODULE_MARKERS: dict[str, tuple[str, tuple[str, ...]]] = {
             "custom.d/${machineProfileName}/*.conf",
         ),
     ),
+    "kitty": (
+        "modules/home/kitty.nix",
+        (
+            "config.dotfiles.host.name",
+            "kitty/custom.d/${machineProfileName}",
+            "custom.d/${machineProfileName}/*.conf",
+        ),
+    ),
     "mpd": (
         "modules/home/music-library.nix",
         (

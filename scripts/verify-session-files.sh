@@ -77,6 +77,9 @@ done
 printf -- '\n--- Terminal launcher compatibility ---\n'
 check_exists files/home/.local/bin/dub-terminal
 check_contains files/home/.local/bin/dub-terminal 'TERMINAL:-kitty'
+check_contains modules/home/session.nix 'TERMINAL_COMMAND = "\$HOME/\.local/bin/dub-terminal"'
+check_contains modules/home/music-library.nix 'dub-terminal --title'
+check_not_contains modules/home/music-library.nix 'pkgs\.kitty.*/bin/kitty'
 check_exists files/home/.local/bin/music-retag-current
 check_not_contains files/home/.local/bin/music-retag-current 'dub-terminal([[:space:]].*)?[[:space:]]-e([[:space:]]|$)'
 
@@ -154,6 +157,7 @@ check_exists files/home/.local/bin/dub-obs-hotkey
 # --- Contracts ---
 printf -- '\n--- Contracts ---\n'
 check_exists contracts/configctl/init/obs-presentation.toml
+check_exists contracts/configctl/apps/kitty.toml
 
 # --- Docs ---
 printf -- '\n--- Docs ---\n'

@@ -57,7 +57,7 @@
       QT_QPA_PLATFORMTHEME = "qt5ct";
       QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
       _JAVA_AWT_WM_NONREPARENTING = "1";
-      TERMINAL_COMMAND = "${pkgs.kitty}/bin/kitty";
+      TERMINAL_COMMAND = "$HOME/.local/bin/dub-terminal";
       ZEIT_DB = "$HOME/.config/zeit.db";
       ELECTRON_OZONE_PLATFORM_HINT = "wayland";
       OPENCV_LOG_LEVEL = "ERROR";

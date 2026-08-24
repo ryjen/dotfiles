@@ -1,0 +1,77 @@
+schema_version = 1
+tool = "kitty"
+owner = "dotfiles"
+profile = "workstation"
+status = "active"
+strategy = "native-include"
+current_runtime_owner = "home-manager"
+target_runtime_owner = "home-manager"
+executor_may_validate = true
+executor_may_adopt = true
+executor_may_write_outputs = false
+renderer_required = false
+description = "Home Manager owns Kitty's generated root config; Kitty native include directives load reviewed promoted, live custom, and machine-local fragments."
+
+[materialization]
+promoted = "home-manager"
+runtime_projection = [
+  "custom.d/{machine_profile}/*.conf"
+]
+runtime_consumption = [
+  "custom.d/{machine_profile}/*.conf"
+]
+precedence = [
+  "promoted",
+  "custom",
+  "local"
+]
+
+[layout]
+root = "~/.config/kitty"
+standard = "configctl-v1"
+source_inputs = [
+  "modules/home/kitty.nix",
+  "files/home/.config/kitty/conf.d/base.conf",
+  "files/home/.config/kitty/adopted.d/dubnium.conf",
+  "files/home/.config/kitty/adopted.d/empty.conf",
+  "files/home/.config/kitty/custom.d/empty.conf",
+  "files/home/.config/kitty/custom.d/dubnium/00-empty.conf"
+]
+runtime_outputs = [
+  "kitty.conf",
+  "conf.d/base.conf",
+  "adopted.d/machine.conf",
+  "custom.d/00-empty.conf"
+]
+local = [
+  "local.conf"
+]
+custom = [
+  "custom.d/*.conf"
+]
+adopted = [
+  "adopted.d/*.conf"
+]
+runtime_includes = [
+  "custom.d/{machine_profile}/*.conf",
+  "custom.d/*.conf",
+  "local.conf"
+]
+
+[adoption]
+state_path = "~/.local/state/configctl/adoptions/kitty.toml"
+hash_algorithm = "sha256"
+mode = "review-gated"
+ignore = [
+  "local",
+  "adopted"
+]
+
+[validation]
+must_not_manage = [
+  "local"
+]
+must_exist_or_be_creatable = [
+  "custom",
+  "adopted"
+]
