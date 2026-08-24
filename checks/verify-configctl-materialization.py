@@ -62,6 +62,14 @@ HOME_MANAGER_MODULE_MARKERS: dict[str, tuple[str, tuple[str, ...]]] = {
             "config.d/${machineProfileName}",
         ),
     ),
+    "opencode": (
+        "modules/home/opencode.nix",
+        (
+            "config.dotfiles.host.name",
+            "opencode/config.d/${machineProfileName}",
+            "config.d/${machineProfileName}",
+        ),
+    ),
 }
 
 
