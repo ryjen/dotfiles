@@ -20,8 +20,9 @@ if [ -x "$music_playerctl" ]; then
             # having no resumable queue. Seed the queue from the managed MPD
             # database so a Waybar click behaves like "start music" rather
             # than forwarding a play request that MPD cannot satisfy.
-            if [ -n "$(mpc listall 2>/dev/null | head -n 1)" ]; then
-              mpc add / >/dev/null
+            mpc ls 2>/dev/null | mpc add >/dev/null
+
+            if [ -n "$(mpc playlist 2>/dev/null)" ]; then
               mpc shuffle >/dev/null
             fi
           fi
