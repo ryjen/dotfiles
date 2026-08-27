@@ -26,6 +26,8 @@ in
       }
     ];
 
+    home.packages = [ pkgs.mpc ];
+
     services.mpd = {
       enable = true;
       musicDirectory = musicCfg.musicDirectory;
