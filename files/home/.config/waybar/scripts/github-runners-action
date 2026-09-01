@@ -14,7 +14,9 @@ case "$action" in
     exec "$terminal" --title "GitHub Runners" watch -n 2 "$command"
     ;;
   queue)
-    exec "$terminal" --title "Runner Queue" dubctl runners queue view
+    # Queue view performs bounded GitHub queries; keep the one-shot result open
+    # rather than polling GitHub from Waybar or a tight terminal refresh loop.
+    exec "$terminal" --hold --title "Runner Queue" dubctl runners queue view
     ;;
   *)
     printf 'github-runners-action: unsupported action: %s\n' "$action" >&2
