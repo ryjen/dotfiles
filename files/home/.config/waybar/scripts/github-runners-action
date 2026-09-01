@@ -2,6 +2,7 @@
 set -euo pipefail
 
 terminal="${HOME}/.local/bin/dub-terminal"
+self=${BASH_SOURCE[0]}
 action=${1:-watch}
 
 case "$action" in
@@ -14,9 +15,19 @@ case "$action" in
     exec "$terminal" --title "GitHub Runners" watch -n 2 "$command"
     ;;
   queue)
-    # Queue view performs bounded GitHub queries; keep the one-shot result open
-    # rather than polling GitHub from Waybar or a tight terminal refresh loop.
-    exec "$terminal" --hold --title "Runner Queue" dubctl runners queue view
+    # Queue view performs bounded GitHub queries. Run it once, then keep the
+    # child process alive rather than polling GitHub or relying on Kitty --hold.
+    exec "$terminal" --title "Runner Queue" "$self" queue-view
+    ;;
+  queue-view)
+    if dubctl runners queue view; then
+      status=0
+    else
+      status=$?
+    fi
+    printf '\nPress Enter to close...'
+    read -r _ || true
+    exit "$status"
     ;;
   *)
     printf 'github-runners-action: unsupported action: %s\n' "$action" >&2
