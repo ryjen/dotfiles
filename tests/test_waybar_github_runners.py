@@ -192,7 +192,10 @@ def test_click_actions_are_shell_valid_and_read_only() -> None:
     contents = ACTION.read_text(encoding="utf-8")
 
     assert "dubctl runners watch" in contents
-    assert "--hold --title \"Runner Queue\" dubctl runners queue view" in contents
+    assert '"$self" queue-view' in contents
+    assert "dubctl runners queue view" in contents
+    assert "Press Enter to close" in contents
+    assert "--hold" not in contents
     for mutation in (
         "dubctl runners suspend",
         "dubctl runners resume",
