@@ -62,6 +62,14 @@ in
       source = ../../files/home/.config/waybar/scripts/bluetooth;
       executable = true;
     };
+    xdg.configFile."waybar/scripts/github-runners" = {
+      source = ../../files/home/.config/waybar/scripts/github-runners;
+      executable = true;
+    };
+    xdg.configFile."waybar/scripts/github-runners-action" = {
+      source = ../../files/home/.config/waybar/scripts/github-runners-action;
+      executable = true;
+    };
 
     # Own the systemd unit via Home Manager instead of the package-provided one.
     # The package unit hard-codes `Requisite=graphical-session.target`, which is
