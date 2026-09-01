@@ -21,6 +21,32 @@ check_bash() {
 	fi
 }
 
+check_python() {
+	local path="$1"
+	if python3 -c 'import ast, pathlib, sys; ast.parse(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8"), filename=sys.argv[1])' "$path"; then
+		ok "python syntax $path"
+	else
+		fail "python syntax $path"
+	fi
+}
+
+check_script_syntax() {
+	local path="$1"
+	local shebang
+	shebang=$(head -n 1 "$path")
+	case "$shebang" in
+		'#!/usr/bin/env bash'|'#!/bin/bash')
+			check_bash "$path"
+			;;
+		'#!/usr/bin/env python3'|'#!/usr/bin/python3')
+			check_python "$path"
+			;;
+		*)
+			fail "$path has unsupported script interpreter: $shebang"
+			;;
+	esac
+}
+
 check_exists() {
 	local path="$1"
 	if [ -e "$path" ]; then
@@ -141,7 +167,7 @@ check_exists files/home/.config/waybar/config-technetium.jsonc
 printf -- '\n--- Waybar scripts ---\n'
 for path in files/home/.config/waybar/scripts/*; do
 	[ -f "$path" ] || continue
-	check_bash "$path"
+	check_script_syntax "$path"
 	check_contains modules/home/waybar.nix "waybar/scripts/$(basename "$path")"
 done
 
