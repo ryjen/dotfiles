@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+terminal="${HOME}/.local/bin/dub-terminal"
+action=${1:-watch}
+
+case "$action" in
+  watch)
+    if dubctl runners watch --help >/dev/null 2>&1; then
+      exec "$terminal" --title "GitHub Runners" dubctl runners watch
+    fi
+
+    command='dubctl runners status --json | jq "{state:.ordinaryRuntimeState,effective:.effectiveState,active:.controllerRuntime.ownedWorkerCount,running:.controllerRuntime.runningWorkerCount,capacity:.controllerRuntime.capacity,available:.controllerRuntime.availableCapacity,workers:.controllerRuntime.workers}"'
+    exec "$terminal" --title "GitHub Runners" watch -n 2 "$command"
+    ;;
+  queue)
+    exec "$terminal" --title "Runner Queue" dubctl runners queue view
+    ;;
+  *)
+    printf 'github-runners-action: unsupported action: %s\n' "$action" >&2
+    exit 64
+    ;;
+esac
