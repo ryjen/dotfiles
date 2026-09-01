@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+terminal="${HOME}/.local/bin/dub-terminal"
+self=${BASH_SOURCE[0]}
+action=${1:-watch}
+
+case "$action" in
+  watch)
+    if dubctl runners watch --help >/dev/null 2>&1; then
+      exec "$terminal" --title "GitHub Runners" dubctl runners watch
+    fi
+
+    command='dubctl runners status --json | jq "{state:.ordinaryRuntimeState,effective:.effectiveState,active:.controllerRuntime.ownedWorkerCount,running:.controllerRuntime.runningWorkerCount,capacity:.controllerRuntime.capacity,available:.controllerRuntime.availableCapacity,workers:.controllerRuntime.workers}"'
+    exec "$terminal" --title "GitHub Runners" watch -n 2 "$command"
+    ;;
+  queue)
+    # Queue view performs bounded GitHub queries. Run it once, then keep the
+    # child process alive rather than polling GitHub or relying on Kitty --hold.
+    exec "$terminal" --title "Runner Queue" "$self" queue-view
+    ;;
+  queue-view)
+    if dubctl runners queue view; then
+      status=0
+    else
+      status=$?
+    fi
+    printf '\nPress Enter to close...'
+    read -r _ || true
+    exit "$status"
+    ;;
+  *)
+    printf 'github-runners-action: unsupported action: %s\n' "$action" >&2
+    exit 64
+    ;;
+esac
