@@ -11,9 +11,7 @@ import sys
 from pathlib import Path
 from typing import Any, Mapping
 
-STATUS_TIMEOUT_SECONDS = float(
-    os.environ.get("WAYBAR_GITHUB_RUNNERS_TIMEOUT_SECONDS", "4")
-)
+STATUS_TIMEOUT_SECONDS = 4.0
 MAX_STATUS_BYTES = 256 * 1024
 MAX_TOOLTIP_WORKERS = 8
 STATUS_COMMAND = ["dubctl", "runners", "status", "--json"]
@@ -205,6 +203,8 @@ def _read_payload() -> Mapping[str, Any]:
             raise StatusError("dubctl status timed out") from exc
         except OSError as exc:
             raise StatusError(f"dubctl status unavailable: {exc}") from exc
+        if completed.returncode not in {0, 1}:
+            raise StatusError(f"dubctl status exited {completed.returncode}")
         data = completed.stdout
 
     if not data or len(data) > MAX_STATUS_BYTES:
@@ -231,7 +231,7 @@ def degraded_output(reason: str) -> dict[str, str]:
 def main() -> int:
     try:
         output = render_payload(_read_payload())
-    except (StatusError, ValueError) as exc:
+    except StatusError as exc:
         output = degraded_output(str(exc))
     json.dump(output, sys.stdout, ensure_ascii=False, separators=(",", ":"))
     print()
