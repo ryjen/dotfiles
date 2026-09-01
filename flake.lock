@@ -8,11 +8,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1786433467,
-        "narHash": "sha256-YXFF5jJCvYIqeCmMT8oBD2z9l3ErVtxhPJsPYXPwY3E=",
+        "lastModified": 1787296859,
+        "narHash": "sha256-5bU8RrYjyuzT6/HDkq4zJHwSRsC+yEZG98pjmDLNFyM=",
         "owner": "jacopone",
         "repo": "antigravity-nix",
-        "rev": "c56f01183526238eb4f3bd8dc701037883af04ef",
+        "rev": "c44bacfbc0dbe594bc6b59ae0c709275dbc3367b",
         "type": "github"
       },
       "original": {
@@ -83,11 +83,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1785881026,
-        "narHash": "sha256-FMlRt2BxpN7lKazsqJWpT5N90tGHFI5nf6n+1YSeNe4=",
+        "lastModified": 1787361112,
+        "narHash": "sha256-SeyGlD8LhbfdQJUU3KiPN8GbjBkbxt5fZNySHz38nVo=",
         "owner": "ryjen",
         "repo": "git-autocommit",
-        "rev": "16e36ed98ca75c158913a358b026a01745598111",
+        "rev": "1d9774be8cf664c13f725175f090bc3b72410f20",
         "type": "github"
       },
       "original": {
@@ -120,6 +120,7 @@
     "hermes-agent": {
       "inputs": {
         "flake-parts": "flake-parts",
+        "home-manager": "home-manager",
         "nixpkgs": [
           "nixpkgs"
         ],
@@ -129,11 +130,11 @@
         "uv2nix": "uv2nix"
       },
       "locked": {
-        "lastModified": 1786565040,
-        "narHash": "sha256-RziHTmPrgxJG1SsY8r8n/wCRIjyiDpjMXUHYLRYwUaU=",
+        "lastModified": 1787346030,
+        "narHash": "sha256-VKKHuKme3++yhaCu7U7IG35kuSYM+F6cOScaEtvkWRk=",
         "owner": "NousResearch",
         "repo": "hermes-agent",
-        "rev": "1d3d021282098261ce2ad224a76d97d89b16188c",
+        "rev": "76f6ba37064614a703ce2d19ade6bb5fbbf4fcf8",
         "type": "github"
       },
       "original": {
@@ -145,15 +146,36 @@
     "home-manager": {
       "inputs": {
         "nixpkgs": [
+          "hermes-agent",
           "nixpkgs"
         ]
       },
       "locked": {
-        "lastModified": 1785119570,
-        "narHash": "sha256-Rgs2xKnGLFWQscxUaXX07oyZeuMDOHEbqDOsgliLFGM=",
+        "lastModified": 1786487128,
+        "narHash": "sha256-ad60hrRVhH/bo3Jl1YLzO+QcS3mUNZr9LNJdzhMO2P4=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "d4fd24667c8cbef124bb70a20380cab75ec8474d",
+        "rev": "f404edbfa4117810c96b97048299242fc50e5362",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "home-manager",
+        "type": "github"
+      }
+    },
+    "home-manager_2": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1787146702,
+        "narHash": "sha256-YbRcLdU/yK4gWsQg7V8WTKZHfXL33g8+wSFUX3wyevs=",
+        "owner": "nix-community",
+        "repo": "home-manager",
+        "rev": "173b7e8d40fdc8c296a9c99854314f17a3a1704c",
         "type": "github"
       },
       "original": {
@@ -165,11 +187,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1786430034,
-        "narHash": "sha256-Vux08kA5PICwS2sViCMfwVLAHNoH8TkKAeBo25LjpMI=",
+        "lastModified": 1787204541,
+        "narHash": "sha256-OURZPknrTjQrlNyxPdqzyqmU/81Wes1CUP/Ft1Rv/YI=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "70cc4559b10a6062b05ff1af17e0add065ccaed9",
+        "rev": "5880666fd9eb563038431edb35c2d0aa595884e6",
         "type": "github"
       },
       "original": {
@@ -198,28 +220,6 @@
         "owner": "jeslie0",
         "repo": "npm-lockfile-fix",
         "type": "github"
-      }
-    },
-    "ops-cadence": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1783317191,
-        "narHash": "sha256-VvHc4JRHDmx6caFGjfA6rka+gKnRlYzWi9ndIehU+/E=",
-        "ref": "main",
-        "rev": "d83511cb669a6ca1481f7a79ea5f1aac6ceabd36",
-        "revCount": 2,
-        "type": "git",
-        "url": "ssh://git@github.com/ryjen/ops-cadence.git"
-      },
-      "original": {
-        "ref": "main",
-        "rev": "d83511cb669a6ca1481f7a79ea5f1aac6ceabd36",
-        "type": "git",
-        "url": "ssh://git@github.com/ryjen/ops-cadence.git"
       }
     },
     "pyproject-build-systems": {
@@ -278,9 +278,8 @@
         "git-autocommit": "git-autocommit",
         "git-hooks": "git-hooks",
         "hermes-agent": "hermes-agent",
-        "home-manager": "home-manager",
+        "home-manager": "home-manager_2",
         "nixpkgs": "nixpkgs",
-        "ops-cadence": "ops-cadence",
         "sops-nix": "sops-nix"
       }
     },
@@ -291,11 +290,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1786375908,
-        "narHash": "sha256-G7qDAT98nywA4EFmJCwIRO5wKvDlBBN3BWpsOnjAto8=",
+        "lastModified": 1786629091,
+        "narHash": "sha256-gkig4nPi1CWc4Z50GBsjE4ygSE7hMpl/TwID2an2Cck=",
         "owner": "Mic92",
         "repo": "sops-nix",
-        "rev": "d1337e05ba0a8e88a75d2c0e1595d82f3b3e2ac4",
+        "rev": "a8627b21b9107c5711c96b84f32a9a4b3d45295f",
         "type": "github"
       },
       "original": {

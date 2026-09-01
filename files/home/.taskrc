@@ -46,6 +46,8 @@ color.project.selfhosting=rgb420
 color.project.scouter=rgb114
 news.version=2.6.0
 
-# Local overrides and custom fragments
-include ~/.config/task/local.rc
+# Configctl layers: reviewed promoted state, live custom candidates, then
+# machine-local overrides with highest precedence.
+include ~/.config/task/custom.d/promoted.rc
 include ~/.config/task/custom.d/index.rc
+include ~/.config/task/local.rc

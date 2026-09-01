@@ -12,6 +12,7 @@
     ./podman.nix
     ./shell.nix
     ./syncthing.nix
+    ./unreal-storage.nix
   ];
 
   nix.settings.experimental-features = [

@@ -5,7 +5,6 @@
 {
   imports = [
     ./agents.nix
-    ./alacritty.nix
     ./android.nix
     ./bat.nix
     ./bitwarden.nix
@@ -16,6 +15,7 @@
     ./cowsay.nix
     ./devtools.nix
     ./direnv.nix
+    ./ebooks.nix
     ./fortunes.nix
     ./fzf.nix
     ./headroom.nix
@@ -27,25 +27,28 @@
     ./idle.nix
     ./input.nix
     ./keyring.nix
+    ./kitty.nix
     ./lsd.nix
     ./lolcat.nix
     ./micrantha.nix
     ./meeting.nix
     ./mise.nix
     ./music.nix
+    ./music-library.nix
     ./neovim.nix
     ./npm.nix
     ./office.nix
     ./opencode.nix
     ./openwork.nix
-    ./ops-cadence.nix
     ./pass.nix
     ./pinentry.nix
     ./pip.nix
+    ./playwright.nix
     ./session.nix
     ./starship.nix
     ./taskwarrior.nix
     ./tmux.nix
+    ./unreal.nix
     ./uv.nix
     ./vscode.nix
     ./waybar.nix

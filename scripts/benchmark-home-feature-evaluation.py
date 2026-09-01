@@ -21,7 +21,6 @@ VARIANTS = {
     "antigravity": "dotfiles.agents.antigravity.enable = true;",
     "headroom": "dotfiles.headroom.proxy.enable = true;",
     "openwork": "dotfiles.openwork.enable = true;",
-    "ops-cadence": "dotfiles.opsCadence.enable = true;",
     "workstation-combined": """
       dotfiles.profiles.workstation.enable = true;
       dotfiles.meeting.enable = true;
@@ -38,7 +37,6 @@ VARIANTS = {
       dotfiles.profiles.browser.enable = true;
       dotfiles.profiles.office.enable = true;
       dotfiles.openwork.enable = true;
-      dotfiles.opsCadence.enable = true;
       dotfiles.music.enable = true;
       dotfiles.music.musicDirectory = \"/mnt/isotope/Music\";
     """,
@@ -88,7 +86,6 @@ def nix_expression(flake_dir: Path, config_text: str) -> str:
       self = flake;
       hermes-agent = flake.inputs.hermes-agent;
       antigravity-nix = flake.inputs.antigravity-nix;
-      ops-cadence = flake.inputs.ops-cadence;
       git-autocommit = flake.inputs.git-autocommit;
     }};
     modules = [

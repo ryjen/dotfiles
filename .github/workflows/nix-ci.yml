@@ -14,7 +14,17 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  source-boundary:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify Standalone Source Boundary
+        run: python3 checks/verify-standalone-source-boundary.py .
+
   discover-checks:
+    needs: source-boundary
     runs-on: ubuntu-latest
     outputs:
       checks: ${{ steps.discover.outputs.checks }}
@@ -24,6 +34,19 @@ jobs:
 
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@v17
+
+      - name: Verify Generated Lockfile
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp flake.lock flake.lock.committed
+          nix flake lock
+          if ! cmp -s flake.lock.committed flake.lock; then
+            echo "flake.lock is not the Nix-generated lock for flake.nix" >&2
+            git diff --no-index -- flake.lock.committed flake.lock || true
+            exit 1
+          fi
+          rm flake.lock.committed
 
       - name: Discover Blocking Repository Checks
         id: discover
@@ -133,6 +156,12 @@ jobs:
       - name: Validate Flake Metadata
         run: nix flake metadata --no-write-lock-file
 
+      - name: Build Enabled Unreal Configuration
+        run: |
+          nix build '.#homeConfigurations."ryjen@unreal-verify".activationPackage' \
+            --no-link \
+            --print-build-logs
+
       - name: Build OpenWork Package
         run: nix build .#openwork --print-build-logs
 
@@ -142,7 +171,6 @@ jobs:
       - name: Build Dubnium Home Manager Activation
         run: |
           nix build '.#homeConfigurations."ryjen@dubnium".activationPackage' \
-            --override-input ops-cadence path:./fixtures/ops-cadence \
             --no-link \
             --print-build-logs
 

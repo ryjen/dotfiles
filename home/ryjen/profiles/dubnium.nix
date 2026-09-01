@@ -11,8 +11,12 @@
   dotfiles.profiles.office.enable = lib.mkDefault true;
   dotfiles.openwork.enable = lib.mkDefault true;
   dotfiles.openwork.sandbox.allowSshAgent = lib.mkDefault true;
-  dotfiles.opsCadence.enable = lib.mkDefault true;
   dotfiles.hypr.adoptedProfile = "dubnium";
+
+  # When Unreal is explicitly enabled, use the native Linux filesystem mounted
+  # from the optional isotope-backed storage image. This path selection alone
+  # does not enable Unreal or the storage module.
+  dotfiles.unreal.engineRoot = lib.mkDefault "/srv/unreal/Engine/5.8";
 
   dotfiles.bitwarden.cli.enable = lib.mkDefault true;
   dotfiles.bitwarden.desktop.enable = lib.mkDefault false;
@@ -21,5 +25,11 @@
   dotfiles.music = {
     enable = lib.mkDefault true;
     musicDirectory = lib.mkDefault "/mnt/isotope/Music";
+    mpd.enable = lib.mkDefault true;
   };
+
+  # Headroom proxy forwards to the Dubnium supervisor gateway published via
+  # Tailscale Serve. OpenCode (and other AI clients) reach Headroom at the
+  # local proxy on 127.0.0.1:8787; this is the upstream it forwards to.
+  dotfiles.headroom.proxy.upstreamUrl = "https://supervisor.tail4d84c.ts.net/v1";
 }

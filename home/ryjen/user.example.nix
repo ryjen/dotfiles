@@ -31,6 +31,10 @@
   # the Wayland clipboard provider outside OpenCode's terminal job-control group.
   # dotfiles.opencode.enable = false;
 
+  # Playwright is Nix-managed so browser binaries remain immutable and version-
+  # aligned with the packaged CLI instead of being downloaded into a user cache.
+  # dotfiles.playwright.enable = false;
+
   # dotfiles.pip.enable = false;
   # dotfiles.pip.prefix = "${config.home.homeDirectory}/.local/share/pip";
   # dotfiles.pip.globalPackagesFile = ".config/pip/global-packages.txt";
@@ -51,18 +55,28 @@
   # use these explicit selections when maintaining a complete local config.
   # dotfiles.bitwarden.cli.enable = true;
   # dotfiles.bitwarden.desktop.enable = true;
-  # Set either value to false to disable that client independently.
+  # dotfiles.bitwarden.serverUrl = null;
+  # Set either client value to false to disable it independently. Set serverUrl
+  # to an explicit http(s) origin when using a self-hosted Bitwarden/Vaultwarden.
 
+  # dotfiles.ebooks.enable = false;
   # dotfiles.music.enable = false;
   # dotfiles.music.musicDirectory = "${config.home.homeDirectory}/Music";
+  # dotfiles.music.mpd.enable = false;
   # dotfiles.grimblast.enable = false;
   # dotfiles.graphical.keyring.enable = false;
   # dotfiles.idle.enable = false;
 
   # Hardware/profile variants that are safe to select locally.
-  # dotfiles.alacritty.adoptedProfile = "empty";
+  # dotfiles.kitty.adoptedProfile = "empty";
   # dotfiles.hypr.adoptedProfile = "empty";
   # dotfiles.waybar.variant = "workstation";
+
+  # Unreal Editor support remains disabled unless explicitly selected. Keep the
+  # Epic installed build outside the Nix store and Zen/DDC in writable cache data.
+  # dotfiles.unreal.enable = false;
+  # dotfiles.unreal.engineRoot = "${config.xdg.dataHome}/unreal-engine";
+  # dotfiles.unreal.cacheRoot = "${config.xdg.cacheHome}/unreal-engine";
 
   # OpenWork desktop app and sandbox boundary.
   # dotfiles.openwork.enable = false;
@@ -83,46 +97,9 @@
   # dotfiles.headroom.proxy.host = "127.0.0.1";
   # dotfiles.headroom.proxy.port = 8787;
   # dotfiles.headroom.proxy.package = "${config.home.homeDirectory}/.local/libexec/headroom-proxy";
-
-  # Personal read-only report scheduling and CareerOps contract inputs.
-  # dotfiles.opsCadence.enable = false;
-  # dotfiles.opsCadence.careerops.enable = true;
-  # dotfiles.opsCadence.careerops.workflowsPath = "${config.home.homeDirectory}/.local/src/career-workflows";
-  # dotfiles.opsCadence.careerops.stateDir = "${config.home.homeDirectory}/.local/state/careerops";
-  # null uses <stateDir>/professional-context.v1.json.
-  # dotfiles.opsCadence.careerops.professionalContextSnapshotPath = null;
-
-  # Optional loopback Dubnium platform APIs. SQLite remains exact state.
-  # dotfiles.opsCadence.platform.memory.enable = false;
-  # dotfiles.opsCadence.platform.memory.baseUrl = "http://127.0.0.1:8090";
-  # dotfiles.opsCadence.platform.memory.timeoutSeconds = 10;
-  # dotfiles.opsCadence.platform.memory.scope = "workflow:ops-cadence";
-  # dotfiles.opsCadence.platform.llm.enable = false;
-  # dotfiles.opsCadence.platform.llm.baseUrl = "http://127.0.0.1:8080/v1";
-  # dotfiles.opsCadence.platform.llm.model = "supervisor";
-  # dotfiles.opsCadence.platform.llm.contractVersion = "dubnium.llm-gateway.v1";
-  # dotfiles.opsCadence.platform.llm.timeoutSeconds = 60;
-  # dotfiles.opsCadence.platform.scheduler.enable = false;
-  # dotfiles.opsCadence.platform.scheduler.baseUrl = "http://127.0.0.1:8091";
-  # dotfiles.opsCadence.platform.scheduler.timeoutSeconds = 10;
-  # dotfiles.opsCadence.platform.scheduler.schedules = {
-  #   "career-intelligence" = "ops-career-intelligence";
-  #   "engineering-portfolio" = "ops-engineering-portfolio";
-  #   "weekly-review" = "ops-weekly-review";
-  # };
-  # Enabling the Dubnium scheduler requires direct Home Manager timers to be disabled.
-  # dotfiles.opsCadence.timers.enable = true;
-
-  # dotfiles.opsCadence.liveSources.enable = false;
-  # dotfiles.opsCadence.liveSources.gmail = false;
-  # dotfiles.opsCadence.liveSources.github = false;
-  # Runtime paths only; never place token contents in this file or the Nix store.
-  # Enabling a live source requires its corresponding credential path.
-  # dotfiles.opsCadence.credentials.githubTokenFile = "%h/.config/ops-cadence/secrets/github-token";
-  # dotfiles.opsCadence.credentials.gmailAccessTokenFile = "%h/.config/ops-cadence/secrets/gmail-access-token";
-  # dotfiles.opsCadence.timers.timeout = "15min";
-  # dotfiles.opsCadence.timers.accuracy = "5min";
-  # dotfiles.opsCadence.timers.randomizedDelay = "5min";
+  # dotfiles.headroom.proxy.upstreamUrl = "http://127.0.0.1:8000/v1";
+  # dotfiles.headroom.mcp.enable = false;
+  # dotfiles.headroom.mcp.package = "${config.home.homeDirectory}/.local/libexec/headroom-mcp";
 
   # Current grouped/profile selections. These remain listed until migrated to
   # stable tool, feature, desktop, service, or integration namespaces.

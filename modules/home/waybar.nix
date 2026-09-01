@@ -20,11 +20,19 @@ let
       ];
   presentationOnlyOutput =
     if presentationOutput == null then "DUBNIUM/NO-PRESENTATION-OUTPUT" else presentationOutput;
-  renderedConfig =
+  renderedOutputConfig =
     builtins.replaceStrings
       [ "__DUBNIUM_NORMAL_OUTPUTS__" "__DUBNIUM_PRESENTATION_OUTPUT__" ]
       [ (builtins.toJSON normalOutputs) (builtins.toJSON presentationOnlyOutput) ]
       (builtins.readFile templates.${cfg.variant});
+  renderedConfig =
+    if config.dotfiles.music.mpd.enable then
+      builtins.replaceStrings
+        [ "playerctl --player=mpv" ]
+        [ "${config.home.homeDirectory}/.local/bin/music-playerctl" ]
+        renderedOutputConfig
+    else
+      renderedOutputConfig;
 in
 {
   options.dotfiles.waybar.variant = lib.mkOption {
@@ -52,6 +60,14 @@ in
     };
     xdg.configFile."waybar/scripts/bluetooth" = {
       source = ../../files/home/.config/waybar/scripts/bluetooth;
+      executable = true;
+    };
+    xdg.configFile."waybar/scripts/github-runners" = {
+      source = ../../files/home/.config/waybar/scripts/github-runners;
+      executable = true;
+    };
+    xdg.configFile."waybar/scripts/github-runners-action" = {
+      source = ../../files/home/.config/waybar/scripts/github-runners-action;
       executable = true;
     };
 

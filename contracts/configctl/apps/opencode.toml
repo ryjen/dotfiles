@@ -1,0 +1,52 @@
+schema_version = 1
+tool = "opencode"
+owner = "dotfiles"
+profile = "workstation"
+status = "active"
+strategy = "direct-managed"
+current_runtime_owner = "home-manager"
+target_runtime_owner = "home-manager"
+executor_may_validate = true
+executor_may_adopt = false
+executor_may_write_outputs = false
+renderer_required = false
+description = "OpenCode runtime config is owned by dotfiles and projected by Home Manager, host-aware via the machine-profile namespace: dubnium (and other non-technetium hosts) point at the local Headroom proxy (127.0.0.1:8787); technetium points at the published Headroom proxy on the tailnet (headroom.tail4d84c.ts.net). The dubnium proxy's upstream is set per host in home/ryjen/profiles/dubnium.nix."
+
+[materialization]
+promoted = "home-manager"
+runtime_projection = [
+  "config.d/{machine_profile}/*.json"
+]
+runtime_consumption = [
+  "config.d/{machine_profile}/*.json"
+]
+precedence = [
+  "promoted",
+  "custom",
+  "local"
+]
+
+[layout]
+root = "~/.config/opencode"
+standard = "configctl-v1"
+source_inputs = [
+  "files/home/.config/opencode/config.d/dubnium/config.json",
+  "files/home/.config/opencode/config.d/technetium/config.json"
+]
+runtime_outputs = [
+  "config.json"
+]
+local = [
+  "config.local.json"
+]
+custom = [
+  "config.d/*.json"
+]
+runtime_includes = [
+  "config.d/{machine_profile}/*.json"
+]
+
+[validation]
+must_exist_or_be_creatable = [
+  "local"
+]

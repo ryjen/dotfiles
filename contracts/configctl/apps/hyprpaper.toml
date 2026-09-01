@@ -12,6 +12,9 @@ executor_may_write_outputs = false
 renderer_required = true
 description = "Hyprpaper has a Home Manager-owned runtime file today; layered fragments require a renderer."
 
+[materialization]
+promoted = "direct-render"
+
 [layout]
 root = "~/.config/hyprpaper"
 standard = "configctl-v1"

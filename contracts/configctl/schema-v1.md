@@ -187,7 +187,7 @@ The profile directory and scene collection are versioned assets published by Hom
 
 ## App manifest
 
-App manifests are a dotfiles-side ownership and composition policy surface for `configctl adopt`, `status`, `doctor`, `promote`, and future compose workflows.
+App manifests are a dotfiles-side ownership, layering, promoted-materialization, and composition policy surface for `configctl adopt`, `status`, `doctor`, `promote`, `reconcile`, and compose workflows.
 
 Required top-level fields:
 
@@ -196,7 +196,7 @@ Required top-level fields:
 | `schema_version` | `1` | Integer schema version for app manifests. |
 | `tool` | string | Stable tool identifier. |
 | `owner` | `dotfiles` | Policy owner for this repository. |
-| `profile` | string | Profile that activates the contract. |
+| `profile` | string | **Activation selector** for the app policy. It is not the machine promotion namespace. |
 | `status` | `active`, `planned` | Whether the contract describes current executor behavior. |
 | `strategy` | `native-include`, `compose`, `direct-managed` | Runtime configuration strategy. |
 | `current_runtime_owner` | string | Current writer of runtime outputs. |
@@ -212,6 +212,39 @@ Optional top-level fields:
 | `renderer_required` | Boolean marker for `compose` contracts. |
 | `description` | Human-readable purpose. |
 
+## Activation profile vs machine promotion profile
+
+App activation and promoted-fragment identity are separate concepts.
+
+Examples of activation selectors:
+
+```text
+all
+workstation
+dubnium
+```
+
+The machine promotion profile identifies the concrete host namespace used by `configctl promote`, for example:
+
+```text
+dubnium
+technetium
+```
+
+A policy with `profile = "all"` or `profile = "workstation"` still reads/writes promoted fragments beneath the concrete machine profile. Broad activation selectors must never become path components in the promoted repository namespace.
+
+The standard promoted repo path is derived from `layout.custom` plus the active machine profile:
+
+```text
+files/home/.config/<tool>/<custom-parent>/<machine-profile>/<fragment-pattern>
+```
+
+For example, `layout.custom = ["custom.d/*.conf"]` on `technetium` resolves reviewed promoted state beneath:
+
+```text
+files/home/.config/<tool>/custom.d/technetium/*.conf
+```
+
 ## Path layout
 
 `[layout]` defines path roles once.
@@ -223,16 +256,68 @@ Common fields:
 | `root` | Runtime config directory for the tool. |
 | `standard` | Layout convention identifier, usually `configctl-v1`. |
 | `source_inputs` | Repo-owned modules, fragments, or static source files used to produce runtime configuration. |
+| `promoted_inputs` | Optional explicit repo-owned machine-profile fragments created by `configctl promote`; use only when the contract is bound to a concrete machine profile. |
 | `runtime_outputs` | Final files the app reads. |
 | `local` | Local-only unmanaged paths. |
-| `custom` | User-authored promotion candidates. |
-| `adopted` | Archive/evidence paths. |
-| `runtime_includes` | Paths directly loaded by apps with native include support. |
+| `custom` | Live user-authored promotion candidates. |
+| `adopted` | Archive/evidence paths; a migration contract may also declare them as semantic composition inputs when preserving pre-existing user config. |
+| `runtime_includes` | Paths directly loaded by native include mechanisms or stable managed include indexes. |
 | `auxiliary_outputs` | Runtime helper files that are not composition outputs. |
 
 All path role fields use arrays, even when they contain one item.
 
 `source_inputs` must describe source-of-truth inputs, not generated runtime outputs. Runtime outputs belong under `runtime_outputs` or `auxiliary_outputs`.
+
+Explicit `promoted_inputs` remain supported for concrete machine-bound contracts such as `profile = "dubnium"`:
+
+```text
+files/home/.config/<tool>/custom.d/dubnium/*
+```
+
+Contracts with broad activation selectors such as `all` or `workstation` must omit static `promoted_inputs`; the executor derives the path from `layout.custom` and the current machine profile. This prevents the activation selector from being accidentally substituted for machine identity.
+
+Promoted inputs are distinct from live runtime `custom` fragments. A compose contract must keep reviewed promoted state separate from live custom/local inputs and preserve its documented merge order.
+
+## Promoted materialization
+
+Every app manifest requires a `[materialization]` table declaring who is responsible for reviewed promoted state:
+
+```toml
+[materialization]
+promoted = "home-manager"
+```
+
+Allowed owners:
+
+| Value | Meaning |
+| --- | --- |
+| `home-manager` | Home Manager projects the reviewed machine-profile layer into the runtime tree; the native app consumes that projection. |
+| `direct-render` | The configctl renderer reads reviewed promoted files directly from the repo. No local projection copy is created. |
+| `configctl-sync` | Reserved explicit configctl-owned runtime projection. No current app uses this mode. |
+| `none` | Promoted projection is not applicable. |
+
+`home-manager` and `configctl-sync` also require:
+
+```toml
+runtime_projection = ["custom.d/{machine_profile}/*.conf"]
+runtime_consumption = ["custom.d/{machine_profile}/*.conf"]
+precedence = ["promoted", "custom", "local"]
+```
+
+Rules:
+
+- `{machine_profile}` is a typed placeholder for the concrete host identity, never the app activation selector.
+- `runtime_projection` is derived from the live `layout.custom` shape by inserting `{machine_profile}` beneath the same custom parent.
+- A projection must preserve the machine-profile namespace and must not flatten reviewed state into root `custom`.
+- `runtime_projection` must not overlap `local`, generated `runtime_outputs`, or another ownership boundary.
+- `runtime_consumption` must name paths declared by `layout.runtime_includes`; a projection that is never consumed is invalid.
+- `precedence` is `promoted`, then live root `custom`, then `local` with highest configctl-layer precedence.
+- `home-manager` requires both `current_runtime_owner` and `target_runtime_owner` to remain `home-manager` and keeps `executor_may_write_outputs = false`.
+- `direct-render` must not declare runtime projection fields. Compose apps use this mode and consume the repo machine-profile layer through the renderer.
+- `configctl-sync` must not share projection ownership with Home Manager and must target runtime ownership explicitly in the executor contract.
+- Missing/corrupt local state never changes the declarative materialization owner.
+
+Stable include indexes are allowed when an application cannot consume a profile glob directly. For example, Git and Taskwarrior use Home Manager-generated include files; those index files are listed in `runtime_consumption`, while `runtime_projection` still describes the profile-scoped reviewed files.
 
 ## Composition
 
@@ -240,20 +325,23 @@ All path role fields use arrays, even when they contain one item.
 
 | Field | Meaning |
 | --- | --- |
-| `source_order` | Ordered layout role names used as composition inputs. |
+| `source_order` | Ordered layout role names used as composition inputs. May include `promoted_inputs` when profile-scoped promoted fragments are supported. |
 | `output_role` | Layout role name for rendered outputs. |
 | `write_mode` | Output write mode, currently `atomic`. |
 | `dry_run_required` | Must be true before output writing is enabled. |
-| `requires_parser` | Optional parser requirements such as `jsonc` or `css`. |
+| `requires_parser` | Optional parser requirements such as `jsonc`, `yaml`, or `ron`. |
 
 Planned compose contracts must set:
 
 ```toml
 status = "planned"
-current_runtime_owner = "home-manager"
 target_runtime_owner = "configctl"
 executor_may_write_outputs = false
 ```
+
+A compose contract must not become write-enabled by flipping only `executor_may_write_outputs`. Output ownership activation is an explicit lifecycle transition: the contract must be `active`, its target owner must be `configctl`, and `current_runtime_owner` must accurately reflect the handoff state enforced by the executor.
+
+`current_runtime_owner` must state the actual current writer. It is normally `home-manager`, but may be `user` when a pre-existing user-owned configuration is being migrated. A user-owned planned compose contract must remain review-gated and write-disabled until parser-aware adoption/composition can preserve the existing configuration safely.
 
 ## Adoption
 

@@ -15,10 +15,6 @@
       url = "github:jacopone/antigravity-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    ops-cadence = {
-      url = "git+ssh://git@github.com/ryjen/ops-cadence.git?ref=main&rev=d83511cb669a6ca1481f7a79ea5f1aac6ceabd36";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     git-autocommit = {
       url = "github:ryjen/git-autocommit";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -40,7 +36,6 @@
       home-manager,
       hermes-agent,
       antigravity-nix,
-      ops-cadence,
       git-autocommit,
       sops-nix,
       git-hooks,
@@ -63,7 +58,6 @@
               username
               hermes-agent
               antigravity-nix
-              ops-cadence
               git-autocommit
               ;
           };
@@ -74,6 +68,7 @@
         };
       mkNixosConfig =
         profileModule:
+        extraModules:
         nixpkgs.lib.nixosSystem {
           inherit system;
           specialArgs = {
@@ -82,7 +77,6 @@
               username
               hermes-agent
               antigravity-nix
-              ops-cadence
               git-autocommit
               ;
           };
@@ -99,7 +93,6 @@
                   username
                   hermes-agent
                   antigravity-nix
-                  ops-cadence
                   git-autocommit
                   ;
               };
@@ -110,7 +103,8 @@
                 ];
               };
             }
-          ];
+          ]
+          ++ extraModules;
         };
     in
     {
@@ -186,6 +180,21 @@
               export PYTHONDONTWRITEBYTECODE=1
               cd ${self}
               pytest -q tests/test_opencode_clipboard_contract.py
+              touch "$out"
+            '';
+
+        waybar-github-runners-tests =
+          pkgs.runCommand "waybar-github-runners-tests"
+            {
+              nativeBuildInputs = [
+                pkgs.bash
+                pkgs.python3Packages.pytest
+              ];
+            }
+            ''
+              export PYTHONDONTWRITEBYTECODE=1
+              cd ${self}
+              pytest -q tests/test_waybar_github_runners.py
               touch "$out"
             '';
 
@@ -314,12 +323,8 @@
         pkgs.mkShell {
           shellHook = shellHook + ''
             if git rev-parse --git-dir &>/dev/null; then
-              # Resolve the real git hooks dir so this works for standalone
-              # checkouts and submodules alike.
               git_hook_dir="$(git rev-parse --path-format=absolute --git-common-dir)/hooks"
-              # Keep pre-commit-installed hooks working after store GC.
               ${hardenHooks}/bin/harden-pre-commit-hooks "$git_hook_dir"
-              # Install custom pre-push hook (WIP, tag, submodule checks)
               mkdir -p "$git_hook_dir"
               cp -f ${prePushHook}/bin/pre-push-hook "$git_hook_dir/pre-push"
               chmod +x "$git_hook_dir/pre-push"
@@ -334,8 +339,17 @@
         openwork = pkgs.callPackage ./packages/openwork.nix { };
       };
 
-      nixosConfigurations.nixos = mkNixosConfig ./home/ryjen/home.nix;
-      nixosConfigurations.verify = mkNixosConfig ./home/ryjen/verify-home.nix;
+      nixosConfigurations.nixos = mkNixosConfig ./home/ryjen/home.nix [ ];
+      nixosConfigurations.verify = mkNixosConfig ./home/ryjen/verify-home.nix [
+        {
+          dubnium.unreal.storage = {
+            enable = true;
+            backingMount = "/tmp";
+            imagePath = "/tmp/unreal-storage-verify.ext4";
+            mountPoint = "/srv/unreal-verify";
+          };
+        }
+      ];
 
       homeConfigurations."${username}@nixos" = mkHomeConfig ./home/ryjen/home.nix;
       homeConfigurations."${username}@verify" = mkHomeConfig ./home/ryjen/verify-home.nix;
@@ -344,6 +358,9 @@
       homeConfigurations."${username}@dubnium" = mkHomeConfig ./home/ryjen/dubnium-home.nix;
       homeConfigurations."${username}@technetium" = mkHomeConfig ./home/ryjen/technetium-home.nix;
       homeConfigurations."${username}@meeting-verify" = mkHomeConfig ./home/ryjen/meeting-verify-home.nix;
+      homeConfigurations."${username}@unreal-verify" = mkHomeConfig ./home/ryjen/unreal-verify-home.nix;
+
+      nixosModules.unreal-storage = ./modules/nixos/unreal-storage.nix;
 
       nixosModules.dubnium-home-manager =
         {
@@ -365,7 +382,6 @@
               self
               hermes-agent
               antigravity-nix
-              ops-cadence
               git-autocommit
               ;
             username = dubniumUsername;

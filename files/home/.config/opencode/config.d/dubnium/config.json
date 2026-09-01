@@ -1,0 +1,28 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "dubnium": {
+      "npm": "@core/opencode-ai",
+      "name": "openai-completions",
+      "options": {
+        "baseURL": "http://127.0.0.1:8787/v1",
+        "apiKey": "none",
+        "models": {
+          "dubnium-local": {
+            "name": "dubnium-local",
+            "reasoning": false,
+            "input": ["text"],
+            "output": ["text"],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            }
+          }
+        }
+      }
+    }
+  },
+  "model": "dubnium/dubnium-local"
+}

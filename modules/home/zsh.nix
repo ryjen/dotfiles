@@ -1,9 +1,24 @@
 {
   config,
+  lib,
   pkgs,
   ...
 }:
+let
+  machineProfile = config.dotfiles.host.name;
+  machineProfileName = if machineProfile == null then "unconfigured" else machineProfile;
+  zshPromotedProfilesRoot = ../../files/home/.config/zsh/config.d;
+  zshPromotedProfile = zshPromotedProfilesRoot + "/${machineProfileName}";
+  hasZshPromotedProfile = machineProfile != null && builtins.pathExists zshPromotedProfile;
+in
 {
+  xdg.configFile = lib.mkIf hasZshPromotedProfile {
+    "zsh/config.d/${machineProfileName}" = {
+      source = zshPromotedProfile;
+      recursive = true;
+    };
+  };
+
   home.file.".zshenv".text = ''
     export ZDOTDIR="${config.xdg.configHome}/zsh"
   '';
@@ -14,7 +29,6 @@
     enableCompletion = true;
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
-    historySubstringSearch.enable = true;
 
     history = {
       size = 100000;
@@ -57,8 +71,16 @@
       autoload -U down-line-or-beginning-search
       zle -N up-line-or-beginning-search
       zle -N down-line-or-beginning-search
-      bindkey "^[[A" up-line-or-beginning-search
-      bindkey "^[[B" down-line-or-beginning-search
+      zmodload zsh/terminfo
+
+      # Prefix-aware history navigation. Bind both common cursor encodings plus
+      # the terminal-advertised sequence so arrows work in normal/application mode.
+      for key in "^[[A" "^[OA" "''${terminfo[kcuu1]}"; do
+        [[ -n "$key" ]] && bindkey "$key" up-line-or-beginning-search
+      done
+      for key in "^[[B" "^[OB" "''${terminfo[kcud1]}"; do
+        [[ -n "$key" ]] && bindkey "$key" down-line-or-beginning-search
+      done
 
       # extra variables
       export GPG_TTY=$(tty)
@@ -69,15 +91,23 @@
         task todo
       fi
 
-      # machine-local overrides; unmanaged by Home Manager and never automatically promoted
-      [ -f "$HOME/.config/zsh/local.zsh" ] && source "$HOME/.config/zsh/local.zsh"
+      # Reviewed profile-scoped fragments promoted into dotfiles. Home Manager
+      # materializes this namespace without taking ownership of root config.d.
+      if [ -d "$HOME/.config/zsh/config.d/${machineProfileName}" ]; then
+        for file in "$HOME/.config/zsh/config.d/${machineProfileName}/"*; do
+          [ -f "$file" ] && source "$file"
+        done
+      fi
 
-      # promotion candidates; managed by configctl
+      # Live user-authored promotion candidates override reviewed fragments.
       if [ -d "$HOME/.config/zsh/config.d" ]; then
         for file in "$HOME/.config/zsh/config.d/"*; do
           [ -f "$file" ] && source "$file"
         done
       fi
+
+      # Machine-local overrides remain unmanaged and have highest precedence.
+      [ -f "$HOME/.config/zsh/local.zsh" ] && source "$HOME/.config/zsh/local.zsh"
     '';
 
     loginExtra = ''

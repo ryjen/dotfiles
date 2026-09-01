@@ -1,36 +1,46 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-status="$(playerctl --player=mpv status 2>/dev/null || true)"
+music_playerctl="${MUSIC_PLAYERCTL:-$HOME/.local/bin/music-playerctl}"
+player=""
 
-if [ -z "$status" ]; then
+if [ -x "$music_playerctl" ]; then
+  player="$($music_playerctl --player-name 2>/dev/null || true)"
+fi
+
+if [ -z "$player" ] && playerctl --player=mpv status >/dev/null 2>&1; then
+  player="mpv"
+fi
+
+if [ -z "$player" ]; then
   python3 - <<'PY'
 import json
 print(json.dumps({
     "text": "■ stopped",
     "alt": "stopped",
     "class": "stopped",
-    "tooltip": "MPV music is stopped\nLeft click to start playback",
+    "tooltip": "Music is stopped\nOpen Music Library to choose a track",
 }))
 PY
   exit 0
 fi
 
-artist="$(playerctl --player=mpv metadata xesam:artist 2>/dev/null || true)"
-title="$(playerctl --player=mpv metadata xesam:title 2>/dev/null || true)"
-album="$(playerctl --player=mpv metadata xesam:album 2>/dev/null || true)"
-url="$(playerctl --player=mpv metadata xesam:url 2>/dev/null || true)"
-position="$(playerctl --player=mpv position 2>/dev/null || true)"
-length_us="$(playerctl --player=mpv metadata mpris:length 2>/dev/null || true)"
+status="$(playerctl --player="$player" status 2>/dev/null || true)"
+artist="$(playerctl --player="$player" metadata xesam:artist 2>/dev/null || true)"
+title="$(playerctl --player="$player" metadata xesam:title 2>/dev/null || true)"
+album="$(playerctl --player="$player" metadata xesam:album 2>/dev/null || true)"
+url="$(playerctl --player="$player" metadata xesam:url 2>/dev/null || true)"
+position="$(playerctl --player="$player" position 2>/dev/null || true)"
+length_us="$(playerctl --player="$player" metadata mpris:length 2>/dev/null || true)"
 
-python3 - "$status" "$artist" "$title" "$album" "$url" "$position" "$length_us" <<'PY'
+python3 - "$player" "$status" "$artist" "$title" "$album" "$url" "$position" "$length_us" <<'PY'
 import json
 import os
 import sys
 import time
 from urllib.parse import unquote, urlparse
 
-status, artist, title, album, url, position_raw, length_us_raw = sys.argv[1:8]
+player, status, artist, title, album, url, position_raw, length_us_raw = sys.argv[1:9]
 status = status.strip()
 artist = artist.strip()
 title = title.strip()
@@ -43,9 +53,11 @@ elif title:
 else:
     parsed = urlparse(url)
     if parsed.scheme == "file":
-        full_text = os.path.basename(unquote(parsed.path)) or "mpv music"
+        full_text = os.path.basename(unquote(parsed.path)) or f"{player} music"
+    elif player == "mpd" and url:
+        full_text = os.path.basename(url.rstrip("/")) or "mpd music"
     else:
-        full_text = "mpv music"
+        full_text = f"{player} music"
 
 icon = {
     "Playing": "▶",
@@ -83,6 +95,7 @@ length_us = parse_float(length_us_raw)
 length = length_us / 1_000_000 if length_us is not None else None
 
 metadata_lines = [
+    f"Player: {player}",
     f"Status: {status}",
     f"Track: {title or full_text}",
 ]

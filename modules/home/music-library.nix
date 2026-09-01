@@ -1,0 +1,124 @@
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
+let
+  cfg = config.dotfiles.music.mpd;
+  musicCfg = config.dotfiles.music;
+  machineProfile = config.dotfiles.host.name;
+  machineProfileName = if machineProfile == null then "unconfigured" else machineProfile;
+  playlistDirectory = "${config.xdg.dataHome}/mpd/playlists";
+  rmpcConfig = builtins.readFile ../../files/home/.config/rmpc/base.ron;
+  mpdCustomProfilesRoot = ../../files/home/.config/mpd/custom.d;
+  mpdCustomProfile = mpdCustomProfilesRoot + "/${machineProfileName}";
+  hasMpdCustomProfile = machineProfile != null && builtins.pathExists mpdCustomProfile;
+in
+{
+  options.dotfiles.music.mpd.enable = lib.mkEnableOption "MPD-backed managed music-library playback";
+
+  config = lib.mkIf cfg.enable {
+    assertions = [
+      {
+        assertion = musicCfg.enable;
+        message = "dotfiles.music.mpd.enable requires dotfiles.music.enable";
+      }
+    ];
+
+    home.packages = [ pkgs.mpc ];
+
+    services.mpd = {
+      enable = true;
+      musicDirectory = musicCfg.musicDirectory;
+      playlistDirectory = playlistDirectory;
+      network = {
+        listenAddress = "127.0.0.1";
+        port = 6600;
+      };
+      extraConfig = ''
+        # The tagged filesystem remains a projection of the beets library.
+        # Watch it directly so MPD stays current even before the optional
+        # beets mpdupdate plugin is enabled in the user-owned beets config.
+        auto_update "yes"
+
+        # Keep the MPD control plane local by default. Remote access should be
+        # an explicit capability rather than an accidental LAN service.
+        zeroconf_enabled "no"
+
+        replaygain "auto"
+
+        audio_output {
+          type "pipewire"
+          name "PipeWire"
+        }
+
+        # MPD supports native optional includes. Home Manager owns the root
+        # config and materializes promoted, profile-scoped configctl fragments.
+        # Unpromoted custom fragments override the promoted profile layer, and
+        # local.conf remains machine-local with highest precedence.
+        include_optional "${config.xdg.configHome}/mpd/custom.d/${machineProfileName}/*.conf"
+        include_optional "${config.xdg.configHome}/mpd/custom.d/*.conf"
+        include_optional "${config.xdg.configHome}/mpd/local.conf"
+      '';
+    };
+
+    services.mpd-mpris = {
+      enable = true;
+      mpd.useLocal = true;
+    };
+
+    programs.rmpc = {
+      enable = true;
+      config = rmpcConfig;
+    };
+
+    xdg.configFile = {
+      # Keep the main beets config user-owned. This drop-in can be included
+      # from ~/.config/beets/config.yaml without replacing that file.
+      "beets/dotfiles-mpd.yaml".text = ''
+        mpd:
+          host: 127.0.0.1
+          port: 6600
+        playlist:
+          auto: true
+          playlist_dir: ${builtins.toJSON playlistDirectory}
+          relative_to: ${builtins.toJSON musicCfg.musicDirectory}
+        smartplaylist:
+          playlist_dir: ${builtins.toJSON playlistDirectory}
+          relative_to: ${builtins.toJSON musicCfg.musicDirectory}
+          playlists:
+            - name: recently-added.m3u
+              query: "added:-4w.."
+      '';
+    }
+    // lib.optionalAttrs hasMpdCustomProfile {
+      # configctl promote stores reviewed fragments under
+      # files/home/.config/mpd/custom.d/<profile>/. Project that profile back
+      # into the runtime tree without taking ownership of root custom.d/*.conf.
+      "mpd/custom.d/${machineProfileName}" = {
+        source = mpdCustomProfile;
+        recursive = true;
+      };
+    };
+
+    xdg.desktopEntries.music-library = {
+      name = "Music Library";
+      genericName = "Music Library";
+      comment = "Browse and control the managed music library with rmpc";
+      exec = "${config.home.homeDirectory}/.local/bin/dub-terminal --title \"Music Library\" ${pkgs.rmpc}/bin/rmpc";
+      terminal = false;
+      categories = [
+        "Audio"
+        "AudioVideo"
+        "Music"
+        "Player"
+      ];
+    };
+
+    home.file.".local/bin/music-playerctl" = {
+      source = ../../files/home/.local/bin/music-playerctl;
+      executable = true;
+    };
+  };
+}

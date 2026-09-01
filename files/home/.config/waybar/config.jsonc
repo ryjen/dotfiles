@@ -30,6 +30,7 @@
         "custom/fans",
         "custom/nvidia-gpu",
         "custom/bluetooth",
+        "custom/github-runners",
         "clock",
         "hyprland/language",
         "custom/meeting",
@@ -56,7 +57,7 @@
         "rewrite": {
             "(.*) — Mozilla Firefox": "󰈹 Firefox",
             "(.*) - Visual Studio Code": "󰨞 Code",
-            "(.*) - Alacritty": " Terminal",
+            "(.*) - kitty": " Terminal",
             "": "Desktop"
         }
     },
@@ -71,11 +72,11 @@
     },
     "cpu": {
         "format": "{usage}% ",
-        "on-click": "alacritty --title 'btop' -e sh -c 'btop'"
+        "on-click": "~/.local/bin/dub-terminal --title 'btop' btop"
     },
     "memory": {
         "format": "{}% ",
-        "on-click": "alacritty --title 'btop' -e sh -c 'btop'"
+        "on-click": "~/.local/bin/dub-terminal --title 'btop' btop"
     },
     "custom/disk": {
         "exec": "~/.config/waybar/scripts/disk-space",
@@ -119,6 +120,15 @@
         "tooltip": true,
         "on-click": "blueman-manager",
         "on-click-right": "bluetoothctl power $(bluetoothctl show | awk '/Powered:/{print $2}' | grep -q yes && echo off || echo on)"
+    },
+    "custom/github-runners": {
+        "exec": "~/.config/waybar/scripts/github-runners",
+        "interval": 5,
+        "return-type": "json",
+        "format": "{}",
+        "tooltip": true,
+        "on-click": "~/.config/waybar/scripts/github-runners-action watch",
+        "on-click-right": "~/.config/waybar/scripts/github-runners-action queue"
     },
     "custom/music": {
         "exec": "~/.local/bin/music-status",

@@ -238,7 +238,7 @@ format_io_percent() {
   fi
 }
 
-tooltip=$(printf '<b>Disk usage / I/O</b>\n%-16s %-18s %7s %7s %6s %6s %11s %11s\n' \
+tooltip=$(printf '<b>Disk usage / I/O</b>\n<tt>%-16s %-18s %7s %7s %6s %6s %11s %11s\n' \
   'Disk' 'Mount' 'Used' 'Free' 'Use' 'I/O' 'Read' 'Write')
 tooltip+=$'\n'
 tooltip+=$(printf '%-16s %-18s %7s %7s %5s%% %6s %11s %11s' \
@@ -338,6 +338,7 @@ if [[ "$root_fstype" == btrfs ]]; then
   fi
 fi
 
+tooltip+='</tt>'
 text=$(printf '󰋊 %s%%  󰓅 %s' "$root_percent" "$(format_io_percent "$root_io_util")")
 printf '{"text":"%s","tooltip":"%s","class":"%s","percentage":%s}\n' \
   "$(json_escape "$text")" \

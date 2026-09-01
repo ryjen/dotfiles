@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+if [ -e .gitmodules ]; then
+	git submodule foreach git fetch "$@"
+fi
+
+git fetch "$@"

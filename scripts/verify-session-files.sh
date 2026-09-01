@@ -21,12 +21,47 @@ check_bash() {
 	fi
 }
 
+check_python() {
+	local path="$1"
+	if python3 -c 'import ast, pathlib, sys; ast.parse(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8"), filename=sys.argv[1])' "$path"; then
+		ok "python syntax $path"
+	else
+		fail "python syntax $path"
+	fi
+}
+
+check_script_syntax() {
+	local path="$1"
+	local shebang
+	shebang=$(head -n 1 "$path")
+	case "$shebang" in
+		'#!/usr/bin/env bash'|'#!/bin/bash')
+			check_bash "$path"
+			;;
+		'#!/usr/bin/env python3'|'#!/usr/bin/python3')
+			check_python "$path"
+			;;
+		*)
+			fail "$path has unsupported script interpreter: $shebang"
+			;;
+	esac
+}
+
 check_exists() {
 	local path="$1"
 	if [ -e "$path" ]; then
 		ok "$path exists"
 	else
 		fail "$path missing"
+	fi
+}
+
+check_not_exists() {
+	local path="$1"
+	if [ -e "$path" ]; then
+		fail "$path must not exist"
+	else
+		ok "$path absent"
 	fi
 }
 
@@ -64,6 +99,16 @@ for path in files/home/.local/libexec/*; do
 	check_bash "$path"
 done
 
+# --- Terminal launcher compatibility ---
+printf -- '\n--- Terminal launcher compatibility ---\n'
+check_exists files/home/.local/bin/dub-terminal
+check_contains files/home/.local/bin/dub-terminal 'TERMINAL:-kitty'
+check_contains modules/home/session.nix 'TERMINAL_COMMAND = "\$HOME/\.local/bin/dub-terminal"'
+check_contains modules/home/music-library.nix 'dub-terminal --title'
+check_not_contains modules/home/music-library.nix 'pkgs\.kitty.*/bin/kitty'
+check_exists files/home/.local/bin/music-retag-current
+check_not_contains files/home/.local/bin/music-retag-current 'dub-terminal([[:space:]].*)?[[:space:]]-e([[:space:]]|$)'
+
 # --- Hyprland profiles: code:33 migration ---
 printf -- '\n--- Hyprland profiles ---\n'
 for conf in \
@@ -78,6 +123,10 @@ printf -- '\n--- Meeting module ---\n'
 check_exists modules/home/meeting.nix
 check_exists modules/home/default.nix
 check_contains modules/home/default.nix 'meeting\.nix'
+check_exists files/home/.local/bin/dub-meeting-session
+check_not_exists files/home/.local/bin/dubctl-meeting
+check_not_exists files/home/.local/bin/dubctl-meeting-session
+check_not_contains modules/home/meeting.nix 'dubctl-meeting'
 
 # --- Source/rule order: meeting.conf sourced before local/custom ---
 printf -- '\n--- Source/rule order ---\n'
@@ -118,7 +167,7 @@ check_exists files/home/.config/waybar/config-technetium.jsonc
 printf -- '\n--- Waybar scripts ---\n'
 for path in files/home/.config/waybar/scripts/*; do
 	[ -f "$path" ] || continue
-	check_bash "$path"
+	check_script_syntax "$path"
 	check_contains modules/home/waybar.nix "waybar/scripts/$(basename "$path")"
 done
 
@@ -134,6 +183,7 @@ check_exists files/home/.local/bin/dub-obs-hotkey
 # --- Contracts ---
 printf -- '\n--- Contracts ---\n'
 check_exists contracts/configctl/init/obs-presentation.toml
+check_exists contracts/configctl/apps/kitty.toml
 
 # --- Docs ---
 printf -- '\n--- Docs ---\n'
@@ -165,15 +215,14 @@ for script in \
 	dub-editor \
 	dub-file-manager \
 	dub-launch \
+	dub-meeting-session \
 	dub-obs-hotkey \
 	dub-screenshot \
 	dub-session-doctor \
 	dub-session-reset \
 	dub-session-start \
 	dub-terminal \
-	dub-waybar-reload \
-	dubctl-meeting \
-	dubctl-meeting-session; do
+	dub-waybar-reload; do
 	check_exists "files/home/.local/bin/$script"
 done
 
