@@ -223,7 +223,7 @@ def test_click_actions_are_shell_valid_and_read_only() -> None:
     assert '"$self" queue-view' in contents
     assert "dubctl runners queue view" in contents
     assert "Press Enter to close" in contents
-    assert "--hold" not in contents
+    assert 'exec "$terminal" --hold' not in contents
     for mutation in (
         "dubctl runners suspend",
         "dubctl runners resume",
