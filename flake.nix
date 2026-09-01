@@ -183,6 +183,21 @@
               touch "$out"
             '';
 
+        waybar-github-runners-tests =
+          pkgs.runCommand "waybar-github-runners-tests"
+            {
+              nativeBuildInputs = [
+                pkgs.bash
+                pkgs.python3Packages.pytest
+              ];
+            }
+            ''
+              export PYTHONDONTWRITEBYTECODE=1
+              cd ${self}
+              pytest -q tests/test_waybar_github_runners.py
+              touch "$out"
+            '';
+
         flake-script-executables =
           pkgs.runCommand "flake-script-executables"
             {
