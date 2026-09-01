@@ -167,6 +167,34 @@ def test_dynamic_tooltip_fields_are_markup_escaped() -> None:
     assert "&lt;b&gt;dotfiles&lt;/b&gt;" in output["tooltip"]
 
 
+def test_unknown_capacity_renders_unknown_not_zero(tmp_path: Path) -> None:
+    payload = _payload(active=0, running=0, available=4)
+    runtime = payload["controllerRuntime"]
+    assert isinstance(runtime, dict)
+    runtime["valid"] = False
+    runtime["reason"] = "controller-status-command-timeout"
+    runtime["capacity"] = None
+    runtime["availableCapacity"] = None
+
+    fixture = tmp_path / "status.json"
+    fixture.write_text(json.dumps(payload), encoding="utf-8")
+    env = dict(os.environ)
+    env["WAYBAR_GITHUB_RUNNERS_STATUS_FILE"] = str(fixture)
+
+    completed = subprocess.run(
+        [sys.executable, str(SCRIPT)],
+        check=True,
+        capture_output=True,
+        text=True,
+        env=env,
+    )
+    output = json.loads(completed.stdout)
+
+    assert output["class"] == "degraded"
+    assert output["text"] == " ?/? · ? free ⚠"
+    assert "0/0" not in output["text"]
+
+
 def test_malformed_status_file_renders_degraded_json(tmp_path: Path) -> None:
     fixture = tmp_path / "status.json"
     fixture.write_text("not-json", encoding="utf-8")
