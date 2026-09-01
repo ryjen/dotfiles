@@ -5,7 +5,8 @@
  */
 
 #custom-fans,
-#custom-nvidia-gpu {
+#custom-nvidia-gpu,
+#custom-github-runners {
   margin: 4px 2px;
   padding: 0 10px;
   border-radius: 8px;
@@ -42,6 +43,30 @@
   margin: 0;
   padding: 0;
   background-color: transparent;
+}
+
+#custom-github-runners {
+  color: #bb9af7;
+}
+
+#custom-github-runners.healthy {
+  color: #9ece6a;
+}
+
+#custom-github-runners.busy {
+  color: #bb9af7;
+}
+
+#custom-github-runners.idle {
+  color: #7aa2f7;
+}
+
+#custom-github-runners.suspended {
+  color: #e0af68;
+}
+
+#custom-github-runners.degraded {
+  color: #f38ba8;
 }
 
 #custom-meeting.active {
