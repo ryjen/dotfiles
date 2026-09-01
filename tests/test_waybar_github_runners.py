@@ -92,7 +92,7 @@ def test_healthy_status_uses_owned_workers_as_active_count() -> None:
     output = renderer.render_payload(_payload(active=2, running=1))
 
     assert output["class"] == "healthy"
-    assert output["text"] == " 2/4 · 2 free"
+    assert output["text"] == " 2/4"
     assert "2 active / 4 capacity / 2 available" in output["tooltip"]
     assert "Running units: 1" in output["tooltip"]
     assert "ryjen/dotfiles" in output["tooltip"]
@@ -103,6 +103,7 @@ def test_full_capacity_is_busy_not_degraded() -> None:
     output = renderer.render_payload(_payload(active=4, running=4, available=0))
 
     assert output["class"] == "busy"
+    assert output["text"] == " 4/4"
     assert "⚠" not in output["text"]
 
 
@@ -117,6 +118,7 @@ def test_resumed_zero_worker_state_is_idle() -> None:
     )
 
     assert output["class"] == "idle"
+    assert output["text"] == " 0/4"
 
 
 def test_administratively_suspended_state_is_distinct_from_idle() -> None:
@@ -145,7 +147,7 @@ def test_ambiguous_worker_state_is_degraded_without_inventing_capacity() -> None
     )
 
     assert output["class"] == "degraded"
-    assert output["text"] == " 2/4 · 2 free ⚠"
+    assert output["text"] == " 2/4 ⚠"
     assert "Ambiguous workers: 1" in output["tooltip"]
 
 
@@ -191,7 +193,7 @@ def test_unknown_capacity_renders_unknown_not_zero(tmp_path: Path) -> None:
     output = json.loads(completed.stdout)
 
     assert output["class"] == "degraded"
-    assert output["text"] == " ?/? · ? free ⚠"
+    assert output["text"] == " ?/? ⚠"
     assert "0/0" not in output["text"]
 
 
