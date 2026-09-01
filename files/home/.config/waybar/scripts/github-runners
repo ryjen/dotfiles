@@ -1,0 +1,242 @@
+#!/usr/bin/env python3
+"""Render canonical Dubnium GitHub runner status for Waybar."""
+
+from __future__ import annotations
+
+import html
+import json
+import os
+import subprocess
+import sys
+from pathlib import Path
+from typing import Any, Mapping
+
+STATUS_TIMEOUT_SECONDS = float(
+    os.environ.get("WAYBAR_GITHUB_RUNNERS_TIMEOUT_SECONDS", "4")
+)
+MAX_STATUS_BYTES = 256 * 1024
+MAX_TOOLTIP_WORKERS = 8
+STATUS_COMMAND = ["dubctl", "runners", "status", "--json"]
+
+
+class StatusError(RuntimeError):
+    """Runner status could not be rendered safely."""
+
+
+def _as_non_negative_int(value: Any, name: str) -> int:
+    if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+        raise StatusError(f"{name} is invalid")
+    return value
+
+
+def _as_mapping(value: Any, name: str) -> Mapping[str, Any]:
+    if not isinstance(value, dict):
+        raise StatusError(f"{name} is invalid")
+    return value
+
+
+def _safe(value: Any) -> str:
+    return html.escape(str(value), quote=True)
+
+
+def _repository_names(payload: Mapping[str, Any]) -> dict[str, str]:
+    policies = payload.get("repositoryPolicies")
+    if not isinstance(policies, list):
+        return {}
+
+    result: dict[str, str] = {}
+    for policy in policies:
+        if not isinstance(policy, dict):
+            continue
+        key = policy.get("key")
+        repository = policy.get("repository")
+        if isinstance(key, str) and isinstance(repository, str):
+            result[key] = repository
+    return result
+
+
+def render_payload(payload: Mapping[str, Any]) -> dict[str, str]:
+    runtime = _as_mapping(payload.get("controllerRuntime"), "controllerRuntime")
+    service = _as_mapping(payload.get("controllerService"), "controllerService")
+
+    active = _as_non_negative_int(runtime.get("ownedWorkerCount"), "ownedWorkerCount")
+    running = _as_non_negative_int(
+        runtime.get("runningWorkerCount"), "runningWorkerCount"
+    )
+    ambiguous = _as_non_negative_int(
+        runtime.get("ambiguousWorkerCount"), "ambiguousWorkerCount"
+    )
+    capacity = _as_non_negative_int(runtime.get("capacity"), "capacity")
+    available = _as_non_negative_int(
+        runtime.get("availableCapacity"), "availableCapacity"
+    )
+
+    if active > capacity or running > active or ambiguous > active or available > capacity:
+        raise StatusError("runner counts are inconsistent")
+
+    workers = runtime.get("workers")
+    if not isinstance(workers, list):
+        raise StatusError("workers is invalid")
+    if len(workers) != active:
+        raise StatusError("worker count does not match ownedWorkerCount")
+
+    runtime_valid = runtime.get("valid") is True
+    service_valid = service.get("valid") is True
+    admin_valid = payload.get("administrativeStateValid") is True
+    controller_validation = payload.get("controllerValidation")
+    validation_valid = (
+        isinstance(controller_validation, dict)
+        and controller_validation.get("valid") is True
+    )
+    ordinary_state = payload.get("ordinaryRuntimeState")
+    effective_state = payload.get("effectiveState")
+
+    if not isinstance(ordinary_state, str):
+        ordinary_state = "unknown"
+    if not isinstance(effective_state, str):
+        effective_state = "unknown"
+
+    degraded = (
+        not runtime_valid
+        or not service_valid
+        or not admin_valid
+        or not validation_valid
+        or ambiguous > 0
+        or ordinary_state in {"unverified", "suspension-pending"}
+    )
+
+    if degraded:
+        css_class = "degraded"
+    elif effective_state == "suspended" or ordinary_state == "suspended":
+        css_class = "suspended"
+    elif active == 0:
+        css_class = "idle"
+    elif available == 0:
+        css_class = "busy"
+    else:
+        css_class = "healthy"
+
+    text = f" {active}/{capacity} · {available} free"
+    if degraded:
+        text += " ⚠"
+
+    controller_reason = runtime.get("reason", "unknown")
+    service_reason = service.get("reason", "unknown")
+    controller_health = (
+        "healthy" if runtime_valid and service_valid and validation_valid else "degraded"
+    )
+
+    tooltip = [
+        "GitHub Runners",
+        f"{active} active / {capacity} capacity / {available} available",
+        f"Running units: {running}",
+        f"State: {_safe(ordinary_state)} (admin: {_safe(effective_state)})",
+        f"Controller: {controller_health}",
+    ]
+    if controller_health != "healthy":
+        tooltip.append(f"Runtime: {_safe(controller_reason)}")
+        tooltip.append(f"Service: {_safe(service_reason)}")
+    if ambiguous:
+        tooltip.append(f"Ambiguous workers: {ambiguous}")
+
+    repository_names = _repository_names(payload)
+    shown = 0
+    for worker in workers:
+        if shown >= MAX_TOOLTIP_WORKERS:
+            break
+        if not isinstance(worker, dict):
+            raise StatusError("worker entry is invalid")
+        repository_key = worker.get("repositoryKey")
+        worker_id = worker.get("workerId")
+        phase = worker.get("phase")
+        runner_name = worker.get("runnerName")
+        unit_active = worker.get("workerUnitActive")
+        if (
+            not isinstance(repository_key, str)
+            or not isinstance(worker_id, str)
+            or not isinstance(phase, str)
+            or not isinstance(runner_name, str)
+            or not isinstance(unit_active, bool)
+        ):
+            raise StatusError("worker fields are invalid")
+
+        repository = repository_names.get(repository_key, repository_key)
+        tooltip.extend(
+            [
+                "",
+                f"● {_safe(repository)} · {_safe(phase)}",
+                (
+                    f"  {_safe(runner_name)} · unit "
+                    f"{'active' if unit_active else 'inactive'} · "
+                    f"{_safe(worker_id[:12])}"
+                ),
+            ]
+        )
+        shown += 1
+
+    remaining = len(workers) - shown
+    if remaining > 0:
+        tooltip.extend(["", f"… {remaining} more workers"])
+
+    return {
+        "text": text,
+        "tooltip": "\n".join(tooltip),
+        "class": css_class,
+        "alt": ordinary_state,
+    }
+
+
+def _read_payload() -> Mapping[str, Any]:
+    fixture = os.environ.get("WAYBAR_GITHUB_RUNNERS_STATUS_FILE")
+    if fixture:
+        try:
+            data = Path(fixture).read_bytes()
+        except OSError as exc:
+            raise StatusError(f"fixture unavailable: {exc}") from exc
+    else:
+        try:
+            completed = subprocess.run(
+                STATUS_COMMAND,
+                check=False,
+                capture_output=True,
+                timeout=STATUS_TIMEOUT_SECONDS,
+            )
+        except subprocess.TimeoutExpired as exc:
+            raise StatusError("dubctl status timed out") from exc
+        except OSError as exc:
+            raise StatusError(f"dubctl status unavailable: {exc}") from exc
+        data = completed.stdout
+
+    if not data or len(data) > MAX_STATUS_BYTES:
+        raise StatusError("dubctl status response size is invalid")
+
+    try:
+        payload = json.loads(data.decode("utf-8"))
+    except (UnicodeError, json.JSONDecodeError) as exc:
+        raise StatusError("dubctl status returned invalid JSON") from exc
+    if not isinstance(payload, dict):
+        raise StatusError("dubctl status payload is invalid")
+    return payload
+
+
+def degraded_output(reason: str) -> dict[str, str]:
+    return {
+        "text": " ?/? · ? free ⚠",
+        "tooltip": f"GitHub Runners\nStatus unavailable\nReason: {_safe(reason)}",
+        "class": "degraded",
+        "alt": "unverified",
+    }
+
+
+def main() -> int:
+    try:
+        output = render_payload(_read_payload())
+    except (StatusError, ValueError) as exc:
+        output = degraded_output(str(exc))
+    json.dump(output, sys.stdout, ensure_ascii=False, separators=(",", ":"))
+    print()
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
