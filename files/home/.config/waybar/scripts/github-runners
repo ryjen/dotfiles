@@ -114,7 +114,7 @@ def render_payload(payload: Mapping[str, Any]) -> dict[str, str]:
     else:
         css_class = "healthy"
 
-    text = f" {active}/{capacity} · {available} free"
+    text = f" {active}/{capacity}"
     if degraded:
         text += " ⚠"
 
@@ -221,7 +221,7 @@ def _read_payload() -> Mapping[str, Any]:
 
 def degraded_output(reason: str) -> dict[str, str]:
     return {
-        "text": " ?/? · ? free ⚠",
+        "text": " ?/? ⚠",
         "tooltip": f"GitHub Runners\nStatus unavailable\nReason: {_safe(reason)}",
         "class": "degraded",
         "alt": "unverified",
