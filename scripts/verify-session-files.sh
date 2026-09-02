@@ -130,7 +130,10 @@ check_contains modules/home/hypr.nix 'bind = ALT, Print, exec, ~/.local/bin/dub-
 check_contains modules/home/hypr.nix 'bind = CTRL, Print, exec, ~/.local/bin/dub-screenshot window --clipboard'
 check_contains modules/home/hypr.nix 'bind = CTRL SHIFT, Print, exec, ~/.local/bin/dub-screenshot area --clipboard'
 check_contains files/home/.local/bin/dub-screenshot 'hyprctl activewindow -j'
-check_contains files/home/.local/bin/dub-screenshot 'wl-copy --type image/png'
+check_contains files/home/.local/bin/dub-screenshot 'case "\$\{1:-\}" in'
+check_contains files/home/.local/bin/dub-screenshot 'clipboard_file="\$\(mktemp --suffix=\.png\)"'
+check_contains files/home/.local/bin/dub-screenshot 'capture "\$clipboard_file"'
+check_contains files/home/.local/bin/dub-screenshot 'wl-copy --type image/png < "\$clipboard_file"'
 check_contains files/home/.local/bin/dub-screenshot 'date \+%Y%m%d-%H%M%S-%N'
 
 # --- Generated meeting module ownership ---
