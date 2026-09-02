@@ -69,10 +69,13 @@ def validate_triggers(lines: list[str], workflow: Path, errors: list[str]) -> No
         return
 
     for line in indented_block(lines, on_index, 0):
-        if not line.strip() or line.lstrip().startswith("#"):
+        if not line.strip() or line.lstrip().startswith("#") or indentation(line) > 2:
             continue
         match = TRIGGER_KEY_RE.match(line)
-        if match and match.group(1) == "pull_request_target":
+        if not match:
+            fail(errors, workflow, f"unrecognized workflow trigger line: {line.strip()!r}")
+            continue
+        if match.group(1) == "pull_request_target":
             fail(errors, workflow, "pull_request_target is forbidden")
 
 
