@@ -106,6 +106,11 @@ class WorkflowSecurityTests(unittest.TestCase):
         errors = self.validate(text)
         self.assertTrue(any("block mapping syntax" in error for error in errors))
 
+    def test_rejects_block_sequence_trigger_syntax(self) -> None:
+        text = workflow_text().replace("on:\n  pull_request:\n", "on:\n  - pull_request_target\n")
+        errors = self.validate(text)
+        self.assertTrue(any("unrecognized workflow trigger line" in error for error in errors))
+
 
 if __name__ == "__main__":
     unittest.main()
