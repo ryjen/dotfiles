@@ -21,6 +21,7 @@ def workflow_text(
     timeout: bool = True,
     job_permissions: str = "",
     trigger: str = "pull_request:",
+    uses_key: str = "uses:",
 ) -> str:
     persist = "\n        with:\n          persist-credentials: false" if persist_credentials else ""
     timeout_line = "\n    timeout-minutes: 5" if timeout else ""
@@ -38,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest{timeout_line}{permissions}
     steps:
       - name: Checkout
-        uses: {action}{persist}
+        {uses_key} {action}{persist}
       - name: Verify
         run: echo ok
 """
@@ -57,8 +58,15 @@ class WorkflowSecurityTests(unittest.TestCase):
     def test_accepts_pinned_read_only_workflow(self) -> None:
         self.assertEqual([], self.validate(workflow_text()))
 
+    def test_accepts_spacing_around_uses_colon(self) -> None:
+        self.assertEqual([], self.validate(workflow_text(uses_key="uses :")))
+
     def test_rejects_mutable_action(self) -> None:
         errors = self.validate(workflow_text(action="actions/checkout@v4"))
+        self.assertTrue(any("mutable action reference" in error for error in errors))
+
+    def test_rejects_mutable_action_with_spacing_around_uses_colon(self) -> None:
+        errors = self.validate(workflow_text(action="actions/checkout@v4", uses_key="uses :"))
         self.assertTrue(any("mutable action reference" in error for error in errors))
 
     def test_rejects_checkout_credential_persistence(self) -> None:
@@ -71,11 +79,32 @@ class WorkflowSecurityTests(unittest.TestCase):
 
     def test_rejects_job_write_permission(self) -> None:
         errors = self.validate(workflow_text(job_permissions="contents: write"))
-        self.assertTrue(any("write permission" in error for error in errors))
+        self.assertTrue(any("must not override" in error for error in errors))
+
+    def test_rejects_scalar_job_permissions(self) -> None:
+        text = workflow_text().replace(
+            "    runs-on: ubuntu-latest\n",
+            "    runs-on: ubuntu-latest\n    permissions: write-all\n",
+        )
+        errors = self.validate(text)
+        self.assertTrue(any("must not override" in error for error in errors))
+
+    def test_rejects_inline_job_permissions(self) -> None:
+        text = workflow_text().replace(
+            "    runs-on: ubuntu-latest\n",
+            "    runs-on: ubuntu-latest\n    permissions: { contents: write }\n",
+        )
+        errors = self.validate(text)
+        self.assertTrue(any("must not override" in error for error in errors))
 
     def test_rejects_pull_request_target(self) -> None:
         errors = self.validate(workflow_text(trigger="pull_request_target:"))
         self.assertTrue(any("pull_request_target" in error for error in errors))
+
+    def test_rejects_flow_style_trigger_mapping(self) -> None:
+        text = workflow_text().replace("on:\n  pull_request:\n", "on: [pull_request_target]\n")
+        errors = self.validate(text)
+        self.assertTrue(any("block mapping syntax" in error for error in errors))
 
 
 if __name__ == "__main__":
