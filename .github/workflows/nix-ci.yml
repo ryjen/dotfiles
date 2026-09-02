@@ -27,6 +27,9 @@ jobs:
       - name: Verify Workflow Security Policy
         run: python3 checks/verify-workflow-security.py .
 
+      - name: Test Workflow Security Policy
+        run: python3 -m unittest discover -s tests -p 'test_workflow_security.py'
+
       - name: Verify Standalone Source Boundary
         run: python3 checks/verify-standalone-source-boundary.py .
 
