@@ -179,7 +179,20 @@ jobs:
         run: nix flake metadata --no-write-lock-file
 
       - name: Evaluate Home Manager profile — nixos
-        run: nix eval --raw '.#homeConfigurations."ryjen@nixos".activationPackage.drvPath' >/dev/null
+        shell: bash
+        run: |
+          set -o pipefail
+          nix eval --show-trace --raw '.#homeConfigurations."ryjen@nixos".activationPackage.drvPath' \
+            2>&1 | tee profile-nixos-eval.log
+
+      - name: Upload Failed Profile Evaluation Log
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: profile-nixos-eval
+          path: profile-nixos-eval.log
+          if-no-files-found: error
+          retention-days: 1
 
       - name: Evaluate Home Manager profile — verify
         run: nix eval --raw '.#homeConfigurations."ryjen@verify".activationPackage.drvPath' >/dev/null
