@@ -5,10 +5,12 @@ import sys
 from pathlib import Path
 
 SHA_RE = re.compile(r"^[0-9a-f]{40}$")
-USES_RE = re.compile(r"^\s*(?:-\s*)?uses:\s*([^\s#]+)")
-PULL_REQUEST_TARGET_RE = re.compile(r"(?m)^\s*pull_request_target\s*:")
-TIMEOUT_RE = re.compile(r"^\s{4}timeout-minutes:\s*[1-9][0-9]*\s*(?:#.*)?$")
-PERSIST_CREDENTIALS_RE = re.compile(r"^\s+persist-credentials:\s*false\s*(?:#.*)?$")
+USES_RE = re.compile(r"^\s*(?:-\s*)?uses\s*:\s*([^\s#]+)")
+TIMEOUT_RE = re.compile(r"^\s{4}timeout-minutes\s*:\s*[1-9][0-9]*\s*(?:#.*)?$")
+PERSIST_CREDENTIALS_RE = re.compile(r"^\s+persist-credentials\s*:\s*false\s*(?:#.*)?$")
+TOP_LEVEL_KEY_RE = re.compile(r"^([A-Za-z0-9_-]+)\s*:\s*(.*?)\s*(?:#.*)?$")
+JOB_PERMISSION_RE = re.compile(r"^\s{4}permissions\s*:")
+TRIGGER_KEY_RE = re.compile(r"^\s{2}([A-Za-z0-9_-]+)\s*:\s*(?:#.*)?$")
 
 
 def indentation(line: str) -> int:
@@ -39,22 +41,51 @@ def indented_block(lines: list[str], start: int, parent_indent: int) -> list[str
     return block
 
 
+def top_level_mapping_index(
+    lines: list[str], key: str, workflow: Path, errors: list[str]
+) -> int | None:
+    candidates: list[tuple[int, str]] = []
+    for index, line in enumerate(lines):
+        if indentation(line) != 0 or not line.strip() or line.lstrip().startswith("#"):
+            continue
+        match = TOP_LEVEL_KEY_RE.match(line)
+        if match and match.group(1) == key:
+            candidates.append((index, match.group(2)))
+
+    if len(candidates) != 1:
+        fail(errors, workflow, f"workflow must define exactly one top-level {key!r} mapping")
+        return None
+
+    index, value = candidates[0]
+    if value:
+        fail(errors, workflow, f"top-level {key!r} must use block mapping syntax")
+        return None
+    return index
+
+
+def validate_triggers(lines: list[str], workflow: Path, errors: list[str]) -> None:
+    on_index = top_level_mapping_index(lines, "on", workflow, errors)
+    if on_index is None:
+        return
+
+    for line in indented_block(lines, on_index, 0):
+        if not line.strip() or line.lstrip().startswith("#"):
+            continue
+        match = TRIGGER_KEY_RE.match(line)
+        if match and match.group(1) == "pull_request_target":
+            fail(errors, workflow, "pull_request_target is forbidden")
+
+
 def validate_permissions(lines: list[str], workflow: Path, errors: list[str]) -> None:
-    try:
-        permissions_index = next(
-            index
-            for index, line in enumerate(lines)
-            if indentation(line) == 0 and line.strip() == "permissions:"
-        )
-    except StopIteration:
-        fail(errors, workflow, "missing workflow-level permissions")
+    permissions_index = top_level_mapping_index(lines, "permissions", workflow, errors)
+    if permissions_index is None:
         return
 
     entries: dict[str, str] = {}
     for line in indented_block(lines, permissions_index, 0):
         if not line.strip() or line.lstrip().startswith("#"):
             continue
-        match = re.match(r"^\s{2}([^:#]+):\s*([^\s#]+)", line)
+        match = re.match(r"^\s{2}([^:#]+)\s*:\s*([^\s#]+)\s*(?:#.*)?$", line)
         if not match:
             fail(errors, workflow, f"unrecognized workflow permission line: {line.strip()!r}")
             continue
@@ -65,12 +96,8 @@ def validate_permissions(lines: list[str], workflow: Path, errors: list[str]) ->
 
 
 def validate_jobs(lines: list[str], workflow: Path, errors: list[str]) -> None:
-    try:
-        jobs_index = next(
-            index for index, line in enumerate(lines) if indentation(line) == 0 and line.strip() == "jobs:"
-        )
-    except StopIteration:
-        fail(errors, workflow, "workflow must define jobs")
+    jobs_index = top_level_mapping_index(lines, "jobs", workflow, errors)
+    if jobs_index is None:
         return
 
     job_headers: list[tuple[int, str]] = []
@@ -78,7 +105,7 @@ def validate_jobs(lines: list[str], workflow: Path, errors: list[str]) -> None:
         line = lines[index]
         if line.strip() and indentation(line) == 0:
             break
-        match = re.match(r"^\s{2}([A-Za-z0-9_-]+):\s*(?:#.*)?$", line)
+        match = re.match(r"^\s{2}([A-Za-z0-9_-]+)\s*:\s*(?:#.*)?$", line)
         if match:
             job_headers.append((index, match.group(1)))
 
@@ -93,16 +120,13 @@ def validate_jobs(lines: list[str], workflow: Path, errors: list[str]) -> None:
         if not any(TIMEOUT_RE.match(line) for line in job_lines):
             fail(errors, workflow, f"job {job_name!r} has no timeout-minutes")
 
-        for index, line in enumerate(job_lines):
-            if indentation(line) == 4 and line.strip() == "permissions:":
-                for permission_line in indented_block(job_lines, index, 4):
-                    match = re.match(r"^\s{6}([^:#]+):\s*([^\s#]+)", permission_line)
-                    if match and match.group(2) == "write":
-                        fail(
-                            errors,
-                            workflow,
-                            f"job {job_name!r} grants write permission {match.group(1).strip()!r}",
-                        )
+        for line in job_lines:
+            if JOB_PERMISSION_RE.match(line):
+                fail(
+                    errors,
+                    workflow,
+                    f"job {job_name!r} must not override workflow-level permissions",
+                )
 
 
 def checkout_step_has_persist_false(lines: list[str], uses_index: int) -> bool:
@@ -128,8 +152,13 @@ def checkout_step_has_persist_false(lines: list[str], uses_index: int) -> bool:
 
 def validate_actions(lines: list[str], workflow: Path, errors: list[str]) -> None:
     for index, line in enumerate(lines):
+        stripped = line.lstrip()
+        if not (stripped.startswith("uses") or stripped.startswith("- uses")):
+            continue
+
         match = USES_RE.match(line)
         if not match:
+            fail(errors, workflow, f"unrecognized uses syntax: {line.strip()!r}")
             continue
 
         uses = match.group(1)
@@ -146,9 +175,10 @@ def validate_workflow(workflow: Path, repo_root: Path) -> list[str]:
     lines = text.splitlines()
     errors: list[str] = []
 
-    if PULL_REQUEST_TARGET_RE.search(text):
-        fail(errors, relative, "pull_request_target is forbidden")
+    if "\t" in text:
+        fail(errors, relative, "tabs are not allowed in workflow YAML")
 
+    validate_triggers(lines, relative, errors)
     validate_permissions(lines, relative, errors)
     validate_jobs(lines, relative, errors)
     validate_actions(lines, relative, errors)
