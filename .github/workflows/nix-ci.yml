@@ -178,21 +178,29 @@ jobs:
       - name: Validate Flake Metadata
         run: nix flake metadata --no-write-lock-file
 
-      - name: Evaluate Supported Home Manager Profiles
-        shell: bash
-        run: |
-          set -euo pipefail
-          for profile in \
-            ryjen@nixos \
-            ryjen@verify \
-            ryjen@headless \
-            ryjen@wsl \
-            ryjen@dubnium \
-            ryjen@technetium \
-            ryjen@meeting-verify \
-            ryjen@unreal-verify; do
-            nix eval --raw ".#homeConfigurations.\"${profile}\".activationPackage.drvPath" >/dev/null
-          done
+      - name: Evaluate Home Manager profile — nixos
+        run: nix eval --raw '.#homeConfigurations."ryjen@nixos".activationPackage.drvPath' >/dev/null
+
+      - name: Evaluate Home Manager profile — verify
+        run: nix eval --raw '.#homeConfigurations."ryjen@verify".activationPackage.drvPath' >/dev/null
+
+      - name: Evaluate Home Manager profile — headless
+        run: nix eval --raw '.#homeConfigurations."ryjen@headless".activationPackage.drvPath' >/dev/null
+
+      - name: Evaluate Home Manager profile — wsl
+        run: nix eval --raw '.#homeConfigurations."ryjen@wsl".activationPackage.drvPath' >/dev/null
+
+      - name: Evaluate Home Manager profile — dubnium
+        run: nix eval --raw '.#homeConfigurations."ryjen@dubnium".activationPackage.drvPath' >/dev/null
+
+      - name: Evaluate Home Manager profile — technetium
+        run: nix eval --raw '.#homeConfigurations."ryjen@technetium".activationPackage.drvPath' >/dev/null
+
+      - name: Evaluate Home Manager profile — meeting-verify
+        run: nix eval --raw '.#homeConfigurations."ryjen@meeting-verify".activationPackage.drvPath' >/dev/null
+
+      - name: Evaluate Home Manager profile — unreal-verify
+        run: nix eval --raw '.#homeConfigurations."ryjen@unreal-verify".activationPackage.drvPath' >/dev/null
 
       - name: Build Enabled Unreal Configuration
         run: |
