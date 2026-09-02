@@ -109,14 +109,32 @@ check_not_contains modules/home/music-library.nix 'pkgs\.kitty.*/bin/kitty'
 check_exists files/home/.local/bin/music-retag-current
 check_not_contains files/home/.local/bin/music-retag-current 'dub-terminal([[:space:]].*)?[[:space:]]-e([[:space:]]|$)'
 
-# --- Hyprland profiles: code:33 migration ---
+# --- Hyprland profiles: code:33 migration and shared screenshot ownership ---
 printf -- '\n--- Hyprland profiles ---\n'
 for conf in \
 	files/home/.config/hypr/adopted.d/dubnium.conf \
 	files/home/.config/hypr/adopted.d/technetium.conf; do
 	check_exists "$conf"
 	check_not_contains "$conf" 'bind\s*=.*,code:33'
+	check_not_contains "$conf" '^[[:space:]]*bind.*Print'
 done
+
+# --- Shared screenshot contract ---
+printf -- '\n--- Screenshot contract ---\n'
+check_exists files/home/.local/bin/dub-screenshot
+check_contains modules/home/hypr.nix 'sharedScreenshotBindings'
+check_contains modules/home/hypr.nix 'pkgs\.jq'
+check_contains modules/home/hypr.nix 'bind = , Print, exec, ~/.local/bin/dub-screenshot screen'
+check_contains modules/home/hypr.nix 'bind = SHIFT, Print, exec, ~/.local/bin/dub-screenshot area'
+check_contains modules/home/hypr.nix 'bind = ALT, Print, exec, ~/.local/bin/dub-screenshot window'
+check_contains modules/home/hypr.nix 'bind = CTRL, Print, exec, ~/.local/bin/dub-screenshot window --clipboard'
+check_contains modules/home/hypr.nix 'bind = CTRL SHIFT, Print, exec, ~/.local/bin/dub-screenshot area --clipboard'
+check_contains files/home/.local/bin/dub-screenshot 'hyprctl activewindow -j'
+check_contains files/home/.local/bin/dub-screenshot 'case "\$\{1:-\}" in'
+check_contains files/home/.local/bin/dub-screenshot 'clipboard_file="\$\(mktemp --suffix=\.png\)"'
+check_contains files/home/.local/bin/dub-screenshot 'capture "\$clipboard_file"'
+check_contains files/home/.local/bin/dub-screenshot 'wl-copy --type image/png < "\$clipboard_file"'
+check_contains files/home/.local/bin/dub-screenshot 'date \+%Y%m%d-%H%M%S-%N'
 
 # --- Generated meeting module ownership ---
 printf -- '\n--- Meeting module ---\n'

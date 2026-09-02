@@ -1,27 +1,82 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-mode="${1:-screen}"
-screenshot_dir="${DUB_SCREENSHOT_DIR:-$HOME/Pictures/screenshots}"
-mkdir -p "$screenshot_dir"
+mode="screen"
+destination="save"
 
-stamp="$(date +%Y%m%d-%H%M%S)"
-path="$screenshot_dir/$stamp.png"
-
-case "$mode" in
-  screen)
-    grim "$path"
-    printf '%s\n' "$path"
-    ;;
-  area)
-    grim -g "$(slurp)" "$path"
-    printf '%s\n' "$path"
+case "${1:-}" in
+  "")
     ;;
   clipboard|clip)
-    grim -g "$(slurp)" - | wl-copy
+    # Backward-compatible alias: selection directly to clipboard.
+    mode="area"
+    destination="clipboard"
+    shift
+    ;;
+  screen|area|window)
+    mode="$1"
+    shift
+    ;;
+  --clipboard)
+    # Mode is omitted, so keep the default full-screen capture.
     ;;
   *)
-    printf 'usage: dub-screenshot [screen|area|clipboard]\n' >&2
+    printf 'usage: dub-screenshot [screen|area|window] [--clipboard]\n' >&2
     exit 64
     ;;
 esac
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --clipboard|clipboard|clip)
+      destination="clipboard"
+      ;;
+    *)
+      printf 'usage: dub-screenshot [screen|area|window] [--clipboard]\n' >&2
+      exit 64
+      ;;
+  esac
+  shift
+done
+
+screenshot_dir="${DUB_SCREENSHOT_DIR:-$HOME/Pictures/screenshots}"
+stamp="$(date +%Y%m%d-%H%M%S-%N)"
+path="$screenshot_dir/$stamp.png"
+
+capture() {
+  local output="$1"
+  local geometry
+
+  case "$mode" in
+    screen)
+      grim "$output"
+      ;;
+    area)
+      geometry="$(slurp)"
+      grim -g "$geometry" "$output"
+      ;;
+    window)
+      if ! geometry="$(
+        hyprctl activewindow -j \
+          | jq -er 'select((.address // "") != "" and (.at | length) == 2 and (.size | length) == 2) | "\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"'
+      )"; then
+        printf 'dub-screenshot: no active Hyprland window\n' >&2
+        return 1
+      fi
+      grim -g "$geometry" "$output"
+      ;;
+  esac
+}
+
+if [ "$destination" = "clipboard" ]; then
+  clipboard_file="$(mktemp --suffix=.png)"
+  trap 'rm -f "$clipboard_file"' EXIT
+
+  # Capture first so cancellation/failure cannot replace the existing clipboard.
+  capture "$clipboard_file"
+  wl-copy --type image/png < "$clipboard_file"
+else
+  mkdir -p "$screenshot_dir"
+  capture "$path"
+  printf '%s\n' "$path"
+fi

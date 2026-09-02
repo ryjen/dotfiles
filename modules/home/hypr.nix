@@ -19,6 +19,16 @@ let
 
   managedHyprConfig = builtins.readFile adoptedProfiles.${config.dotfiles.hypr.adoptedProfile};
 
+  sharedScreenshotBindings = ''
+    # --- SCREENSHOTS ---
+    # Keep screenshot behavior shared across workstation profiles.
+    bind = , Print, exec, ~/.local/bin/dub-screenshot screen
+    bind = SHIFT, Print, exec, ~/.local/bin/dub-screenshot area
+    bind = ALT, Print, exec, ~/.local/bin/dub-screenshot window
+    bind = CTRL, Print, exec, ~/.local/bin/dub-screenshot window --clipboard
+    bind = CTRL SHIFT, Print, exec, ~/.local/bin/dub-screenshot area --clipboard
+  '';
+
   defaultWallpapers =
     pkgs.runCommand "dubnium-default-wallpapers"
       {
@@ -79,6 +89,7 @@ in
 
   config = lib.mkIf config.dotfiles.profiles.workstation.enable {
     home.packages = [
+      pkgs.jq
       pkgs.lm_sensors
       pkgs.playerctl
       pkgs.python3
@@ -97,6 +108,8 @@ in
       # during normal load.
 
       ${managedHyprConfig}
+
+      ${sharedScreenshotBindings}
 
       ${lib.optionalString hasHyprPromotedProfile "source = ~/.config/hypr/custom.d/${machineProfileName}/*.conf"}
       source = ~/.config/hypr/custom.d/*.conf
