@@ -74,8 +74,8 @@ HOME_MANAGER_MODULE_MARKERS: dict[str, tuple[str, tuple[str, ...]]] = {
         "modules/home/opencode.nix",
         (
             "config.dotfiles.host.name",
-            "opencode/config.d/${machineProfileName}",
-            "config.d/${machineProfileName}",
+            "managedConfigProfile = if cfg.configProfile == null then machineProfileName else cfg.configProfile",
+            "opencode/config.d/${managedConfigProfile}",
         ),
     ),
 }
