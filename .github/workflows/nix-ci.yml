@@ -97,7 +97,7 @@ jobs:
         uses: DeterminateSystems/nix-installer-action@21a544727d0c62386e78b4befe52d19ad12692e3 # v17
 
       - name: Configure Cache
-        uses: DeterminateSystems/flakehub-cache-action@146f476c94460cb634f9ade79470fcbc3f7e5b36 # v1
+        uses: DeterminateSystems/flakehub-cache-action@398f9fd82f5d1a0ecd48454769649cd8cae1a5b7 # v2.2.0
 
       - name: Build Repository Check
         shell: bash
@@ -130,7 +130,7 @@ jobs:
         uses: DeterminateSystems/nix-installer-action@21a544727d0c62386e78b4befe52d19ad12692e3 # v17
 
       - name: Configure Cache
-        uses: DeterminateSystems/flakehub-cache-action@146f476c94460cb634f9ade79470fcbc3f7e5b36 # v1
+        uses: DeterminateSystems/flakehub-cache-action@398f9fd82f5d1a0ecd48454769649cd8cae1a5b7 # v2.2.0
 
       - name: Measure Legacy Pre-commit Debt
         id: baseline
@@ -173,7 +173,7 @@ jobs:
         uses: DeterminateSystems/nix-installer-action@21a544727d0c62386e78b4befe52d19ad12692e3 # v17
 
       - name: Configure Cache
-        uses: DeterminateSystems/flakehub-cache-action@146f476c94460cb634f9ade79470fcbc3f7e5b36 # v1
+        uses: DeterminateSystems/flakehub-cache-action@398f9fd82f5d1a0ecd48454769649cd8cae1a5b7 # v2.2.0
 
       - name: Validate Flake Metadata
         run: nix flake metadata --no-write-lock-file
