@@ -4,14 +4,14 @@
 
 set -o nounset
 
-remote="$1"
-url="$2"
 zero=$(git hash-object --stdin </dev/null | tr '[0-9a-f]' '0')
 status=0
 
 check_wip() {
-  while read local_ref local_oid remote_ref remote_oid; do
-    if [ "$local_oid" = "$zero" ]; then continue; fi
+  while read -r local_ref local_oid remote_ref remote_oid; do
+    if [ "$local_oid" = "$zero" ]; then
+      continue
+    fi
 
     if [ "$remote_oid" = "$zero" ]; then
       range="$local_oid"
@@ -28,7 +28,7 @@ check_wip() {
 }
 
 check_tags() {
-  while read local_ref local_oid remote_ref remote_oid; do
+  while read -r local_ref local_oid remote_ref remote_oid; do
     case "$local_ref" in
       refs/tags/*)
         if [ "$remote_oid" != "$zero" ]; then
@@ -46,31 +46,44 @@ check_tags() {
   done
 }
 
-sync_submodules() {
-  if [ ! -f .gitmodules ]; then return 0; fi
-  echo "INFO [pre-push]: pushing submodule changes first..."
-  git submodule foreach 'git push' 2>&1 | sed 's/^/  /'
-  if [ ${PIPESTATUS[0]} -ne 0 ]; then
-    echo "ERROR [pre-push]: submodule push failed." >&2
-    status=1
+check_submodules() {
+  if [ ! -f .gitmodules ]; then
+    return 0
   fi
+
+  while IFS= read -r line; do
+    case "$line" in
+      -*)
+        echo "ERROR [pre-push]: uninitialized submodule: ${line#?}" >&2
+        status=1
+        ;;
+      +*)
+        echo "ERROR [pre-push]: submodule checkout differs from the recorded commit: ${line#?}" >&2
+        status=1
+        ;;
+      U*)
+        echo "ERROR [pre-push]: submodule has merge conflicts: ${line#?}" >&2
+        status=1
+        ;;
+    esac
+  done < <(git submodule status --recursive)
 }
 
 # Read stdin once into a temp file so each check can iterate.
 tmp=$(mktemp)
 trap 'rm -f "$tmp"' EXIT
-cat > "$tmp"
+cat >"$tmp"
 
-# Run checks (each reads from the temp file)
-sync_submodules
+# Validation hooks are read-only. Submodule publication is an explicit operator action.
+check_submodules
 
-exec < "$tmp"
+exec <"$tmp"
 check_wip
 
-exec < "$tmp"
+exec <"$tmp"
 check_tags
 
-# Delegate to pre-commit's pre-push stage if installed
+# Delegate to pre-commit's pre-push stage if installed.
 if command -v pre-commit &>/dev/null && [ -f .pre-commit-config.yaml ]; then
   pre-commit run --hook-stage pre-push 2>&1 | sed 's/^/  /'
   if [ ${PIPESTATUS[0]} -ne 0 ]; then
@@ -78,4 +91,4 @@ if command -v pre-commit &>/dev/null && [ -f .pre-commit-config.yaml ]; then
   fi
 fi
 
-exit $status
+exit "$status"
