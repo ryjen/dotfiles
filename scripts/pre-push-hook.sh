@@ -51,6 +51,14 @@ check_submodules() {
     return 0
   fi
 
+  submodule_status_file=$(mktemp)
+  if ! git submodule status --recursive >"$submodule_status_file"; then
+    echo "ERROR [pre-push]: unable to inspect submodule state." >&2
+    rm -f "$submodule_status_file"
+    status=1
+    return 0
+  fi
+
   while IFS= read -r line; do
     case "$line" in
       -*)
@@ -66,7 +74,9 @@ check_submodules() {
         status=1
         ;;
     esac
-  done < <(git submodule status --recursive)
+  done <"$submodule_status_file"
+
+  rm -f "$submodule_status_file"
 }
 
 # Read stdin once into a temp file so each check can iterate.
