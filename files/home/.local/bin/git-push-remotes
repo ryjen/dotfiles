@@ -1,3 +1,5 @@
 #!/usr/bin/env bash
 
-git remote | xargs -I {} git push {} $@
+while IFS= read -r remote; do
+  git push "$remote" "$@"
+done < <(git remote)
