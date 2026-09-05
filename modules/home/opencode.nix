@@ -8,6 +8,8 @@ let
   cfg = config.dotfiles.opencode;
   machineProfile = config.dotfiles.host.name;
   machineProfileName = if machineProfile == null then "unconfigured" else machineProfile;
+  managedConfigProfile = if cfg.configProfile == null then machineProfileName else cfg.configProfile;
+  managedConfig = ../../files/home/.config/opencode/config.d/${managedConfigProfile}/config.json;
   npmBin = "${config.dotfiles.npm.prefix}/bin";
 
   # OpenCode's Wayland clipboard backend launches wl-copy in the same terminal
@@ -30,10 +32,22 @@ let
   '';
 in
 {
-  options.dotfiles.opencode.enable = lib.mkOption {
-    type = lib.types.bool;
-    default = false;
-    description = "Enable OpenCode terminal integration";
+  options.dotfiles.opencode = {
+    enable = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = "Enable OpenCode terminal integration";
+    };
+
+    configProfile = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = null;
+      example = "dubnium";
+      description = ''
+        Reviewed configctl profile to project as OpenCode config.json. When null,
+        the current dotfiles host name is used.
+      '';
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -42,6 +56,10 @@ in
         assertion = config.dotfiles.npm.enable;
         message = "dotfiles.opencode requires dotfiles.npm because OpenCode is installed through the mutable npm tool prefix";
       }
+      {
+        assertion = builtins.pathExists managedConfig;
+        message = "dotfiles.opencode config profile '${managedConfigProfile}' has no reviewed config.d/${managedConfigProfile}/config.json";
+      }
     ];
 
     # home.sessionPath is prepended to PATH. mkBefore keeps this wrapper ahead
@@ -49,19 +67,14 @@ in
     # npm-managed OpenCode binary by absolute path.
     home.sessionPath = lib.mkBefore [ "${opencodeWrapper}/bin" ];
 
-    # configctl owns the per-host OpenCode config. The reviewed fragment lives
-    # beneath the machine-profile namespace (config.d/<host>/config.json); Home
-    # Manager projects the active host's fragment to config.json. Using the
-    # machine-profile name as a path component (not a branching conditional)
-    # keeps host selection in configctl, per schema-v1.
-    #   - dubnium (and other non-technetium hosts): local Headroom proxy at
-    #     127.0.0.1:8787; upstream set per host in home/ryjen/profiles/dubnium.nix.
-    #   - technetium: published Headroom proxy on the tailnet
-    #     (headroom.tail4d84c.ts.net); no local proxy in front of OpenCode.
+    # configctl owns reviewed OpenCode fragments under config.d/<profile>.
+    # Normally the host name selects that fragment. Compatibility profiles may
+    # explicitly reuse another reviewed config through configProfile instead of
+    # relying on an implicit fallback or duplicating config files.
     # config.local.json is a machine-local escape hatch Home Manager never
     # overwrites.
-    xdg.configFile."opencode/config.json" = lib.mkIf cfg.enable {
-      source = ../../files/home/.config/opencode/config.d/${machineProfileName}/config.json;
+    xdg.configFile."opencode/config.json" = {
+      source = managedConfig;
     };
   };
 }

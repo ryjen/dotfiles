@@ -5,6 +5,7 @@ on:
     branches:
       - main
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -16,9 +17,18 @@ concurrency:
 jobs:
   source-boundary:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Verify Workflow Security Policy
+        run: python3 checks/verify-workflow-security.py .
+
+      - name: Test Workflow Security Policy
+        run: python3 -m unittest discover -s tests -p 'test_workflow_security.py'
 
       - name: Verify Standalone Source Boundary
         run: python3 checks/verify-standalone-source-boundary.py .
@@ -26,14 +36,17 @@ jobs:
   discover-checks:
     needs: source-boundary
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     outputs:
       checks: ${{ steps.discover.outputs.checks }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
 
       - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@v17
+        uses: DeterminateSystems/nix-installer-action@21a544727d0c62386e78b4befe52d19ad12692e3 # v17
 
       - name: Verify Generated Lockfile
         shell: bash
@@ -69,19 +82,22 @@ jobs:
     name: repository-check (${{ matrix.check }})
     needs: discover-checks
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
         check: ${{ fromJSON(needs.discover-checks.outputs.checks) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
 
       - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@v17
+        uses: DeterminateSystems/nix-installer-action@21a544727d0c62386e78b4befe52d19ad12692e3 # v17
 
       - name: Configure Cache
-        uses: DeterminateSystems/flakehub-cache-action@v1
+        uses: DeterminateSystems/flakehub-cache-action@146f476c94460cb634f9ade79470fcbc3f7e5b36 # v1
 
       - name: Build Repository Check
         shell: bash
@@ -93,7 +109,7 @@ jobs:
 
       - name: Upload Failed Check Log
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: repository-check-${{ matrix.check }}
           path: repository-check.log
@@ -103,15 +119,18 @@ jobs:
   pre-commit-baseline:
     name: pre-commit baseline (#115)
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
 
       - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@v17
+        uses: DeterminateSystems/nix-installer-action@21a544727d0c62386e78b4befe52d19ad12692e3 # v17
 
       - name: Configure Cache
-        uses: DeterminateSystems/flakehub-cache-action@v1
+        uses: DeterminateSystems/flakehub-cache-action@146f476c94460cb634f9ade79470fcbc3f7e5b36 # v1
 
       - name: Measure Legacy Pre-commit Debt
         id: baseline
@@ -133,7 +152,7 @@ jobs:
 
       - name: Upload Baseline Log
         if: steps.baseline.outputs.status != '0'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: pre-commit-baseline
           path: pre-commit-baseline.log
@@ -143,18 +162,58 @@ jobs:
   flake:
     needs: repository-check
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
 
       - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@v17
+        uses: DeterminateSystems/nix-installer-action@21a544727d0c62386e78b4befe52d19ad12692e3 # v17
 
       - name: Configure Cache
-        uses: DeterminateSystems/flakehub-cache-action@v1
+        uses: DeterminateSystems/flakehub-cache-action@146f476c94460cb634f9ade79470fcbc3f7e5b36 # v1
 
       - name: Validate Flake Metadata
         run: nix flake metadata --no-write-lock-file
+
+      - name: Evaluate Home Manager profile — nixos
+        shell: bash
+        run: |
+          set -o pipefail
+          nix eval --show-trace --raw '.#homeConfigurations."ryjen@nixos".activationPackage.drvPath' \
+            2>&1 | tee profile-nixos-eval.log
+
+      - name: Upload Failed Profile Evaluation Log
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: profile-nixos-eval
+          path: profile-nixos-eval.log
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Evaluate Home Manager profile — verify
+        run: nix eval --raw '.#homeConfigurations."ryjen@verify".activationPackage.drvPath' >/dev/null
+
+      - name: Evaluate Home Manager profile — headless
+        run: nix eval --raw '.#homeConfigurations."ryjen@headless".activationPackage.drvPath' >/dev/null
+
+      - name: Evaluate Home Manager profile — wsl
+        run: nix eval --raw '.#homeConfigurations."ryjen@wsl".activationPackage.drvPath' >/dev/null
+
+      - name: Evaluate Home Manager profile — dubnium
+        run: nix eval --raw '.#homeConfigurations."ryjen@dubnium".activationPackage.drvPath' >/dev/null
+
+      - name: Evaluate Home Manager profile — technetium
+        run: nix eval --raw '.#homeConfigurations."ryjen@technetium".activationPackage.drvPath' >/dev/null
+
+      - name: Evaluate Home Manager profile — meeting-verify
+        run: nix eval --raw '.#homeConfigurations."ryjen@meeting-verify".activationPackage.drvPath' >/dev/null
+
+      - name: Evaluate Home Manager profile — unreal-verify
+        run: nix eval --raw '.#homeConfigurations."ryjen@unreal-verify".activationPackage.drvPath' >/dev/null
 
       - name: Build Enabled Unreal Configuration
         run: |

@@ -29,7 +29,10 @@
 
   # OpenCode is installed through the mutable npm tool prefix. Its wrapper keeps
   # the Wayland clipboard provider outside OpenCode's terminal job-control group.
+  # configProfile may explicitly reuse another reviewed configctl fragment for a
+  # compatibility profile; null selects the current tracked host name.
   # dotfiles.opencode.enable = false;
+  # dotfiles.opencode.configProfile = null;
 
   # Playwright is Nix-managed so browser binaries remain immutable and version-
   # aligned with the packaged CLI instead of being downloaded into a user cache.
