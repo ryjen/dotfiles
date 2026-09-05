@@ -101,5 +101,5 @@ if [ "$FORCE" -eq 1 ]; then
   subtree_commit=$(git subtree split --prefix "$FOLDER" "$LOCAL_BRANCH") || exit 1
   git push "$REMOTE" "$subtree_commit:$REMOTE_BRANCH" --force
 else
-  git subtree push --prefix "$FOLDER" "$REMOTE" "$LOCAL_BRANCH"
+  git subtree push --prefix "$FOLDER" "$REMOTE" "$LOCAL_BRANCH:$REMOTE_BRANCH"
 fi
