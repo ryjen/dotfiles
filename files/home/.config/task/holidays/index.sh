@@ -1,13 +1,9 @@
-#! /bin/bash
+#!/usr/bin/env bash
 
-pushd ~/.config/task/holidays
+cd "$HOME/.config/task/holidays" || exit 1
 
-for i in holidays*rc
-do
-  locale=${i:9:5}
-  echo $locale
-  ~/.task/bin/update-holidays.pl --locale $locale --file holidays.${locale}.rc
+for file in holidays*.rc; do
+  locale=${file:9:5}
+  echo "$locale"
+  "$HOME/.task/bin/update-holidays.pl" --locale "$locale" --file "holidays.${locale}.rc"
 done
-
-popd
-

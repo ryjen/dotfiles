@@ -1,3 +1,10 @@
 #!/usr/bin/env bash
 
-git remote | xargs -I {} git push {} $@
+status=0
+while IFS= read -r remote; do
+  if ! git push "$remote" "$@"; then
+    status=1
+  fi
+done < <(git remote)
+
+exit "$status"

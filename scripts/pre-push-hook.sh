@@ -4,11 +4,11 @@
 
 set -o nounset
 
-zero=$(git hash-object --stdin </dev/null | tr '[0-9a-f]' '0')
+zero=$(git hash-object --stdin </dev/null | tr '0-9a-f' '0')
 status=0
 
 check_wip() {
-  while read -r local_ref local_oid remote_ref remote_oid; do
+  while read -r local_ref local_oid _remote_ref remote_oid; do
     if [ "$local_oid" = "$zero" ]; then
       continue
     fi
@@ -28,7 +28,7 @@ check_wip() {
 }
 
 check_tags() {
-  while read -r local_ref local_oid remote_ref remote_oid; do
+  while read -r local_ref local_oid _remote_ref remote_oid; do
     case "$local_ref" in
       refs/tags/*)
         if [ "$remote_oid" != "$zero" ]; then
@@ -96,7 +96,7 @@ check_tags
 # Delegate to pre-commit's pre-push stage if installed.
 if command -v pre-commit &>/dev/null && [ -f .pre-commit-config.yaml ]; then
   pre-commit run --hook-stage pre-push 2>&1 | sed 's/^/  /'
-  if [ ${PIPESTATUS[0]} -ne 0 ]; then
+  if [ "${PIPESTATUS[0]}" -ne 0 ]; then
     status=1
   fi
 fi
