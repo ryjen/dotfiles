@@ -139,6 +139,7 @@
         "on-click": "~/.local/libexec/dubnium-music-control toggle",
         "on-click-right": "~/.local/libexec/dubnium-music-control next",
         "on-click-middle": "~/.local/libexec/dubnium-music-control previous",
+        "on-click-backward": "~/.local/libexec/dubnium-music-control delete-current",
         "on-scroll-up": "~/.local/libexec/dubnium-music-control seek-forward",
         "on-scroll-down": "~/.local/libexec/dubnium-music-control seek-back"
     },
