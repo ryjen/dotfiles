@@ -1,16 +1,15 @@
 #!/usr/bin/env bash
 
-BUILD_ARGS=""
-
+BUILD_ARGS=()
 IMAGE_TAG="latest"
-
 REGISTRY="registry.gitlab.com"
+PUSH=""
 
-while [[ $1 == -* ]]; do
+while [[ ${1:-} == -* ]]; do
 	case "$1" in
 	-f | --file)
 		shift
-		DOCKER_FILE=$1
+		DOCKER_FILE="${1:-}"
 		shift
 		;;
 	-p | --push)
@@ -19,32 +18,32 @@ while [[ $1 == -* ]]; do
 		;;
 	-r | --registry)
 		shift
-		REGISTRY=$1
+		REGISTRY="${1:-}"
 		shift
 		;;
 	-v | --version)
 		shift
-		IMAGE_TAG=$1
+		IMAGE_TAG="${1:-}"
 		shift
 		;;
 	--ssh-key)
 		shift
-		SSH_KEY=$(cat $1)
-		BUILD_ARGS="${BUILD_ARGS} --build-arg SSH_KEY"
+		SSH_KEY="$(cat "${1:-}")" || exit 1
+		export SSH_KEY
+		BUILD_ARGS+=(--build-arg SSH_KEY)
 		shift
+		;;
+	*)
+		break
 		;;
 	esac
 done
 
 DOCKER_FILE=${DOCKER_FILE:-Dockerfile}
-IMAGE_SLUG="$1"
+IMAGE_SLUG="${1:-}"
 
-shift
-
-WORKING_DIR=${1:-.}
-
-function syntax() {
-	echo "Syntax: $(basename $0) [<options>] <slug> [working dir]"
+syntax() {
+	echo "Syntax: $(basename "$0") [<options>] <slug> [working dir]"
 	echo ""
 	echo "Options:"
 	echo ""
@@ -52,27 +51,28 @@ function syntax() {
 	echo "  -f, --file        <file>     the docker file relative to the working dir (defaults to 'Dockerfile')"
 	echo "  -r, --registry    <domain>   the remote registry base url."
 	echo "  -p, --push                   push to registry"
+	echo "      --ssh-key     <file>     expose SSH_KEY as a Docker build arg"
 	echo ""
 }
 
-if [ -z "${IMAGE_SLUG}" ]; then
+if [ -z "$IMAGE_SLUG" ]; then
 	syntax
 	exit 1
 fi
 
-if [ -n "$PUSH" ] || [ -n "$REGISTRY" ]; then
-	REMOTE_SLUG="${REGISTRY}/${IMAGE_SLUG}"
-fi
+shift
+WORKING_DIR=${1:-.}
+REMOTE_SLUG="${REGISTRY}/${IMAGE_SLUG}"
 
 echo "Building ${IMAGE_SLUG} with ${DOCKER_FILE} in ${WORKING_DIR}"
 
-docker build -t ${IMAGE_SLUG}:${IMAGE_TAG} -f ${DOCKER_FILE} ${BUILD_ARGS} ${WORKING_DIR}
+docker build -t "${IMAGE_SLUG}:${IMAGE_TAG}" -f "$DOCKER_FILE" "${BUILD_ARGS[@]}" "$WORKING_DIR"
 
 if [ "$IMAGE_TAG" != "latest" ]; then
 	docker tag "${IMAGE_SLUG}:${IMAGE_TAG}" "${IMAGE_SLUG}:latest"
 fi
 
-if [ ! -z "${REMOTE_SLUG}" ]; then
+if [ -n "$REMOTE_SLUG" ]; then
 	docker tag "${IMAGE_SLUG}:${IMAGE_TAG}" "${REMOTE_SLUG}:${IMAGE_TAG}"
 	if [ "$IMAGE_TAG" != "latest" ]; then
 		docker tag "${REMOTE_SLUG}:${IMAGE_TAG}" "${REMOTE_SLUG}:latest"
