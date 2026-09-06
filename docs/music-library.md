@@ -74,7 +74,7 @@ To play a persisted playlist, press `3`, highlight it, and press `P`. This repla
 
 MPD owns playlist persistence; rmpc is only the interactive client. Generated beets smart playlists and manually curated rmpc playlists share the same MPD playlist directory.
 
-## Waybar controls
+## Playback controls
 
 The Dubnium music widget controls MPD directly:
 
@@ -82,9 +82,15 @@ The Dubnium music widget controls MPD directly:
 - right click: next track;
 - middle click: previous track;
 - scroll up/down: seek forward/back ten seconds;
-- mouse-back: permanently delete the current managed-library track.
+- mouse-back: alternate quick-delete gesture for the current managed-library track.
 
-The mouse-back delete is intentionally a distinct gesture. The helper resolves the current MPD database URI, rejects URLs/absolute/traversal paths, and requires exactly one matching beets item. It then commits the forced beets delete (`beet remove -d -f`) first; only after that succeeds does it prune the deleted URI from every occurrence in the current MPD queue and from persisted MPD playlists, then request an MPD database update. Direct filesystem deletion is not used.
+The primary keyboard delete gesture is:
+
+```text
+Super+Shift+Delete -> permanently delete the current managed-library track
+```
+
+Both delete gestures call the same managed-library operation. The helper resolves the current MPD database URI, rejects URLs/absolute/traversal paths, and requires exactly one matching beets item. It commits the forced beets delete (`beet remove -d -f`) first; only after that succeeds does it prune the deleted URI from the current MPD queue and persisted MPD playlists, then request an MPD database update. Direct filesystem deletion is not used.
 
 The implementation helpers live under `~/.local/libexec` and are deliberately not user-facing CLI commands. The Technetium profile does not enable managed MPD and therefore does not expose the managed-music Waybar widget.
 
