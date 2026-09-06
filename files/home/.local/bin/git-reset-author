@@ -3,25 +3,25 @@
 OPTIND=1
 
 while getopts "o:n:e:" opt; do
-  case "$opt" in
-    o)
-      OLD_EMAIL="$OPTARG"
-      ;;
-    n)
-      CORRECT_NAME="$OPTARG"
-      ;;
-    e)
-      CORRECT_EMAIL="$OPTARG"
-      ;;
-    *)
-      exit 1
-      ;;
-  esac
+	case "$opt" in
+	o)
+		OLD_EMAIL="$OPTARG"
+		;;
+	n)
+		CORRECT_NAME="$OPTARG"
+		;;
+	e)
+		CORRECT_EMAIL="$OPTARG"
+		;;
+	*)
+		exit 1
+		;;
+	esac
 done
 
 if [ -z "${OLD_EMAIL:-}" ] || [ -z "${CORRECT_EMAIL:-}" ] || [ -z "${CORRECT_NAME:-}" ]; then
-  echo "Syntax: git reset-author -o <old email> -e <new email> -n <name>"
-  exit 1
+	echo "Syntax: git reset-author -o <old email> -e <new email> -n <name>"
+	exit 1
 fi
 
 PROMPT="Reset '$OLD_EMAIL' to '$CORRECT_EMAIL <$CORRECT_NAME>'? (Y/n)"
@@ -29,7 +29,7 @@ read -r -n 1 -p "$PROMPT" c
 echo
 
 if [ "$c" = "n" ] || [ "$c" = "N" ]; then
-  exit 1
+	exit 1
 fi
 
 export OLD_EMAIL
