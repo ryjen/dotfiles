@@ -7,7 +7,7 @@
 # procedure has proven reliable with git 2.14.1.
 
 usage() {
-    cat <<EOF
+	cat <<EOF
 usage: git remove-submodule <submodule>
 
 Remove a git submodule from the current repository.
@@ -17,37 +17,40 @@ Remove a git submodule from the current repository.
               trailing slash.
 
 EOF
-    exit 1
+	exit 1
 }
 
 ##
 # Run this script from the root of the current git repository.
-pushd "$(git rev-parse --show-toplevel)" >/dev/null
-readonly root="$(basename pwd).XXXXXX"
+pushd "$(git rev-parse --show-toplevel)" >/dev/null || exit 1
+readonly root="$(basename "$PWD").XXXXXX"
 ##
 
 ##
 # Parse arguments
 # TODO: allow option to quit before deleting removed-submodule
-readonly submodule="$1"; shift
-test -d "${submodule}" || usage
+readonly submodule="${1:-}"
+[ -n "$submodule" ] || usage
+shift
+test -d "$submodule" || usage
 ##
 
 ##
 # Rename the git submodule
-readonly old_submodule="$(mktemp -d -t "${root}")"
+old_submodule="$(mktemp -d -t "$root")" || exit 1
+readonly old_submodule
 cleanup() {
-    rm -rf "${old_submodule}"
+	rm -rf "$old_submodule"
 }
 trap cleanup EXIT
-mv "${submodule}" "${old_submodule}"
+mv "$submodule" "$old_submodule"
 ##
 
 ##
 # Deinit and remove the old submodule
-git submodule deinit -f -- "${submodule}"
-rm -rf ".git/modules/${submodule}"
-git rm -f "${submodule}"
+git submodule deinit -f -- "$submodule"
+rm -rf ".git/modules/$submodule"
+git rm -f "$submodule"
 ##
 
 # or, if you want to leave it in your working tree
@@ -56,6 +59,6 @@ git rm -f "${submodule}"
 
 ##
 # Show changes to the repository
-#git status
+# git status
 ##
 echo "Done.  Make sure to commit changes."
