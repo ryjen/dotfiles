@@ -17,6 +17,7 @@
     appimage.enable = true;
     audio.enable = true;
     bluetooth.enable = true;
+    torrent.enable = true;
   };
 
   # This host is evaluated by CI as a generic NixOS verification target.

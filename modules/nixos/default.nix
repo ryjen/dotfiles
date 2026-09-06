@@ -12,6 +12,7 @@
     ./podman.nix
     ./shell.nix
     ./syncthing.nix
+    ./torrent.nix
     ./unreal-storage.nix
   ];
 
