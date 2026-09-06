@@ -23,7 +23,8 @@ EOF
 ##
 # Run this script from the root of the current git repository.
 pushd "$(git rev-parse --show-toplevel)" >/dev/null || exit 1
-readonly root="$(basename "$PWD").XXXXXX"
+root="$(basename "$PWD").XXXXXX"
+readonly root
 ##
 
 ##
