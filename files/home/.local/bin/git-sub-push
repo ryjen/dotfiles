@@ -35,11 +35,11 @@ FORCE=0
 
 while [ "$#" -gt 0 ]; do
 	case $1 in
-	-h|-\?|--help)
+	-h | -\? | --help)
 		help
 		exit 0
 		;;
-	-r|--remote)
+	-r | --remote)
 		[ "$#" -gt 1 ] || die "Which remote?"
 		REMOTE=$2
 		shift
@@ -50,7 +50,7 @@ while [ "$#" -gt 0 ]; do
 	--remote=)
 		die "Which remote?"
 		;;
-	-b|--branch)
+	-b | --branch)
 		[ "$#" -gt 1 ] || die "Which branch?"
 		set_branch "$2"
 		shift
@@ -61,7 +61,7 @@ while [ "$#" -gt 0 ]; do
 	--branch=)
 		die "Which branch?"
 		;;
-	-f|--force)
+	-f | --force)
 		FORCE=1
 		;;
 	--)
