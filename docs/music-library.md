@@ -84,7 +84,7 @@ The Dubnium music widget controls MPD directly:
 - scroll up/down: seek forward/back ten seconds;
 - mouse-back: permanently delete the current managed-library track.
 
-The mouse-back delete is intentionally a distinct gesture. The helper resolves the current MPD database URI, rejects URLs/absolute/traversal paths, requires exactly one matching beets item, removes the current MPD queue entry so playback advances, then executes a forced beets delete (`beet remove -d -f`) and requests an MPD database update. Direct filesystem deletion is not used.
+The mouse-back delete is intentionally a distinct gesture. The helper resolves the current MPD database URI, rejects URLs/absolute/traversal paths, and requires exactly one matching beets item. It then commits the forced beets delete (`beet remove -d -f`) first; only after that succeeds does it remove the corresponding current MPD queue entry so playback advances and request an MPD database update. Direct filesystem deletion is not used.
 
 The implementation helpers live under `~/.local/libexec` and are deliberately not user-facing CLI commands. The Technetium profile does not enable managed MPD and therefore does not expose the managed-music Waybar widget.
 
