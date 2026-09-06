@@ -4,5 +4,5 @@ message="$*"
 branch=$(git symbolic-ref --short -q HEAD)
 
 if git commit -aem "$message"; then
-  git push origin "$branch"
+	git push origin "$branch"
 fi
