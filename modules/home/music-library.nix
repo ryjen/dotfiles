@@ -102,10 +102,12 @@ in
       };
     };
 
+    # Music Library is the sole managed-music launcher. rmpc owns interactive
+    # library browsing, queue management and persisted playlists.
     xdg.desktopEntries.music-library = {
       name = "Music Library";
       genericName = "Music Library";
-      comment = "Browse and control the managed music library with rmpc";
+      comment = "Browse the MPD library, queue and playlists with rmpc";
       exec = "${config.home.homeDirectory}/.local/bin/dub-terminal --title \"Music Library\" ${pkgs.rmpc}/bin/rmpc";
       terminal = false;
       categories = [
@@ -116,9 +118,17 @@ in
       ];
     };
 
-    home.file.".local/bin/music-playerctl" = {
-      source = ../../files/home/.local/bin/music-playerctl;
-      executable = true;
+    # Waybar integration is an implementation detail of the managed MPD layer,
+    # not a user-facing music CLI. Keep these helpers out of PATH.
+    home.file = {
+      ".local/libexec/dubnium-music-control" = {
+        source = ../../files/home/.local/libexec/dubnium-music-control;
+        executable = true;
+      };
+      ".local/libexec/dubnium-music-status" = {
+        source = ../../files/home/.local/libexec/dubnium-music-status;
+        executable = true;
+      };
     };
   };
 }
