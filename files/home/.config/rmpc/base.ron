@@ -13,4 +13,29 @@
     status_update_interval_ms: 1000,
     select_current_song_on_change: true,
     browser_song_sort: [Disc, Track, Artist, Title],
+
+    // Keep rmpc as the single interactive managed-music surface. Defaults are
+    // retained; these bindings only make the primary queue/playlist workflow
+    // obvious and stable across rmpc upgrades.
+    keybinds: (
+        clear: false,
+        global: {
+            "1": SwitchToTab("Queue"),
+            "2": SwitchToTab("Directories"),
+            "3": SwitchToTab("Playlists"),
+            "4": SwitchToTab("Artists"),
+            "5": SwitchToTab("Albums"),
+            "6": SwitchToTab("Search"),
+        },
+        navigation: {
+            // Replace the current queue with the highlighted song, album,
+            // directory, artist or playlist and start playing immediately.
+            "P": AddOptions(kind: Action(all: false, autoplay: First, position: Replace)),
+
+            // Add the highlighted item(s), or everything in the current pane,
+            // to a new or existing persisted MPD playlist.
+            "w": Save(kind: Modal(all: false, duplicates_strategy: Ask)),
+            "W": Save(kind: Modal(all: true, duplicates_strategy: Ask)),
+        },
+    ),
 )
