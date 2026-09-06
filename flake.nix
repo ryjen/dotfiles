@@ -317,15 +317,11 @@
             typos = {
               enable = true;
               excludes = [ "^files/home/[.]config/nvim/colors/solarized[.]vim$" ];
-              settings.config.default = {
-                "extend-identifiers" = {
-                  UE = "UE";
-                };
-                "extend-words" = {
-                  Assomption = "Assomption";
-                  Lieve = "Lieve";
-                };
-              };
+              settings.ignored-words = [
+                "Assomption"
+                "Lieve"
+                "UE"
+              ];
             };
 
             # GitHub Actions
