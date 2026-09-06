@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cmd="${1:-toggle}"
+playerctl_bin="${PLAYERCTL_BIN:-playerctl}"
+mpc_bin="${MPC_BIN:-mpc}"
+
+mpd_status() {
+  "$playerctl_bin" --player=mpd status 2>/dev/null || true
+}
+
+seed_queue_if_empty() {
+  if [ -n "$($mpc_bin playlist 2>/dev/null)" ]; then
+    return 0
+  fi
+
+  # Add the managed MPD library one top-level item at a time. MPD expands
+  # directory URIs recursively, so this avoids materializing the full library
+  # in the shell while still creating a complete queue.
+  "$mpc_bin" ls 2>/dev/null | "$mpc_bin" add >/dev/null
+
+  if [ -n "$($mpc_bin playlist 2>/dev/null)" ]; then
+    "$mpc_bin" shuffle >/dev/null
+  fi
+}
+
+case "$cmd" in
+  toggle)
+    case "$(mpd_status)" in
+      Playing|Paused)
+        exec "$playerctl_bin" --player=mpd play-pause
+        ;;
+      Stopped|"")
+        seed_queue_if_empty
+        if [ -n "$($mpc_bin playlist 2>/dev/null)" ]; then
+          exec "$mpc_bin" play
+        fi
+        ;;
+    esac
+    ;;
+  next)
+    exec "$playerctl_bin" --player=mpd next
+    ;;
+  previous)
+    exec "$playerctl_bin" --player=mpd previous
+    ;;
+  seek-forward)
+    exec "$playerctl_bin" --player=mpd position 10+
+    ;;
+  seek-back)
+    exec "$playerctl_bin" --player=mpd position 10-
+    ;;
+  *)
+    printf 'usage: dubnium-music-control [toggle|next|previous|seek-forward|seek-back]\n' >&2
+    exit 2
+    ;;
+esac
