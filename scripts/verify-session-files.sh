@@ -106,8 +106,28 @@ check_contains files/home/.local/bin/dub-terminal 'TERMINAL:-kitty'
 check_contains modules/home/session.nix 'TERMINAL_COMMAND = "\$HOME/\.local/bin/dub-terminal"'
 check_contains modules/home/music-library.nix 'dub-terminal --title'
 check_not_contains modules/home/music-library.nix 'pkgs\.kitty.*/bin/kitty'
-check_exists files/home/.local/bin/music-retag-current
-check_not_contains files/home/.local/bin/music-retag-current 'dub-terminal([[:space:]].*)?[[:space:]]-e([[:space:]]|$)'
+
+# --- Managed music surface ---
+printf -- '\n--- Managed music surface ---\n'
+check_exists files/home/.local/libexec/dubnium-music-control
+check_exists files/home/.local/libexec/dubnium-music-status
+check_contains modules/home/music-library.nix '\.local/libexec/dubnium-music-control'
+check_contains modules/home/music-library.nix '\.local/libexec/dubnium-music-status'
+check_contains files/home/.config/waybar/config.jsonc 'dubnium-music-control'
+check_contains files/home/.config/waybar/config.jsonc 'on-click-backward.*delete-current'
+check_contains files/home/.local/libexec/dubnium-music-control 'delete-current'
+check_contains files/home/.local/libexec/dubnium-music-control 'beet_bin.*remove -d -f'
+check_contains files/home/.local/libexec/dubnium-music-control 'path:\$file'
+check_not_contains files/home/.local/libexec/dubnium-music-control 'rm[[:space:]]+-f'
+check_not_contains files/home/.local/libexec/dubnium-music-control 'trash-put'
+check_not_contains files/home/.config/waybar/config-technetium.jsonc 'custom/music'
+check_not_exists files/home/.local/bin/music
+check_not_exists files/home/.local/bin/music-window
+check_not_exists files/home/.local/bin/music-toggle
+check_not_exists files/home/.local/bin/music-status
+check_not_exists files/home/.local/bin/music-playerctl
+check_not_exists files/home/.local/bin/music-dislike
+check_not_exists files/home/.local/bin/music-retag-current
 
 # --- Hyprland profiles: code:33 migration and shared screenshot ownership ---
 printf -- '\n--- Hyprland profiles ---\n'
@@ -117,6 +137,7 @@ for conf in \
 	check_exists "$conf"
 	check_not_contains "$conf" 'bind\s*=.*,code:33'
 	check_not_contains "$conf" '^[[:space:]]*bind.*Print'
+	check_not_contains "$conf" 'music-(dislike|retag-current)'
 done
 
 # --- Shared screenshot contract ---

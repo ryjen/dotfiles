@@ -1,0 +1,135 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cmd="${1:-toggle}"
+playerctl_bin="${PLAYERCTL_BIN:-playerctl}"
+mpc_bin="${MPC_BIN:-mpc}"
+beet_bin="${BEET_BIN:-beet}"
+
+mpd_status() {
+  "$playerctl_bin" --player=mpd status 2>/dev/null || true
+}
+
+notify() {
+  if command -v notify-send >/dev/null 2>&1; then
+    notify-send "Music Library" "$1" || true
+  fi
+}
+
+seed_queue_if_empty() {
+  if [ -n "$($mpc_bin playlist 2>/dev/null)" ]; then
+    return 0
+  fi
+
+  # Add the managed MPD library one top-level item at a time. MPD expands
+  # directory URIs recursively, so this avoids materializing the full library
+  # in the shell while still creating a complete queue.
+  "$mpc_bin" ls 2>/dev/null | "$mpc_bin" add >/dev/null
+
+  if [ -n "$($mpc_bin playlist 2>/dev/null)" ]; then
+    "$mpc_bin" shuffle >/dev/null
+  fi
+}
+
+prune_mpd_uri() {
+  local file="$1" playlist positions position
+
+  # Remove every queue occurrence, in descending position order so indexes do
+  # not shift underneath subsequent deletes. Removing the current occurrence
+  # naturally advances playback to the next surviving queue item.
+  positions="$($mpc_bin -f '%position%\t%file%' playlist 2>/dev/null \
+    | awk -F '\t' -v file="$file" '$2 == file { print $1 }' \
+    | sort -rn)"
+  while IFS= read -r position; do
+    [ -n "$position" ] || continue
+    "$mpc_bin" del "$position" >/dev/null 2>&1 || true
+  done <<< "$positions"
+
+  # Keep persisted playlists from retaining dead references to the deleted URI.
+  while IFS= read -r playlist; do
+    [ -n "$playlist" ] || continue
+    positions="$($mpc_bin -f '%position%\t%file%' playlist "$playlist" 2>/dev/null \
+      | awk -F '\t' -v file="$file" '$2 == file { print $1 }' \
+      | sort -rn)"
+    while IFS= read -r position; do
+      [ -n "$position" ] || continue
+      "$mpc_bin" delplaylist "$playlist" "$position" >/dev/null 2>&1 || true
+    done <<< "$positions"
+  done < <("$mpc_bin" lsplaylists 2>/dev/null || true)
+}
+
+delete_current() {
+  local current file matched count
+
+  current="$($mpc_bin -f '%file%' current 2>/dev/null || true)"
+  if [ -z "$current" ]; then
+    notify "No current MPD track to delete"
+    return 1
+  fi
+  file="$current"
+
+  # MPD database URIs for the managed library must remain relative paths.
+  # Refuse URLs, absolute paths and traversal before passing anything to beets.
+  case "$file" in
+    ""|/*|*://*|../*|*/../*|*/..)
+      notify "Refusing unsafe MPD track path"
+      return 1
+      ;;
+  esac
+
+  # Resolve through the canonical beets DB and require exactly one match.
+  # A path query is relative to beets' configured library root.
+  matched="$($beet_bin ls -p "path:$file" 2>/dev/null || true)"
+  count="$(printf '%s\n' "$matched" | sed '/^$/d' | wc -l)"
+  if [ "$count" -ne 1 ]; then
+    notify "Delete refused: beets matched $count tracks"
+    return 1
+  fi
+
+  # beets is the transaction boundary for managed-library deletion. -d removes
+  # the media file and -f suppresses the CLI prompt because the Waybar mouse-
+  # back gesture is already explicit. Do not mutate MPD unless this succeeds.
+  if ! "$beet_bin" remove -d -f "path:$file" >/dev/null; then
+    notify "Delete failed in beets"
+    return 1
+  fi
+
+  prune_mpd_uri "$file"
+  "$mpc_bin" update >/dev/null 2>&1 || true
+  notify "Deleted: $(basename "$matched")"
+}
+
+case "$cmd" in
+  toggle)
+    case "$(mpd_status)" in
+      Playing|Paused)
+        exec "$playerctl_bin" --player=mpd play-pause
+        ;;
+      Stopped|"")
+        seed_queue_if_empty
+        if [ -n "$($mpc_bin playlist 2>/dev/null)" ]; then
+          exec "$mpc_bin" play
+        fi
+        ;;
+    esac
+    ;;
+  next)
+    exec "$playerctl_bin" --player=mpd next
+    ;;
+  previous)
+    exec "$playerctl_bin" --player=mpd previous
+    ;;
+  seek-forward)
+    exec "$playerctl_bin" --player=mpd position 10+
+    ;;
+  seek-back)
+    exec "$playerctl_bin" --player=mpd position 10-
+    ;;
+  delete-current)
+    delete_current
+    ;;
+  *)
+    printf 'usage: dubnium-music-control [toggle|next|previous|seek-forward|seek-back|delete-current]\n' >&2
+    exit 2
+    ;;
+esac

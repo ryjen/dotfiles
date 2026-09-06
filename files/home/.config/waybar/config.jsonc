@@ -131,18 +131,17 @@
         "on-click-right": "~/.config/waybar/scripts/github-runners-action queue"
     },
     "custom/music": {
-        "exec": "~/.local/bin/music-status",
+        "exec": "~/.local/libexec/dubnium-music-status",
         "interval": 1,
         "return-type": "json",
         "format": "{}",
         "escape": true,
-        "on-click": "~/.local/bin/music-toggle",
-        "on-click-right": "playerctl --player=mpv next",
-        "on-click-middle": "playerctl --player=mpv previous",
-        "on-click-backward": "~/.local/bin/music-eq",
-        "on-click-forward": "~/.local/bin/music-eq service",
-        "on-scroll-up": "playerctl --player=mpv position 10+",
-        "on-scroll-down": "playerctl --player=mpv position 10-"
+        "on-click": "~/.local/libexec/dubnium-music-control toggle",
+        "on-click-right": "~/.local/libexec/dubnium-music-control next",
+        "on-click-middle": "~/.local/libexec/dubnium-music-control previous",
+        "on-click-backward": "~/.local/libexec/dubnium-music-control delete-current",
+        "on-scroll-up": "~/.local/libexec/dubnium-music-control seek-forward",
+        "on-scroll-down": "~/.local/libexec/dubnium-music-control seek-back"
     },
     "pulseaudio": {
         "format": "{volume}% {icon}  {format_source}",

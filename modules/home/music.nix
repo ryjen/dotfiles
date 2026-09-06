@@ -42,33 +42,6 @@ let
     "/etc/profiles/per-user/${config.home.username}/lib/${format}"
     "/run/current-system/sw/lib/${format}"
   ];
-
-  musicWindow = pkgs.writeShellScript "music-window" ''
-    set -euo pipefail
-
-    music_dir="''${MPV_MUSIC_DIR:-''${DUBNIUM_MUSIC_DIR:-${cfg.musicDirectory}}}"
-
-    mpv_music_window_args=(
-      --force-window=yes
-      --audio-display=embedded-first
-      --loop-playlist=inf
-      --save-position-on-quit
-    )
-
-    if [ "$#" -gt 0 ]; then
-      exec ${pkgs.mpv}/bin/mpv "''${mpv_music_window_args[@]}" "$@"
-    fi
-
-    if [ ! -d "$music_dir" ]; then
-      ${pkgs.libnotify}/bin/notify-send "Music Window" "Music directory not found: $music_dir" || true
-      exit 1
-    fi
-
-    exec ${pkgs.mpv}/bin/mpv \
-      "''${mpv_music_window_args[@]}" \
-      --shuffle \
-      "$music_dir"
-  '';
 in
 {
   options.dotfiles.music = {
@@ -77,7 +50,7 @@ in
     musicDirectory = lib.mkOption {
       type = lib.types.str;
       default = "${config.home.homeDirectory}/Music";
-      description = "Directory used by the music launcher.";
+      description = "Canonical directory for the managed music library.";
     };
   };
 
@@ -91,10 +64,11 @@ in
         playerctl
         python3
         reaper
-        trash-cli
       ])
       ++ reaperPlugins;
 
+    # mpv remains the general-purpose player for ad-hoc files, URLs and video.
+    # Managed-library playback belongs to the optional MPD/rmpc layer.
     programs.mpv = {
       enable = true;
 
@@ -106,43 +80,24 @@ in
         audio-display = "no";
         save-position-on-quit = "yes";
       };
-
-      bindings = {
-        "Shift+DEL" = "run ${config.home.homeDirectory}/.local/bin/music-dislike";
-      };
     };
 
-    xdg.desktopEntries = {
-      guitar-pro-reader = {
-        name = "Guitar Pro Reader";
-        genericName = "Guitar Tablature Reader";
-        comment = "Open and play Guitar Pro tablature with MuseScore";
-        exec = "${pkgs.musescore}/bin/mscore %F";
-        icon = "mscore";
-        terminal = false;
-        categories = [
-          "Audio"
-          "AudioVideo"
-          "Music"
-        ];
-        mimeType = [
-          "application/x-guitar-pro"
-          "application/x-guitar-pro5"
-        ];
-      };
-
-      music-window = {
-        name = "Music Window";
-        genericName = "Music Player";
-        comment = "Open the local music library in mpv's graphical window";
-        exec = "${musicWindow}";
-        terminal = false;
-        categories = [
-          "Audio"
-          "Music"
-          "Player"
-        ];
-      };
+    xdg.desktopEntries.guitar-pro-reader = {
+      name = "Guitar Pro Reader";
+      genericName = "Guitar Tablature Reader";
+      comment = "Open and play Guitar Pro tablature with MuseScore";
+      exec = "${pkgs.musescore}/bin/mscore %F";
+      icon = "mscore";
+      terminal = false;
+      categories = [
+        "Audio"
+        "AudioVideo"
+        "Music"
+      ];
+      mimeType = [
+        "application/x-guitar-pro"
+        "application/x-guitar-pro5"
+      ];
     };
 
     # Populate the standard per-user plugin directories that REAPER scans.
@@ -164,40 +119,6 @@ in
         source = pluginDirectory "vst3";
         recursive = true;
       };
-
-      ".local/share/dubnium/music-env".text = ''
-        export DUBNIUM_MUSIC_DIR=${lib.escapeShellArg cfg.musicDirectory}
-      '';
-
-      ".local/bin/music" = {
-        source = ../../files/home/.local/bin/music;
-        executable = true;
-      };
-
-      ".local/bin/music-window" = {
-        source = musicWindow;
-        executable = true;
-      };
-
-      ".local/bin/music-toggle" = {
-        source = ../../files/home/.local/bin/music-toggle;
-        executable = true;
-      };
-
-      ".local/bin/music-eq" = {
-        source = ../../files/home/.local/bin/music-eq;
-        executable = true;
-      };
-
-      ".local/bin/music-dislike" = {
-        source = ../../files/home/.local/bin/music-dislike;
-        executable = true;
-      };
-
-      ".local/bin/music-retag-current" = {
-        source = ../../files/home/.local/bin/music-retag-current;
-        executable = true;
-      };
     };
 
     # Also export the conventional search variables for other Linux audio hosts.
@@ -207,8 +128,6 @@ in
       VST3_PATH = pluginSearchPaths "vst3";
       VST_PATH = pluginSearchPaths "vst";
     };
-
-    home.sessionVariables.DUBNIUM_MUSIC_DIR = cfg.musicDirectory;
 
     # SWS is a REAPER extension rather than an audio plugin. Link its runtime
     # files into the REAPER resource directory while keeping the package immutable.
