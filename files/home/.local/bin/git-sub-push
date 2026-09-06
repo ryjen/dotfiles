@@ -4,28 +4,28 @@
 #   Pushes a subtree folder on a branch to a remote. Useful for deploying generated content in a project.
 
 die() {
-  printf '%s\n' "$1" >&2
-  exit 1
+	printf '%s\n' "$1" >&2
+	exit 1
 }
 
 help() {
-  printf '%s\n' \
-    "Syntax: git sub-push <folder>" \
-    "" \
-    "Options:" \
-    "  -r, --remote  : Sets the remote repository url to deploy to. Defaults to 'origin'." \
-    "  -b, --branch  : Sets the branch to deploy with. Defaults to 'master'." \
-    "  -f, --force   : Force pushes the deploy." \
-    "  -h, --help    : Prints this help message."
+	printf '%s\n' \
+		"Syntax: git sub-push <folder>" \
+		"" \
+		"Options:" \
+		"  -r, --remote  : Sets the remote repository url to deploy to. Defaults to 'origin'." \
+		"  -b, --branch  : Sets the branch to deploy with. Defaults to 'master'." \
+		"  -f, --force   : Force pushes the deploy." \
+		"  -h, --help    : Prints this help message."
 }
 
 set_branch() {
-  LOCAL_BRANCH=${1%%:*}
-  if [ "$1" = "$LOCAL_BRANCH" ]; then
-    REMOTE_BRANCH=$LOCAL_BRANCH
-  else
-    REMOTE_BRANCH=${1#*:}
-  fi
+	LOCAL_BRANCH=${1%%:*}
+	if [ "$1" = "$LOCAL_BRANCH" ]; then
+		REMOTE_BRANCH=$LOCAL_BRANCH
+	else
+		REMOTE_BRANCH=${1#*:}
+	fi
 }
 
 REMOTE="origin"
@@ -34,72 +34,72 @@ REMOTE_BRANCH="master"
 FORCE=0
 
 while [ "$#" -gt 0 ]; do
-  case $1 in
-    -h|-\?|--help)
-      help
-      exit 0
-      ;;
-    -r|--remote)
-      [ "$#" -gt 1 ] || die "Which remote?"
-      REMOTE=$2
-      shift
-      ;;
-    --remote=?*)
-      REMOTE=${1#*=}
-      ;;
-    --remote=)
-      die "Which remote?"
-      ;;
-    -b|--branch)
-      [ "$#" -gt 1 ] || die "Which branch?"
-      set_branch "$2"
-      shift
-      ;;
-    --branch=?*)
-      set_branch "${1#*=}"
-      ;;
-    --branch=)
-      die "Which branch?"
-      ;;
-    -f|--force)
-      FORCE=1
-      ;;
-    --)
-      shift
-      break
-      ;;
-    -?*)
-      printf 'WARN: Unknown option (ignored): %s\n' "$1" >&2
-      ;;
-    *)
-      break
-      ;;
-  esac
+	case $1 in
+	-h|-\?|--help)
+		help
+		exit 0
+		;;
+	-r|--remote)
+		[ "$#" -gt 1 ] || die "Which remote?"
+		REMOTE=$2
+		shift
+		;;
+	--remote=?*)
+		REMOTE=${1#*=}
+		;;
+	--remote=)
+		die "Which remote?"
+		;;
+	-b|--branch)
+		[ "$#" -gt 1 ] || die "Which branch?"
+		set_branch "$2"
+		shift
+		;;
+	--branch=?*)
+		set_branch "${1#*=}"
+		;;
+	--branch=)
+		die "Which branch?"
+		;;
+	-f|--force)
+		FORCE=1
+		;;
+	--)
+		shift
+		break
+		;;
+	-?*)
+		printf 'WARN: Unknown option (ignored): %s\n' "$1" >&2
+		;;
+	*)
+		break
+		;;
+	esac
 
-  shift
+	shift
 done
 
 [ "$#" -gt 0 ] || die "Which folder?"
 FOLDER=$1
 
 if [ ! -d "$FOLDER" ]; then
-  help
-  exit 1
+	help
+	exit 1
 fi
 
 printf "Push subtree '%s' on branch '%s:%s' to remote '%s'? [Y/n] " \
-  "$FOLDER" "$LOCAL_BRANCH" "$REMOTE_BRANCH" "$REMOTE"
+	"$FOLDER" "$LOCAL_BRANCH" "$REMOTE_BRANCH" "$REMOTE"
 read -r confirm
 
 case $confirm in
-  [nN]*)
-    exit 1
-    ;;
+[nN]*)
+	exit 1
+	;;
 esac
 
 if [ "$FORCE" -eq 1 ]; then
-  subtree_commit=$(git subtree split --prefix "$FOLDER" "$LOCAL_BRANCH") || exit 1
-  git push "$REMOTE" "$subtree_commit:$REMOTE_BRANCH" --force
+	subtree_commit=$(git subtree split --prefix "$FOLDER" "$LOCAL_BRANCH") || exit 1
+	git push "$REMOTE" "$subtree_commit:$REMOTE_BRANCH" --force
 else
-  git subtree push --prefix "$FOLDER" "$REMOTE" "$LOCAL_BRANCH:$REMOTE_BRANCH"
+	git subtree push --prefix "$FOLDER" "$REMOTE" "$LOCAL_BRANCH:$REMOTE_BRANCH"
 fi
