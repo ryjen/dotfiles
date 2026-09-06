@@ -38,9 +38,9 @@ in
         "incomplete-dir" = "${cfg.downloadDir}/.incomplete";
         "incomplete-dir-enabled" = true;
 
-        # BitTorrent protocol encryption reduces passive protocol inspection;
-        # it is not an anonymity mechanism and does not hide the peer IP.
-        encryption = "preferred";
+        # Transmission 4 uses a numeric enum here: 1 prefers encrypted peers.
+        # This reduces passive protocol inspection; it does not hide the peer IP.
+        encryption = 1;
 
         # Do not ask the LAN gateway to create inbound mappings implicitly.
         "port-forwarding-enabled" = false;
