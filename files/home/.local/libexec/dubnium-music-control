@@ -31,17 +31,42 @@ seed_queue_if_empty() {
   fi
 }
 
-delete_current() {
-  local current file position matched count
+prune_mpd_uri() {
+  local file="$1" playlist positions position
 
-  current="$($mpc_bin -f '%position%\t%file%' current 2>/dev/null || true)"
+  # Remove every queue occurrence, in descending position order so indexes do
+  # not shift underneath subsequent deletes. Removing the current occurrence
+  # naturally advances playback to the next surviving queue item.
+  positions="$($mpc_bin -f '%position%\t%file%' playlist 2>/dev/null \
+    | awk -F '\t' -v file="$file" '$2 == file { print $1 }' \
+    | sort -rn)"
+  while IFS= read -r position; do
+    [ -n "$position" ] || continue
+    "$mpc_bin" del "$position" >/dev/null 2>&1 || true
+  done <<< "$positions"
+
+  # Keep persisted playlists from retaining dead references to the deleted URI.
+  while IFS= read -r playlist; do
+    [ -n "$playlist" ] || continue
+    positions="$($mpc_bin -f '%position%\t%file%' playlist "$playlist" 2>/dev/null \
+      | awk -F '\t' -v file="$file" '$2 == file { print $1 }' \
+      | sort -rn)"
+    while IFS= read -r position; do
+      [ -n "$position" ] || continue
+      "$mpc_bin" delplaylist "$playlist" "$position" >/dev/null 2>&1 || true
+    done <<< "$positions"
+  done < <("$mpc_bin" lsplaylists 2>/dev/null || true)
+}
+
+delete_current() {
+  local current file matched count
+
+  current="$($mpc_bin -f '%file%' current 2>/dev/null || true)"
   if [ -z "$current" ]; then
     notify "No current MPD track to delete"
     return 1
   fi
-
-  position="${current%%$'\t'*}"
-  file="${current#*$'\t'}"
+  file="$current"
 
   # MPD database URIs for the managed library must remain relative paths.
   # Refuse URLs, absolute paths and traversal before passing anything to beets.
@@ -69,9 +94,7 @@ delete_current() {
     return 1
   fi
 
-  # Now remove the corresponding current queue entry. Deleting the current
-  # position advances playback to the next surviving queue item.
-  "$mpc_bin" del "$position" >/dev/null 2>&1 || true
+  prune_mpd_uri "$file"
   "$mpc_bin" update >/dev/null 2>&1 || true
   notify "Deleted: $(basename "$matched")"
 }
