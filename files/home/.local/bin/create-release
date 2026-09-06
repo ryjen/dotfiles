@@ -1,20 +1,20 @@
 #!/usr/bin/env bash
 
 if ! git diff --quiet; then
-  echo "Commit local changes before making a release"
-  exit 1
+	echo "Commit local changes before making a release"
+	exit 1
 fi
 
 if ! IMAGE_TAG=$(git describe --tags --abbrev=0); then
-  echo "No tag specified and no git repository"
-  exit 1
+	echo "No tag specified and no git repository"
+	exit 1
 fi
 
 if ! IMAGE_TAG="v$(semver -i "$IMAGE_TAG")"; then
-  echo "Could not increment version"
-  exit 1
+	echo "Could not increment version"
+	exit 1
 fi
 
 if create-registry-image --push --version "$IMAGE_TAG" "$@"; then
-  git tag "$IMAGE_TAG"
+	git tag "$IMAGE_TAG"
 fi
