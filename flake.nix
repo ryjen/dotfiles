@@ -282,8 +282,14 @@
             deadnix.enable = true;
 
             # Shell
-            shellcheck.enable = true;
-            shfmt.enable = true;
+            shellcheck = {
+              enable = true;
+              excludes = [ "^files/home/[.]z(shrc|shenv|profile|login)$" ];
+            };
+            shfmt = {
+              enable = true;
+              excludes = [ "^files/home/[.]z(shrc|shenv|profile|login)$" ];
+            };
 
             # Git / file integrity
             check-merge-conflicts.enable = true;
@@ -292,8 +298,14 @@
             check-json.enable = true;
             check-toml.enable = true;
             check-yaml.enable = true;
-            end-of-file-fixer.enable = true;
-            trim-trailing-whitespace.enable = true;
+            end-of-file-fixer = {
+              enable = true;
+              excludes = [ "^files/home/[.]config/nvim/colors/solarized[.]vim$" ];
+            };
+            trim-trailing-whitespace = {
+              enable = true;
+              excludes = [ "^files/home/[.]config/nvim/colors/solarized[.]vim$" ];
+            };
             mixed-line-endings.enable = true;
             detect-private-keys.enable = true;
             check-symlinks.enable = true;
@@ -302,7 +314,19 @@
             no-commit-to-branch.enable = true;
 
             # Spelling
-            typos.enable = true;
+            typos = {
+              enable = true;
+              excludes = [ "^files/home/[.]config/nvim/colors/solarized[.]vim$" ];
+              settings.config.default = {
+                "extend-identifiers" = {
+                  UE = "UE";
+                };
+                "extend-words" = {
+                  Assomption = "Assomption";
+                  Lieve = "Lieve";
+                };
+              };
+            };
 
             # GitHub Actions
             actionlint.enable = true;
