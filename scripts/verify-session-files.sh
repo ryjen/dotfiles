@@ -114,6 +114,12 @@ check_exists files/home/.local/libexec/dubnium-music-status
 check_contains modules/home/music-library.nix '\.local/libexec/dubnium-music-control'
 check_contains modules/home/music-library.nix '\.local/libexec/dubnium-music-status'
 check_contains files/home/.config/waybar/config.jsonc 'dubnium-music-control'
+check_contains files/home/.config/waybar/config.jsonc 'on-click-backward.*delete-current'
+check_contains files/home/.local/libexec/dubnium-music-control 'delete-current'
+check_contains files/home/.local/libexec/dubnium-music-control 'beet_bin.*remove -d -f'
+check_contains files/home/.local/libexec/dubnium-music-control 'path:\$file'
+check_not_contains files/home/.local/libexec/dubnium-music-control 'rm[[:space:]]+-f'
+check_not_contains files/home/.local/libexec/dubnium-music-control 'trash-put'
 check_not_contains files/home/.config/waybar/config-technetium.jsonc 'custom/music'
 check_not_exists files/home/.local/bin/music
 check_not_exists files/home/.local/bin/music-window
