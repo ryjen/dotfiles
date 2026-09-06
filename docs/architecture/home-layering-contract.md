@@ -168,7 +168,7 @@ Dependency rules:
 
 ## Presets and profile boundaries
 
-Presets may compose common selections, such as core CLI, developer, graphical, or media toolsets. Preset membership must be documented in `user.example.nix` and applied with `lib.mkDefault`, so individual options remain overrideable.
+Presets may compose common selections, such as core CLI, developer, graphical, or media toolsets. Preset membership must be documented in `user.example.nix` and applied with `lib.mkDefault`, so individual options remain overridable.
 
 Tracked profiles contain host-role information such as:
 
