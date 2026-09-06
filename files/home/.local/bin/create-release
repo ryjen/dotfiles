@@ -5,21 +5,16 @@ if ! git diff --quiet; then
 	exit 1
 fi
 
-IMAGE_TAG=$(git describe --tags --abbrev=0)
-
-if [ $? -ne 0 ]; then
+if ! IMAGE_TAG=$(git describe --tags --abbrev=0); then
 	echo "No tag specified and no git repository"
 	exit 1
 fi
 
-IMAGE_TAG="v$(semver -i "${IMAGE_TAG}")"
-
-if [ $? -ne 0 ]; then
+if ! IMAGE_TAG="v$(semver -i "$IMAGE_TAG")"; then
 	echo "Could not increment version"
+	exit 1
 fi
 
-create-registry-image --push --version "$IMAGE_TAG" "$@"
-
-if [ $? -eq 0 ]; then
+if create-registry-image --push --version "$IMAGE_TAG" "$@"; then
 	git tag "$IMAGE_TAG"
 fi
