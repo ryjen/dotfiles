@@ -96,7 +96,7 @@ check_tags
 # Delegate to pre-commit's pre-push stage if installed.
 if command -v pre-commit &>/dev/null && [ -f .pre-commit-config.yaml ]; then
 	pre-commit run --hook-stage pre-push 2>&1 | sed 's/^/  /'
-	if [ ${PIPESTATUS[0]} -ne 0 ]; then
+	if [ "${PIPESTATUS[0]}" -ne 0 ]; then
 		status=1
 	fi
 fi
