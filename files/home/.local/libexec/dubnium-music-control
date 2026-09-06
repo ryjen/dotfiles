@@ -4,9 +4,16 @@ set -euo pipefail
 cmd="${1:-toggle}"
 playerctl_bin="${PLAYERCTL_BIN:-playerctl}"
 mpc_bin="${MPC_BIN:-mpc}"
+beet_bin="${BEET_BIN:-beet}"
 
 mpd_status() {
   "$playerctl_bin" --player=mpd status 2>/dev/null || true
+}
+
+notify() {
+  if command -v notify-send >/dev/null 2>&1; then
+    notify-send "Music Library" "$1" || true
+  fi
 }
 
 seed_queue_if_empty() {
@@ -21,6 +28,51 @@ seed_queue_if_empty() {
 
   if [ -n "$($mpc_bin playlist 2>/dev/null)" ]; then
     "$mpc_bin" shuffle >/dev/null
+  fi
+}
+
+delete_current() {
+  local current file position matched count
+
+  current="$($mpc_bin current -f '%position%\t%file%' 2>/dev/null || true)"
+  if [ -z "$current" ]; then
+    notify "No current MPD track to delete"
+    return 1
+  fi
+
+  position="${current%%$'\t'*}"
+  file="${current#*$'\t'}"
+
+  # MPD database URIs for the managed library must remain relative paths.
+  # Refuse URLs, absolute paths and traversal before passing anything to beets.
+  case "$file" in
+    ""|/*|*://*|../*|*/../*|*/..)
+      notify "Refusing unsafe MPD track path"
+      return 1
+      ;;
+  esac
+
+  # Resolve through the canonical beets DB and require exactly one match.
+  # A path query is relative to beets' configured library root.
+  matched="$($beet_bin ls -p "path:$file" 2>/dev/null || true)"
+  count="$(printf '%s\n' "$matched" | sed '/^$/d' | wc -l)"
+  if [ "$count" -ne 1 ]; then
+    notify "Delete refused: beets matched $count tracks"
+    return 1
+  fi
+
+  # Remove the queue entry first. Deleting the current MPD queue position
+  # advances playback without leaving the just-deleted file as current.
+  "$mpc_bin" del "$position" >/dev/null
+
+  # beets remains filesystem/database authority. -d removes the media file and
+  # -f suppresses the CLI confirmation because the Waybar gesture is explicit.
+  if "$beet_bin" remove -d -f "path:$file" >/dev/null; then
+    notify "Deleted: $(basename "$matched")"
+    "$mpc_bin" update >/dev/null 2>&1 || true
+  else
+    notify "Delete failed in beets"
+    return 1
   fi
 }
 
@@ -50,8 +102,11 @@ case "$cmd" in
   seek-back)
     exec "$playerctl_bin" --player=mpd position 10-
     ;;
+  delete-current)
+    delete_current
+    ;;
   *)
-    printf 'usage: dubnium-music-control [toggle|next|previous|seek-forward|seek-back]\n' >&2
+    printf 'usage: dubnium-music-control [toggle|next|previous|seek-forward|seek-back|delete-current]\n' >&2
     exit 2
     ;;
 esac
