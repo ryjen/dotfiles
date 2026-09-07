@@ -5,11 +5,11 @@ uv_headroom="${HOME}/.local/bin/headroom"
 pip_headroom="${HOME}/.local/share/pip/bin/headroom"
 
 if [ -x "$uv_headroom" ]; then
-  exec "$uv_headroom" proxy "$@"
+	exec "$uv_headroom" proxy "$@"
 fi
 
 if [ -x "$pip_headroom" ]; then
-  exec "$pip_headroom" proxy "$@"
+	exec "$pip_headroom" proxy "$@"
 fi
 
 printf '%s\n' "headroom-proxy: no executable headroom found at $uv_headroom or $pip_headroom" >&2
