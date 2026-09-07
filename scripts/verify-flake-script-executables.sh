@@ -20,10 +20,10 @@ if [ ! -f "$flake_file" ]; then
 fi
 
 script_refs="$(
-	grep -E 'program = "\$\{\./scripts/' "$flake_file" \
-		| grep -Eo '\./scripts/[^}]+' \
-		| sed 's|^\./||' \
-		| sort -u
+	grep -E 'program = "\$\{\./scripts/' "$flake_file" |
+		grep -Eo '\./scripts/[^}]+' |
+		sed 's|^\./||' |
+		sort -u
 )"
 
 if [ -z "$script_refs" ]; then
