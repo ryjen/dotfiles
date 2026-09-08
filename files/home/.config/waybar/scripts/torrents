@@ -1,0 +1,249 @@
+#!/usr/bin/env python3
+"""Render local Transmission status for Waybar without a persistent GUI."""
+
+from __future__ import annotations
+
+import html
+import json
+import sys
+import urllib.error
+import urllib.request
+from typing import Any, Mapping
+
+RPC_URL = "http://127.0.0.1:9091/transmission/rpc"
+RPC_TIMEOUT_SECONDS = 2.0
+MAX_RESPONSE_BYTES = 256 * 1024
+MAX_TOOLTIP_TORRENTS = 8
+
+# Transmission RPC status enum.
+STATUS = {
+    0: "stopped",
+    1: "check queued",
+    2: "checking",
+    3: "download queued",
+    4: "downloading",
+    5: "seed queued",
+    6: "seeding",
+}
+ACTIVE_STATUSES = {4, 6}
+
+
+class StatusError(RuntimeError):
+    """Transmission status could not be rendered safely."""
+
+
+def _safe(value: Any) -> str:
+    return html.escape(str(value), quote=True)
+
+
+def _non_negative_int(value: Any, field: str) -> int:
+    if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+        raise StatusError(f"{field} is invalid")
+    return value
+
+
+def _number(value: Any, field: str) -> float:
+    if not isinstance(value, (int, float)) or isinstance(value, bool):
+        raise StatusError(f"{field} is invalid")
+    return float(value)
+
+
+def _format_rate(bytes_per_second: int) -> str:
+    value = float(bytes_per_second)
+    units = ("B/s", "KiB/s", "MiB/s", "GiB/s")
+    for unit in units[:-1]:
+        if value < 1024.0:
+            return f"{value:.0f} {unit}" if unit == "B/s" else f"{value:.1f} {unit}"
+        value /= 1024.0
+    return f"{value:.1f} {units[-1]}"
+
+
+def _format_eta(seconds: int) -> str:
+    if seconds < 0:
+        return "ETA unknown"
+    hours, remainder = divmod(seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    if hours:
+        return f"ETA {hours}h {minutes}m"
+    if minutes:
+        return f"ETA {minutes}m {seconds}s"
+    return f"ETA {seconds}s"
+
+
+def render_payload(payload: Mapping[str, Any]) -> dict[str, str]:
+    if payload.get("result") != "success":
+        raise StatusError("Transmission RPC returned a non-success result")
+
+    arguments = payload.get("arguments")
+    if not isinstance(arguments, dict):
+        raise StatusError("arguments is invalid")
+    torrents = arguments.get("torrents")
+    if not isinstance(torrents, list):
+        raise StatusError("torrents is invalid")
+
+    active = 0
+    download_rate = 0
+    upload_rate = 0
+    has_error = False
+    rows: list[tuple[int, str]] = []
+
+    for torrent in torrents:
+        if not isinstance(torrent, dict):
+            raise StatusError("torrent entry is invalid")
+
+        torrent_id = _non_negative_int(torrent.get("id"), "id")
+        name = torrent.get("name")
+        status = _non_negative_int(torrent.get("status"), "status")
+        percent_done = _number(torrent.get("percentDone"), "percentDone")
+        rate_down = _non_negative_int(torrent.get("rateDownload"), "rateDownload")
+        rate_up = _non_negative_int(torrent.get("rateUpload"), "rateUpload")
+        eta = torrent.get("eta")
+        error = _non_negative_int(torrent.get("error"), "error")
+        error_string = torrent.get("errorString")
+
+        if not isinstance(name, str) or not isinstance(eta, int) or isinstance(eta, bool):
+            raise StatusError("torrent fields are invalid")
+        if not isinstance(error_string, str):
+            raise StatusError("errorString is invalid")
+        if not 0.0 <= percent_done <= 1.0:
+            raise StatusError("percentDone is out of range")
+
+        if status in ACTIVE_STATUSES:
+            active += 1
+        download_rate += rate_down
+        upload_rate += rate_up
+        has_error = has_error or error != 0
+
+        state = STATUS.get(status, f"status {status}")
+        if error:
+            state = f"error: {error_string or error}"
+        elif status == 4:
+            state = f"{state}, {_format_eta(eta)}"
+
+        transfer = []
+        if rate_down:
+            transfer.append(f"↓ {_format_rate(rate_down)}")
+        if rate_up:
+            transfer.append(f"↑ {_format_rate(rate_up)}")
+        transfer_text = f" · {' · '.join(transfer)}" if transfer else ""
+        line = (
+            f"{torrent_id:>3}  {percent_done * 100:>5.1f}%  "
+            f"{_safe(name)} · {_safe(state)}{transfer_text}"
+        )
+
+        # Active/error entries first, then lower ids first for deterministic output.
+        priority = 0 if error else 1 if status in ACTIVE_STATUSES else 2
+        rows.append((priority * 1_000_000 + torrent_id, line))
+
+    total = len(torrents)
+    if has_error:
+        css_class = "error"
+    elif active:
+        css_class = "active"
+    else:
+        css_class = "idle"
+
+    text = "󰇚 0" if total == 0 else f"󰇚 {active}/{total}"
+    tooltip = [
+        "Transmission",
+        f"{active} active / {total} torrents",
+        f"↓ {_format_rate(download_rate)} · ↑ {_format_rate(upload_rate)}",
+    ]
+
+    if rows:
+        tooltip.append("")
+        for _, line in sorted(rows)[:MAX_TOOLTIP_TORRENTS]:
+            tooltip.append(line)
+        remaining = len(rows) - MAX_TOOLTIP_TORRENTS
+        if remaining > 0:
+            tooltip.append(f"… {remaining} more torrents")
+
+    tooltip.extend(["", "Click: open tremc"])
+    return {
+        "text": text,
+        "tooltip": "\n".join(tooltip),
+        "class": css_class,
+        "alt": "error" if has_error else "active" if active else "idle",
+    }
+
+
+def _post(session_id: str | None) -> bytes:
+    body = json.dumps(
+        {
+            "method": "torrent-get",
+            "arguments": {
+                "fields": [
+                    "id",
+                    "name",
+                    "status",
+                    "percentDone",
+                    "rateDownload",
+                    "rateUpload",
+                    "eta",
+                    "error",
+                    "errorString",
+                ]
+            },
+        },
+        separators=(",", ":"),
+    ).encode("utf-8")
+    headers = {"Content-Type": "application/json"}
+    if session_id:
+        headers["X-Transmission-Session-Id"] = session_id
+
+    request = urllib.request.Request(RPC_URL, data=body, headers=headers, method="POST")
+    with urllib.request.urlopen(request, timeout=RPC_TIMEOUT_SECONDS) as response:
+        data = response.read(MAX_RESPONSE_BYTES + 1)
+    if len(data) > MAX_RESPONSE_BYTES:
+        raise StatusError("Transmission RPC response is too large")
+    return data
+
+
+def _read_payload() -> Mapping[str, Any]:
+    try:
+        try:
+            data = _post(None)
+        except urllib.error.HTTPError as exc:
+            if exc.code != 409:
+                raise StatusError(f"Transmission RPC returned HTTP {exc.code}") from exc
+            session_id = exc.headers.get("X-Transmission-Session-Id")
+            if not session_id:
+                raise StatusError("Transmission RPC omitted session id") from exc
+            data = _post(session_id)
+    except StatusError:
+        raise
+    except (OSError, urllib.error.URLError) as exc:
+        raise StatusError("Transmission RPC is unavailable") from exc
+
+    if not data:
+        raise StatusError("Transmission RPC returned an empty response")
+    try:
+        payload = json.loads(data.decode("utf-8"))
+    except (UnicodeError, json.JSONDecodeError) as exc:
+        raise StatusError("Transmission RPC returned invalid JSON") from exc
+    if not isinstance(payload, dict):
+        raise StatusError("Transmission RPC payload is invalid")
+    return payload
+
+
+def degraded_output(reason: str) -> dict[str, str]:
+    return {
+        "text": "󰇚 !",
+        "tooltip": f"Transmission\nStatus unavailable\nReason: {_safe(reason)}",
+        "class": "error",
+        "alt": "unavailable",
+    }
+
+
+def main() -> int:
+    try:
+        output = render_payload(_read_payload())
+    except StatusError as exc:
+        output = degraded_output(str(exc))
+    json.dump(output, sys.stdout, ensure_ascii=False, separators=(",", ":"))
+    print()
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
