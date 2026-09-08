@@ -198,6 +198,18 @@
               touch "$out"
             '';
 
+        waybar-torrents-tests =
+          pkgs.runCommand "waybar-torrents-tests"
+            {
+              nativeBuildInputs = [ pkgs.python3Packages.pytest ];
+            }
+            ''
+              export PYTHONDONTWRITEBYTECODE=1
+              cd ${self}
+              pytest -q tests/test_waybar_torrents.py
+              touch "$out"
+            '';
+
         flake-script-executables =
           pkgs.runCommand "flake-script-executables"
             {
