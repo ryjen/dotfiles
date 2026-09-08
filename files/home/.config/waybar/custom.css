@@ -6,7 +6,8 @@
 
 #custom-fans,
 #custom-nvidia-gpu,
-#custom-github-runners {
+#custom-github-runners,
+#custom-torrents {
   margin: 4px 2px;
   padding: 0 10px;
   border-radius: 8px;
@@ -66,6 +67,18 @@
 }
 
 #custom-github-runners.degraded {
+  color: #f38ba8;
+}
+
+#custom-torrents.active {
+  color: #b4f9f8;
+}
+
+#custom-torrents.idle {
+  color: #c0caf5;
+}
+
+#custom-torrents.error {
   color: #f38ba8;
 }
 

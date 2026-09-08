@@ -31,6 +31,7 @@
         "custom/nvidia-gpu",
         "custom/bluetooth",
         "custom/github-runners",
+        "custom/torrents",
         "clock",
         "hyprland/language",
         "custom/meeting",
@@ -131,6 +132,14 @@
         "tooltip": true,
         "on-click": "~/.config/waybar/scripts/github-runners-action watch",
         "on-click-right": "~/.config/waybar/scripts/github-runners-action queue"
+    },
+    "custom/torrents": {
+        "exec": "~/.config/waybar/scripts/torrents",
+        "interval": 15,
+        "return-type": "json",
+        "format": "{}",
+        "tooltip": true,
+        "on-click": "~/.local/bin/dub-terminal --title 'Torrents' tremc -c 127.0.0.1:9091"
     },
     "custom/music": {
         "exec": "~/.local/libexec/dubnium-music-status",
