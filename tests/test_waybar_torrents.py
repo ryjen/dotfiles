@@ -2,6 +2,9 @@ from __future__ import annotations
 
 import importlib.machinery
 import importlib.util
+import json
+import urllib.error
+from email.message import Message
 from pathlib import Path
 
 import pytest
@@ -146,6 +149,46 @@ def test_torrent_metadata_is_bounded_before_rendering() -> None:
     assert long_error not in tooltip
     assert ("n" * (renderer.MAX_TORRENT_NAME_CHARS - 1) + "…") in tooltip
     assert ("e" * (renderer.MAX_ERROR_STRING_CHARS - 1) + "…") in tooltip
+
+
+def test_rpc_session_handshake_retries_with_server_token(monkeypatch) -> None:
+    headers = Message()
+    headers["X-Transmission-Session-Id"] = "session-token"
+    expected = _payload()
+    calls: list[str | None] = []
+
+    def fake_post(session_id: str | None) -> bytes:
+        calls.append(session_id)
+        if session_id is None:
+            raise urllib.error.HTTPError(
+                renderer.RPC_URL,
+                409,
+                "Conflict",
+                headers,
+                None,
+            )
+        return json.dumps(expected).encode("utf-8")
+
+    monkeypatch.setattr(renderer, "_post", fake_post)
+
+    assert renderer._read_payload() == expected
+    assert calls == [None, "session-token"]
+
+
+def test_rpc_session_handshake_fails_closed_without_token(monkeypatch) -> None:
+    def fake_post(session_id: str | None) -> bytes:
+        raise urllib.error.HTTPError(
+            renderer.RPC_URL,
+            409,
+            "Conflict",
+            Message(),
+            None,
+        )
+
+    monkeypatch.setattr(renderer, "_post", fake_post)
+
+    with pytest.raises(renderer.StatusError, match="omitted session id"):
+        renderer._read_payload()
 
 
 def test_invalid_percent_fails_closed() -> None:
