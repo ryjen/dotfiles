@@ -16,8 +16,10 @@
     cacheRoot = "/tmp/unreal-cache";
   };
 
-  home.username = username;
-  home.homeDirectory = "/home/${username}";
-  home.stateVersion = "25.05";
+  home = {
+    inherit username;
+    homeDirectory = "/home/${username}";
+    stateVersion = "25.05";
+  };
   programs.home-manager.enable = true;
 }
