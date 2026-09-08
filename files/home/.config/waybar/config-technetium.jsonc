@@ -41,6 +41,8 @@
         "all-outputs": true,
         "active-only": false,
         "format": "{name}: {icon}",
+        "on-click-backward": "hyprctl dispatch workspace e-1",
+        "on-click-forward": "hyprctl dispatch workspace e+1",
         "format-icons": {
             "1": "",
             "2": "",
@@ -161,7 +163,7 @@
     "network": {
         "format-wifi": "{essid} ({signalStrength}%) ",
         "format-ethernet": "{ipaddr}/{cidr} ",
-        "tooltip-format": "{ifname} via {gwaddr} ",
+        "tooltip-format": "{ifname} via {gw} ",
         "format-disconnected": "Disconnected ⚠",
         "on-click": "nm-connection-editor"
     },
