@@ -124,6 +124,30 @@ def test_dynamic_torrent_fields_are_markup_escaped() -> None:
     assert "&lt;b&gt;unsafe&lt;/b&gt;" in output["tooltip"]
 
 
+def test_torrent_metadata_is_bounded_before_rendering() -> None:
+    long_name = "n" * (renderer.MAX_TORRENT_NAME_CHARS + 50)
+    long_error = "e" * (renderer.MAX_ERROR_STRING_CHARS + 50)
+    output = renderer.render_payload(
+        _payload(
+            _torrent(
+                1,
+                long_name,
+                status=0,
+                rate_down=0,
+                eta=-1,
+                error=3,
+                error_string=long_error,
+            )
+        )
+    )
+
+    tooltip = output["tooltip"]
+    assert long_name not in tooltip
+    assert long_error not in tooltip
+    assert ("n" * (renderer.MAX_TORRENT_NAME_CHARS - 1) + "…") in tooltip
+    assert ("e" * (renderer.MAX_ERROR_STRING_CHARS - 1) + "…") in tooltip
+
+
 def test_invalid_percent_fails_closed() -> None:
     torrent = _torrent(1, "bad", percent_done=1.5)
 
