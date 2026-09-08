@@ -1,7 +1,4 @@
-{
-  ...
-}:
-{
+_: {
   programs.tmux = {
     enable = true;
     aggressiveResize = true;

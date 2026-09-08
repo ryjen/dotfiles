@@ -30,8 +30,8 @@ in
 
     services.mpd = {
       enable = true;
-      musicDirectory = musicCfg.musicDirectory;
-      playlistDirectory = playlistDirectory;
+      inherit (musicCfg) musicDirectory;
+      inherit playlistDirectory;
       network = {
         listenAddress = "127.0.0.1";
         port = 6600;
