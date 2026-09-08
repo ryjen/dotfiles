@@ -14,6 +14,8 @@ RPC_URL = "http://127.0.0.1:9091/transmission/rpc"
 RPC_TIMEOUT_SECONDS = 2.0
 MAX_RESPONSE_BYTES = 256 * 1024
 MAX_TOOLTIP_TORRENTS = 8
+MAX_TORRENT_NAME_CHARS = 96
+MAX_ERROR_STRING_CHARS = 160
 
 # Transmission RPC status enum.
 STATUS = {
@@ -34,6 +36,12 @@ class StatusError(RuntimeError):
 
 def _safe(value: Any) -> str:
     return html.escape(str(value), quote=True)
+
+
+def _truncate(value: str, limit: int) -> str:
+    if len(value) <= limit:
+        return value
+    return value[: limit - 1] + "…"
 
 
 def _non_negative_int(value: Any, field: str) -> int:
@@ -114,9 +122,11 @@ def render_payload(payload: Mapping[str, Any]) -> dict[str, str]:
         upload_rate += rate_up
         has_error = has_error or error != 0
 
+        display_name = _truncate(name, MAX_TORRENT_NAME_CHARS)
         state = STATUS.get(status, f"status {status}")
         if error:
-            state = f"error: {error_string or error}"
+            display_error = _truncate(error_string, MAX_ERROR_STRING_CHARS)
+            state = f"error: {display_error or error}"
         elif status == 4:
             state = f"{state}, {_format_eta(eta)}"
 
@@ -128,7 +138,7 @@ def render_payload(payload: Mapping[str, Any]) -> dict[str, str]:
         transfer_text = f" · {' · '.join(transfer)}" if transfer else ""
         line = (
             f"{torrent_id:>3}  {percent_done * 100:>5.1f}%  "
-            f"{_safe(name)} · {_safe(state)}{transfer_text}"
+            f"{_safe(display_name)} · {_safe(state)}{transfer_text}"
         )
 
         # Active/error entries first, then lower ids first for deterministic output.
