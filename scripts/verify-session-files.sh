@@ -35,15 +35,15 @@ check_script_syntax() {
 	local shebang
 	shebang=$(head -n 1 "$path")
 	case "$shebang" in
-		'#!/usr/bin/env bash'|'#!/bin/bash')
-			check_bash "$path"
-			;;
-		'#!/usr/bin/env python3'|'#!/usr/bin/python3')
-			check_python "$path"
-			;;
-		*)
-			fail "$path has unsupported script interpreter: $shebang"
-			;;
+	'#!/usr/bin/env bash' | '#!/bin/bash')
+		check_bash "$path"
+		;;
+	'#!/usr/bin/env python3' | '#!/usr/bin/python3')
+		check_python "$path"
+		;;
+	*)
+		fail "$path has unsupported script interpreter: $shebang"
+		;;
 	esac
 }
 
@@ -103,6 +103,8 @@ done
 printf -- '\n--- Terminal launcher compatibility ---\n'
 check_exists files/home/.local/bin/dub-terminal
 check_contains files/home/.local/bin/dub-terminal 'TERMINAL:-kitty'
+# Literal ERE: match the source text "$HOME" without expanding it here.
+# shellcheck disable=SC2016
 check_contains modules/home/session.nix 'TERMINAL_COMMAND = "\$HOME/\.local/bin/dub-terminal"'
 check_contains modules/home/music-library.nix 'dub-terminal --title'
 check_not_contains modules/home/music-library.nix 'pkgs\.kitty.*/bin/kitty'
@@ -120,6 +122,8 @@ check_not_contains files/home/.config/waybar/config.jsonc 'on-click-(backward|fo
 check_contains files/home/.config/hypr/adopted.d/dubnium.conf 'bind = \$mainMod SHIFT, Delete, exec, ~/.local/libexec/dubnium-music-control delete-current'
 check_contains files/home/.local/libexec/dubnium-music-control 'delete-current'
 check_contains files/home/.local/libexec/dubnium-music-control 'beet_bin.*remove -d -f'
+# Literal ERE: match the source variable reference "$file" itself.
+# shellcheck disable=SC2016
 check_contains files/home/.local/libexec/dubnium-music-control 'path:\$file'
 check_not_contains files/home/.local/libexec/dubnium-music-control 'rm[[:space:]]+-f'
 check_not_contains files/home/.local/libexec/dubnium-music-control 'trash-put'
@@ -156,7 +160,10 @@ check_contains modules/home/hypr.nix 'bind = CTRL SHIFT, Print, exec, ~/.local/b
 check_contains files/home/.local/bin/dub-screenshot 'hyprctl activewindow -j'
 check_contains files/home/.local/bin/dub-screenshot 'case "\$\{1:-\}" in'
 check_contains files/home/.local/bin/dub-screenshot 'clipboard_file="\$\(mktemp --suffix=\.png\)"'
+# Literal EREs: assert the generated script keeps the source variable reference.
+# shellcheck disable=SC2016
 check_contains files/home/.local/bin/dub-screenshot 'capture "\$clipboard_file"'
+# shellcheck disable=SC2016
 check_contains files/home/.local/bin/dub-screenshot 'wl-copy --type image/png < "\$clipboard_file"'
 check_contains files/home/.local/bin/dub-screenshot 'date \+%Y%m%d-%H%M%S-%N'
 
