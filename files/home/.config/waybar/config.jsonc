@@ -162,7 +162,7 @@
     "network": {
         "format-wifi": "{essid} ({signalStrength}%) ",
         "format-ethernet": "{ipaddr}/{cidr} ",
-        "tooltip-format": "{ifname} via {gw} ",
+        "tooltip-format": "{ifname} via {gwaddr} ",
         "format-disconnected": "Disconnected ⚠",
         "on-click": "nm-connection-editor"
     },
