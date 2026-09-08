@@ -173,9 +173,7 @@ in
         message = "dubnium.unreal.storage.backingMount must be an absolute non-root mount point";
       }
       {
-        assertion =
-          lib.hasPrefix "${cfg.backingMount}/" cfg.imagePath
-          && cfg.imagePath != cfg.backingMount;
+        assertion = lib.hasPrefix "${cfg.backingMount}/" cfg.imagePath && cfg.imagePath != cfg.backingMount;
         message = "dubnium.unreal.storage.imagePath must be beneath backingMount";
       }
       {

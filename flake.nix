@@ -67,8 +67,7 @@
           ];
         };
       mkNixosConfig =
-        profileModule:
-        extraModules:
+        profileModule: extraModules:
         nixpkgs.lib.nixosSystem {
           inherit system;
           specialArgs = {

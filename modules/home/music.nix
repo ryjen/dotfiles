@@ -17,7 +17,8 @@ let
 
   # Not every plugin package ships every supported format. Build one stable
   # directory per format and include only the formats each package provides.
-  pluginDirectory = format:
+  pluginDirectory =
+    format:
     pkgs.runCommand "reaper-${format}-plugins" { } ''
       mkdir -p "$out"
 

@@ -48,19 +48,19 @@ in
   '';
 
   home.activation.ensureTaskRuntimeFiles = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    task_config_dir="${config.xdg.configHome}/task"
-    mkdir -p "$task_config_dir/custom.d"
+        task_config_dir="${config.xdg.configHome}/task"
+        mkdir -p "$task_config_dir/custom.d"
 
-    if [ ! -e "$task_config_dir/local.rc" ]; then
-      cat > "$task_config_dir/local.rc" <<'EOF'
-# Local Taskwarrior overrides.
-EOF
-    fi
+        if [ ! -e "$task_config_dir/local.rc" ]; then
+          cat > "$task_config_dir/local.rc" <<'EOF'
+    # Local Taskwarrior overrides.
+    EOF
+        fi
 
-    if [ ! -e "$task_config_dir/custom.d/index.rc" ]; then
-      cat > "$task_config_dir/custom.d/index.rc" <<'EOF'
-# User-managed Taskwarrior custom includes.
-EOF
-    fi
+        if [ ! -e "$task_config_dir/custom.d/index.rc" ]; then
+          cat > "$task_config_dir/custom.d/index.rc" <<'EOF'
+    # User-managed Taskwarrior custom includes.
+    EOF
+        fi
   '';
 }

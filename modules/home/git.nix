@@ -41,21 +41,20 @@ in
       "*.log"
       "**/.claude/settings.local.json"
     ];
-    includes =
-      [
-        { path = "~/.config/git/conf.d/user"; }
-        # Reviewed profile-scoped configctl promotion is lower precedence than
-        # the live root include index and machine-local override.
-        { path = "~/.config/git/includes-promoted.conf"; }
-        { path = "~/.config/git/includes.conf"; }
-        { path = "~/.config/git/local.conf"; }
-      ]
-      ++ lib.optionals micranthaEnabled [
-        {
-          condition = "gitdir:~/**/micrantha/**";
-          path = "~/.config/git/conf.d/micrantha";
-        }
-      ];
+    includes = [
+      { path = "~/.config/git/conf.d/user"; }
+      # Reviewed profile-scoped configctl promotion is lower precedence than
+      # the live root include index and machine-local override.
+      { path = "~/.config/git/includes-promoted.conf"; }
+      { path = "~/.config/git/includes.conf"; }
+      { path = "~/.config/git/local.conf"; }
+    ]
+    ++ lib.optionals micranthaEnabled [
+      {
+        condition = "gitdir:~/**/micrantha/**";
+        path = "~/.config/git/conf.d/micrantha";
+      }
+    ];
     settings = {
       alias = {
         ff = "flow feature";
@@ -144,7 +143,8 @@ in
 
   home.file = {
     ".gitignore".source = ../../files/home/.gitignore;
-    ".local/share/git-autocommit/system.md".source = ../../files/home/.local/share/git-autocommit/system.md;
+    ".local/share/git-autocommit/system.md".source =
+      ../../files/home/.local/share/git-autocommit/system.md;
     ".local/share/git-autocommit/plan.md".source = ../../files/home/.local/share/git-autocommit/plan.md;
   };
 
