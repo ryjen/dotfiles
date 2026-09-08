@@ -94,7 +94,7 @@ in
     '';
 
     xdg.configFile."dubnium/meeting/obs-init.json".text = builtins.toJSON {
-      cameraDevice = cfg.cameraDevice;
+      inherit (cfg) cameraDevice;
     };
 
     xdg.dataFile."dubnium/obs/v1" = {
