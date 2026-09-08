@@ -46,7 +46,8 @@ in
         "port-forwarding-enabled" = false;
         "lpd-enabled" = false;
 
-        # The CLI controls the daemon locally. Do not expose RPC to the LAN.
+        # Local CLI/TUI clients control the daemon over loopback RPC. Do not
+        # expose that control plane to the LAN.
         "rpc-bind-address" = "127.0.0.1";
         "rpc-whitelist" = "127.0.0.1";
         "rpc-whitelist-enabled" = true;
@@ -57,6 +58,10 @@ in
         umask = "007";
       };
     };
+
+    # tremc is an on-demand curses client; unlike GTK/Qt or a browser UI it adds
+    # no persistent desktop process when torrent management is not in use.
+    environment.systemPackages = [ pkgs.tremc ];
 
     users.users.${username}.extraGroups = [ "transmission" ];
   };
