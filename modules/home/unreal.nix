@@ -137,9 +137,7 @@ in
       }
       {
         assertion =
-          cfg.cacheRoot != "/"
-          && cfg.cacheRoot != "/nix/store"
-          && !lib.hasPrefix "/nix/store/" cfg.cacheRoot;
+          cfg.cacheRoot != "/" && cfg.cacheRoot != "/nix/store" && !lib.hasPrefix "/nix/store/" cfg.cacheRoot;
         message = "dotfiles.unreal.cacheRoot must be writable storage outside / and /nix/store";
       }
     ];

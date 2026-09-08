@@ -19,17 +19,17 @@ stdenvNoCC.mkDerivation {
   dontUnpack = true;
 
   installPhase = ''
-    runHook preInstall
+        runHook preInstall
 
-    install -Dm755 "$src" "$out/libexec/openwork/openwork.AppImage"
-    mkdir -p "$out/bin"
-    cat > "$out/bin/openwork" <<EOF
-#!${runtimeShell}
-exec ${appimage-run}/bin/appimage-run "$out/libexec/openwork/openwork.AppImage" "\$@"
-EOF
-    chmod +x "$out/bin/openwork"
+        install -Dm755 "$src" "$out/libexec/openwork/openwork.AppImage"
+        mkdir -p "$out/bin"
+        cat > "$out/bin/openwork" <<EOF
+    #!${runtimeShell}
+    exec ${appimage-run}/bin/appimage-run "$out/libexec/openwork/openwork.AppImage" "\$@"
+    EOF
+        chmod +x "$out/bin/openwork"
 
-    runHook postInstall
+        runHook postInstall
   '';
 
   meta = {

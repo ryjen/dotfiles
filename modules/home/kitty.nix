@@ -1,4 +1,9 @@
-{ lib, config, pkgs, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
 let
   adoptedProfiles = {
     empty = ../../files/home/.config/kitty/adopted.d/empty.conf;
@@ -34,12 +39,9 @@ in
     };
 
     xdg.configFile = {
-      "kitty/conf.d/base.conf".source =
-        ../../files/home/.config/kitty/conf.d/base.conf;
-      "kitty/adopted.d/machine.conf".source =
-        adoptedProfiles.${config.dotfiles.kitty.adoptedProfile};
-      "kitty/custom.d/00-empty.conf".source =
-        ../../files/home/.config/kitty/custom.d/empty.conf;
+      "kitty/conf.d/base.conf".source = ../../files/home/.config/kitty/conf.d/base.conf;
+      "kitty/adopted.d/machine.conf".source = adoptedProfiles.${config.dotfiles.kitty.adoptedProfile};
+      "kitty/custom.d/00-empty.conf".source = ../../files/home/.config/kitty/custom.d/empty.conf;
     }
     // lib.optionalAttrs hasKittyCustomProfile {
       # configctl promote stores reviewed fragments under

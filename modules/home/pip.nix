@@ -33,7 +33,10 @@ in
     (lib.mkIf cfg.enable {
       home.packages = [ pkgs.uv ];
 
-      home.sessionPath = [ pipGlobalBin "${config.home.homeDirectory}/.venv/bin" ];
+      home.sessionPath = [
+        pipGlobalBin
+        "${config.home.homeDirectory}/.venv/bin"
+      ];
 
       home.file."${cfg.globalPackagesFile}".source = ../../files/home/.config/pip/global-packages.txt;
 

@@ -132,31 +132,31 @@ in
       };
     };
 
-    systemd.user.sockets.podman = lib.mkIf (
-      config.dotfiles.host.userSystemd.enable && config.dotfiles.podman.apiSocket.enable
-    ) {
-      Unit = {
-        Description = "Podman API Socket";
-        Documentation = [ "man:podman-system-service(1)" ];
-      };
-      Socket.ListenStream = "%t/podman/podman.sock";
-      Install.WantedBy = [ "sockets.target" ];
-    };
+    systemd.user.sockets.podman =
+      lib.mkIf (config.dotfiles.host.userSystemd.enable && config.dotfiles.podman.apiSocket.enable)
+        {
+          Unit = {
+            Description = "Podman API Socket";
+            Documentation = [ "man:podman-system-service(1)" ];
+          };
+          Socket.ListenStream = "%t/podman/podman.sock";
+          Install.WantedBy = [ "sockets.target" ];
+        };
 
-    systemd.user.services.podman = lib.mkIf (
-      config.dotfiles.host.userSystemd.enable && config.dotfiles.podman.apiSocket.enable
-    ) {
-      Unit = {
-        Description = "Podman API Service";
-        Requires = [ "podman.socket" ];
-        After = [ "podman.socket" ];
-        Documentation = [ "man:podman-system-service(1)" ];
-      };
-      Service = {
-        Type = "exec";
-        ExecStart = "${pkgs.podman}/bin/podman system service";
-      };
-    };
+    systemd.user.services.podman =
+      lib.mkIf (config.dotfiles.host.userSystemd.enable && config.dotfiles.podman.apiSocket.enable)
+        {
+          Unit = {
+            Description = "Podman API Service";
+            Requires = [ "podman.socket" ];
+            After = [ "podman.socket" ];
+            Documentation = [ "man:podman-system-service(1)" ];
+          };
+          Service = {
+            Type = "exec";
+            ExecStart = "${pkgs.podman}/bin/podman system service";
+          };
+        };
 
     programs.zoxide = {
       enable = true;
