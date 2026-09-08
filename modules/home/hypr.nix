@@ -29,6 +29,14 @@ let
     bind = CTRL SHIFT, Print, exec, ~/.local/bin/dub-screenshot area --clipboard
   '';
 
+  sharedContextNavigationBindings = ''
+    # --- CONTEXTUAL MOUSE NAVIGATION ---
+    # Bare side buttons stay application-owned. SUPER modifies them into a
+    # context-specific navigation command for Firefox tabs and Kitty panes.
+    bind = SUPER, mouse:275, exec, ~/.local/bin/dub-context-nav previous
+    bind = SUPER, mouse:276, exec, ~/.local/bin/dub-context-nav next
+  '';
+
   defaultWallpapers =
     pkgs.runCommand "dubnium-default-wallpapers"
       {
@@ -50,6 +58,7 @@ let
   managedScripts = [
     "dub-browser"
     "dub-clipboard"
+    "dub-context-nav"
     "dub-editor"
     "dub-file-manager"
     "dub-launch"
@@ -108,6 +117,8 @@ in
       ${managedHyprConfig}
 
       ${sharedScreenshotBindings}
+
+      ${sharedContextNavigationBindings}
 
       ${lib.optionalString hasHyprPromotedProfile "source = ~/.config/hypr/custom.d/${machineProfileName}/*.conf"}
       source = ~/.config/hypr/custom.d/*.conf
