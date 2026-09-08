@@ -119,6 +119,8 @@ check_contains files/home/.config/waybar/config.jsonc 'dubnium-music-control'
 check_contains files/home/.config/waybar/config.jsonc 'on-click-backward.*dubnium-music-control previous'
 check_contains files/home/.config/waybar/config.jsonc 'on-click-forward.*dubnium-music-control next'
 check_not_contains files/home/.config/waybar/config.jsonc 'on-click-(backward|forward).*delete-current'
+# Literal ERE: match the source text "$mainMod" without expanding it here.
+# shellcheck disable=SC2016
 check_contains files/home/.config/hypr/adopted.d/dubnium.conf 'bind = \$mainMod SHIFT, Delete, exec, ~/.local/libexec/dubnium-music-control delete-current'
 check_contains files/home/.local/libexec/dubnium-music-control 'delete-current'
 check_contains files/home/.local/libexec/dubnium-music-control 'beet_bin.*remove -d -f'

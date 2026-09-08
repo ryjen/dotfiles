@@ -6,7 +6,7 @@
 # Keep only deliberate overrides active. Uncomment every portable option only
 # when maintaining a complete user-level desired-state file.
 # deadnix ignore
-{ config, ... }:
+{ ... }:
 {
   # Personal identity. Replace both placeholders together in user.local.nix.
   # The Git module enforces user.useConfigOnly globally.
