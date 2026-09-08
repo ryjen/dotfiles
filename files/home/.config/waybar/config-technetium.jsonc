@@ -4,8 +4,8 @@
     "output": __DUBNIUM_NORMAL_OUTPUTS__,
     "layer": "top",
     "position": "top",
-    "spacing": 10,
-    "height": 42,
+    "spacing": 8,
+    "height": 34,
     "exclusive": true,
     "passthrough": false,
     "fixed-center": true,
@@ -26,8 +26,6 @@
         "memory",
         "custom/disk",
         "temperature",
-        "custom/fans",
-        "custom/nvidia-gpu",
         "custom/bluetooth",
         "custom/backlight",
         "battery",
@@ -107,20 +105,6 @@
         "critical-threshold": 80,
         "format": "{icon} {temperatureC}°C",
         "format-icons": ["", "", "", "", ""]
-    },
-    "custom/fans": {
-        "exec": "bash ~/.config/waybar/scripts/fans",
-        "interval": 5,
-        "return-type": "json",
-        "format": "{}",
-        "tooltip": true
-    },
-    "custom/nvidia-gpu": {
-        "exec": "~/.config/waybar/scripts/nvidia-gpu",
-        "interval": 5,
-        "return-type": "json",
-        "format": "{}",
-        "tooltip": true
     },
     "custom/bluetooth": {
         "exec": "~/.config/waybar/scripts/bluetooth",
