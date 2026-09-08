@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+	printf 'usage: dub-context-nav <previous|next>\n' >&2
+	exit 2
+}
+
+case "${1:-}" in
+	previous)
+		direction=previous
+		;;
+	next)
+		direction=next
+		;;
+	*)
+		usage
+		;;
+esac
+
+active_class="$(hyprctl activewindow -j | jq -r '.class // ""' | tr '[:upper:]' '[:lower:]')"
+
+case "$active_class" in
+	firefox)
+		if [ "$direction" = previous ]; then
+			hyprctl dispatch sendshortcut 'CTRL,Page_Up,activewindow'
+		else
+			hyprctl dispatch sendshortcut 'CTRL,Page_Down,activewindow'
+		fi
+		;;
+	kitty)
+		if [ "$direction" = previous ]; then
+			hyprctl dispatch sendshortcut 'CTRL SHIFT,bracketleft,activewindow'
+		else
+			hyprctl dispatch sendshortcut 'CTRL SHIFT,bracketright,activewindow'
+		fi
+		;;
+	*)
+		# SUPER + side buttons are reserved for contextual navigation. Leave
+		# applications without an explicit contract unchanged.
+		exit 0
+		;;
+esac

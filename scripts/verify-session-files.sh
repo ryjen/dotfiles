@@ -116,7 +116,10 @@ check_exists files/home/.local/libexec/dubnium-music-status
 check_contains modules/home/music-library.nix '\.local/libexec/dubnium-music-control'
 check_contains modules/home/music-library.nix '\.local/libexec/dubnium-music-status'
 check_contains files/home/.config/waybar/config.jsonc 'dubnium-music-control'
-check_contains files/home/.config/waybar/config.jsonc 'on-click-backward.*delete-current'
+check_contains files/home/.config/waybar/config.jsonc 'on-click-backward.*dubnium-music-control previous'
+check_contains files/home/.config/waybar/config.jsonc 'on-click-forward.*dubnium-music-control next'
+check_not_contains files/home/.config/waybar/config.jsonc 'on-click-(backward|forward).*delete-current'
+check_contains files/home/.config/hypr/adopted.d/dubnium.conf 'bind = \$mainMod SHIFT, Delete, exec, ~/.local/libexec/dubnium-music-control delete-current'
 check_contains files/home/.local/libexec/dubnium-music-control 'delete-current'
 check_contains files/home/.local/libexec/dubnium-music-control 'beet_bin.*remove -d -f'
 # Literal ERE: match the source variable reference "$file" itself.
@@ -163,6 +166,27 @@ check_contains files/home/.local/bin/dub-screenshot 'capture "\$clipboard_file"'
 # shellcheck disable=SC2016
 check_contains files/home/.local/bin/dub-screenshot 'wl-copy --type image/png < "\$clipboard_file"'
 check_contains files/home/.local/bin/dub-screenshot 'date \+%Y%m%d-%H%M%S-%N'
+
+# --- Contextual mouse navigation ---
+printf -- '\n--- Contextual mouse navigation ---\n'
+check_exists files/home/.local/bin/dub-context-nav
+check_contains modules/home/hypr.nix 'sharedContextNavigationBindings'
+check_contains modules/home/hypr.nix 'mouse:275.*dub-context-nav previous'
+check_contains modules/home/hypr.nix 'mouse:276.*dub-context-nav next'
+check_contains modules/home/hypr.nix '"dub-context-nav"'
+check_contains files/home/.local/bin/dub-context-nav 'activewindow -j'
+check_contains files/home/.local/bin/dub-context-nav 'CTRL,Page_Up,activewindow'
+check_contains files/home/.local/bin/dub-context-nav 'CTRL,Page_Down,activewindow'
+check_contains files/home/.local/bin/dub-context-nav 'CTRL SHIFT,bracketleft,activewindow'
+check_contains files/home/.local/bin/dub-context-nav 'CTRL SHIFT,bracketright,activewindow'
+check_contains files/home/.config/kitty/conf.d/base.conf 'mouse_map b1 release ungrabbed previous_window'
+check_contains files/home/.config/kitty/conf.d/base.conf 'mouse_map b2 release ungrabbed next_window'
+for conf in \
+	files/home/.config/waybar/config.jsonc \
+	files/home/.config/waybar/config-technetium.jsonc; do
+	check_contains "$conf" 'on-click-backward.*workspace e-1'
+	check_contains "$conf" 'on-click-forward.*workspace e\+1'
+done
 
 # --- Generated meeting module ownership ---
 printf -- '\n--- Meeting module ---\n'
@@ -258,6 +282,7 @@ printf -- '\n--- Bin scripts ---\n'
 for script in \
 	dub-browser \
 	dub-clipboard \
+	dub-context-nav \
 	dub-editor \
 	dub-file-manager \
 	dub-launch \

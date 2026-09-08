@@ -41,6 +41,8 @@
         "all-outputs": true,
         "active-only": false,
         "format": "{name}: {icon}",
+        "on-click-backward": "hyprctl dispatch workspace e-1",
+        "on-click-forward": "hyprctl dispatch workspace e+1",
         "format-icons": {
             "1": "",
             "2": "",
