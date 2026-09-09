@@ -45,13 +45,14 @@ launch_terminal_wait() {
 session_is_present() {
 	local candidate="$1"
 	local sessions
-	sessions="$(zellij list-sessions 2>/dev/null || true)"
-	grep -Eq "^${candidate}([[:space:]]|$)" <<<"$sessions"
+	sessions="$(zellij list-sessions --short --no-formatting 2>/dev/null || true)"
+	grep -Fxq -- "$candidate" <<<"$sessions"
 }
 
 allocate_owned_session() {
 	require_command flock
 	require_command zellij
+	validate_session_name "$session_prefix"
 
 	local runtime_dir="${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}"
 	local state_dir="$runtime_dir/dub-terminal"
