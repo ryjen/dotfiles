@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Extend configctl contract validation with Hermes, managed music, and materialization policy."""
+"""Extend configctl contract validation with Hermes, Diversion, managed music, and materialization policy."""
 
 from __future__ import annotations
 
@@ -14,6 +14,7 @@ REPO_ROOT = Path(sys.argv[1]).resolve() if len(sys.argv) == 2 else Path.cwd().re
 LEGACY_VALIDATOR = REPO_ROOT / "scripts" / "verify-configctl-contracts.py"
 MATERIALIZATION_VALIDATOR = REPO_ROOT / "checks" / "verify-configctl-materialization.py"
 APP_DIR = REPO_ROOT / "contracts" / "configctl" / "apps"
+DIVERSION_CONTRACT = REPO_ROOT / "contracts" / "configctl" / "init" / "diversion-cli.toml"
 
 spec = importlib.util.spec_from_file_location("configctl_contracts", LEGACY_VALIDATOR)
 if spec is None or spec.loader is None:
@@ -21,7 +22,7 @@ if spec is None or spec.loader is None:
 validator = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(validator)
 
-validator.SUPPORTED_ACTIVE_KINDS.add("hermes")
+validator.SUPPORTED_ACTIVE_KINDS.update({"hermes", "diversion-cli"})
 original_validate_common = validator.validate_common
 
 
@@ -48,6 +49,86 @@ def validate_hermes(path: Path, contract: dict[str, Any]) -> None:
         validator.fail(f"{path}: [behavior].createMissing must be true")
 
 
+def validate_diversion_cli(path: Path, contract: dict[str, Any]) -> None:
+    allowed_fields = {
+        "schemaVersion",
+        "id",
+        "kind",
+        "description",
+        "enabled",
+        "risk",
+        "tags",
+        "installer",
+        "bin",
+        "state",
+        "behavior",
+    }
+    unsupported_fields = sorted(set(contract) - allowed_fields)
+    if unsupported_fields:
+        validator.fail(
+            f"{path}: unsupported diversion-cli fields: {', '.join(unsupported_fields)}"
+        )
+
+    expected_strings = {
+        "installer": "https://get.diversion.dev/unix",
+        "bin": "$HOME/.diversion/bin/dv",
+    }
+    for key, expected in expected_strings.items():
+        value = validator.require_type(contract, path, key, str)
+        if value != expected:
+            validator.fail(f"{path}: {key} must be {expected!r}")
+
+    expected_risks = {"network", "mutable-user-state", "arbitrary-code"}
+    if set(contract["risk"]) != expected_risks:
+        validator.fail(
+            f"{path}: diversion-cli risk must be exactly network, mutable-user-state, arbitrary-code"
+        )
+
+    state = contract.get("state")
+    if not isinstance(state, dict):
+        validator.fail(f"{path}: missing [state] table")
+    expected_state = {"trackDesiredHash": True, "trackObservedHash": True}
+    if set(state) != set(expected_state):
+        validator.fail(
+            f"{path}: diversion-cli state may contain only trackDesiredHash and trackObservedHash"
+        )
+    for key, expected in expected_state.items():
+        if state.get(key) is not expected:
+            validator.fail(f"{path}: [state].{key} must be {str(expected).lower()}")
+
+    behavior = contract.get("behavior")
+    if not isinstance(behavior, dict):
+        validator.fail(f"{path}: missing [behavior] table")
+    expected_behavior = {"install": True, "update": False, "prune": False}
+    if set(behavior) != set(expected_behavior):
+        validator.fail(
+            f"{path}: diversion-cli behavior may contain only install, update, and prune"
+        )
+    for key, expected in expected_behavior.items():
+        if behavior.get(key) is not expected:
+            validator.fail(f"{path}: [behavior].{key} must be {str(expected).lower()}")
+
+
+def validate_required_diversion_contract() -> None:
+    path = DIVERSION_CONTRACT
+    if not path.is_file():
+        validator.fail(
+            f"missing required Diversion init contract: {path.relative_to(REPO_ROOT)}"
+        )
+    try:
+        contract = tomllib.loads(path.read_text(encoding="utf-8"))
+    except tomllib.TOMLDecodeError as exc:
+        validator.fail(f"{path}: invalid TOML: {exc}")
+
+    if contract.get("id") != "diversion-cli":
+        validator.fail(f"{path}: id must be 'diversion-cli'")
+    if contract.get("kind") != "diversion-cli":
+        validator.fail(f"{path}: kind must be 'diversion-cli'")
+    if contract.get("enabled") is not True:
+        validator.fail(f"{path}: enabled must be true")
+    validate_diversion_cli(path, contract)
+
+
 def validate_common(
     path: Path,
     contract: dict[str, Any],
@@ -56,6 +137,8 @@ def validate_common(
     result = original_validate_common(path, contract, seen_ids)
     if result[1] == "hermes":
         validate_hermes(path, contract)
+    elif result[1] == "diversion-cli":
+        validate_diversion_cli(path, contract)
     return result
 
 
@@ -214,7 +297,8 @@ validator.validate_common = validate_common
 legacy_result = validator.main()
 if legacy_result != 0:
     raise SystemExit(legacy_result)
+validate_required_diversion_contract()
 validate_music_apps()
 validate_materialization()
-print("validated managed-music and promoted-materialization configctl app contracts")
+print("validated Diversion, managed-music, and promoted-materialization configctl contracts")
 raise SystemExit(0)
