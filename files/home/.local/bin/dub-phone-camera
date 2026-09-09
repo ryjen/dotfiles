@@ -39,14 +39,14 @@ find_loopback_device() {
     return 0
   fi
 
-  local sysdev module
+  local sysdev
   for sysdev in /sys/class/video4linux/video*; do
     [[ -e "$sysdev" ]] || continue
-    module="$(basename "$(readlink -f "$sysdev/device/driver/module" 2>/dev/null || true)")"
-    if [[ "$module" == "v4l2loopback" ]]; then
-      printf '/dev/%s\n' "${sysdev##*/}"
-      return 0
-    fi
+    # v4l2loopback exposes its per-device format control through this sysfs
+    # attribute; physical V4L2 cameras do not use this loopback interface.
+    [[ -e "$sysdev/format" ]] || continue
+    printf '/dev/%s\n' "${sysdev##*/}"
+    return 0
   done
 
   return 1
