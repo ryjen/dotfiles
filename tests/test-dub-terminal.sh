@@ -39,11 +39,15 @@ if [ "${1:-}" = "--title" ]; then
   shift 2
 fi
 
+if [ -n "${MOCK_TERMINAL_STATUS:-}" ]; then
+  exit "$MOCK_TERMINAL_STATUS"
+fi
+
 if [ "${1:-}" = "zellij" ]; then
   exec "$@"
 fi
 
-exit "${MOCK_TERMINAL_STATUS:-0}"
+exit 0
 EOF
 
 	printf '#!%s\n' "$bash_bin" >"$tmp/mock-bin/zellij"
