@@ -44,6 +44,12 @@ class PhoneCameraTest(unittest.TestCase):
         self.assertIn("--no-playback", source)
         self.assertNotIn("--select-tcpip", source)
 
+    def test_helper_uses_v4l2loopback_sysfs_interface_for_discovery(self) -> None:
+        source = SCRIPT.read_text()
+        self.assertIn("/sys/class/video4linux/video*", source)
+        self.assertIn('[[ -e "$sysdev/format" ]]', source)
+        self.assertNotIn("device/driver/module", source)
+
     def test_helper_documents_native_uvc_path(self) -> None:
         result = run_helper("--help")
         self.assertIn("Native Android USB webcam mode", result.stdout)
