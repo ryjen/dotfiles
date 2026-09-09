@@ -118,7 +118,8 @@ check_contains modules/home/music-library.nix '\.local/libexec/dubnium-music-sta
 check_contains files/home/.config/waybar/config.jsonc 'dubnium-music-control'
 check_contains files/home/.config/waybar/config.jsonc 'on-click-middle.*dub-terminal.*Music Library.*rmpc'
 check_not_contains files/home/.config/waybar/config.jsonc 'on-click-middle.*dubnium-music-control'
-check_not_contains files/home/.config/waybar/config.jsonc 'on-click-right.*dubnium-music-control'
+check_contains files/home/.config/waybar/config.jsonc 'on-click-right.*dubnium-music-control toggle'
+check_not_contains files/home/.config/waybar/config.jsonc '"on-click"[[:space:]]*:.*dubnium-music-control'
 check_contains files/home/.config/waybar/config.jsonc 'on-click-backward.*dubnium-music-control previous'
 check_contains files/home/.config/waybar/config.jsonc 'on-click-forward.*dubnium-music-control next'
 check_not_contains files/home/.config/waybar/config.jsonc 'on-click-(backward|forward).*delete-current'
@@ -194,7 +195,7 @@ for conf in \
 done
 
 # --- Generated meeting module ownership ---
-printf -- '\n--- Meeting module ---\n'
+printf -- '\n--- Generated meeting module ---\n'
 check_exists modules/home/meeting.nix
 check_exists modules/home/default.nix
 check_contains modules/home/default.nix 'meeting\.nix'
