@@ -22,10 +22,12 @@ assert_not_contains() {
 }
 
 write_mocks() {
+	local bash_bin
+	bash_bin="$(command -v bash)"
 	mkdir -p "$tmp/mock-bin"
 
-	cat >"$tmp/mock-bin/kitty" <<'EOF'
-#!/usr/bin/env bash
+	printf '#!%s\n' "$bash_bin" >"$tmp/mock-bin/kitty"
+	cat >>"$tmp/mock-bin/kitty" <<'EOF'
 set -euo pipefail
 {
   printf 'kitty'
@@ -44,8 +46,8 @@ fi
 exit "${MOCK_TERMINAL_STATUS:-0}"
 EOF
 
-	cat >"$tmp/mock-bin/zellij" <<'EOF'
-#!/usr/bin/env bash
+	printf '#!%s\n' "$bash_bin" >"$tmp/mock-bin/zellij"
+	cat >>"$tmp/mock-bin/zellij" <<'EOF'
 set -euo pipefail
 
 log() {
@@ -97,8 +99,8 @@ kill-session)
 esac
 EOF
 
-	cat >"$tmp/mock-bin/kitten" <<'EOF'
-#!/usr/bin/env bash
+	printf '#!%s\n' "$bash_bin" >"$tmp/mock-bin/kitten"
+	cat >>"$tmp/mock-bin/kitten" <<'EOF'
 set -euo pipefail
 {
   printf 'kitten'
@@ -107,8 +109,8 @@ set -euo pipefail
 } >>"$MOCK_REMOTE_LOG"
 EOF
 
-	cat >"$tmp/mock-bin/mosh" <<'EOF'
-#!/usr/bin/env bash
+	printf '#!%s\n' "$bash_bin" >"$tmp/mock-bin/mosh"
+	cat >>"$tmp/mock-bin/mosh" <<'EOF'
 set -euo pipefail
 {
   printf 'mosh'
