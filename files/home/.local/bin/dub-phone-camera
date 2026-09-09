@@ -1,0 +1,128 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+VERSION="1"
+
+usage() {
+  cat <<'EOF'
+Usage: dub-phone-camera [command] [scrcpy args...]
+
+Commands:
+  devices       List Linux video devices and ADB devices.
+  cameras       List cameras on the single USB-connected Android device.
+  front         Expose the front Android camera through v4l2loopback.
+  back          Expose the back Android camera through v4l2loopback.
+  --help        Show this help.
+  --version     Show the helper version.
+
+Native Android USB webcam mode does not require this helper. If Android offers
+"Webcam" under USB preferences, select it and choose that /dev/video* device in
+your application.
+
+The scrcpy fallback requires USB debugging and an enabled v4l2loopback device.
+It deliberately selects USB-only ADB transport and will not select TCP/IP ADB.
+Set DUBNIUM_PHONE_CAMERA_DEVICE=/dev/videoN to override loopback discovery.
+Set DUBNIUM_PHONE_CAMERA_SIZE=WIDTHxHEIGHT to override 1920x1080.
+EOF
+}
+
+require_command() {
+  if ! command -v "$1" >/dev/null 2>&1; then
+    printf 'dub-phone-camera: required command not found: %s\n' "$1" >&2
+    exit 127
+  fi
+}
+
+find_loopback_device() {
+  if [[ -n "${DUBNIUM_PHONE_CAMERA_DEVICE:-}" ]]; then
+    printf '%s\n' "$DUBNIUM_PHONE_CAMERA_DEVICE"
+    return 0
+  fi
+
+  local sysdev module
+  for sysdev in /sys/class/video4linux/video*; do
+    [[ -e "$sysdev" ]] || continue
+    module="$(basename "$(readlink -f "$sysdev/device/driver/module" 2>/dev/null || true)")"
+    if [[ "$module" == "v4l2loopback" ]]; then
+      printf '/dev/%s\n' "${sysdev##*/}"
+      return 0
+    fi
+  done
+
+  return 1
+}
+
+list_devices() {
+  require_command v4l2-ctl
+  require_command adb
+
+  v4l2-ctl --list-devices
+  printf '\nADB devices:\n'
+  adb devices -l
+}
+
+list_cameras() {
+  require_command scrcpy
+  exec scrcpy --select-usb --list-cameras
+}
+
+start_camera() {
+  local facing="$1"
+  shift
+
+  require_command scrcpy
+
+  local sink
+  if ! sink="$(find_loopback_device)"; then
+    cat >&2 <<'EOF'
+dub-phone-camera: no v4l2loopback device found.
+Enable dubnium.videoMeeting.virtualCamera on the NixOS host and rebuild, or use
+Android's native USB Webcam mode if the phone exposes it.
+EOF
+    exit 2
+  fi
+
+  if [[ ! -e "$sink" ]]; then
+    printf 'dub-phone-camera: configured camera sink does not exist: %s\n' "$sink" >&2
+    exit 2
+  fi
+
+  local size="${DUBNIUM_PHONE_CAMERA_SIZE:-1920x1080}"
+  exec scrcpy \
+    --select-usb \
+    --video-source=camera \
+    --camera-facing="$facing" \
+    --camera-size="$size" \
+    --v4l2-sink="$sink" \
+    --no-playback \
+    "$@"
+}
+
+case "${1:-}" in
+  devices)
+    list_devices
+    ;;
+  cameras)
+    list_cameras
+    ;;
+  front | back)
+    facing="$1"
+    shift
+    start_camera "$facing" "$@"
+    ;;
+  -h | --help | help)
+    usage
+    ;;
+  --version)
+    printf 'dub-phone-camera %s\n' "$VERSION"
+    ;;
+  "")
+    usage >&2
+    exit 2
+    ;;
+  *)
+    printf 'dub-phone-camera: unknown command: %s\n\n' "$1" >&2
+    usage >&2
+    exit 2
+    ;;
+esac
