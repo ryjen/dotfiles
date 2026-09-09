@@ -282,6 +282,21 @@
               touch "$out"
             '';
 
+        phone-camera-tests =
+          pkgs.runCommand "phone-camera-tests"
+            {
+              nativeBuildInputs = [
+                pkgs.bash
+                pkgs.python3
+              ];
+            }
+            ''
+              export PYTHONDONTWRITEBYTECODE=1
+              cd ${self}
+              python3 tests/test-phone-camera.py
+              touch "$out"
+            '';
+
         git-autocommit-package = git-autocommit.checks.${system}.default;
 
         pre-commit-check = git-hooks.lib.${system}.run {

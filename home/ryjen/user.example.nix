@@ -92,6 +92,7 @@ _: {
   # dotfiles.meeting.enable = false;
   # dotfiles.meeting.presentationOutput = null; # For example, "DP-1".
   # dotfiles.meeting.cameraDevice = null; # For example, "/dev/v4l/by-id/...".
+  # dotfiles.meeting.phoneCamera.enable = true;
   # dotfiles.meeting.teamsClassRegex = "^(firefox|Microsoft-edge|microsoft-edge)$";
   # dotfiles.meeting.teamsTitleRegex = "^Microsoft Teams.*$";
 

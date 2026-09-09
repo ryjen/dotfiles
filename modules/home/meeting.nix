@@ -27,6 +27,12 @@ in
       description = "Optional machine-local OBS camera device identifier.";
     };
 
+    phoneCamera.enable = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = "Install USB-only Android phone camera bridge tooling for meeting sessions.";
+    };
+
     teamsClassRegex = lib.mkOption {
       type = singleLineString;
       default = "^(firefox|Microsoft-edge|microsoft-edge)$";
@@ -50,6 +56,12 @@ in
         assertion = config.dotfiles.host.userSystemd.enable;
         message = "dotfiles.meeting.enable requires Home Manager user systemd support.";
       }
+    ];
+
+    home.packages = lib.optionals cfg.phoneCamera.enable [
+      pkgs.android-tools
+      pkgs.scrcpy
+      pkgs.v4l-utils
     ];
 
     xdg.configFile."hypr/custom.d/meeting.conf".text = ''
@@ -109,6 +121,11 @@ in
 
     home.file.".local/bin/dub-meeting-session" = {
       source = ../../files/home/.local/bin/dub-meeting-session;
+      executable = true;
+    };
+
+    home.file.".local/bin/dub-phone-camera" = lib.mkIf cfg.phoneCamera.enable {
+      source = ../../files/home/.local/bin/dub-phone-camera;
       executable = true;
     };
 
