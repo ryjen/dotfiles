@@ -22,7 +22,7 @@ your application.
 The scrcpy fallback requires USB debugging and an enabled v4l2loopback device.
 It deliberately selects USB-only ADB transport and will not select TCP/IP ADB.
 Set DUBNIUM_PHONE_CAMERA_DEVICE=/dev/videoN to override loopback discovery.
-Set DUBNIUM_PHONE_CAMERA_SIZE=WIDTHxHEIGHT to override 1920x1080.
+Set DUBNIUM_PHONE_CAMERA_MAX_SIZE=N to override the default 1920-pixel limit.
 EOF
 }
 
@@ -87,12 +87,12 @@ EOF
     exit 2
   fi
 
-  local size="${DUBNIUM_PHONE_CAMERA_SIZE:-1920x1080}"
+  local max_size="${DUBNIUM_PHONE_CAMERA_MAX_SIZE:-1920}"
   exec scrcpy \
     --select-usb \
     --video-source=camera \
     --camera-facing="$facing" \
-    --camera-size="$size" \
+    --max-size="$max_size" \
     --v4l2-sink="$sink" \
     --no-audio \
     --no-playback \
