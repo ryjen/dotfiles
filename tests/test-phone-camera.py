@@ -34,12 +34,13 @@ class PhoneCameraTest(unittest.TestCase):
             USER_EXAMPLE.read_text(),
         )
 
-    def test_helper_prefers_usb_and_camera_source(self) -> None:
+    def test_helper_prefers_usb_camera_without_audio_capture(self) -> None:
         source = SCRIPT.read_text()
         self.assertIn("--select-usb", source)
         self.assertIn("--video-source=camera", source)
         self.assertIn("--camera-facing=", source)
         self.assertIn("--v4l2-sink=", source)
+        self.assertIn("--no-audio", source)
         self.assertIn("--no-playback", source)
         self.assertNotIn("--select-tcpip", source)
 
