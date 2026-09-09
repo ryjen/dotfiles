@@ -234,11 +234,15 @@
             {
               nativeBuildInputs = [
                 pkgs.bash
+                pkgs.coreutils
+                pkgs.gnugrep
                 pkgs.python3
+                pkgs.util-linux
               ];
             }
             ''
               bash ${./scripts/verify-session-files.sh} ${self}
+              bash ${./tests/test-dub-terminal.sh} ${self}
               touch "$out"
             '';
 
