@@ -147,7 +147,7 @@
         "return-type": "json",
         "format": "{}",
         "escape": true,
-        "on-click": "~/.local/libexec/dubnium-music-control toggle",
+        "on-click-right": "~/.local/libexec/dubnium-music-control toggle",
         "on-click-middle": "~/.local/bin/dub-terminal --title 'Music Library' rmpc",
         "on-click-backward": "~/.local/libexec/dubnium-music-control previous",
         "on-click-forward": "~/.local/libexec/dubnium-music-control next",
