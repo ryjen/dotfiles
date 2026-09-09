@@ -7,6 +7,24 @@
 let
   cfg = config.dotfiles.music;
 
+  # MuseScore 4.7.0 in nixos-26.05 is affected by a Qt 6.11 QML alias
+  # regression that prevents dynamically-created dialogs such as New Score
+  # from opening. Nixpkgs fixed this in its 4.7.4 package; keep the stable
+  # package and carry the upstream fix only while the pinned version predates
+  # that downstream fix.
+  musescorePackage =
+    if lib.versionOlder pkgs.musescore.version "4.7.4" then
+      pkgs.musescore.overrideAttrs (oldAttrs: {
+        patches = (oldAttrs.patches or [ ]) ++ [
+          (pkgs.fetchpatch {
+            url = "https://github.com/musescore/MuseScore/commit/f273501e418842351c4bda10cce32b0e329eaff1.patch";
+            hash = "sha256-zrZRzeAHSFGtCuw/o4A3b1Blbo3FxKGxw1UDu9IggzY=";
+          })
+        ];
+      })
+    else
+      pkgs.musescore;
+
   reaperPlugins = with pkgs; [
     dragonfly-reverb
     drumgizmo
@@ -61,7 +79,7 @@ in
         beets
         easyeffects
         hydrogen
-        musescore
+        musescorePackage
         playerctl
         python3
         reaper
@@ -87,7 +105,7 @@ in
       name = "Guitar Pro Reader";
       genericName = "Guitar Tablature Reader";
       comment = "Open and play Guitar Pro tablature with MuseScore";
-      exec = "${pkgs.musescore}/bin/mscore %F";
+      exec = "${musescorePackage}/bin/mscore %F";
       icon = "mscore";
       terminal = false;
       categories = [
