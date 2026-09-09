@@ -195,7 +195,7 @@ for conf in \
 done
 
 # --- Generated meeting module ownership ---
-printf -- '\n--- Generated meeting module ---\n'
+printf -- '\n--- Meeting module ---\n'
 check_exists modules/home/meeting.nix
 check_exists modules/home/default.nix
 check_contains modules/home/default.nix 'meeting\.nix'
