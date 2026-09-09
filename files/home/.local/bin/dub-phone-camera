@@ -94,6 +94,7 @@ EOF
     --camera-facing="$facing" \
     --camera-size="$size" \
     --v4l2-sink="$sink" \
+    --no-audio \
     --no-playback \
     "$@"
 }
