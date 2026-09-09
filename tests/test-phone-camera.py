@@ -44,6 +44,12 @@ class PhoneCameraTest(unittest.TestCase):
         self.assertIn("--no-playback", source)
         self.assertNotIn("--select-tcpip", source)
 
+    def test_helper_uses_bounded_adaptive_camera_size(self) -> None:
+        source = SCRIPT.read_text()
+        self.assertIn("DUBNIUM_PHONE_CAMERA_MAX_SIZE", source)
+        self.assertIn("--max-size=", source)
+        self.assertNotIn("--camera-size=", source)
+
     def test_helper_uses_v4l2loopback_sysfs_interface_for_discovery(self) -> None:
         source = SCRIPT.read_text()
         self.assertIn("/sys/class/video4linux/video*", source)
