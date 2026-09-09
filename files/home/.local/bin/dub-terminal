@@ -2,9 +2,176 @@
 set -euo pipefail
 
 terminal="${DUB_TERMINAL:-${TERMINAL:-kitty}}"
+managed_sessions="${DUB_TERMINAL_MANAGED_SESSIONS:-0}"
+session_prefix="${DUB_TERMINAL_SESSION_PREFIX:-term}"
 
-if command -v uwsm >/dev/null 2>&1 && [ -n "${WAYLAND_DISPLAY:-}" ]; then
-  exec uwsm app -- "$terminal" "$@"
+fail() {
+	printf 'dub-terminal: %s\n' "$*" >&2
+	exit 2
+}
+
+require_command() {
+	command -v "$1" >/dev/null 2>&1 || fail "required command not found: $1"
+}
+
+validate_session_name() {
+	[[ "$1" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]] || fail "invalid session name: $1"
+}
+
+validate_host() {
+	[[ "$1" =~ ^[A-Za-z0-9_.@:-]+$ ]] || fail "invalid host: $1"
+	[[ "$1" != -* ]] || fail "invalid host: $1"
+}
+
+launch_terminal_exec() {
+	if command -v uwsm >/dev/null 2>&1 && [ -n "${WAYLAND_DISPLAY:-}" ]; then
+		exec uwsm app -- "$terminal" "$@"
+	fi
+
+	exec "$terminal" "$@"
+}
+
+launch_terminal_wait() {
+	if command -v uwsm >/dev/null 2>&1 && [ -n "${WAYLAND_DISPLAY:-}" ]; then
+		# Ownership depends on this call not returning until the Kitty process exits.
+		# Force a scope even if UWSM_APP_UNIT_TYPE is configured as a background service.
+		uwsm app -t scope -- "$terminal" "$@"
+		return
+	fi
+
+	"$terminal" "$@"
+}
+
+session_is_present() {
+	local candidate="$1"
+	local sessions
+	sessions="$(zellij list-sessions --short --no-formatting 2>/dev/null || true)"
+	grep -Fxq -- "$candidate" <<<"$sessions"
+}
+
+allocate_owned_session() {
+	require_command flock
+	require_command zellij
+	validate_session_name "$session_prefix"
+
+	local runtime_dir="${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}"
+	local state_dir="$runtime_dir/dub-terminal"
+	local lock_path="$state_dir/session-allocation.lock"
+	local lock_fd
+	local candidate=""
+	local index
+
+	umask 077
+	mkdir -p "$state_dir"
+	exec {lock_fd}>"$lock_path"
+	flock -x "$lock_fd"
+
+	for ((index = 1; index <= 99; index++)); do
+		printf -v candidate '%s-%02d' "$session_prefix" "$index"
+		if session_is_present "$candidate"; then
+			continue
+		fi
+
+		# These owner-scoped terminals are intentionally ephemeral. Disabling
+		# serialization prevents a killed term-NN from later being resurrected
+		# when that slot is reused.
+		if zellij attach --create-background "$candidate" options --session-serialization false >/dev/null 2>&1; then
+			flock -u "$lock_fd"
+			exec {lock_fd}>&-
+			printf '%s\n' "$candidate"
+			return 0
+		fi
+	done
+
+	flock -u "$lock_fd"
+	exec {lock_fd}>&-
+	fail "no free managed terminal session slots"
+}
+
+run_owned_session() {
+	local session
+	local host_title
+	local status
+
+	session="$(allocate_owned_session)"
+	host_title="$(hostname -s 2>/dev/null || printf 'dubnium')"
+
+	cleanup_owned_session() {
+		zellij kill-session "$session" >/dev/null 2>&1 || true
+	}
+
+	trap cleanup_owned_session EXIT
+	trap 'exit 129' HUP
+	trap 'exit 130' INT
+	trap 'exit 143' TERM
+
+	set +e
+	launch_terminal_wait --title "${host_title}:${session}" zellij attach "$session"
+	status=$?
+	set -e
+
+	trap - HUP INT TERM
+	exit "$status"
+}
+
+run_remote_session() {
+	local host=""
+	local session=""
+	local transport="ssh"
+	local remote_command
+
+	[ "${1:-}" = "--host" ] || fail "internal remote parser error"
+	shift
+	[ "$#" -gt 0 ] || fail "--host requires a value"
+	host="$1"
+	shift
+
+	while [ "$#" -gt 0 ]; do
+		case "$1" in
+		--session)
+			shift
+			[ "$#" -gt 0 ] || fail "--session requires a value"
+			session="$1"
+			shift
+			;;
+		--transport)
+			shift
+			[ "$#" -gt 0 ] || fail "--transport requires a value"
+			transport="$1"
+			shift
+			;;
+		*)
+			fail "unknown remote option: $1"
+			;;
+		esac
+	done
+
+	[ -n "$session" ] || fail "remote attachment requires --session NAME"
+	validate_host "$host"
+	validate_session_name "$session"
+
+	case "$transport" in
+	ssh)
+		require_command kitten
+		remote_command="zellij attach '$session'"
+		launch_terminal_exec --title "${host}:${session}" kitten ssh -t "$host" "$remote_command"
+		;;
+	mosh)
+		require_command mosh
+		launch_terminal_exec --title "${host}:${session}" mosh "$host" -- zellij attach "$session"
+		;;
+	*)
+		fail "unsupported transport: $transport"
+		;;
+	esac
+}
+
+if [ "${1:-}" = "--host" ]; then
+	run_remote_session "$@"
+elif [ "$#" -eq 0 ] && [ "$managed_sessions" = "1" ]; then
+	run_owned_session
+else
+	# Preserve the historical wrapper contract for explicit Kitty arguments or
+	# commands (eg. btop/rmpc launchers) and for hosts without managed sessions.
+	launch_terminal_exec "$@"
 fi
-
-exec "$terminal" "$@"

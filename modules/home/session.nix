@@ -17,11 +17,13 @@
       gsimplecal
       hyprpaper
       mako
+      mosh
       networkmanagerapplet
       pavucontrol
       playerctl
       rofi
       slurp
+      util-linux
       vanilla-dmz
       wl-clipboard
       wlogout
@@ -58,6 +60,7 @@
       QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
       _JAVA_AWT_WM_NONREPARENTING = "1";
       TERMINAL_COMMAND = "$HOME/.local/bin/dub-terminal";
+      DUB_TERMINAL_MANAGED_SESSIONS = if config.dotfiles.host.name == "dubnium" then "1" else "0";
       ZEIT_DB = "$HOME/.config/zeit.db";
       ELECTRON_OZONE_PLATFORM_HINT = "wayland";
       OPENCV_LOG_LEVEL = "ERROR";
