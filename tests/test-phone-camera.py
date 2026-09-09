@@ -9,6 +9,16 @@ MODULE = ROOT / "modules/home/meeting.nix"
 USER_EXAMPLE = ROOT / "home/ryjen/user.example.nix"
 
 
+def run_helper(*args: str) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        ["bash", str(SCRIPT), *args],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+
 class PhoneCameraTest(unittest.TestCase):
     def test_meeting_module_installs_phone_camera_tooling(self) -> None:
         source = MODULE.read_text()
@@ -34,25 +44,13 @@ class PhoneCameraTest(unittest.TestCase):
         self.assertNotIn("--select-tcpip", source)
 
     def test_helper_documents_native_uvc_path(self) -> None:
-        result = subprocess.run(
-            [str(SCRIPT), "--help"],
-            cwd=ROOT,
-            check=True,
-            capture_output=True,
-            text=True,
-        )
+        result = run_helper("--help")
         self.assertIn("Native Android USB webcam mode", result.stdout)
         self.assertIn("Webcam", result.stdout)
         self.assertIn("v4l2loopback", result.stdout)
 
     def test_helper_has_stable_version_surface(self) -> None:
-        result = subprocess.run(
-            [str(SCRIPT), "--version"],
-            cwd=ROOT,
-            check=True,
-            capture_output=True,
-            text=True,
-        )
+        result = run_helper("--version")
         self.assertEqual(result.stdout, "dub-phone-camera 1\n")
 
 
