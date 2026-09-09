@@ -33,12 +33,10 @@ jobs:
       - name: Verify Standalone Source Boundary
         run: python3 checks/verify-standalone-source-boundary.py .
 
-  discover-checks:
+  repository-check:
     needs: source-boundary
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-    outputs:
-      checks: ${{ steps.discover.outputs.checks }}
+    timeout-minutes: 45
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -47,6 +45,9 @@ jobs:
 
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@21a544727d0c62386e78b4befe52d19ad12692e3 # v17
+
+      - name: Configure Cache
+        uses: DeterminateSystems/flakehub-cache-action@146f476c94460cb634f9ade79470fcbc3f7e5b36 # v1
 
       - name: Verify Generated Lockfile
         shell: bash
@@ -61,8 +62,7 @@ jobs:
           fi
           rm flake.lock.committed
 
-      - name: Discover Blocking Repository Checks
-        id: discover
+      - name: Build Repository Checks
         shell: bash
         run: |
           set -euo pipefail
@@ -76,34 +76,20 @@ jobs:
             exit 1
           fi
 
-          echo "checks=$checks" >> "$GITHUB_OUTPUT"
+          mapfile -t check_names < <(
+            printf '%s\n' "$checks" | python3 -c 'import json, sys; [print(name) for name in json.load(sys.stdin)]'
+          )
 
-  repository-check:
-    name: repository-check (${{ matrix.check }})
-    needs: discover-checks
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    strategy:
-      fail-fast: false
-      matrix:
-        check: ${{ fromJSON(needs.discover-checks.outputs.checks) }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          persist-credentials: false
+          build_targets=()
+          for check in "${check_names[@]}"; do
+            build_targets+=(".#checks.x86_64-linux.\"$check\"")
+          done
 
-      - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@21a544727d0c62386e78b4befe52d19ad12692e3 # v17
+          printf 'Building %d repository checks in one Nix job:\n' "${#check_names[@]}"
+          printf '  %s\n' "${check_names[@]}"
 
-      - name: Configure Cache
-        uses: DeterminateSystems/flakehub-cache-action@146f476c94460cb634f9ade79470fcbc3f7e5b36 # v1
-
-      - name: Build Repository Check
-        shell: bash
-        run: |
           set -o pipefail
-          nix build ".#checks.x86_64-linux.\"${{ matrix.check }}\"" \
+          nix build "${build_targets[@]}" \
             --no-link \
             --print-build-logs 2>&1 | tee repository-check.log
 
@@ -111,9 +97,9 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: repository-check-${{ matrix.check }}
+          name: repository-check
           path: repository-check.log
-          if-no-files-found: error
+          if-no-files-found: ignore
           retention-days: 1
 
   pre-commit-baseline:
