@@ -8,7 +8,7 @@
     package = pkgs.zellij;
     settings = {
       default_mode = "locked";
-      default_shell = "/bin/zsh";
+      default_shell = "${pkgs.zsh}/bin/zsh";
       simplified_ui = true;
       true_color = true;
       mouse_mode = true;
