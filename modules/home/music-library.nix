@@ -68,6 +68,36 @@ in
       mpd.useLocal = true;
     };
 
+    # Tags, albums and the tagged filesystem change as beets is used and the
+    # library is refreshed; regenerate the smart playlists on a daily cadence.
+    systemd.user.services.beets-smartplaylists = {
+      Unit = {
+        Description = "Regenerate beets smart playlists for MPD";
+        After = [
+          "mpd.service"
+          "beets-smartplaylists.timer"
+        ];
+        Wants = [ "beets-smartplaylists.timer" ];
+      };
+      Service = {
+        Type = "oneshot";
+        ExecStart = "${pkgs.beets}/bin/beet splupdate";
+      };
+    };
+
+    systemd.user.timers.beets-smartplaylists = {
+      Unit = {
+        Description = "Daily regeneration of beets smart playlists";
+      };
+      Timer = {
+        OnCalendar = "daily";
+        Persistent = true;
+      };
+      Install = {
+        WantedBy = [ "timers.target" ];
+      };
+    };
+
     programs.rmpc = {
       enable = true;
       config = rmpcConfig;
@@ -90,6 +120,52 @@ in
           playlists:
             - name: recently-added.m3u
               query: "added:-4w.."
+            - name: Genre - Rock.m3u
+              query: "genres:Rock"
+            - name: Genre - Metal.m3u
+              query: "genres:Metal"
+            - name: Genre - Alternative & Punk.m3u
+              query: "genres::Alternative|Punk"
+            - name: Genre - Pop.m3u
+              query: "genres:Pop"
+            - name: Genre - Electronic & Dance.m3u
+              query: "genres::Electronic|Dance|House|Techno|Trance|Dubstep|Disco|Electro|Ambient|EDM"
+            - name: Genre - Hip-Hop & Rap.m3u
+              query: "genres::Hip|Rap"
+            - name: Genre - R&B, Soul & Funk.m3u
+              query: "genres::R&B|RnB|Soul|Funk|rhythm"
+            - name: Genre - Jazz.m3u
+              query: "genres:Jazz"
+            - name: Genre - Country.m3u
+              query: "genres:Country"
+            - name: Genre - Blues.m3u
+              query: "genres:Blues"
+            - name: Genre - Classical.m3u
+              query: "genres:Classical"
+            - name: Genre - Reggae.m3u
+              query: "genres:Reggae"
+            - name: Genre - Folk.m3u
+              query: "genres:Folk"
+            - name: Decade - 1950s.m3u
+              query: "year:1950..1959"
+            - name: Decade - 1960s.m3u
+              query: "year:1960..1969"
+            - name: Decade - 1970s.m3u
+              query: "year:1970..1979"
+            - name: Decade - 1980s.m3u
+              query: "year:1980..1989"
+            - name: Decade - 1990s.m3u
+              query: "year:1990..1999"
+            - name: Decade - 2000s.m3u
+              query: "year:2000..2009"
+            - name: Decade - 2010s.m3u
+              query: "year:2010..2019"
+            - name: Decade - 2020s.m3u
+              query: "year:2020..2029"
+            - name: Recently Added Albums.m3u
+              album_query: "added:-30d.."
+            - name: Longer Tracks.m3u
+              query: "length:600.."
       '';
     }
     // lib.optionalAttrs hasMpdCustomProfile {
