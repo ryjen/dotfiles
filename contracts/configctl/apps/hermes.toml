@@ -4,13 +4,13 @@ owner = "dotfiles"
 profile = "workstation"
 status = "planned"
 strategy = "compose"
-current_runtime_owner = "home-manager"
+current_runtime_owner = "user"
 target_runtime_owner = "configctl"
 executor_may_validate = true
 executor_may_adopt = true
 executor_may_write_outputs = false
 renderer_required = true
-description = "Hermes uses YAML runtime configuration; Home Manager publishes the stable base today while configctl owns the layered source model and is the target runtime writer after parser-aware YAML composition is proven."
+description = "Hermes uses YAML runtime configuration; the native runtime output (~/.hermes/config.yaml) is user-managed today (Home Manager publishes only the read-only base layer under ~/.config/hermes), while configctl owns the layered source model and is the target runtime writer after parser-aware YAML composition is proven."
 
 [materialization]
 promoted = "direct-render"
