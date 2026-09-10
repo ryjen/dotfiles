@@ -100,12 +100,14 @@ def render_payload(payload: Mapping[str, Any]) -> dict[str, str]:
 
     if not isinstance(ordinary_state, str):
         ordinary_state = "unknown"
-    if not isinstance(administrative_state, str):
+    if "administrativeState" not in payload:
         administrative_state = (
             legacy_effective_state
             if isinstance(legacy_effective_state, str)
             else "unknown"
         )
+    elif not isinstance(administrative_state, str):
+        administrative_state = "unknown"
 
     state_contract_valid = (
         ordinary_state in ORDINARY_RUNTIME_STATES
