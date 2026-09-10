@@ -32,17 +32,19 @@ in
       lib.optional cfg.hermes.enable hermesPackage
       ++ lib.optional cfg.antigravity.enable cfg.antigravity.package;
 
-    # configctl owns the Hermes source-layer model. Until parser-aware YAML
-    # composition is write-enabled, Home Manager remains the single runtime
-    # writer and publishes the same stable base to Hermes' native path.
+    # configctl owns the Hermes source-layer model. Home Manager publishes only
+    # the read-only base layer under ~/.config/hermes, where configctl will
+    # compose base + custom.d + local.yaml once parser-aware YAML composition is
+    # write-enabled. The native runtime output (~/.hermes/config.yaml) is never
+    # published here: base.yaml is a composition base, not a complete runtime
+    # config, and publishing it directly clobbers the user's live provider/model
+    # settings. Until configctl activation, the runtime output stays
+    # user-managed.
     xdg.configFile."hermes/base.yaml" = lib.mkIf cfg.hermes.enable {
       source = ../../files/home/.config/hermes/base.yaml;
     };
     xdg.configFile."hermes/README.md" = lib.mkIf cfg.hermes.enable {
       source = ../../files/home/.config/hermes/README.md;
-    };
-    home.file.".hermes/config.yaml" = lib.mkIf cfg.hermes.enable {
-      source = ../../files/home/.config/hermes/base.yaml;
     };
 
     xdg.configFile."codex/adopted.d/00-managed.toml".source =
