@@ -19,6 +19,10 @@
       url = "github:ryjen/git-autocommit";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    tidyfs = {
+      url = "github:ryjen/tidyfs/v0.6.1";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     sops-nix = {
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -37,6 +41,7 @@
       hermes-agent,
       antigravity-nix,
       git-autocommit,
+      tidyfs,
       sops-nix,
       git-hooks,
       ...
@@ -59,6 +64,7 @@
               hermes-agent
               antigravity-nix
               git-autocommit
+              tidyfs
               ;
           };
           modules = [
@@ -93,6 +99,7 @@
                   hermes-agent
                   antigravity-nix
                   git-autocommit
+                  tidyfs
                   ;
               };
               home-manager.users.${username} = {
@@ -386,6 +393,7 @@
       packages.${system} = {
         hermes-agent = hermes-agent.packages.${system}.default;
         git-autocommit = git-autocommit.packages.${system}.default;
+        tidyfs = tidyfs.packages.${system}.default;
         openwork = pkgs.callPackage ./packages/openwork.nix { };
       };
 
@@ -433,6 +441,7 @@
               hermes-agent
               antigravity-nix
               git-autocommit
+              tidyfs
               ;
             username = dubniumUsername;
           };
