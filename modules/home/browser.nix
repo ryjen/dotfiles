@@ -4,10 +4,42 @@
   config,
   ...
 }:
+let
+  chatgptLauncher = pkgs.writeShellApplication {
+    name = "dub-chatgpt";
+    runtimeInputs = [
+      pkgs.chromium
+      pkgs.coreutils
+      pkgs.uwsm
+    ];
+    text = ''
+      profile_dir="''${XDG_DATA_HOME:-$HOME/.local/share}/chromium-chatgpt"
+      install -d -m 0700 "$profile_dir"
+
+      args=(
+        "--user-data-dir=$profile_dir"
+        "--app=https://chatgpt.com"
+        "--no-first-run"
+        "--no-default-browser-check"
+      )
+
+      if [ -n "''${WAYLAND_DISPLAY:-}" ]; then
+        args+=("--ozone-platform=wayland")
+        exec uwsm app -- chromium "''${args[@]}"
+      fi
+
+      exec chromium "''${args[@]}"
+    '';
+  };
+in
 {
   options.dotfiles.profiles.browser.enable = lib.mkEnableOption "browser profile";
 
   config = lib.mkIf config.dotfiles.profiles.browser.enable {
+    home.packages = [
+      chatgptLauncher
+    ];
+
     home.sessionVariables = {
       BROWSER = "firefox";
       DEFAULT_BROWSER = "firefox";
@@ -63,6 +95,20 @@
           "toolkit.telemetry.enabled" = false;
         };
       };
+    };
+
+    xdg.desktopEntries.chatgpt = {
+      name = "ChatGPT";
+      genericName = "AI Assistant";
+      comment = "ChatGPT in a dedicated Chromium profile";
+      exec = "${chatgptLauncher}/bin/dub-chatgpt";
+      icon = "chromium";
+      terminal = false;
+      categories = [
+        "Network"
+        "Utility"
+      ];
+      settings.Keywords = "ChatGPT;OpenAI;AI;";
     };
 
     xdg.mimeApps = {
