@@ -280,7 +280,8 @@
         "hermes-agent": "hermes-agent",
         "home-manager": "home-manager_2",
         "nixpkgs": "nixpkgs",
-        "sops-nix": "sops-nix"
+        "sops-nix": "sops-nix",
+        "tidyfs": "tidyfs"
       }
     },
     "sops-nix": {
@@ -315,6 +316,27 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default",
+        "type": "github"
+      }
+    },
+    "tidyfs": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1787358385,
+        "narHash": "sha256-scP0pQgBXEmWZniGfhet0fhrk8NDevoXjlGZbbyfWDA=",
+        "owner": "ryjen",
+        "repo": "tidyfs",
+        "rev": "4993805063bfd6c64fc608e0007173c52b41bac7",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ryjen",
+        "repo": "tidyfs",
+        "rev": "4993805063bfd6c64fc608e0007173c52b41bac7",
         "type": "github"
       }
     },

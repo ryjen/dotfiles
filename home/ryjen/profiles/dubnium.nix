@@ -16,6 +16,7 @@
       enable = lib.mkDefault true;
       sandbox.allowSshAgent = lib.mkDefault true;
     };
+    tidyfs.enable = lib.mkDefault true;
     hypr.adoptedProfile = "dubnium";
 
     # When Unreal is explicitly enabled, use the native Linux filesystem mounted

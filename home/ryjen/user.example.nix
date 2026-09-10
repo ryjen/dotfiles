@@ -68,6 +68,7 @@ _: {
   # dotfiles.grimblast.enable = false;
   # dotfiles.graphical.keyring.enable = false;
   # dotfiles.idle.enable = false;
+  # dotfiles.tidyfs.enable = false;
 
   # Hardware/profile variants that are safe to select locally.
   # dotfiles.kitty.adoptedProfile = "empty";
