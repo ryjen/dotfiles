@@ -15,6 +15,14 @@ STATUS_TIMEOUT_SECONDS = 4.0
 MAX_STATUS_BYTES = 256 * 1024
 MAX_TOOLTIP_WORKERS = 8
 STATUS_COMMAND = ["dubctl", "runners", "status", "--json"]
+ORDINARY_RUNTIME_STATES = {
+    "suspended",
+    "eligible",
+    "active",
+    "suspension-pending",
+    "unverified",
+}
+ADMINISTRATIVE_STATES = {"suspended", "resumed"}
 
 
 class StatusError(RuntimeError):
@@ -87,25 +95,37 @@ def render_payload(payload: Mapping[str, Any]) -> dict[str, str]:
         and controller_validation.get("valid") is True
     )
     ordinary_state = payload.get("ordinaryRuntimeState")
-    effective_state = payload.get("effectiveState")
+    administrative_state = payload.get("administrativeState")
+    legacy_effective_state = payload.get("effectiveState")
 
     if not isinstance(ordinary_state, str):
         ordinary_state = "unknown"
-    if not isinstance(effective_state, str):
-        effective_state = "unknown"
+    if "administrativeState" not in payload:
+        administrative_state = (
+            legacy_effective_state
+            if isinstance(legacy_effective_state, str)
+            else "unknown"
+        )
+    elif not isinstance(administrative_state, str):
+        administrative_state = "unknown"
 
+    state_contract_valid = (
+        ordinary_state in ORDINARY_RUNTIME_STATES
+        and administrative_state in ADMINISTRATIVE_STATES
+    )
     degraded = (
         not runtime_valid
         or not service_valid
         or not admin_valid
         or not validation_valid
+        or not state_contract_valid
         or ambiguous > 0
         or ordinary_state in {"unverified", "suspension-pending"}
     )
 
     if degraded:
         css_class = "degraded"
-    elif effective_state == "suspended" or ordinary_state == "suspended":
+    elif ordinary_state == "suspended":
         css_class = "suspended"
     elif active == 0:
         css_class = "idle"
@@ -128,7 +148,7 @@ def render_payload(payload: Mapping[str, Any]) -> dict[str, str]:
         "GitHub Runners",
         f"{active} active / {capacity} capacity / {available} available",
         f"Running units: {running}",
-        f"State: {_safe(ordinary_state)} (admin: {_safe(effective_state)})",
+        f"State: {_safe(ordinary_state)} (admin: {_safe(administrative_state)})",
         f"Controller: {controller_health}",
     ]
     if controller_health != "healthy":

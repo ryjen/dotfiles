@@ -35,7 +35,8 @@ def _payload(
     available: int = 2,
     ambiguous: int = 0,
     ordinary_state: str = "active",
-    effective_state: str = "resumed",
+    administrative_state: str = "resumed",
+    effective_state: str | None = None,
     runtime_valid: bool = True,
     service_valid: bool = True,
 ) -> dict[str, object]:
@@ -55,8 +56,9 @@ def _payload(
         )
 
     return {
+        "administrativeState": administrative_state,
         "administrativeStateValid": True,
-        "effectiveState": effective_state,
+        "effectiveState": administrative_state if effective_state is None else effective_state,
         "ordinaryRuntimeState": ordinary_state,
         "controllerValidation": {"valid": True},
         "repositoryPolicies": [
@@ -128,11 +130,82 @@ def test_administratively_suspended_state_is_distinct_from_idle() -> None:
             running=0,
             available=4,
             ordinary_state="suspended",
-            effective_state="suspended",
+            administrative_state="suspended",
         )
     )
 
     assert output["class"] == "suspended"
+
+
+def test_selective_validation_active_is_not_rendered_suspended() -> None:
+    output = renderer.render_payload(
+        _payload(
+            active=1,
+            running=1,
+            available=3,
+            ordinary_state="active",
+            administrative_state="suspended",
+        )
+    )
+
+    assert output["class"] == "healthy"
+    assert output["alt"] == "active"
+    assert "State: active (admin: suspended)" in output["tooltip"]
+
+
+def test_selective_validation_eligible_is_idle_not_suspended() -> None:
+    output = renderer.render_payload(
+        _payload(
+            active=0,
+            running=0,
+            available=4,
+            ordinary_state="eligible",
+            administrative_state="suspended",
+        )
+    )
+
+    assert output["class"] == "idle"
+    assert "State: eligible (admin: suspended)" in output["tooltip"]
+
+
+def test_legacy_effective_state_is_only_administrative_fallback() -> None:
+    payload = _payload(
+        active=1,
+        running=1,
+        available=3,
+        ordinary_state="active",
+        administrative_state="suspended",
+    )
+    del payload["administrativeState"]
+
+    output = renderer.render_payload(payload)
+
+    assert output["class"] == "healthy"
+    assert "State: active (admin: suspended)" in output["tooltip"]
+
+
+def test_malformed_explicit_admin_state_does_not_use_legacy_fallback() -> None:
+    payload = _payload(
+        active=1,
+        running=1,
+        available=3,
+        ordinary_state="active",
+        administrative_state="suspended",
+    )
+    payload["administrativeState"] = 42
+
+    output = renderer.render_payload(payload)
+
+    assert output["class"] == "degraded"
+    assert output["text"] == " 1/4 ⚠"
+    assert "State: active (admin: unknown)" in output["tooltip"]
+
+
+def test_unknown_runtime_state_is_degraded() -> None:
+    output = renderer.render_payload(_payload(ordinary_state="unknown-new-state"))
+
+    assert output["class"] == "degraded"
+    assert output["text"].endswith("⚠")
 
 
 def test_ambiguous_worker_state_is_degraded_without_inventing_capacity() -> None:
@@ -170,7 +243,7 @@ def test_dynamic_tooltip_fields_are_markup_escaped() -> None:
 
 
 def test_unknown_capacity_renders_unknown_not_zero(tmp_path: Path) -> None:
-    payload = _payload(active=0, running=0, available=4)
+    payload = _payload(active=0, running=0, available=4, ordinary_state="unverified")
     runtime = payload["controllerRuntime"]
     assert isinstance(runtime, dict)
     runtime["valid"] = False
