@@ -201,6 +201,22 @@
         "type": "github"
       }
     },
+    "nixpkgs_2": {
+      "locked": {
+        "lastModified": 1786535285,
+        "narHash": "sha256-rG5HKMAgAhMgydvKGtco6rqTxRq4EDZQCx9USLvVqYw=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "9f78f44a87948854445dae0b6bf82b2e87e4efb5",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-26.05",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "npm-lockfile-fix": {
       "inputs": {
         "nixpkgs": [
@@ -272,6 +288,25 @@
         "type": "github"
       }
     },
+    "repora": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_2"
+      },
+      "locked": {
+        "lastModified": 1789022484,
+        "narHash": "sha256-SGmTEHPAqTw7yeX4hBC4XNCXgDNUN0xxCoN7W5C81eg=",
+        "owner": "hackelia-micrantha",
+        "repo": "repora",
+        "rev": "6fe22ee2c7accb36e60d2df78fbe3ac59ba48616",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hackelia-micrantha",
+        "repo": "repora",
+        "rev": "6fe22ee2c7accb36e60d2df78fbe3ac59ba48616",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "antigravity-nix": "antigravity-nix",
@@ -280,6 +315,7 @@
         "hermes-agent": "hermes-agent",
         "home-manager": "home-manager_2",
         "nixpkgs": "nixpkgs",
+        "repora": "repora",
         "sops-nix": "sops-nix"
       }
     },
