@@ -50,6 +50,18 @@ class PhoneCameraTest(unittest.TestCase):
         self.assertIn("--max-size=", source)
         self.assertNotIn("--camera-size=", source)
 
+    def test_helper_prefers_verified_stable_host_contract_before_sysfs_fallback(self) -> None:
+        source = SCRIPT.read_text()
+        function = source.split("find_loopback_device() {", 1)[1].split("\n}\n\nlist_devices()", 1)[0]
+        override = function.index('if [[ -n "${DUBNIUM_PHONE_CAMERA_DEVICE:-}" ]]')
+        stable = function.index('local stable_device="/dev/dubnium-camera"')
+        verification = function.index('/sys/class/video4linux/$resolved_name/format')
+        sysfs_fallback = function.index("for sysdev in /sys/class/video4linux/video*")
+        self.assertLess(override, stable)
+        self.assertLess(stable, verification)
+        self.assertLess(verification, sysfs_fallback)
+        self.assertIn('readlink -f -- "$stable_device"', function)
+
     def test_helper_uses_v4l2loopback_sysfs_interface_for_discovery(self) -> None:
         source = SCRIPT.read_text()
         self.assertIn("/sys/class/video4linux/video*", source)
@@ -61,10 +73,11 @@ class PhoneCameraTest(unittest.TestCase):
         self.assertIn("Native Android USB webcam mode", result.stdout)
         self.assertIn("Webcam", result.stdout)
         self.assertIn("v4l2loopback", result.stdout)
+        self.assertIn("/dev/dubnium-camera", result.stdout)
 
     def test_helper_has_stable_version_surface(self) -> None:
         result = run_helper("--version")
-        self.assertEqual(result.stdout, "dub-phone-camera 1\n")
+        self.assertEqual(result.stdout, "dub-phone-camera 2\n")
 
 
 if __name__ == "__main__":
