@@ -25,4 +25,5 @@ def test_opencode_integration_is_workstation_owned() -> None:
     workstation = WORKSTATION.read_text(encoding="utf-8")
 
     assert "default = false;" in module
-    assert "dotfiles.opencode.enable = lib.mkDefault true;" in workstation
+    assert "dotfiles = {" in workstation
+    assert "opencode.enable = lib.mkDefault true;" in workstation
