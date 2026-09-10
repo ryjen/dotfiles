@@ -25,7 +25,7 @@ Ownership rules:
 - `custom.d/*.yaml` contains user-authored promotion candidates.
 - `adopted.d/*.yaml` contains adopted/archive evidence and is not part of normal composition.
 
-The app contract is `contracts/configctl/apps/hermes.toml`. It is intentionally `planned` and write-disabled until Dubnium configctl has parser-aware YAML composition. Until then, Home Manager publishes `base.yaml` directly to `~/.hermes/config.yaml`, preserving current runtime behavior without giving two writers authority over the same file.
+The app contract is `contracts/configctl/apps/hermes.toml`. It is intentionally `planned` and write-disabled until Dubnium configctl has parser-aware YAML composition. Until then, the native runtime output `~/.hermes/config.yaml` is **user-managed**: Home Manager publishes only the read-only base layer (`base.yaml` under `~/.config/hermes`) and never writes the runtime output, so the live provider/model settings in `~/.hermes/config.yaml` are not clobbered by activation. The source base is not a complete runtime config — do not copy it over the runtime file.
 
 The init contract is layout-only:
 
