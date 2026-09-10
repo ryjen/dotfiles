@@ -8,6 +8,8 @@
   options.dotfiles.profiles.browser.enable = lib.mkEnableOption "browser profile";
 
   config = lib.mkIf config.dotfiles.profiles.browser.enable {
+    home.packages = [ pkgs.brave ];
+
     home.sessionVariables = {
       BROWSER = "firefox";
       DEFAULT_BROWSER = "firefox";
