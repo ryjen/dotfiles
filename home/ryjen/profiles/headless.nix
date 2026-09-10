@@ -1,8 +1,14 @@
 _: {
-  dotfiles.host.role = "headless";
-  dotfiles.host.graphical.enable = false;
-  dotfiles.host.laptop.enable = false;
-  dotfiles.profiles.workstation.enable = false;
-  dotfiles.profiles.android.enable = false;
-  dotfiles.profiles.micrantha.enable = false;
+  dotfiles = {
+    host = {
+      role = "headless";
+      graphical.enable = false;
+      laptop.enable = false;
+    };
+    profiles = {
+      workstation.enable = false;
+      android.enable = false;
+      micrantha.enable = false;
+    };
+  };
 }

@@ -231,7 +231,9 @@ check_contains modules/home/meeting.nix 'dubnium-meeting-mode'
 check_contains modules/home/meeting.nix 'dubnium-cliphist'
 check_contains modules/home/meeting.nix 'RemainAfterExit'
 check_contains modules/home/common.nix 'services\.ssh-agent\.enable'
-check_contains home/ryjen/profiles/dubnium.nix 'openwork\.sandbox\.allowSshAgent'
+check_contains home/ryjen/profiles/dubnium.nix 'dotfiles[[:space:]]*=[[:space:]]*\{'
+check_contains home/ryjen/profiles/dubnium.nix 'openwork[[:space:]]*=[[:space:]]*\{'
+check_contains home/ryjen/profiles/dubnium.nix 'sandbox\.allowSshAgent[[:space:]]*=[[:space:]]*lib\.mkDefault[[:space:]]+true;'
 check_contains modules/home/openwork.nix 'config\.services\.ssh-agent\.socket'
 
 # --- Waybar templates ---

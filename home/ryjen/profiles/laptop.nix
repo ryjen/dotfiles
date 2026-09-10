@@ -4,8 +4,12 @@
     ./graphical.nix
   ];
 
-  dotfiles.host.role = "laptop";
-  dotfiles.host.laptop.enable = true;
-  dotfiles.profiles.workstation.enable = true;
-  dotfiles.meeting.enable = lib.mkDefault true;
+  dotfiles = {
+    host = {
+      role = "laptop";
+      laptop.enable = true;
+    };
+    profiles.workstation.enable = true;
+    meeting.enable = lib.mkDefault true;
+  };
 }

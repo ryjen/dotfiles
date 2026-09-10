@@ -85,7 +85,8 @@ class MeetingConfigTest(unittest.TestCase):
         registry = (ROOT / "modules/home/default.nix").read_text()
         profile = (ROOT / "home/ryjen/profiles/workstation.nix").read_text()
         self.assertIn("./meeting.nix", registry)
-        self.assertIn("dotfiles.meeting.enable = lib.mkDefault true;", profile)
+        self.assertIn("dotfiles = {", profile)
+        self.assertIn("meeting.enable = lib.mkDefault true;", profile)
 
     def test_hypr_source_order(self) -> None:
         source = (ROOT / "modules/home/hypr.nix").read_text()

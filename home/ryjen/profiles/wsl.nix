@@ -4,7 +4,9 @@
     ./headless.nix
   ];
 
-  dotfiles.host.name = "wsl";
-  dotfiles.host.wsl.enable = true;
-  dotfiles.host.userSystemd.enable = false;
+  dotfiles.host = {
+    name = "wsl";
+    wsl.enable = true;
+    userSystemd.enable = false;
+  };
 }
