@@ -20,7 +20,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     tidyfs = {
-      url = "github:ryjen/tidyfs/v0.6.1";
+      url = "github:ryjen/tidyfs/4993805063bfd6c64fc608e0007173c52b41bac7";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     sops-nix = {
