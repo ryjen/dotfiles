@@ -184,6 +184,23 @@ def test_legacy_effective_state_is_only_administrative_fallback() -> None:
     assert "State: active (admin: suspended)" in output["tooltip"]
 
 
+def test_malformed_explicit_admin_state_does_not_use_legacy_fallback() -> None:
+    payload = _payload(
+        active=1,
+        running=1,
+        available=3,
+        ordinary_state="active",
+        administrative_state="suspended",
+    )
+    payload["administrativeState"] = 42
+
+    output = renderer.render_payload(payload)
+
+    assert output["class"] == "degraded"
+    assert output["text"] == " 1/4 ⚠"
+    assert "State: active (admin: unknown)" in output["tooltip"]
+
+
 def test_unknown_runtime_state_is_degraded() -> None:
     output = renderer.render_payload(_payload(ordinary_state="unknown-new-state"))
 
