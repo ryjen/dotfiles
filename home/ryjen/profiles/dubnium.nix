@@ -1,7 +1,16 @@
-{ lib, ... }:
+{
+  lib,
+  pkgs,
+  repora,
+  ...
+}:
 {
   imports = [
     ./workstation.nix
+  ];
+
+  home.packages = [
+    repora.packages.${pkgs.stdenv.hostPlatform.system}.repora
   ];
 
   dotfiles = {
