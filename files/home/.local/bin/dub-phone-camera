@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-VERSION="1"
+VERSION="2"
 
 usage() {
   cat <<'EOF'
@@ -21,7 +21,9 @@ your application.
 
 The scrcpy fallback requires USB debugging and an enabled v4l2loopback device.
 It deliberately selects USB-only ADB transport and will not select TCP/IP ADB.
-Set DUBNIUM_PHONE_CAMERA_DEVICE=/dev/videoN to override loopback discovery.
+The normal Dubnium host contract is /dev/dubnium-camera; older or custom hosts
+fall back to v4l2loopback sysfs discovery.
+Set DUBNIUM_PHONE_CAMERA_DEVICE=/dev/videoN to override all device discovery.
 Set DUBNIUM_PHONE_CAMERA_MAX_SIZE=N to override the default 1920-pixel limit.
 EOF
 }
@@ -37,6 +39,18 @@ find_loopback_device() {
   if [[ -n "${DUBNIUM_PHONE_CAMERA_DEVICE:-}" ]]; then
     printf '%s\n' "$DUBNIUM_PHONE_CAMERA_DEVICE"
     return 0
+  fi
+
+  local stable_device="/dev/dubnium-camera"
+  local resolved_device=""
+  local resolved_name=""
+  if [[ -e "$stable_device" ]]; then
+    resolved_device="$(readlink -f -- "$stable_device" 2>/dev/null || true)"
+    resolved_name="${resolved_device##*/}"
+    if [[ "$resolved_device" == /dev/video* && -e "/sys/class/video4linux/$resolved_name/format" ]]; then
+      printf '%s\n' "$stable_device"
+      return 0
+    fi
   fi
 
   local sysdev
