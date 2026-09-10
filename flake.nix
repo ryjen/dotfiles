@@ -19,6 +19,7 @@
       url = "github:ryjen/git-autocommit";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    repora.url = "github:hackelia-micrantha/repora/v0.2.1";
     sops-nix = {
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -37,6 +38,7 @@
       hermes-agent,
       antigravity-nix,
       git-autocommit,
+      repora,
       sops-nix,
       git-hooks,
       ...
@@ -59,6 +61,7 @@
               hermes-agent
               antigravity-nix
               git-autocommit
+              repora
               ;
           };
           modules = [
@@ -93,6 +96,7 @@
                   hermes-agent
                   antigravity-nix
                   git-autocommit
+                  repora
                   ;
               };
               home-manager.users.${username} = {
@@ -433,6 +437,7 @@
               hermes-agent
               antigravity-nix
               git-autocommit
+              repora
               ;
             username = dubniumUsername;
           };
