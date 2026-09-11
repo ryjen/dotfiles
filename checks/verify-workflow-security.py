@@ -11,6 +11,9 @@ PERSIST_CREDENTIALS_RE = re.compile(r"^\s+persist-credentials\s*:\s*false\s*(?:#
 TOP_LEVEL_KEY_RE = re.compile(r"^([A-Za-z0-9_-]+)\s*:\s*(.*?)\s*(?:#.*)?$")
 JOB_PERMISSION_RE = re.compile(r"^\s{4}permissions\s*:")
 TRIGGER_KEY_RE = re.compile(r"^\s{2}([A-Za-z0-9_-]+)\s*:\s*(?:#.*)?$")
+AUTHENTICATED_CACHE_ACTION_PREFIXES = (
+    "DeterminateSystems/flakehub-cache-action@",
+)
 
 
 def indentation(line: str) -> int:
@@ -63,11 +66,12 @@ def top_level_mapping_index(
     return index
 
 
-def validate_triggers(lines: list[str], workflow: Path, errors: list[str]) -> None:
+def validate_triggers(lines: list[str], workflow: Path, errors: list[str]) -> set[str]:
     on_index = top_level_mapping_index(lines, "on", workflow, errors)
     if on_index is None:
-        return
+        return set()
 
+    triggers: set[str] = set()
     for line in indented_block(lines, on_index, 0):
         if not line.strip() or line.lstrip().startswith("#") or indentation(line) > 2:
             continue
@@ -75,8 +79,12 @@ def validate_triggers(lines: list[str], workflow: Path, errors: list[str]) -> No
         if not match:
             fail(errors, workflow, f"unrecognized workflow trigger line: {line.strip()!r}")
             continue
-        if match.group(1) == "pull_request_target":
+        trigger = match.group(1)
+        triggers.add(trigger)
+        if trigger == "pull_request_target":
             fail(errors, workflow, "pull_request_target is forbidden")
+
+    return triggers
 
 
 def validate_permissions(lines: list[str], workflow: Path, errors: list[str]) -> None:
@@ -153,7 +161,13 @@ def checkout_step_has_persist_false(lines: list[str], uses_index: int) -> bool:
     return any(PERSIST_CREDENTIALS_RE.match(line) for line in lines[step_start:step_end])
 
 
-def validate_actions(lines: list[str], workflow: Path, errors: list[str]) -> None:
+def validate_actions(
+    lines: list[str],
+    workflow: Path,
+    errors: list[str],
+    *,
+    pull_request_workflow: bool,
+) -> None:
     for index, line in enumerate(lines):
         stripped = line.lstrip()
         if not (stripped.startswith("uses") or stripped.startswith("- uses")):
@@ -168,6 +182,15 @@ def validate_actions(lines: list[str], workflow: Path, errors: list[str]) -> Non
         if not action_is_immutable(uses):
             fail(errors, workflow, f"mutable action reference {uses!r}")
 
+        if pull_request_workflow and any(
+            uses.startswith(prefix) for prefix in AUTHENTICATED_CACHE_ACTION_PREFIXES
+        ):
+            fail(
+                errors,
+                workflow,
+                f"authenticated cache action {uses!r} is forbidden in pull-request workflows",
+            )
+
         if uses.startswith("actions/checkout@") and not checkout_step_has_persist_false(lines, index):
             fail(errors, workflow, "actions/checkout must set persist-credentials: false")
 
@@ -181,10 +204,15 @@ def validate_workflow(workflow: Path, repo_root: Path) -> list[str]:
     if "\t" in text:
         fail(errors, relative, "tabs are not allowed in workflow YAML")
 
-    validate_triggers(lines, relative, errors)
+    triggers = validate_triggers(lines, relative, errors)
     validate_permissions(lines, relative, errors)
     validate_jobs(lines, relative, errors)
-    validate_actions(lines, relative, errors)
+    validate_actions(
+        lines,
+        relative,
+        errors,
+        pull_request_workflow="pull_request" in triggers,
+    )
     return errors
 
 
