@@ -120,7 +120,10 @@ check_contains files/home/.config/waybar/config.jsonc 'on-click-middle.*dub-term
 check_not_contains files/home/.config/waybar/config.jsonc 'on-click-middle.*dubnium-music-control'
 check_contains files/home/.config/waybar/config.jsonc 'on-click-right.*dubnium-music-control toggle'
 check_not_contains files/home/.config/waybar/config.jsonc '"on-click"[[:space:]]*:.*dubnium-music-control'
+# Literal EREs: match the source variable reference "$mpc_bin" itself.
+# shellcheck disable=SC2016
 check_contains files/home/.local/libexec/dubnium-music-control 'exec "\$mpc_bin" stop'
+# shellcheck disable=SC2016
 check_contains files/home/.local/libexec/dubnium-music-control 'exec "\$mpc_bin" play'
 check_not_contains files/home/.local/libexec/dubnium-music-control 'play-pause'
 check_contains files/home/.config/waybar/config.jsonc 'on-click-backward.*dubnium-music-control previous'
