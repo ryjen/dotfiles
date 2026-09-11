@@ -12,6 +12,9 @@ workflow_security = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(workflow_security)
 
 PINNED_CHECKOUT = "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
+PINNED_FLAKEHUB_CACHE = (
+    "DeterminateSystems/flakehub-cache-action@146f476c94460cb634f9ade79470fcbc3f7e5b36"
+)
 
 
 def workflow_text(
@@ -72,6 +75,24 @@ class WorkflowSecurityTests(unittest.TestCase):
     def test_rejects_checkout_credential_persistence(self) -> None:
         errors = self.validate(workflow_text(persist_credentials=False))
         self.assertTrue(any("persist-credentials" in error for error in errors))
+
+    def test_rejects_authenticated_cache_action_on_pull_request(self) -> None:
+        errors = self.validate(
+            workflow_text(action=PINNED_FLAKEHUB_CACHE, persist_credentials=False)
+        )
+        self.assertTrue(any("authenticated cache action" in error for error in errors))
+
+    def test_allows_authenticated_cache_action_on_trusted_only_trigger(self) -> None:
+        self.assertEqual(
+            [],
+            self.validate(
+                workflow_text(
+                    action=PINNED_FLAKEHUB_CACHE,
+                    persist_credentials=False,
+                    trigger="push:",
+                )
+            ),
+        )
 
     def test_rejects_missing_timeout(self) -> None:
         errors = self.validate(workflow_text(timeout=False))
