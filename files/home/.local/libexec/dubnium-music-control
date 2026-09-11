@@ -103,7 +103,7 @@ case "$cmd" in
   toggle)
     case "$(mpd_status)" in
       Playing|Paused)
-        exec "$playerctl_bin" --player=mpd play-pause
+        exec "$mpc_bin" stop
         ;;
       Stopped|"")
         seed_queue_if_empty
