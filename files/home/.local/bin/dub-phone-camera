@@ -4,7 +4,7 @@ set -euo pipefail
 VERSION="2"
 
 usage() {
-  cat <<'EOF'
+	cat <<'EOF'
 Usage: dub-phone-camera [command] [scrcpy args...]
 
 Commands:
@@ -29,115 +29,115 @@ EOF
 }
 
 require_command() {
-  if ! command -v "$1" >/dev/null 2>&1; then
-    printf 'dub-phone-camera: required command not found: %s\n' "$1" >&2
-    exit 127
-  fi
+	if ! command -v "$1" >/dev/null 2>&1; then
+		printf 'dub-phone-camera: required command not found: %s\n' "$1" >&2
+		exit 127
+	fi
 }
 
 find_loopback_device() {
-  if [[ -n "${DUBNIUM_PHONE_CAMERA_DEVICE:-}" ]]; then
-    printf '%s\n' "$DUBNIUM_PHONE_CAMERA_DEVICE"
-    return 0
-  fi
+	if [[ -n ${DUBNIUM_PHONE_CAMERA_DEVICE:-} ]]; then
+		printf '%s\n' "$DUBNIUM_PHONE_CAMERA_DEVICE"
+		return 0
+	fi
 
-  local stable_device="/dev/dubnium-camera"
-  local resolved_device=""
-  local resolved_name=""
-  if [[ -e "$stable_device" ]]; then
-    resolved_device="$(readlink -f -- "$stable_device" 2>/dev/null || true)"
-    resolved_name="${resolved_device##*/}"
-    if [[ "$resolved_device" == /dev/video* && -e "/sys/class/video4linux/$resolved_name/format" ]]; then
-      printf '%s\n' "$stable_device"
-      return 0
-    fi
-  fi
+	local stable_device="/dev/dubnium-camera"
+	local resolved_device=""
+	local resolved_name=""
+	if [[ -e $stable_device ]]; then
+		resolved_device="$(readlink -f -- "$stable_device" 2>/dev/null || true)"
+		resolved_name="${resolved_device##*/}"
+		if [[ $resolved_device == /dev/video* && -e "/sys/class/video4linux/$resolved_name/format" ]]; then
+			printf '%s\n' "$stable_device"
+			return 0
+		fi
+	fi
 
-  local sysdev
-  for sysdev in /sys/class/video4linux/video*; do
-    [[ -e "$sysdev" ]] || continue
-    # v4l2loopback exposes its per-device format control through this sysfs
-    # attribute; physical V4L2 cameras do not use this loopback interface.
-    [[ -e "$sysdev/format" ]] || continue
-    printf '/dev/%s\n' "${sysdev##*/}"
-    return 0
-  done
+	local sysdev
+	for sysdev in /sys/class/video4linux/video*; do
+		[[ -e $sysdev ]] || continue
+		# v4l2loopback exposes its per-device format control through this sysfs
+		# attribute; physical V4L2 cameras do not use this loopback interface.
+		[[ -e "$sysdev/format" ]] || continue
+		printf '/dev/%s\n' "${sysdev##*/}"
+		return 0
+	done
 
-  return 1
+	return 1
 }
 
 list_devices() {
-  require_command v4l2-ctl
-  require_command adb
+	require_command v4l2-ctl
+	require_command adb
 
-  v4l2-ctl --list-devices
-  printf '\nADB devices:\n'
-  adb devices -l
+	v4l2-ctl --list-devices
+	printf '\nADB devices:\n'
+	adb devices -l
 }
 
 list_cameras() {
-  require_command scrcpy
-  exec scrcpy --select-usb --list-cameras
+	require_command scrcpy
+	exec scrcpy --select-usb --list-cameras
 }
 
 start_camera() {
-  local facing="$1"
-  shift
+	local facing="$1"
+	shift
 
-  require_command scrcpy
+	require_command scrcpy
 
-  local sink
-  if ! sink="$(find_loopback_device)"; then
-    cat >&2 <<'EOF'
+	local sink
+	if ! sink="$(find_loopback_device)"; then
+		cat >&2 <<'EOF'
 dub-phone-camera: no v4l2loopback device found.
 Enable dubnium.videoMeeting.virtualCamera on the NixOS host and rebuild, or use
 Android's native USB Webcam mode if the phone exposes it.
 EOF
-    exit 2
-  fi
+		exit 2
+	fi
 
-  if [[ ! -e "$sink" ]]; then
-    printf 'dub-phone-camera: configured camera sink does not exist: %s\n' "$sink" >&2
-    exit 2
-  fi
+	if [[ ! -e $sink ]]; then
+		printf 'dub-phone-camera: configured camera sink does not exist: %s\n' "$sink" >&2
+		exit 2
+	fi
 
-  local max_size="${DUBNIUM_PHONE_CAMERA_MAX_SIZE:-1920}"
-  exec scrcpy \
-    --select-usb \
-    --video-source=camera \
-    --camera-facing="$facing" \
-    --max-size="$max_size" \
-    --v4l2-sink="$sink" \
-    --no-audio \
-    --no-playback \
-    "$@"
+	local max_size="${DUBNIUM_PHONE_CAMERA_MAX_SIZE:-1920}"
+	exec scrcpy \
+		--select-usb \
+		--video-source=camera \
+		--camera-facing="$facing" \
+		--max-size="$max_size" \
+		--v4l2-sink="$sink" \
+		--no-audio \
+		--no-playback \
+		"$@"
 }
 
 case "${1:-}" in
-  devices)
-    list_devices
-    ;;
-  cameras)
-    list_cameras
-    ;;
-  front | back)
-    facing="$1"
-    shift
-    start_camera "$facing" "$@"
-    ;;
-  -h | --help | help)
-    usage
-    ;;
-  --version)
-    printf 'dub-phone-camera %s\n' "$VERSION"
-    ;;
-  "")
-    usage >&2
-    exit 2
-    ;;
-  *)
-    printf 'dub-phone-camera: unknown command: %s\n\n' "$1" >&2
-    usage >&2
-    exit 2
-    ;;
+devices)
+	list_devices
+	;;
+cameras)
+	list_cameras
+	;;
+front | back)
+	facing="$1"
+	shift
+	start_camera "$facing" "$@"
+	;;
+-h | --help | help)
+	usage
+	;;
+--version)
+	printf 'dub-phone-camera %s\n' "$VERSION"
+	;;
+"")
+	usage >&2
+	exit 2
+	;;
+*)
+	printf 'dub-phone-camera: unknown command: %s\n\n' "$1" >&2
+	usage >&2
+	exit 2
+	;;
 esac
