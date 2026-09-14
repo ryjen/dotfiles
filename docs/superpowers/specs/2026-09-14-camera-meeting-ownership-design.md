@@ -64,7 +64,7 @@ dubnium.camera.virtual = {
 };
 ```
 
-The module is not meeting-specific. It may be consumed by scrcpy, OBS, ffmpeg, tests, or other V4L2 producers/consumers.
+The module is not meeting-specific and does not require a graphical profile. It is available to any supported Dubnium NixOS host but remains disabled by default. It may be consumed by scrcpy, OBS, ffmpeg, tests, or other V4L2 producers/consumers.
 
 When enabled, the module must:
 
@@ -134,7 +134,7 @@ Disabling one application/integration must not disable unrelated meeting/session
 
 No dedicated Teams launcher is added in this change. The user opens Teams normally in the browser. Existing class/title matching is retained behind `meeting.teams.enable`.
 
-`meeting.teams.enable` may assert that the browser profile is enabled if the Home Manager module graph exposes that state reliably. If such an assertion would create an unnecessary cross-profile dependency, the implementation should instead document the dependency and keep the option side-effect free.
+`meeting.teams.enable` does not assert or mutate browser-profile state. Chromium is independently owned by `dotfiles.profiles.browser.enable`; the meeting documentation should state that Teams requires a suitable installed browser.
 
 ### Zoom
 
@@ -220,12 +220,12 @@ Tests must cover:
 
 Tests must cover:
 
-- camera module defaults off;
-- enabling camera adds `v4l2loopback` kernel/module package configuration;
+- camera module defaults off on graphical and headless hosts;
+- enabling camera explicitly on a supported host adds `v4l2loopback` kernel/module package configuration without requiring a graphical profile;
 - exact rendered module options include `devices=1`, configured `video_nr`, configured label, `exclusive_caps`, and `max_buffers=2`;
 - stable alias points to the configured device;
 - disabling the capability removes only the owned stable symlink;
-- headless/non-graphical profiles do not gain a virtual camera unless explicitly supported by the final module placement;
+- no host gains a virtual camera merely because it is graphical;
 - no Zoom or Chromium package is installed through the removed `videoMeeting` abstraction;
 - the `dubnium.videoMeeting` namespace and obsolete checks are removed.
 
@@ -237,7 +237,7 @@ The repositories should be changed in dependency-safe order:
 2. Dubnium: introduce the general camera host capability and remove `video-meeting.nix`/`dubnium.videoMeeting`.
 3. Update both repositories' documentation and historical-current-state references where they describe the retired ownership model.
 4. Merge after exact-head CI in each repository.
-5. Enable `dubnium.camera.virtual.enable = true` on the desired graphical host in a separate activation slice if it is not already included in the camera capability PR.
+5. Enable `dubnium.camera.virtual.enable = true` on the desired host in a separate activation slice if it is not already included in the camera capability PR.
 6. Perform physical qualification after applying the host generation.
 
 Dotfiles must remain usable before the Dubnium camera migration because `dubctl-phone-camera` retains legacy v4l2loopback sysfs discovery.
