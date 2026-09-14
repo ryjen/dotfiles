@@ -316,7 +316,8 @@
         "home-manager": "home-manager_2",
         "nixpkgs": "nixpkgs",
         "repora": "repora",
-        "sops-nix": "sops-nix"
+        "sops-nix": "sops-nix",
+        "tidyfs": "tidyfs"
       }
     },
     "sops-nix": {
@@ -351,6 +352,27 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default",
+        "type": "github"
+      }
+    },
+    "tidyfs": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1789426046,
+        "narHash": "sha256-ckikCxRwfq4JLofh7j3evmltW8VjqStEk5obS2Y/1Qk=",
+        "owner": "ryjen",
+        "repo": "tidyfs-community",
+        "rev": "b6690394c15d4e666b26885d922414527e5c7d68",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ryjen",
+        "repo": "tidyfs-community",
+        "rev": "b6690394c15d4e666b26885d922414527e5c7d68",
         "type": "github"
       }
     },
