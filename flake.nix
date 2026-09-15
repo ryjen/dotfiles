@@ -20,6 +20,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     repora.url = "github:hackelia-micrantha/repora/6fe22ee2c7accb36e60d2df78fbe3ac59ba48616";
+    tidyfs = {
+      url = "github:ryjen/tidyfs-community/b6690394c15d4e666b26885d922414527e5c7d68";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     sops-nix = {
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -39,6 +43,7 @@
       antigravity-nix,
       git-autocommit,
       repora,
+      tidyfs,
       sops-nix,
       git-hooks,
       ...
@@ -62,6 +67,7 @@
               antigravity-nix
               git-autocommit
               repora
+              tidyfs
               ;
           };
           modules = [
@@ -97,6 +103,7 @@
                   antigravity-nix
                   git-autocommit
                   repora
+                  tidyfs
                   ;
               };
               home-manager.users.${username} = {
@@ -390,6 +397,7 @@
       packages.${system} = {
         hermes-agent = hermes-agent.packages.${system}.default;
         git-autocommit = git-autocommit.packages.${system}.default;
+        tidyfs = tidyfs.packages.${system}.default;
         openwork = pkgs.callPackage ./packages/openwork.nix { };
       };
 
@@ -438,6 +446,7 @@
               antigravity-nix
               git-autocommit
               repora
+              tidyfs
               ;
             username = dubniumUsername;
           };

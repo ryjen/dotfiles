@@ -48,6 +48,7 @@
     ./session.nix
     ./starship.nix
     ./taskwarrior.nix
+    ./tidyfs.nix
     ./tmux.nix
     ./unreal.nix
     ./uv.nix
