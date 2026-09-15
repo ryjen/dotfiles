@@ -162,11 +162,15 @@ write_mocks
 # Declarative shell/host contracts stay explicit: Zellij starts Nix-resolved
 # Zsh, does not auto-inject itself into Zsh startup, and only Dubnium owns bare
 # managed terminal sessions.
+# Literal Nix expression contract.
+# shellcheck disable=SC2016
 assert_contains "$repo_root/modules/home/zellij.nix" 'default_shell = "${pkgs.zsh}/bin/zsh";'
 assert_contains "$repo_root/modules/home/zellij.nix" 'enableZshIntegration = false;'
 assert_contains "$repo_root/modules/home/session.nix" 'DUB_TERMINAL_MANAGED_SESSIONS = if config.dotfiles.host.name == "dubnium" then "1" else "0";'
 assert_contains "$repo_root/modules/home/session.nix" '      mosh'
 assert_contains "$repo_root/modules/home/session.nix" '      util-linux'
+# Literal helper source contract.
+# shellcheck disable=SC2016
 assert_contains "$helper" 'flock -x "$lock_fd"'
 
 # Explicit Kitty arguments remain on the historical direct-launch path.

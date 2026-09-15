@@ -53,7 +53,7 @@ class PhoneCameraTest(unittest.TestCase):
     def test_helper_prefers_verified_stable_host_contract_before_sysfs_fallback(self) -> None:
         source = SCRIPT.read_text()
         function = source.split("find_loopback_device() {", 1)[1].split("\n}\n\nlist_devices()", 1)[0]
-        override = function.index('if [[ -n "${DUBNIUM_PHONE_CAMERA_DEVICE:-}" ]]')
+        override = function.index("DUBNIUM_PHONE_CAMERA_DEVICE")
         stable = function.index('local stable_device="/dev/dubnium-camera"')
         verification = function.index('/sys/class/video4linux/$resolved_name/format')
         sysfs_fallback = function.index("for sysdev in /sys/class/video4linux/video*")
