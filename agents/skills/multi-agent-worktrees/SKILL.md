@@ -24,8 +24,10 @@ Extends the standard worktree pattern with **multi-agent awareness**. When multi
 
 ## Naming Convention
 
+Worktrees live in the shared `~/.local/src/worktrees/` directory beside repos from `~/.local/src/` (project-local `.worktrees/` is the legacy fallback):
+
 ```
-.worktrees/<agent-id>-<branch>/
+~/.local/src/worktrees/<agent-id>-<branch>/
 ```
 
 | Part | Meaning | Example |
@@ -36,7 +38,7 @@ Extends the standard worktree pattern with **multi-agent awareness**. When multi
 Within each worktree, a sentinel file tracks session metadata:
 
 ```
-.worktrees/<agent-id>-<branch>/.worktree-session
+~/.local/src/worktrees/<agent-id>-<branch>/.worktree-session
 ```
 
 The sentinel is JSON (one line, no trailing newline ambiguity):
@@ -121,15 +123,21 @@ If the platform has a native worktree tool (`EnterWorktree`, `/worktree`, `--wor
 **Directory selection (priority order):**
 
 1. **Declared preference** in instructions — use without asking.
-2. **Existing project-local directory:**
+2. **Shared directory** `~/.local/src/worktrees/` (this machine's convention for repos under `~/.local/src/`; outside the repo, no ignore check needed):
+   ```bash
+   ls -d ~/.local/src/worktrees 2>/dev/null
+   ```
+3. **Existing project-local directory** (legacy or repos outside `~/.local/src/`):
    ```bash
    ls -d .worktrees 2>/dev/null     # Preferred (hidden)
    ls -d worktrees 2>/dev/null      # Alternative
    ```
    `.worktrees` wins if both exist.
-3. **Default:** `.worktrees/` at project root.
+4. **Default:** `~/.local/src/worktrees/` for repos under `~/.local/src/`; otherwise `.worktrees/` at project root.
 
-**Safety verification:**
+**Safety verification (project-local directories only):**
+
+Shared directories such as `~/.local/src/worktrees/` live outside the repository and need no ignore check. For project-local directories:
 
 ```bash
 git check-ignore -q .worktrees 2>/dev/null || git check-ignore -q worktrees 2>/dev/null
@@ -273,8 +281,9 @@ git worktree remove --force "$WORKTREE_PATH"
 | Sentinel heartbeat >5min stale | Flag as abandoned (Step 4) |
 | Native worktree tool available | Use it, apply convention afterward (Step 1a) |
 | No native tool | Git worktree fallback (Step 1b) |
-| `.worktrees/` exists | Use it (verify ignored) |
-| `worktrees/` exists | Use it (verify ignored) |
+| `~/.local/src/worktrees/` exists | Use it (shared, outside repo — no ignore check) |
+| `.worktrees/` exists | Legacy project-local — use it (verify ignored) |
+| `worktrees/` exists | Legacy project-local — use it (verify ignored) |
 | Directory not ignored | Add to .gitignore, commit, proceed |
 | Permission error on create | Work in place, write sentinel (sandbox fallback) |
 | Tests fail at baseline | Report, ask for consent |
@@ -301,7 +310,7 @@ git worktree remove --force "$WORKTREE_PATH"
 ### Ignoring sentinel files
 
 - **Problem:** `.worktree-session` gets tracked by git (pollutes main repo).
-- **Fix:** The parent `.worktrees/` directory must be gitignored. Verify with `git check-ignore`.
+- **Fix:** For project-local worktrees the parent `.worktrees/` directory must be gitignored — verify with `git check-ignore`. Shared worktrees in `~/.local/src/worktrees/` live outside the repo, so nothing to ignore.
 
 ### Platform-native worktrees not visible
 
