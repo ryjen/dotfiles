@@ -19,6 +19,10 @@
       url = "github:ryjen/git-autocommit";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    calathea = {
+      url = "github:hackelia-micrantha/calathea-community/v0.1.0-alpha.1";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     repora.url = "github:hackelia-micrantha/repora/6fe22ee2c7accb36e60d2df78fbe3ac59ba48616";
     tidyfs = {
       url = "github:ryjen/tidyfs-community/b6690394c15d4e666b26885d922414527e5c7d68";
@@ -42,6 +46,7 @@
       hermes-agent,
       antigravity-nix,
       git-autocommit,
+      calathea,
       repora,
       tidyfs,
       sops-nix,
@@ -312,6 +317,13 @@
               touch "$out"
             '';
 
+        calathea-release-contract = pkgs.runCommand "calathea-release-contract" {
+          nativeBuildInputs = [ self.packages.${system}.calathea ];
+        } ''
+          test "$(calathea version)" = "calathea 0.1.0-alpha.1"
+          touch "$out"
+        '';
+
         git-autocommit-package = git-autocommit.checks.${system}.default;
 
         pre-commit-check = git-hooks.lib.${system}.run {
@@ -396,6 +408,7 @@
 
       packages.${system} = {
         hermes-agent = hermes-agent.packages.${system}.default;
+        calathea = calathea.packages.${system}.default;
         git-autocommit = git-autocommit.packages.${system}.default;
         tidyfs = tidyfs.packages.${system}.default;
         openwork = pkgs.callPackage ./packages/openwork.nix { };
