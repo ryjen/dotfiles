@@ -16,6 +16,26 @@ in
   options.dotfiles.agents = {
     hermes.enable = lib.mkEnableOption "Hermes agent package and config";
 
+    hermes.dashboard = {
+      enable = lib.mkOption {
+        type = lib.types.bool;
+        default = cfg.hermes.enable;
+        description = "Whether to run the Hermes dashboard as a user systemd service.";
+      };
+
+      host = lib.mkOption {
+        type = lib.types.str;
+        default = "127.0.0.1";
+        description = "Host for the dashboard listener.";
+      };
+
+      port = lib.mkOption {
+        type = lib.types.port;
+        default = 9119;
+        description = "Port for the dashboard listener.";
+      };
+    };
+
     antigravity = {
       enable = lib.mkEnableOption "Google Antigravity CLI";
 
@@ -45,6 +65,42 @@ in
     };
     xdg.configFile."hermes/README.md" = lib.mkIf cfg.hermes.enable {
       source = ../../files/home/.config/hermes/README.md;
+    };
+
+    systemd.user.services.hermes-dashboard = lib.mkIf cfg.hermes.dashboard.enable {
+      Unit = {
+        Description = "Hermes Agent Dashboard (web UI)";
+        After = [ "network-online.target" ];
+        Wants = [ "network-online.target" ];
+        StartLimitIntervalSec = 0;
+      };
+
+      Service = {
+        Type = "simple";
+        ExecStart = "${hermesPackage}/bin/hermes dashboard"
+          + " --host ${cfg.hermes.dashboard.host}"
+          + " --port ${toString cfg.hermes.dashboard.port}"
+          + " --no-open"
+          + " --skip-build";
+        WorkingDirectory = "${config.home.homeDirectory}/.hermes";
+        Environment = [
+          "HOME=${config.home.homeDirectory}"
+          "HERMES_HOME=%h/.hermes"
+        ];
+        EnvironmentFile = [ "-/run/secrets/hermes-env" ];
+        Restart = "always";
+        RestartSec = "5s";
+        RestartForceExitStatus = [ "75" ];
+        KillMode = "mixed";
+        KillSignal = "SIGTERM";
+        TimeoutStopSec = "60";
+        StandardOutput = "journal";
+        StandardError = "journal";
+      };
+
+      Install = {
+        WantedBy = [ "default.target" ];
+      };
     };
 
     xdg.configFile."codex/adopted.d/00-managed.toml".source =
