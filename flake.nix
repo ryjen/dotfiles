@@ -314,6 +314,7 @@
               export PYTHONDONTWRITEBYTECODE=1
               cd ${self}
               python3 tests/test-phone-camera.py
+              python3 tests/test-meeting-ownership.py
               touch "$out"
             '';
 
