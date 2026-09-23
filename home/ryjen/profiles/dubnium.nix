@@ -2,6 +2,7 @@
   lib,
   pkgs,
   repora,
+  self,
   ...
 }:
 {
@@ -11,6 +12,7 @@
 
   home.packages = [
     repora.packages.${pkgs.stdenv.hostPlatform.system}.repora
+    self.packages.${pkgs.stdenv.hostPlatform.system}.calathea
   ];
 
   dotfiles = {

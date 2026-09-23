@@ -21,6 +21,27 @@
         "type": "github"
       }
     },
+    "calathea": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1789172668,
+        "narHash": "sha256-DAROJzWltbmTpl1CYcMkwkF+4DyRIMe1wnFcqceYm6k=",
+        "owner": "hackelia-micrantha",
+        "repo": "calathea-community",
+        "rev": "6877cfc3dc928f01f3119250bde685e0e8e147e1",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hackelia-micrantha",
+        "ref": "v0.1.0-alpha.1",
+        "repo": "calathea-community",
+        "type": "github"
+      }
+    },
     "flake-compat": {
       "flake": false,
       "locked": {
@@ -310,6 +331,7 @@
     "root": {
       "inputs": {
         "antigravity-nix": "antigravity-nix",
+        "calathea": "calathea",
         "git-autocommit": "git-autocommit",
         "git-hooks": "git-hooks",
         "hermes-agent": "hermes-agent",
