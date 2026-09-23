@@ -302,6 +302,8 @@
               touch "$out"
             '';
 
+        meeting-option-ownership = import ./checks/meeting-ownership.nix { inherit pkgs home-manager; };
+
         phone-camera-tests =
           pkgs.runCommand "phone-camera-tests"
             {
