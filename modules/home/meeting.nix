@@ -14,6 +14,8 @@ in
 {
   options.dotfiles.meeting = {
     enable = lib.mkEnableOption "meeting and presentation workspace support";
+    zoom.enable = lib.mkEnableOption "the Zoom desktop client";
+    teams.enable = lib.mkEnableOption "Teams-specific meeting integration";
 
     presentationOutput = lib.mkOption {
       type = lib.types.nullOr drmConnector;
@@ -29,7 +31,7 @@ in
 
     phoneCamera.enable = lib.mkOption {
       type = lib.types.bool;
-      default = true;
+      default = false;
       description = "Install USB-only Android phone camera bridge tooling for meeting sessions.";
     };
 
@@ -46,7 +48,23 @@ in
     };
   };
 
-  config = lib.mkIf cfg.enable {
+  config = lib.mkMerge [
+    {
+      # Application and camera tooling are independent of meeting workspace UX.
+      home.packages =
+        lib.optionals cfg.zoom.enable [ pkgs.zoom-us ]
+        ++ lib.optionals cfg.phoneCamera.enable [
+          pkgs.android-tools
+          pkgs.scrcpy
+          pkgs.v4l-utils
+        ];
+
+      home.file.".local/bin/dubctl-phone-camera" = lib.mkIf cfg.phoneCamera.enable {
+        source = ../../files/home/.local/bin/dubctl-phone-camera;
+        executable = true;
+      };
+    }
+    (lib.mkIf cfg.enable {
     assertions = [
       {
         assertion = config.dotfiles.host.graphical.enable;
@@ -56,12 +74,6 @@ in
         assertion = config.dotfiles.host.userSystemd.enable;
         message = "dotfiles.meeting.enable requires Home Manager user systemd support.";
       }
-    ];
-
-    home.packages = lib.optionals cfg.phoneCamera.enable [
-      pkgs.android-tools
-      pkgs.scrcpy
-      pkgs.v4l-utils
     ];
 
     xdg.configFile."hypr/custom.d/meeting.conf".text = ''
@@ -77,18 +89,22 @@ in
       bind = SUPER CTRL, 2, exec, ${obsHotkeyHelper} code-camera
       bind = SUPER CTRL, 3, exec, ${obsHotkeyHelper} camera-toggle
 
-      windowrule {
-          name = meeting-zoom-controls
-          match:class = ^(zoom|Zoom)$
-          workspace = special:meeting
-      }
+      ${lib.optionalString cfg.zoom.enable ''
+        windowrule {
+            name = meeting-zoom-controls
+            match:class = ^(zoom|Zoom)$
+            workspace = special:meeting
+        }
+      ''}
 
-      windowrule {
-          name = meeting-teams-controls
-          match:class = ${cfg.teamsClassRegex}
-          match:title = ${cfg.teamsTitleRegex}
-          workspace = special:meeting
-      }
+      ${lib.optionalString cfg.teams.enable ''
+        windowrule {
+            name = meeting-teams-controls
+            match:class = ${cfg.teamsClassRegex}
+            match:title = ${cfg.teamsTitleRegex}
+            workspace = special:meeting
+        }
+      ''}
 
       windowrule {
           name = meeting-obs-controls
@@ -121,11 +137,6 @@ in
 
     home.file.".local/bin/dub-meeting-session" = {
       source = ../../files/home/.local/bin/dub-meeting-session;
-      executable = true;
-    };
-
-    home.file.".local/bin/dub-phone-camera" = lib.mkIf cfg.phoneCamera.enable {
-      source = ../../files/home/.local/bin/dub-phone-camera;
       executable = true;
     };
 
@@ -177,5 +188,6 @@ in
       };
       Install.WantedBy = [ "graphical-session.target" ];
     };
-  };
+  })
+  ];
 }
