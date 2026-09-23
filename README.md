@@ -108,6 +108,8 @@ Repo-local hook governance is documented in `docs/architecture/adr-0002-hook-gov
 
 Optional Home Manager tools are documented in `docs/optional-tools.md`.
 
+The dedicated Chromium ChatGPT launcher, native desktop app trade-offs, and Desktop Commander/GitHub coding workflow are documented in [`docs/chatgpt-workflow.md`](docs/chatgpt-workflow.md).
+
 ## Hyprland and Waybar ownership
 
 Hyprland and Waybar are managed as a session UX substrate rather than loose rice files.
