@@ -44,7 +44,7 @@ jobs:
           persist-credentials: false
 
       - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@21a544727d0c62386e78b4befe52d19ad12692e3 # v17
+        uses: DeterminateSystems/nix-installer-action@3138316df39ed29be04236d7ffc686fa525866aa # v23
 
       - name: Verify Generated Lockfile
         shell: bash
@@ -110,7 +110,7 @@ jobs:
           persist-credentials: false
 
       - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@21a544727d0c62386e78b4befe52d19ad12692e3 # v17
+        uses: DeterminateSystems/nix-installer-action@3138316df39ed29be04236d7ffc686fa525866aa # v23
 
       - name: Measure Legacy Pre-commit Debt
         id: baseline
@@ -150,7 +150,7 @@ jobs:
           persist-credentials: false
 
       - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@21a544727d0c62386e78b4befe52d19ad12692e3 # v17
+        uses: DeterminateSystems/nix-installer-action@3138316df39ed29be04236d7ffc686fa525866aa # v23
 
       - name: Validate Flake Metadata
         run: nix flake metadata --no-write-lock-file
