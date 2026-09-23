@@ -33,6 +33,14 @@ class MeetingOwnershipTest(unittest.TestCase):
         self.assertIn("zoom.enable = lib.mkDefault true;", profile)
         self.assertIn("teams.enable = lib.mkDefault true;", profile)
 
+    def test_both_graphical_profiles_explicitly_preserve_meeting_apps(self):
+        for profile in ("workstation", "laptop"):
+            with self.subTest(profile=profile):
+                source = (ROOT / "home/ryjen/profiles" / f"{profile}.nix").read_text()
+                self.assertIn("meeting = {", source)
+                for option in ("zoom", "teams", "phoneCamera"):
+                    self.assertIn(f"{option}.enable = lib.mkDefault true;", source)
+
     def test_phone_camera_is_a_path_extension_not_meeting_session_command(self):
         source = MEETING.read_text()
         self.assertIn('source = ../../files/home/.local/bin/dubctl-phone-camera;', source)
