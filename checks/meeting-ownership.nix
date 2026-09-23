@@ -58,9 +58,9 @@ let
       "meeting UX must not imply Zoom or camera installation")
     (check (hasPkg all pkgs.zoom-us && hasPhone all && hasUx all)
       "independent app toggles must compose with meeting UX")
-    (check (builtins.match ".*meeting-teams-controls.*" all.xdg.configFile."hypr/custom.d/meeting.conf".text != null)
+    (check (lib.hasInfix "meeting-teams-controls" all.xdg.configFile."hypr/custom.d/meeting.conf".text)
       "Teams rules must appear only when selected")
-    (check (builtins.match ".*meeting-teams-controls.*" uxOnly.xdg.configFile."hypr/custom.d/meeting.conf".text == null)
+    (check (!lib.hasInfix "meeting-teams-controls" uxOnly.xdg.configFile."hypr/custom.d/meeting.conf".text)
       "Teams rules must not appear when disabled")
   ];
 in
