@@ -38,6 +38,7 @@ in
   config = lib.mkIf config.dotfiles.profiles.browser.enable {
     home.packages = [
       chatgptLauncher
+      pkgs.chromium
     ];
 
     home.sessionVariables = {
