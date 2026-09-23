@@ -302,7 +302,7 @@
               touch "$out"
             '';
 
-        meeting-option-ownership = import ./checks/meeting-ownership.nix { inherit pkgs home-manager; };
+        meeting-option-ownership = import ./checks/meeting-ownership.nix { inherit pkgs home-manager self; };
 
         phone-camera-tests =
           pkgs.runCommand "phone-camera-tests"
