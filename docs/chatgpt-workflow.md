@@ -23,19 +23,12 @@ Compare both on the same host/session with the same conversation and idle interv
 ## Coding workflow
 
 | Responsibility | Tool / boundary |
-
 | --- | --- |
-
 | Plan, critique, explain, and review changes | ChatGPT conversation; inspect evidence rather than trusting tool output uncritically |
-
 | Read/edit repository files and run bounded local commands | Desktop Commander on an **explicitly authorized, reachable host**; verify device identity, working directory, user, and effective permissions before a write |
-
 | Inspect issues, PRs, branches and CI; create reviewed changes | GitHub connector, scoped to the intended repository |
-
 | Reproducible validation | Repository-provided flake/build/test entrypoints; record exact command, exit status, and commit SHA |
-
 | Long-running or autonomous edit/test loops | A dedicated agent runtime only when its orchestration, isolation, and resource costs are justified |
-
 Desktop Commander is a remote filesystem/process interface, not a substitute for Codex orchestration. It does not, by itself, guarantee worktree isolation, bounded capabilities, durable execution, a clean test environment, or human approval for sensitive operations. A connected Desktop Commander device is **not** evidence that it is dubnium; check hostname/OS and permissions before making host-specific claims.
 
 ### Production safeguards
