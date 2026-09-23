@@ -86,17 +86,20 @@ class MeetingConfigTest(unittest.TestCase):
         profile = (ROOT / "home/ryjen/profiles/workstation.nix").read_text()
         self.assertIn("./meeting.nix", registry)
         self.assertIn("dotfiles = {", profile)
-        self.assertIn("meeting.enable = lib.mkDefault true;", profile)
+        self.assertIn("meeting = {", profile)
+        self.assertIn("zoom.enable = lib.mkDefault true;", profile)
+        self.assertIn("teams.enable = lib.mkDefault true;", profile)
+        self.assertIn("phoneCamera.enable = lib.mkDefault true;", profile)
 
-    def test_hypr_source_order(self) -> None:
-        source = (ROOT / "modules/home/hypr.nix").read_text()
-        adopted = source.index("${managedHyprConfig}")
-        meeting = source.index("custom.d/meeting.conf")
-        local = source.index("/hypr/local.conf", meeting)
-        custom = source.index("custom.d/*.conf", local)
-        self.assertLess(adopted, meeting)
-        self.assertLess(meeting, local)
-        self.assertLess(local, custom)
+    def test_meeting_config_uses_managed_custom_layer_before_local_overrides(self) -> None:
+        hypr = (ROOT / "modules/home/hypr.nix").read_text()
+        meeting = (ROOT / "modules/home/meeting.nix").read_text()
+        managed = hypr.index("${managedHyprConfig}")
+        custom = hypr.index("custom.d/*.conf", managed)
+        local = hypr.index("/hypr/local.conf", custom)
+        self.assertLess(managed, custom)
+        self.assertLess(custom, local)
+        self.assertIn('xdg.configFile."hypr/custom.d/meeting.conf"', meeting)
 
     def test_super_p_is_reserved_for_presentation(self) -> None:
         for name in ("dubnium.conf", "technetium.conf"):

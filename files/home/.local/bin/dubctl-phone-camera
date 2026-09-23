@@ -5,7 +5,7 @@ VERSION="2"
 
 usage() {
 	cat <<'EOF'
-Usage: dub-phone-camera [command] [scrcpy args...]
+Usage: dubctl-phone-camera [command] [scrcpy args...]
 
 Commands:
   devices       List Linux video devices and ADB devices.
@@ -30,7 +30,7 @@ EOF
 
 require_command() {
 	if ! command -v "$1" >/dev/null 2>&1; then
-		printf 'dub-phone-camera: required command not found: %s\n' "$1" >&2
+		printf 'dubctl-phone-camera: required command not found: %s\n' "$1" >&2
 		exit 127
 	fi
 }
@@ -89,15 +89,15 @@ start_camera() {
 	local sink
 	if ! sink="$(find_loopback_device)"; then
 		cat >&2 <<'EOF'
-dub-phone-camera: no v4l2loopback device found.
-Enable dubnium.videoMeeting.virtualCamera on the NixOS host and rebuild, or use
+dubctl-phone-camera: no v4l2loopback device found.
+Enable dubnium.camera.virtual.enable on the NixOS host and rebuild, or use
 Android's native USB Webcam mode if the phone exposes it.
 EOF
 		exit 2
 	fi
 
 	if [[ ! -e $sink ]]; then
-		printf 'dub-phone-camera: configured camera sink does not exist: %s\n' "$sink" >&2
+		printf 'dubctl-phone-camera: configured camera sink does not exist: %s\n' "$sink" >&2
 		exit 2
 	fi
 
@@ -129,14 +129,14 @@ front | back)
 	usage
 	;;
 --version)
-	printf 'dub-phone-camera %s\n' "$VERSION"
+	printf 'dubctl-phone-camera %s\n' "$VERSION"
 	;;
 "")
 	usage >&2
 	exit 2
 	;;
 *)
-	printf 'dub-phone-camera: unknown command: %s\n\n' "$1" >&2
+	printf 'dubctl-phone-camera: unknown command: %s\n\n' "$1" >&2
 	usage >&2
 	exit 2
 	;;

@@ -91,6 +91,8 @@ _: {
   # Meeting workspace support. Output names and camera identifiers are
   # machine-local; inspect them before replacing these null placeholders.
   # dotfiles.meeting.enable = false;
+  # dotfiles.meeting.zoom.enable = true;
+  # dotfiles.meeting.teams.enable = true;
   # dotfiles.meeting.presentationOutput = null; # For example, "DP-1".
   # dotfiles.meeting.cameraDevice = null; # For example, "/dev/v4l/by-id/...".
   # dotfiles.meeting.phoneCamera.enable = true;

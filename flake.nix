@@ -302,6 +302,8 @@
               touch "$out"
             '';
 
+        meeting-option-ownership = import ./checks/meeting-ownership.nix { inherit pkgs home-manager self; };
+
         phone-camera-tests =
           pkgs.runCommand "phone-camera-tests"
             {
@@ -314,6 +316,7 @@
               export PYTHONDONTWRITEBYTECODE=1
               cd ${self}
               python3 tests/test-phone-camera.py
+              python3 tests/test-meeting-ownership.py
               touch "$out"
             '';
 
