@@ -4,7 +4,7 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SCRIPT = ROOT / "files/home/.local/bin/dub-phone-camera"
+SCRIPT = ROOT / "files/home/.local/bin/dubctl-phone-camera"
 MODULE = ROOT / "modules/home/meeting.nix"
 USER_EXAMPLE = ROOT / "home/ryjen/user.example.nix"
 
@@ -26,7 +26,8 @@ class PhoneCameraTest(unittest.TestCase):
         self.assertIn("pkgs.android-tools", source)
         self.assertIn("pkgs.scrcpy", source)
         self.assertIn("pkgs.v4l-utils", source)
-        self.assertIn("dub-phone-camera", source)
+        self.assertIn("dubctl-phone-camera", source)
+        self.assertNotIn("dub-phone-camera", source)
 
     def test_user_example_catalogs_phone_camera_toggle(self) -> None:
         self.assertIn(
@@ -77,7 +78,7 @@ class PhoneCameraTest(unittest.TestCase):
 
     def test_helper_has_stable_version_surface(self) -> None:
         result = run_helper("--version")
-        self.assertEqual(result.stdout, "dub-phone-camera 2\n")
+        self.assertEqual(result.stdout, "dubctl-phone-camera 2\n")
 
 
 if __name__ == "__main__":
