@@ -21,6 +21,7 @@ class MeetingOwnershipTest(unittest.TestCase):
     def test_zoom_and_teams_rules_are_independently_gated(self):
         source = MEETING.read_text()
         self.assertIn("zoom.enable = lib.mkEnableOption", source)
+        self.assertIn("default = false;", source)
         self.assertIn("teams.enable = lib.mkEnableOption", source)
         self.assertIn("lib.optionalString cfg.zoom.enable", source)
         self.assertIn("lib.optionalString cfg.teams.enable", source)
