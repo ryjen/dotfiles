@@ -44,8 +44,8 @@ let
     phone = true;
   };
   hasPkg = cfg: pkg: builtins.elem (toString pkg) (map toString cfg.home.packages);
-  hasPhone = cfg: cfg.home.file ? ".local/bin/dubctl-phone-camera";
-  hasUx = cfg: cfg.xdg.configFile ? "hypr/custom.d/meeting.conf";
+  hasPhone = cfg: builtins.hasAttr ".local/bin/dubctl-phone-camera" cfg.home.file;
+  hasUx = cfg: builtins.hasAttr "hypr/custom.d/meeting.conf" cfg.xdg.configFile;
   check = condition: message: if condition then "" else builtins.throw message;
   evaluated = builtins.concatStringsSep "" [
     (check (!hasPkg none pkgs.zoom-us && !hasPhone none && !hasUx none)
