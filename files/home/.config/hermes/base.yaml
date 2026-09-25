@@ -1,16 +1,16 @@
 model:
   provider: llm-local
-  default: dubnium-local
-  base_url: http://127.0.0.1:8000/v1
+  default: supervisor
+  base_url: http://127.0.0.1:8080/v1
 
 providers:
   llm-local:
-    name: Dubnium llm.service
-    base_url: http://127.0.0.1:8000/v1
-    default_model: dubnium-local
+    name: Dubnium Supervisor Gateway
+    base_url: http://127.0.0.1:8080/v1
+    default_model: supervisor
     transport: chat_completions
     models:
-      dubnium-local:
+      supervisor:
         context_length: 65536
 
 agent:
