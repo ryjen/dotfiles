@@ -103,7 +103,7 @@ _: {
   # dotfiles.headroom.proxy.host = "127.0.0.1";
   # dotfiles.headroom.proxy.port = 8787;
   # dotfiles.headroom.proxy.package = "${config.home.homeDirectory}/.local/libexec/headroom-proxy";
-  # dotfiles.headroom.proxy.upstreamUrl = "http://127.0.0.1:8000/v1";
+  # dotfiles.headroom.proxy.upstreamUrl = "http://127.0.0.1:8080/v1";
   # dotfiles.headroom.mcp.enable = false;
   # dotfiles.headroom.mcp.package = "${config.home.homeDirectory}/.local/libexec/headroom-mcp";
 

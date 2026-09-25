@@ -66,14 +66,14 @@ Default endpoint assumptions:
 
 ```text
 Plano listener: 127.0.0.1:12000
-Local model endpoint: http://127.0.0.1:8000/v1
+Supervisor Gateway: http://127.0.0.1:8080/v1
 ```
 
-Dubnium should provide the actual local runtime, usually vLLM or Ollama behind an OpenAI-compatible endpoint.
+Dubnium provides the Supervisor Gateway as the client-facing OpenAI-compatible endpoint. Raw llama.cpp/vLLM runtimes remain private backend services.
 
 Use the static Plano config to declare local and cloud providers:
 
-- local endpoint at `http://127.0.0.1:8000/v1`
+- local Supervisor Gateway at `http://127.0.0.1:8080/v1`
 - cloud general alias through `cloud-general`
 - cloud reasoning alias through `cloud-reasoning`
 

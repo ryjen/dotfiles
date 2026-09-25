@@ -32,14 +32,14 @@ in
 
       upstreamUrl = lib.mkOption {
         type = lib.types.str;
-        default = "http://127.0.0.1:8000/v1";
+        default = "http://127.0.0.1:8080/v1";
         example = "https://supervisor.tail4d84c.ts.net/v1";
         description = ''
           OpenAI/Anthropic-compatible upstream the Headroom proxy forwards to.
 
-          Defaults to the loopback local inference endpoint. Point this at a
-          remote model surface (for example a Tailscale-published supervisor
-          gateway) on hosts that do not run local inference themselves.
+          Defaults to the loopback Dubnium Supervisor Gateway. On remote
+          clients, point this at the Tailscale-published Supervisor Gateway.
+          Do not configure Headroom against raw llama.cpp/vLLM endpoints.
         '';
       };
     };

@@ -8,8 +8,8 @@
         "baseURL": "http://127.0.0.1:8787/v1",
         "apiKey": "none",
         "models": {
-          "dubnium-local": {
-            "name": "dubnium-local",
+          "supervisor": {
+            "name": "supervisor",
             "reasoning": false,
             "input": ["text"],
             "output": ["text"],
@@ -24,5 +24,5 @@
       }
     }
   },
-  "model": "dubnium/dubnium-local"
+  "model": "dubnium/supervisor"
 }

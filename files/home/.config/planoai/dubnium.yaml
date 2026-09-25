@@ -8,9 +8,9 @@ listeners:
     timeout: 120s
 
 model_providers:
-  - model: openai/qwen2.5-coder-14b-instruct
+  - model: openai/supervisor
     access_key: EMPTY
-    base_url: http://127.0.0.1:8000/v1
+    base_url: http://127.0.0.1:8080/v1
     default: true
   - model: openrouter/anthropic/claude-3.5-sonnet
     access_key: "$OPENROUTER_API_KEY"
@@ -30,9 +30,9 @@ model_providers:
 
 model_aliases:
   local-code:
-    target: openai/qwen2.5-coder-14b-instruct
+    target: openai/supervisor
   fast-local:
-    target: openai/qwen2.5-coder-14b-instruct
+    target: openai/supervisor
   cloud-general:
     target: openrouter/anthropic/claude-3.5-sonnet
   cloud-reasoning:
@@ -50,7 +50,7 @@ routing_preferences:
   - name: local code work
     description: code understanding, code generation, refactoring, and repo analysis that should prefer local inference
     models:
-      - openai/qwen2.5-coder-14b-instruct
+      - openai/supervisor
   - name: cloud general work
     description: public-safe general chat and broad reasoning allowed to use cloud routing
     models:

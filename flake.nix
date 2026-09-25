@@ -198,6 +198,18 @@
               touch "$out"
             '';
 
+        ai-gateway-boundary =
+          pkgs.runCommand "ai-gateway-boundary"
+            {
+              nativeBuildInputs = [ pkgs.python3Packages.pytest ];
+            }
+            ''
+              export PYTHONDONTWRITEBYTECODE=1
+              cd ${self}
+              pytest -q tests/test_ai_gateway_boundary.py
+              touch "$out"
+            '';
+
         waybar-github-runners-tests =
           pkgs.runCommand "waybar-github-runners-tests"
             {
