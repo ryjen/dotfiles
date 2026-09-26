@@ -104,7 +104,10 @@ def test_healthy_status_uses_owned_workers_as_active_count() -> None:
 
     assert output["class"] == "healthy"
     assert output["text"] == " 2"
-    assert "Workers: 2 / 4 (2 available)" in output["tooltip"]\n    assert "Memory: 2048 / 8192 MiB (6144 MiB available)" in output["tooltip"]\n    assert "CPU: unavailable" in output["tooltip"]\n    assert "Disk: unavailable" in output["tooltip"]
+    assert "Workers: 2 / 4 (2 available)" in output["tooltip"]
+    assert "Memory: 2048 / 8192 MiB (6144 MiB available)" in output["tooltip"]
+    assert "CPU: unavailable" in output["tooltip"]
+    assert "Disk: unavailable" in output["tooltip"]
     assert "Running units: 1" in output["tooltip"]
     assert "ryjen/dotfiles" in output["tooltip"]
     assert "ryjen/career-workflows" in output["tooltip"]
