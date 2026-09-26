@@ -634,7 +634,7 @@ assert_contains "$tmp/doctor.out" "[warn] meeting privacy status unavailable"
 
 # Static service and startup ownership contracts.
 meeting_nix="$repo_root/modules/home/meeting.nix"
-assert_contains "$meeting_nix" 'home.file.".local/libexec/dubnium-meeting-mode"'
+assert_contains "$meeting_nix" '".local/libexec/dubnium-meeting-mode" = {'
 assert_contains "$meeting_nix" 'systemd.user.services.dubnium-meeting-mode'
 assert_contains "$meeting_nix" 'RemainAfterExit = true;'
 assert_contains "$meeting_nix" 'ExecCondition = "%h/.local/libexec/dubnium-meeting-mode can-capture";'
