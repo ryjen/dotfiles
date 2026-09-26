@@ -134,7 +134,7 @@ def render_payload(payload: Mapping[str, Any]) -> dict[str, str]:
     else:
         css_class = "healthy"
 
-    text = f" {active}/{capacity}"
+    text = f" {active}"
     if degraded:
         text += " ⚠"
 
@@ -146,11 +146,28 @@ def render_payload(payload: Mapping[str, Any]) -> dict[str, str]:
 
     tooltip = [
         "GitHub Runners",
-        f"{active} active / {capacity} capacity / {available} available",
+        f"Workers: {active} / {capacity} ({available} available)",
         f"Running units: {running}",
+    ]
+
+    memory = runtime.get("memoryAdmission")
+    if isinstance(memory, dict):
+        committed = memory.get("committedMiB")
+        limit = memory.get("effectiveBudgetMiB")
+        available_memory = memory.get("availableMiB")
+        if all(isinstance(value, int) and not isinstance(value, bool) and value >= 0 for value in (committed, limit, available_memory)):
+            tooltip.append(
+                f"Memory: {committed} / {limit} MiB ({available_memory} MiB available)"
+            )
+    else:
+        tooltip.append("Memory: unavailable")
+
+    tooltip.extend([
+        f"CPU: unavailable",
+        f"Disk: unavailable",
         f"State: {_safe(ordinary_state)} (admin: {_safe(administrative_state)})",
         f"Controller: {controller_health}",
-    ]
+    ])
     if controller_health != "healthy":
         tooltip.append(f"Runtime: {_safe(controller_reason)}")
         tooltip.append(f"Service: {_safe(service_reason)}")
