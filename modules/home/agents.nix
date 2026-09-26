@@ -78,7 +78,13 @@ in
         Description = "Hermes Agent Dashboard (web UI)";
         After = [ "network-online.target" ];
         Wants = [ "network-online.target" ];
-        StartLimitIntervalSec = 0;
+        # Bound the restart loop. A previous value of 0 disabled start
+        # limiting entirely, so a permanently-failing dashboard retried every
+        # few seconds forever: 12114 restarts and ~220k journal lines from a
+        # fatal config error. With a finite window systemd gives up and holds
+        # the unit in `failed` instead of burning a core continuously.
+        StartLimitIntervalSec = "300";
+        StartLimitBurst = 5;
       };
 
       Service = {
