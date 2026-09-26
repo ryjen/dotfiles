@@ -167,9 +167,46 @@ def render_payload(payload: Mapping[str, Any]) -> dict[str, str]:
     if not memory_rendered:
         tooltip.append("Memory: unavailable")
 
+    cpu = runtime.get("cpuAllocation")
+    cpu_rendered = False
+    if isinstance(cpu, dict):
+        allocated_percent = cpu.get("allocatedPercent")
+        limit_percent = cpu.get("limitPercent")
+        if (
+            isinstance(allocated_percent, int)
+            and not isinstance(allocated_percent, bool)
+            and allocated_percent >= 0
+            and isinstance(limit_percent, int)
+            and not isinstance(limit_percent, bool)
+            and limit_percent > 0
+        ):
+            tooltip.append(f"CPU: {allocated_percent}% / {limit_percent}%")
+            cpu_rendered = True
+    if not cpu_rendered:
+        tooltip.append("CPU: unavailable")
+
+    disk = runtime.get("diskUsage")
+    disk_rendered = False
+    if isinstance(disk, dict):
+        referenced_bytes = disk.get("referencedBytes")
+        limit_bytes = disk.get("limitBytes")
+        if (
+            isinstance(referenced_bytes, int)
+            and not isinstance(referenced_bytes, bool)
+            and referenced_bytes >= 0
+            and isinstance(limit_bytes, int)
+            and not isinstance(limit_bytes, bool)
+            and limit_bytes > 0
+        ):
+            gib = 1024**3
+            tooltip.append(
+                f"Disk: {referenced_bytes / gib:.1f} / {limit_bytes / gib:.1f} GiB"
+            )
+            disk_rendered = True
+    if not disk_rendered:
+        tooltip.append("Disk: unavailable")
+
     tooltip.extend([
-        "CPU: unavailable",
-        "Disk: unavailable",
         f"State: {_safe(ordinary_state)} (admin: {_safe(administrative_state)})",
         f"Controller: {controller_health}",
     ])
@@ -263,7 +300,7 @@ def _read_payload() -> Mapping[str, Any]:
 
 def degraded_output(reason: str) -> dict[str, str]:
     return {
-        "text": " ?/? ⚠",
+        "text": " ? ⚠",
         "tooltip": f"GitHub Runners\nStatus unavailable\nReason: {_safe(reason)}",
         "class": "degraded",
         "alt": "unverified",

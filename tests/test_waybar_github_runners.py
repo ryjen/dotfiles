@@ -41,6 +41,10 @@ def _payload(
     service_valid: bool = True,
     memory_committed: int = 2048,
     memory_limit: int = 8192,
+    cpu_allocated: int = 200,
+    cpu_limit: int = 600,
+    disk_referenced: int = 12 * 1024**3,
+    disk_limit: int = 96 * 1024**3,
 ) -> dict[str, object]:
     workers = []
     for index in range(active):
@@ -94,6 +98,14 @@ def _payload(
                 "committedMiB": memory_committed,
                 "availableMiB": max(0, memory_limit - memory_committed),
             },
+            "cpuAllocation": {
+                "allocatedPercent": cpu_allocated,
+                "limitPercent": cpu_limit,
+            },
+            "diskUsage": {
+                "referencedBytes": disk_referenced,
+                "limitBytes": disk_limit,
+            },
             "workers": workers,
         },
     }
@@ -106,8 +118,8 @@ def test_healthy_status_uses_owned_workers_as_active_count() -> None:
     assert output["text"] == " 2"
     assert "Workers: 2 / 4 (2 available)" in output["tooltip"]
     assert "Memory: 2048 / 8192 MiB (6144 MiB available)" in output["tooltip"]
-    assert "CPU: unavailable" in output["tooltip"]
-    assert "Disk: unavailable" in output["tooltip"]
+    assert "CPU: 200% / 600%" in output["tooltip"]
+    assert "Disk: 12.0 / 96.0 GiB" in output["tooltip"]
     assert "Running units: 1" in output["tooltip"]
     assert "ryjen/dotfiles" in output["tooltip"]
     assert "ryjen/career-workflows" in output["tooltip"]
@@ -120,6 +132,18 @@ def test_malformed_memory_details_render_unavailable() -> None:
     output = renderer.render_payload(payload)
 
     assert "Memory: unavailable" in output["tooltip"]
+
+
+def test_malformed_resource_details_render_unavailable() -> None:
+    payload = _payload()
+    runtime = payload["controllerRuntime"]
+    runtime["cpuAllocation"]["allocatedPercent"] = True  # type: ignore[index]
+    runtime["diskUsage"]["limitBytes"] = 0  # type: ignore[index]
+
+    output = renderer.render_payload(payload)
+
+    assert "CPU: unavailable" in output["tooltip"]
+    assert "Disk: unavailable" in output["tooltip"]
 
 
 def test_full_capacity_is_busy_not_degraded() -> None:
@@ -287,7 +311,7 @@ def test_unknown_capacity_renders_unknown_not_zero(tmp_path: Path) -> None:
     output = json.loads(completed.stdout)
 
     assert output["class"] == "degraded"
-    assert output["text"] == " ?/? ⚠"
+    assert output["text"] == " ? ⚠"
     assert "0/0" not in output["text"]
 
 
