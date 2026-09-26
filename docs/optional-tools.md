@@ -12,6 +12,20 @@ dotfiles.grimblast.enable = true;
 
 The module installs `pkgs.grimblast` into the user environment.
 
+## Steam
+
+Install the Steam game client with:
+
+```nix
+dotfiles.steam.enable = true;
+```
+
+The Dubnium workstation profile enables this by default. The module installs
+`pkgs.steam` into the user environment and nothing else: it does not declare the
+NixOS `programs.steam` module, so `protontricks`, a gamescope session, and
+`localNetworkGameTransfers` remain unavailable. Add those through the system
+layer if they are needed.
+
 ## Unreal Editor
 
 Unreal Editor support is intentionally disabled by default. Enable the launcher,

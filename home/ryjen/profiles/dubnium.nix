@@ -47,6 +47,11 @@
       mpd.enable = lib.mkDefault true;
     };
 
+    # Steam game client. This selects the client only; it does not enable the
+    # NixOS programs.steam integration such as protontricks or a gamescope
+    # session, which belong to the system layer.
+    steam.enable = lib.mkDefault true;
+
     # Headroom proxy forwards to the Dubnium supervisor gateway published via
     # Tailscale Serve. OpenCode (and other AI clients) reach Headroom at the
     # local proxy on 127.0.0.1:8787; this is the upstream it forwards to.

@@ -47,6 +47,7 @@
     ./playwright.nix
     ./session.nix
     ./starship.nix
+    ./steam.nix
     ./taskwarrior.nix
     ./tidyfs.nix
     ./tmux.nix

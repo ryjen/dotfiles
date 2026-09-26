@@ -70,6 +70,9 @@ _: {
   # dotfiles.music.enable = false;
   # dotfiles.music.musicDirectory = "${config.home.homeDirectory}/Music";
   # dotfiles.music.mpd.enable = false;
+  # Steam installs the client package only. System-level Steam integration
+  # (protontricks, gamescope session) is owned by the NixOS layer.
+  # dotfiles.steam.enable = false;
   # dotfiles.grimblast.enable = false;
   # dotfiles.graphical.keyring.enable = false;
   # dotfiles.idle.enable = false;
