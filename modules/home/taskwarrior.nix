@@ -13,54 +13,60 @@ let
   hasTaskPromotedIndex = machineProfile != null && builtins.pathExists taskPromotedIndex;
 in
 {
-  home.packages = [
-    (pkgs.taskwarrior3 or pkgs.taskwarrior)
-  ];
+  home = {
+    packages = [
+      (pkgs.taskwarrior3 or pkgs.taskwarrior)
+    ];
 
-  home.file.".taskrc".source = ../../files/home/.taskrc;
+    file.".taskrc".source = ../../files/home/.taskrc;
 
-  # Managed config subdirectories - sourced by the generated .taskrc
-  xdg.configFile."task/sync".source = ../../files/home/.config/task/sync;
-  xdg.configFile."task/themes".source = ../../files/home/.config/task/themes;
-  xdg.configFile."task/uda".source = ../../files/home/.config/task/uda;
-  xdg.configFile."task/reports".source = ../../files/home/.config/task/reports;
-  xdg.configFile."task/holidays".source = ../../files/home/.config/task/holidays;
+    activation.ensureTaskRuntimeFiles = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+          task_config_dir="${config.xdg.configHome}/task"
+          mkdir -p "$task_config_dir/custom.d"
 
-  # Stable include bridge for the reviewed machine-profile layer. The bridge is
-  # always managed; it is an inert comment until a reviewed profile index exists.
-  xdg.configFile."task/custom.d/promoted.rc".text =
-    if hasTaskPromotedIndex then
-      ''
-        include ~/.config/task/custom.d/${machineProfileName}/index.rc
-      ''
-    else
-      ''
-        # No reviewed Taskwarrior promoted profile for ${machineProfileName}.
-      '';
+          if [ ! -e "$task_config_dir/local.rc" ]; then
+            cat > "$task_config_dir/local.rc" <<'EOF'
+      # Local Taskwarrior overrides.
+      EOF
+          fi
 
-  xdg.configFile."task/custom.d/${machineProfileName}/index.rc" = lib.mkIf hasTaskPromotedIndex {
-    source = taskPromotedIndex;
+          if [ ! -e "$task_config_dir/custom.d/index.rc" ]; then
+            cat > "$task_config_dir/custom.d/index.rc" <<'EOF'
+      # User-managed Taskwarrior custom includes.
+      EOF
+          fi
+    '';
   };
 
-  # Configctl layer directories
-  xdg.configFile."task/adopted.d/00-empty.rc".text = ''
-    # Reserved for Nix-managed adopted profiles
-  '';
+  xdg = {
+    configFile = {
+      # Managed config subdirectories - sourced by the generated .taskrc
+      "task/sync".source = ../../files/home/.config/task/sync;
+      "task/themes".source = ../../files/home/.config/task/themes;
+      "task/uda".source = ../../files/home/.config/task/uda;
+      "task/reports".source = ../../files/home/.config/task/reports;
+      "task/holidays".source = ../../files/home/.config/task/holidays;
 
-  home.activation.ensureTaskRuntimeFiles = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-        task_config_dir="${config.xdg.configHome}/task"
-        mkdir -p "$task_config_dir/custom.d"
+      # Stable include bridge for the reviewed machine-profile layer. The bridge is
+      # always managed; it is an inert comment until a reviewed profile index exists.
+      "task/custom.d/promoted.rc".text =
+        if hasTaskPromotedIndex then
+          ''
+            include ~/.config/task/custom.d/${machineProfileName}/index.rc
+          ''
+        else
+          ''
+            # No reviewed Taskwarrior promoted profile for ${machineProfileName}.
+          '';
 
-        if [ ! -e "$task_config_dir/local.rc" ]; then
-          cat > "$task_config_dir/local.rc" <<'EOF'
-    # Local Taskwarrior overrides.
-    EOF
-        fi
+      "task/custom.d/${machineProfileName}/index.rc" = lib.mkIf hasTaskPromotedIndex {
+        source = taskPromotedIndex;
+      };
 
-        if [ ! -e "$task_config_dir/custom.d/index.rc" ]; then
-          cat > "$task_config_dir/custom.d/index.rc" <<'EOF'
-    # User-managed Taskwarrior custom includes.
-    EOF
-        fi
-  '';
+      # Configctl layer directories
+      "task/adopted.d/00-empty.rc".text = ''
+        # Reserved for Nix-managed adopted profiles
+      '';
+    };
+  };
 }

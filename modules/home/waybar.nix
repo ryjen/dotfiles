@@ -34,37 +34,39 @@ in
   };
 
   config = lib.mkIf config.dotfiles.profiles.workstation.enable {
-    xdg.configFile."waybar/config.jsonc".text = renderedConfig;
-    xdg.configFile."waybar/style.css".source = ../../files/home/.config/waybar/style.css;
-    xdg.configFile."waybar/colors.css".source = ../../files/home/.config/waybar/colors.css;
-    xdg.configFile."waybar/custom.css".source = ../../files/home/.config/waybar/custom.css;
-    xdg.configFile."waybar/scripts/fans" = {
-      source = ../../files/home/.config/waybar/scripts/fans;
-      executable = true;
-    };
-    xdg.configFile."waybar/scripts/nvidia-gpu" = {
-      source = ../../files/home/.config/waybar/scripts/nvidia-gpu;
-      executable = true;
-    };
-    xdg.configFile."waybar/scripts/disk-space" = {
-      source = ../../files/home/.config/waybar/scripts/disk-space;
-      executable = true;
-    };
-    xdg.configFile."waybar/scripts/bluetooth" = {
-      source = ../../files/home/.config/waybar/scripts/bluetooth;
-      executable = true;
-    };
-    xdg.configFile."waybar/scripts/github-runners" = {
-      source = ../../files/home/.config/waybar/scripts/github-runners;
-      executable = true;
-    };
-    xdg.configFile."waybar/scripts/github-runners-action" = {
-      source = ../../files/home/.config/waybar/scripts/github-runners-action;
-      executable = true;
-    };
-    xdg.configFile."waybar/scripts/torrents" = {
-      source = ../../files/home/.config/waybar/scripts/torrents;
-      executable = true;
+    xdg.configFile = {
+      "waybar/config.jsonc".text = renderedConfig;
+      "waybar/style.css".source = ../../files/home/.config/waybar/style.css;
+      "waybar/colors.css".source = ../../files/home/.config/waybar/colors.css;
+      "waybar/custom.css".source = ../../files/home/.config/waybar/custom.css;
+      "waybar/scripts/fans" = {
+        source = ../../files/home/.config/waybar/scripts/fans;
+        executable = true;
+      };
+      "waybar/scripts/nvidia-gpu" = {
+        source = ../../files/home/.config/waybar/scripts/nvidia-gpu;
+        executable = true;
+      };
+      "waybar/scripts/disk-space" = {
+        source = ../../files/home/.config/waybar/scripts/disk-space;
+        executable = true;
+      };
+      "waybar/scripts/bluetooth" = {
+        source = ../../files/home/.config/waybar/scripts/bluetooth;
+        executable = true;
+      };
+      "waybar/scripts/github-runners" = {
+        source = ../../files/home/.config/waybar/scripts/github-runners;
+        executable = true;
+      };
+      "waybar/scripts/github-runners-action" = {
+        source = ../../files/home/.config/waybar/scripts/github-runners-action;
+        executable = true;
+      };
+      "waybar/scripts/torrents" = {
+        source = ../../files/home/.config/waybar/scripts/torrents;
+        executable = true;
+      };
     };
 
     # Own the systemd unit via Home Manager instead of the package-provided one.

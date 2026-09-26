@@ -1,6 +1,10 @@
-{ pkgs, home-manager, self }:
+{
+  pkgs,
+  home-manager,
+  self,
+}:
 let
-  lib = pkgs.lib;
+  inherit (pkgs) lib;
   evalMeeting =
     {
       meeting ? false,
@@ -22,13 +26,17 @@ let
             default = true;
           };
           config = {
-            home.username = "camera-test";
-            home.homeDirectory = "/home/camera-test";
-            home.stateVersion = "25.05";
-            dotfiles.meeting.enable = meeting;
-            dotfiles.meeting.zoom.enable = zoom;
-            dotfiles.meeting.teams.enable = teams;
-            dotfiles.meeting.phoneCamera.enable = phone;
+            home = {
+              username = "camera-test";
+              homeDirectory = "/home/camera-test";
+              stateVersion = "25.05";
+            };
+            dotfiles.meeting = {
+              enable = meeting;
+              zoom.enable = zoom;
+              teams.enable = teams;
+              phoneCamera.enable = phone;
+            };
           };
         })
       ];
@@ -50,32 +58,41 @@ let
   hasUx = cfg: builtins.hasAttr "hypr/custom.d/meeting.conf" cfg.xdg.configFile;
   check = condition: message: if condition then "" else builtins.throw message;
   evaluated = builtins.concatStringsSep "" [
-    (check (workstation.dotfiles.meeting.zoom.enable
+    (check (
+      workstation.dotfiles.meeting.zoom.enable
       && workstation.dotfiles.meeting.teams.enable
       && workstation.dotfiles.meeting.phoneCamera.enable
       && hasPkg workstation pkgs.zoom-us
-      && hasPhone workstation)
-      "Dubnium workstation must retain Zoom, Teams and the phone camera helper")
-    (check (laptop.dotfiles.meeting.zoom.enable
+      && hasPhone workstation
+    ) "Dubnium workstation must retain Zoom, Teams and the phone camera helper")
+    (check (
+      laptop.dotfiles.meeting.zoom.enable
       && laptop.dotfiles.meeting.teams.enable
       && laptop.dotfiles.meeting.phoneCamera.enable
       && hasPkg laptop pkgs.zoom-us
-      && hasPhone laptop)
-      "Technetium laptop must retain Zoom, Teams and the phone camera helper")
-    (check (!hasPkg none pkgs.zoom-us && !hasPhone none && !hasUx none)
-      "disabled meeting must install neither optional apps nor meeting UX")
-    (check (hasPkg zoomOnly pkgs.zoom-us && !hasPhone zoomOnly && !hasUx zoomOnly)
-      "Zoom must install when meeting UX is disabled")
-    (check (!hasPkg phoneOnly pkgs.zoom-us && hasPhone phoneOnly && !hasUx phoneOnly)
-      "phone-camera helper must install when meeting UX is disabled")
-    (check (!hasPkg uxOnly pkgs.zoom-us && !hasPhone uxOnly && hasUx uxOnly)
-      "meeting UX must not imply Zoom or camera installation")
-    (check (hasPkg all pkgs.zoom-us && hasPhone all && hasUx all)
-      "independent app toggles must compose with meeting UX")
-    (check (lib.hasInfix "meeting-teams-controls" all.xdg.configFile."hypr/custom.d/meeting.conf".text)
-      "Teams rules must appear only when selected")
-    (check (!lib.hasInfix "meeting-teams-controls" uxOnly.xdg.configFile."hypr/custom.d/meeting.conf".text)
-      "Teams rules must not appear when disabled")
+      && hasPhone laptop
+    ) "Technetium laptop must retain Zoom, Teams and the phone camera helper")
+    (check (
+      !hasPkg none pkgs.zoom-us && !hasPhone none && !hasUx none
+    ) "disabled meeting must install neither optional apps nor meeting UX")
+    (check (
+      hasPkg zoomOnly pkgs.zoom-us && !hasPhone zoomOnly && !hasUx zoomOnly
+    ) "Zoom must install when meeting UX is disabled")
+    (check (
+      !hasPkg phoneOnly pkgs.zoom-us && hasPhone phoneOnly && !hasUx phoneOnly
+    ) "phone-camera helper must install when meeting UX is disabled")
+    (check (
+      !hasPkg uxOnly pkgs.zoom-us && !hasPhone uxOnly && hasUx uxOnly
+    ) "meeting UX must not imply Zoom or camera installation")
+    (check (
+      hasPkg all pkgs.zoom-us && hasPhone all && hasUx all
+    ) "independent app toggles must compose with meeting UX")
+    (check (lib.hasInfix "meeting-teams-controls"
+      all.xdg.configFile."hypr/custom.d/meeting.conf".text
+    ) "Teams rules must appear only when selected")
+    (check (
+      !lib.hasInfix "meeting-teams-controls" uxOnly.xdg.configFile."hypr/custom.d/meeting.conf".text
+    ) "Teams rules must not appear when disabled")
   ];
 in
 pkgs.runCommand "check-meeting-ownership" { } ''

@@ -31,18 +31,20 @@ in
     }
 
     (lib.mkIf cfg.enable {
-      home.packages = [ pkgs.uv ];
+      home = {
+        packages = [ pkgs.uv ];
 
-      home.sessionPath = [
-        pipGlobalBin
-        "${config.home.homeDirectory}/.venv/bin"
-      ];
+        sessionPath = [
+          pipGlobalBin
+          "${config.home.homeDirectory}/.venv/bin"
+        ];
 
-      home.file."${cfg.globalPackagesFile}".source = ../../files/home/.config/pip/global-packages.txt;
+        file."${cfg.globalPackagesFile}".source = ../../files/home/.config/pip/global-packages.txt;
 
-      home.activation.createPipGlobalPrefix = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-        mkdir -p "${cfg.prefix}" "${pipGlobalBin}"
-      '';
+        activation.createPipGlobalPrefix = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+          mkdir -p "${cfg.prefix}" "${pipGlobalBin}"
+        '';
+      };
     })
   ];
 }

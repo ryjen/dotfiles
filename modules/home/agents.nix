@@ -60,11 +60,17 @@ in
     # config, and publishing it directly clobbers the user's live provider/model
     # settings. Until configctl activation, the runtime output stays
     # user-managed.
-    xdg.configFile."hermes/base.yaml" = lib.mkIf cfg.hermes.enable {
-      source = ../../files/home/.config/hermes/base.yaml;
-    };
-    xdg.configFile."hermes/README.md" = lib.mkIf cfg.hermes.enable {
-      source = ../../files/home/.config/hermes/README.md;
+    xdg.configFile = {
+      "hermes/base.yaml" = lib.mkIf cfg.hermes.enable {
+        source = ../../files/home/.config/hermes/base.yaml;
+      };
+      "hermes/README.md" = lib.mkIf cfg.hermes.enable {
+        source = ../../files/home/.config/hermes/README.md;
+      };
+
+      "codex/adopted.d/00-managed.toml".source = ../../files/home/.config/codex/adopted.d/00-managed.toml;
+      "codex/custom.d/README.md".source = ../../files/home/.config/codex/custom.d/README.md;
+      "codex/README.md".source = ../../files/home/.config/codex/README.md;
     };
 
     systemd.user.services.hermes-dashboard = lib.mkIf cfg.hermes.dashboard.enable {
@@ -77,7 +83,8 @@ in
 
       Service = {
         Type = "simple";
-        ExecStart = "${hermesPackage}/bin/hermes dashboard"
+        ExecStart =
+          "${hermesPackage}/bin/hermes dashboard"
           + " --host ${cfg.hermes.dashboard.host}"
           + " --port ${toString cfg.hermes.dashboard.port}"
           + " --no-open"
@@ -102,12 +109,5 @@ in
         WantedBy = [ "default.target" ];
       };
     };
-
-    xdg.configFile."codex/adopted.d/00-managed.toml".source =
-      ../../files/home/.config/codex/adopted.d/00-managed.toml;
-    xdg.configFile."codex/custom.d/README.md".source =
-      ../../files/home/.config/codex/custom.d/README.md;
-    xdg.configFile."codex/README.md".source = ../../files/home/.config/codex/README.md;
-
   };
 }

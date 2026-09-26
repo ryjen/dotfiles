@@ -31,20 +31,24 @@ in
     }
 
     (lib.mkIf cfg.enable {
-      home.packages = [ pkgs.nodejs ];
-      home.sessionPath = [ npmGlobalBin ];
+      home = {
+        packages = [ pkgs.nodejs ];
+        sessionPath = [ npmGlobalBin ];
 
-      home.file.".npmrc".text = ''
-        # Managed by Home Manager.
-        # Keep npm authentication and registry-specific local state out of this file.
-        prefix=${cfg.prefix}
-      '';
+        file = {
+          ".npmrc".text = ''
+            # Managed by Home Manager.
+            # Keep npm authentication and registry-specific local state out of this file.
+            prefix=${cfg.prefix}
+          '';
 
-      home.file."${cfg.globalPackagesFile}".source = ../../files/home/.config/npm/global-packages.txt;
+          "${cfg.globalPackagesFile}".source = ../../files/home/.config/npm/global-packages.txt;
+        };
 
-      home.activation.createNpmGlobalPrefix = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-        mkdir -p "${cfg.prefix}" "${npmGlobalBin}"
-      '';
+        activation.createNpmGlobalPrefix = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+          mkdir -p "${cfg.prefix}" "${npmGlobalBin}"
+        '';
+      };
     })
   ];
 }

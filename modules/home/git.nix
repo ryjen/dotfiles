@@ -85,7 +85,11 @@ in
         amend = "commit --amend --reuse-message=HEAD";
         fixup = "rebase -i HEAD~2";
       };
-      core.excludesfile = "~/.gitignore";
+      core = {
+        excludesfile = "~/.gitignore";
+        editor = gitEditor;
+        pager = "bat -p";
+      };
       difftool.prompt = false;
       gui.gcwarning = false;
       help.autocorrect = 1;
@@ -112,7 +116,6 @@ in
       branch.sort = "-committerdate";
       column.ui = "auto";
       commit.template = "~/.config/git/commit-message";
-      core.editor = gitEditor;
       merge = {
         tool = "vimdiff";
         conflictstyle = "diff3";
@@ -121,7 +124,6 @@ in
         diff = "bat -p";
         show = "bat -p";
       };
-      core.pager = "bat -p";
       credential.helper = "!pass-git-helper $@";
       sequence.editor = gitEditor;
     }
@@ -148,10 +150,14 @@ in
     ".local/share/git-autocommit/plan.md".source = ../../files/home/.local/share/git-autocommit/plan.md;
   };
 
-  xdg.configFile."git/commit-message".source = ../../files/home/.config/git/commit-message;
-  xdg.configFile."git/includes-promoted.conf".text = gitPromotedIncludeText;
-  xdg.configFile."git/conf.d/${machineProfileName}" = lib.mkIf hasGitPromotedProfile {
-    source = gitPromotedProfile;
-    recursive = true;
+  xdg = {
+    configFile = {
+      "git/commit-message".source = ../../files/home/.config/git/commit-message;
+      "git/includes-promoted.conf".text = gitPromotedIncludeText;
+      "git/conf.d/${machineProfileName}" = lib.mkIf hasGitPromotedProfile {
+        source = gitPromotedProfile;
+        recursive = true;
+      };
+    };
   };
 }
