@@ -17,6 +17,11 @@ _: {
   # Portable overrides. Tracked profiles provide defaults through mkDefault.
   # Package implementation overrides intentionally remain tracked in modules.
   # dotfiles.agents.hermes.enable = false;
+  # The dashboard runs as a user systemd service and defaults to the Hermes
+  # enable value. Set host and port to bind a listener other than the default.
+  # dotfiles.agents.hermes.dashboard.enable = true;
+  # dotfiles.agents.hermes.dashboard.host = "127.0.0.1";
+  # dotfiles.agents.hermes.dashboard.port = 9119;
   # dotfiles.agents.antigravity.enable = false;
 
   # dotfiles.uv.enable = false;
