@@ -8,9 +8,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 HYPR_MODULE = ROOT / "modules" / "home" / "hypr.nix"
 ACTIVATION_START = (
-    '    home.activation.configureVarietyWallpaperFolders = '
+    '        configureVarietyWallpaperFolders = '
     'lib.hm.dag.entryAfter [ "writeBoundary" ] \'\'\n'
 )
+ACTIVATION_END = "\n        '';"
 MANAGED_LINES = [
     "download_folder = ~/Pictures/wallpaper/variety/downloaded",
     "fetched_folder = ~/Pictures/wallpaper/variety/fetched",
@@ -25,7 +26,7 @@ MANAGED_LINES = [
 def _activation_script() -> str:
     content = HYPR_MODULE.read_text(encoding="utf-8")
     body = content.split(ACTIVATION_START, maxsplit=1)[1].split(
-        "\n    '';", maxsplit=1
+        ACTIVATION_END, maxsplit=1
     )[0]
     script = textwrap.dedent(body)
     for nix_prefix in (
