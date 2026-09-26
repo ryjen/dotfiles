@@ -110,6 +110,15 @@ def test_healthy_status_uses_owned_workers_as_active_count() -> None:
     assert "ryjen/career-workflows" in output["tooltip"]
 
 
+def test_malformed_memory_details_render_unavailable() -> None:
+    payload = _payload()
+    payload["controllerRuntime"]["memoryAdmission"]["committedMiB"] = "bad"  # type: ignore[index]
+
+    output = renderer.render_payload(payload)
+
+    assert "Memory: unavailable" in output["tooltip"]
+
+
 def test_full_capacity_is_busy_not_degraded() -> None:
     output = renderer.render_payload(_payload(active=4, running=4, available=0))
 
