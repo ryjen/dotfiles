@@ -151,20 +151,25 @@ def render_payload(payload: Mapping[str, Any]) -> dict[str, str]:
     ]
 
     memory = runtime.get("memoryAdmission")
+    memory_rendered = False
     if isinstance(memory, dict):
         committed = memory.get("committedMiB")
         limit = memory.get("effectiveBudgetMiB")
         available_memory = memory.get("availableMiB")
-        if all(isinstance(value, int) and not isinstance(value, bool) and value >= 0 for value in (committed, limit, available_memory)):
+        if all(
+            isinstance(value, int) and not isinstance(value, bool) and value >= 0
+            for value in (committed, limit, available_memory)
+        ):
             tooltip.append(
                 f"Memory: {committed} / {limit} MiB ({available_memory} MiB available)"
             )
-    else:
+            memory_rendered = True
+    if not memory_rendered:
         tooltip.append("Memory: unavailable")
 
     tooltip.extend([
-        f"CPU: unavailable",
-        f"Disk: unavailable",
+        "CPU: unavailable",
+        "Disk: unavailable",
         f"State: {_safe(ordinary_state)} (admin: {_safe(administrative_state)})",
         f"Controller: {controller_health}",
     ])
