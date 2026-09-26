@@ -39,6 +39,8 @@ def _payload(
     effective_state: str | None = None,
     runtime_valid: bool = True,
     service_valid: bool = True,
+    memory_committed: int = 2048,
+    memory_limit: int = 8192,
 ) -> dict[str, object]:
     workers = []
     for index in range(active):
@@ -85,6 +87,13 @@ def _payload(
             "ambiguousWorkerCount": ambiguous,
             "runningWorkerCount": running,
             "availableCapacity": available,
+            "memoryAdmission": {
+                "memoryBudgetMiB": memory_limit,
+                "sliceMemoryMaxMiB": memory_limit,
+                "effectiveBudgetMiB": memory_limit,
+                "committedMiB": memory_committed,
+                "availableMiB": max(0, memory_limit - memory_committed),
+            },
             "workers": workers,
         },
     }
@@ -94,8 +103,8 @@ def test_healthy_status_uses_owned_workers_as_active_count() -> None:
     output = renderer.render_payload(_payload(active=2, running=1))
 
     assert output["class"] == "healthy"
-    assert output["text"] == " 2/4"
-    assert "2 active / 4 capacity / 2 available" in output["tooltip"]
+    assert output["text"] == " 2"
+    assert "Workers: 2 / 4 (2 available)" in output["tooltip"]\n    assert "Memory: 2048 / 8192 MiB (6144 MiB available)" in output["tooltip"]\n    assert "CPU: unavailable" in output["tooltip"]\n    assert "Disk: unavailable" in output["tooltip"]
     assert "Running units: 1" in output["tooltip"]
     assert "ryjen/dotfiles" in output["tooltip"]
     assert "ryjen/career-workflows" in output["tooltip"]
@@ -105,7 +114,7 @@ def test_full_capacity_is_busy_not_degraded() -> None:
     output = renderer.render_payload(_payload(active=4, running=4, available=0))
 
     assert output["class"] == "busy"
-    assert output["text"] == " 4/4"
+    assert output["text"] == " 4"
     assert "⚠" not in output["text"]
 
 
@@ -120,7 +129,7 @@ def test_resumed_zero_worker_state_is_idle() -> None:
     )
 
     assert output["class"] == "idle"
-    assert output["text"] == " 0/4"
+    assert output["text"] == " 0"
 
 
 def test_administratively_suspended_state_is_distinct_from_idle() -> None:
@@ -197,7 +206,7 @@ def test_malformed_explicit_admin_state_does_not_use_legacy_fallback() -> None:
     output = renderer.render_payload(payload)
 
     assert output["class"] == "degraded"
-    assert output["text"] == " 1/4 ⚠"
+    assert output["text"] == " 1 ⚠"
     assert "State: active (admin: unknown)" in output["tooltip"]
 
 
@@ -220,7 +229,7 @@ def test_ambiguous_worker_state_is_degraded_without_inventing_capacity() -> None
     )
 
     assert output["class"] == "degraded"
-    assert output["text"] == " 2/4 ⚠"
+    assert output["text"] == " 2 ⚠"
     assert "Ambiguous workers: 1" in output["tooltip"]
 
 
