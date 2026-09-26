@@ -25,14 +25,16 @@ in
     }
 
     (lib.mkIf cfg.enable {
-      home.packages = [ pkgs.uv ];
-      home.sessionPath = [ uvBin ];
+      home = {
+        packages = [ pkgs.uv ];
+        sessionPath = [ uvBin ];
 
-      home.file."${cfg.toolsFile}".source = ../../files/home/.config/uv/tools.toml;
+        file."${cfg.toolsFile}".source = ../../files/home/.config/uv/tools.toml;
 
-      home.activation.createUvToolBin = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-        mkdir -p "${uvBin}"
-      '';
+        activation.createUvToolBin = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+          mkdir -p "${uvBin}"
+        '';
+      };
     })
   ];
 }

@@ -16,30 +16,34 @@ in
   };
 
   config = {
-    home.packages = [
-      pkgs.gnupg
-    ];
+    home = {
+      packages = [
+        pkgs.gnupg
+      ];
 
-    home.activation.ensureGnuPGHome = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-      mkdir -m 700 -p "$HOME/.gnupg"
-      chmod 700 "$HOME/.gnupg"
-    '';
+      activation = {
+        ensureGnuPGHome = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+          mkdir -m 700 -p "$HOME/.gnupg"
+          chmod 700 "$HOME/.gnupg"
+        '';
 
-    home.activation.writeGnuPGConfig = lib.hm.dag.entryAfter [ "ensureGnuPGHome" ] ''
-      key=""
-      if [ -n "${defaultKeyFile}" ] && [ -r "${defaultKeyFile}" ]; then
-        key="$(${pkgs.coreutils}/bin/tr -d '\r\n' < "${defaultKeyFile}")"
-      fi
+        writeGnuPGConfig = lib.hm.dag.entryAfter [ "ensureGnuPGHome" ] ''
+          key=""
+          if [ -n "${defaultKeyFile}" ] && [ -r "${defaultKeyFile}" ]; then
+            key="$(${pkgs.coreutils}/bin/tr -d '\r\n' < "${defaultKeyFile}")"
+          fi
 
-      {
-        echo "use-agent"
-        if [ -n "$key" ]; then
-          printf 'default-key %s\n' "$key"
-          printf 'trusted-key %s\n' "$key"
-        fi
-      } > "$HOME/.gnupg/gpg.conf"
-      chmod 600 "$HOME/.gnupg/gpg.conf"
-    '';
+          {
+            echo "use-agent"
+            if [ -n "$key" ]; then
+              printf 'default-key %s\n' "$key"
+              printf 'trusted-key %s\n' "$key"
+            fi
+          } > "$HOME/.gnupg/gpg.conf"
+          chmod 600 "$HOME/.gnupg/gpg.conf"
+        '';
+      };
+    };
 
     services.gpg-agent = {
       enable = true;

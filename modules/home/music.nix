@@ -74,17 +74,48 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    home.packages =
-      (with pkgs; [
-        beets
-        easyeffects
-        hydrogen
-        musescorePackage
-        playerctl
-        python3
-        reaper
-      ])
-      ++ reaperPlugins;
+    home = {
+      packages =
+        (with pkgs; [
+          beets
+          easyeffects
+          hydrogen
+          musescorePackage
+          playerctl
+          python3
+          reaper
+        ])
+        ++ reaperPlugins;
+
+      # Populate the standard per-user plugin directories that REAPER scans.
+      # Recursive linking allows unrelated manually installed plugins to coexist.
+      file = {
+        ".clap" = {
+          source = pluginDirectory "clap";
+          recursive = true;
+        };
+        ".lv2" = {
+          source = pluginDirectory "lv2";
+          recursive = true;
+        };
+        ".vst" = {
+          source = pluginDirectory "vst";
+          recursive = true;
+        };
+        ".vst3" = {
+          source = pluginDirectory "vst3";
+          recursive = true;
+        };
+      };
+
+      # Also export the conventional search variables for other Linux audio hosts.
+      sessionSearchVariables = {
+        CLAP_PATH = pluginSearchPaths "clap";
+        LV2_PATH = pluginSearchPaths "lv2";
+        VST3_PATH = pluginSearchPaths "vst3";
+        VST_PATH = pluginSearchPaths "vst";
+      };
+    };
 
     # mpv remains the general-purpose player for ad-hoc files, URLs and video.
     # Managed-library playback belongs to the optional MPD/rmpc layer.
@@ -101,60 +132,35 @@ in
       };
     };
 
-    xdg.desktopEntries.guitar-pro-reader = {
-      name = "Guitar Pro Reader";
-      genericName = "Guitar Tablature Reader";
-      comment = "Open and play Guitar Pro tablature with MuseScore";
-      exec = "${musescorePackage}/bin/mscore %F";
-      icon = "mscore";
-      terminal = false;
-      categories = [
-        "Audio"
-        "AudioVideo"
-        "Music"
-      ];
-      mimeType = [
-        "application/x-guitar-pro"
-        "application/x-guitar-pro5"
-      ];
-    };
+    xdg = {
+      desktopEntries = {
+        "guitar-pro-reader" = {
+          name = "Guitar Pro Reader";
+          genericName = "Guitar Tablature Reader";
+          comment = "Open and play Guitar Pro tablature with MuseScore";
+          exec = "${musescorePackage}/bin/mscore %F";
+          icon = "mscore";
+          terminal = false;
+          categories = [
+            "Audio"
+            "AudioVideo"
+            "Music"
+          ];
+          mimeType = [
+            "application/x-guitar-pro"
+            "application/x-guitar-pro5"
+          ];
+        };
+      };
 
-    # Populate the standard per-user plugin directories that REAPER scans.
-    # Recursive linking allows unrelated manually installed plugins to coexist.
-    home.file = {
-      ".clap" = {
-        source = pluginDirectory "clap";
-        recursive = true;
-      };
-      ".lv2" = {
-        source = pluginDirectory "lv2";
-        recursive = true;
-      };
-      ".vst" = {
-        source = pluginDirectory "vst";
-        recursive = true;
-      };
-      ".vst3" = {
-        source = pluginDirectory "vst3";
-        recursive = true;
+      configFile = {
+        # SWS is a REAPER extension rather than an audio plugin. Link its runtime
+        # files into the REAPER resource directory while keeping the package immutable.
+        "REAPER/UserPlugins/${swsPluginName}".source =
+          "${pkgs.reaper-sws-extension}/UserPlugins/${swsPluginName}";
+        "REAPER/Scripts/sws_python.py".source = "${pkgs.reaper-sws-extension}/Scripts/sws_python.py";
+        "REAPER/Scripts/sws_python64.py".source = "${pkgs.reaper-sws-extension}/Scripts/sws_python64.py";
       };
     };
-
-    # Also export the conventional search variables for other Linux audio hosts.
-    home.sessionSearchVariables = {
-      CLAP_PATH = pluginSearchPaths "clap";
-      LV2_PATH = pluginSearchPaths "lv2";
-      VST3_PATH = pluginSearchPaths "vst3";
-      VST_PATH = pluginSearchPaths "vst";
-    };
-
-    # SWS is a REAPER extension rather than an audio plugin. Link its runtime
-    # files into the REAPER resource directory while keeping the package immutable.
-    xdg.configFile."REAPER/UserPlugins/${swsPluginName}".source =
-      "${pkgs.reaper-sws-extension}/UserPlugins/${swsPluginName}";
-    xdg.configFile."REAPER/Scripts/sws_python.py".source =
-      "${pkgs.reaper-sws-extension}/Scripts/sws_python.py";
-    xdg.configFile."REAPER/Scripts/sws_python64.py".source =
-      "${pkgs.reaper-sws-extension}/Scripts/sws_python64.py";
   };
 }

@@ -98,24 +98,26 @@
             home-manager.nixosModules.home-manager
             sops-nix.nixosModules.sops
             {
-              home-manager.useGlobalPkgs = true;
-              home-manager.useUserPackages = true;
-              home-manager.extraSpecialArgs = {
-                inherit
-                  self
-                  username
-                  hermes-agent
-                  antigravity-nix
-                  git-autocommit
-                  repora
-                  tidyfs
-                  ;
-              };
-              home-manager.users.${username} = {
-                imports = [
-                  profileModule
-                  sops-nix.homeManagerModules.sops
-                ];
+              home-manager = {
+                useGlobalPkgs = true;
+                useUserPackages = true;
+                extraSpecialArgs = {
+                  inherit
+                    self
+                    username
+                    hermes-agent
+                    antigravity-nix
+                    git-autocommit
+                    repora
+                    tidyfs
+                    ;
+                };
+                users.${username} = {
+                  imports = [
+                    profileModule
+                    sops-nix.homeManagerModules.sops
+                  ];
+                };
               };
             }
           ]
@@ -314,7 +316,9 @@
               touch "$out"
             '';
 
-        meeting-option-ownership = import ./checks/meeting-ownership.nix { inherit pkgs home-manager self; };
+        meeting-option-ownership = import ./checks/meeting-ownership.nix {
+          inherit pkgs home-manager self;
+        };
 
         phone-camera-tests =
           pkgs.runCommand "phone-camera-tests"
@@ -332,12 +336,15 @@
               touch "$out"
             '';
 
-        calathea-release-contract = pkgs.runCommand "calathea-release-contract" {
-          nativeBuildInputs = [ self.packages.${system}.calathea ];
-        } ''
-          test "$(calathea version)" = "calathea 0.1.0-alpha.1"
-          touch "$out"
-        '';
+        calathea-release-contract =
+          pkgs.runCommand "calathea-release-contract"
+            {
+              nativeBuildInputs = [ self.packages.${system}.calathea ];
+            }
+            ''
+              test "$(calathea version)" = "calathea 0.1.0-alpha.1"
+              touch "$out"
+            '';
 
         git-autocommit-package = git-autocommit.checks.${system}.default;
 
@@ -441,14 +448,16 @@
         }
       ];
 
-      homeConfigurations."${username}@nixos" = mkHomeConfig ./home/ryjen/home.nix;
-      homeConfigurations."${username}@verify" = mkHomeConfig ./home/ryjen/verify-home.nix;
-      homeConfigurations."${username}@headless" = mkHomeConfig ./home/ryjen/headless-home.nix;
-      homeConfigurations."${username}@wsl" = mkHomeConfig ./home/ryjen/wsl-home.nix;
-      homeConfigurations."${username}@dubnium" = mkHomeConfig ./home/ryjen/dubnium-home.nix;
-      homeConfigurations."${username}@technetium" = mkHomeConfig ./home/ryjen/technetium-home.nix;
-      homeConfigurations."${username}@meeting-verify" = mkHomeConfig ./home/ryjen/meeting-verify-home.nix;
-      homeConfigurations."${username}@unreal-verify" = mkHomeConfig ./home/ryjen/unreal-verify-home.nix;
+      homeConfigurations = {
+        "${username}@nixos" = mkHomeConfig ./home/ryjen/home.nix;
+        "${username}@verify" = mkHomeConfig ./home/ryjen/verify-home.nix;
+        "${username}@headless" = mkHomeConfig ./home/ryjen/headless-home.nix;
+        "${username}@wsl" = mkHomeConfig ./home/ryjen/wsl-home.nix;
+        "${username}@dubnium" = mkHomeConfig ./home/ryjen/dubnium-home.nix;
+        "${username}@technetium" = mkHomeConfig ./home/ryjen/technetium-home.nix;
+        "${username}@meeting-verify" = mkHomeConfig ./home/ryjen/meeting-verify-home.nix;
+        "${username}@unreal-verify" = mkHomeConfig ./home/ryjen/unreal-verify-home.nix;
+      };
 
       nixosModules.unreal-storage = ./modules/nixos/unreal-storage.nix;
 
@@ -465,24 +474,26 @@
             home-manager.nixosModules.home-manager
           ];
 
-          home-manager.useGlobalPkgs = true;
-          home-manager.useUserPackages = true;
-          home-manager.extraSpecialArgs = {
-            inherit
-              self
-              hermes-agent
-              antigravity-nix
-              git-autocommit
-              repora
-              tidyfs
-              ;
-            username = dubniumUsername;
-          };
-          home-manager.users.${dubniumUsername} = {
-            imports = [
-              ./home/ryjen/dubnium-home.nix
-              sops-nix.homeManagerModules.sops
-            ];
+          home-manager = {
+            useGlobalPkgs = true;
+            useUserPackages = true;
+            extraSpecialArgs = {
+              inherit
+                self
+                hermes-agent
+                antigravity-nix
+                git-autocommit
+                repora
+                tidyfs
+                ;
+              username = dubniumUsername;
+            };
+            users.${dubniumUsername} = {
+              imports = [
+                ./home/ryjen/dubnium-home.nix
+                sops-nix.homeManagerModules.sops
+              ];
+            };
           };
         };
     };
