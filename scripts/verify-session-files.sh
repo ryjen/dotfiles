@@ -251,7 +251,9 @@ check_contains files/home/.local/bin/dub-session-start 'systemctl --user restart
 check_contains files/home/.local/bin/dub-waybar-reload 'systemctl --user stop waybar\.service'
 check_contains files/home/.local/bin/dub-waybar-reload 'systemctl --user start waybar\.service'
 check_not_contains files/home/.local/bin/dub-waybar-reload 'uwsm app -- waybar|exec waybar'
-check_not_contains files/home/.local/bin/dub-session-reset 'waybar'
+check_contains files/home/.local/bin/dub-session-reset 'systemctl --user stop waybar\.service'
+check_contains files/home/.local/bin/dub-session-reset 'pkill -x waybar'
+check_not_contains files/home/.local/bin/dub-session-reset 'uwsm app -- waybar|exec waybar|start_once[[:space:]]+waybar'
 
 # --- Waybar templates ---
 printf -- '\n--- Waybar templates ---\n'
