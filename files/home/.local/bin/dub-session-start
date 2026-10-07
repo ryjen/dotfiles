@@ -44,7 +44,7 @@ start_once() {
 
 start_graphical_session_targets
 
-start_once waybar waybar
+# Waybar is owned by Home Manager's systemd user service.
 start_once nm-applet nm-applet --indicator
 start_once mako mako
 start_once hyprpaper hyprpaper
