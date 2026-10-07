@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-pkill waybar >/dev/null 2>&1 || true
+"$HOME/.local/bin/dub-waybar-reload" || true
 pkill mako >/dev/null 2>&1 || true
 pkill hyprpaper >/dev/null 2>&1 || true
 
