@@ -6,4 +6,8 @@ if ! command -v systemctl >/dev/null 2>&1; then
   exit 1
 fi
 
-exec systemctl --user restart waybar.service
+# Canonicalize legacy sessions that may still have an unmanaged Waybar from an
+# older dub-session-start generation, then restore the single managed instance.
+systemctl --user stop waybar.service
+pkill -x waybar >/dev/null 2>&1 || true
+exec systemctl --user start waybar.service
