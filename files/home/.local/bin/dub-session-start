@@ -44,7 +44,16 @@ start_once() {
 
 start_graphical_session_targets
 
-# Waybar is owned by Home Manager's systemd user service.
+# Waybar's process is owned exclusively by Home Manager's systemd user unit.
+# Restart it after importing the current Wayland environment so a unit skipped
+# earlier at default.target becomes active for this compositor session.
+if command -v systemctl >/dev/null 2>&1; then
+	printf '[start] waybar.service\n'
+	systemctl --user restart waybar.service || printf '[warn] failed to restart waybar.service\n'
+else
+	printf '[skip] systemctl not found; waybar.service unavailable\n'
+fi
+
 start_once nm-applet nm-applet --indicator
 start_once mako mako
 start_once hyprpaper hyprpaper
