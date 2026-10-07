@@ -70,15 +70,13 @@ in
     };
 
     # Own Waybar lifecycle exclusively through Home Manager's systemd unit.
-    # Session startup/reload helpers must not spawn a second Waybar process.
-    # The package unit hard-codes `Requisite=graphical-session.target`, which is
-    # dead in sessions launched directly via greetd -> start-hyprland (UWSM, the
-    # only thing that raises that target, is bypassed). With a dead Requisite the
-    # service can never start. HM's unit has no Requisite; we tie it to
-    # default.target (always active at login) so the bar comes up independently
-    # of the broken graphical-session.target, while ConditionEnvironment keeps
-    # it Wayland-only. This also stops the package's auto-linked unit from
-    # colliding with ours at ~/.config/systemd/user/waybar.service.
+    # Session startup/reload helpers may manage this unit, but must never spawn
+    # an unmanaged Waybar process. The package unit hard-codes
+    # `Requisite=graphical-session.target`, which is unreliable in sessions
+    # launched directly via greetd -> start-hyprland. HM's unit avoids that
+    # Requisite and is attached to default.target; dub-session-start imports the
+    # current Wayland environment and then restarts the same unit. A Home Manager
+    # rebuild may also restart it, but systemd preserves the single process owner.
     programs.waybar = {
       enable = true;
       systemd.enable = true;
