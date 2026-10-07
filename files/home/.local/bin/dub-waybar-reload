@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-pkill waybar >/dev/null 2>&1 || true
-sleep 0.2
-
-if command -v uwsm >/dev/null 2>&1 && [ -n "${WAYLAND_DISPLAY:-}" ]; then
-  exec uwsm app -- waybar
+if ! command -v systemctl >/dev/null 2>&1; then
+  printf 'systemctl is required to manage the Home Manager Waybar service\n' >&2
+  exit 1
 fi
 
-exec waybar
+# Canonicalize legacy sessions that may still have an unmanaged Waybar from an
+# older dub-session-start generation, then restore the single managed instance.
+systemctl --user stop waybar.service
+pkill -x waybar >/dev/null 2>&1 || true
+exec systemctl --user start waybar.service
