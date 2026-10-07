@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Canonicalize both the managed service and any unmanaged Waybar left running
+# from a previous Home Manager generation before rebuilding the session.
+if command -v systemctl >/dev/null 2>&1; then
+  systemctl --user stop waybar.service || true
+fi
+pkill -x waybar >/dev/null 2>&1 || true
+
 pkill mako >/dev/null 2>&1 || true
 pkill hyprpaper >/dev/null 2>&1 || true
 
