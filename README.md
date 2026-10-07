@@ -134,7 +134,7 @@ Stable session wrappers are installed into `~/.local/bin`:
 - `dub-clipboard` opens clipboard history through `cliphist` and a launcher.
 - `dub-waybar-reload` restarts the Home Manager-owned Waybar systemd user service.
 - `dub-screenshot` wraps `grim`, `slurp`, and `wl-copy` screenshot flows.
-- `dub-session-start` imports/starts graphical-session targets and starts unmanaged session applets, wallpaper, notifications, and optional Eww state with logging; Waybar remains systemd-owned.
+- `dub-session-start` imports/starts graphical-session targets, restarts the Home Manager-owned Waybar service with the current Wayland environment, and starts the remaining unmanaged session applets with logging.
 - `dub-session-reset` restarts the lightweight session services.
 - `dub-session-doctor` checks common Hyprland/Waybar recovery issues.
 
