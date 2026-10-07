@@ -242,6 +242,16 @@ check_contains home/ryjen/profiles/dubnium.nix 'openwork[[:space:]]*=[[:space:]]
 check_contains home/ryjen/profiles/dubnium.nix 'sandbox\.allowSshAgent[[:space:]]*=[[:space:]]*lib\.mkDefault[[:space:]]+true;'
 check_contains modules/home/openwork.nix 'config\.services\.ssh-agent\.socket'
 
+# --- Waybar lifecycle ownership ---
+printf -- '\n--- Waybar lifecycle ownership ---\n'
+check_contains modules/home/waybar.nix 'systemd\.enable = true;'
+check_contains modules/home/waybar.nix 'systemd\.targets = \[ "default\.target" \];'
+check_not_contains files/home/.local/bin/dub-session-start 'start_once[[:space:]]+waybar'
+check_contains files/home/.local/bin/dub-waybar-reload 'systemctl --user restart waybar\.service'
+check_not_contains files/home/.local/bin/dub-waybar-reload 'uwsm app -- waybar|exec waybar'
+check_not_contains files/home/.local/bin/dub-session-reset 'pkill waybar'
+check_contains files/home/.local/bin/dub-session-reset 'dub-waybar-reload'
+
 # --- Waybar templates ---
 printf -- '\n--- Waybar templates ---\n'
 check_exists files/home/.config/waybar/config.jsonc
