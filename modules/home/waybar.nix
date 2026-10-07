@@ -69,7 +69,8 @@ in
       };
     };
 
-    # Own the systemd unit via Home Manager instead of the package-provided one.
+    # Own Waybar lifecycle exclusively through Home Manager's systemd unit.
+    # Session startup/reload helpers must not spawn a second Waybar process.
     # The package unit hard-codes `Requisite=graphical-session.target`, which is
     # dead in sessions launched directly via greetd -> start-hyprland (UWSM, the
     # only thing that raises that target, is bypassed). With a dead Requisite the
