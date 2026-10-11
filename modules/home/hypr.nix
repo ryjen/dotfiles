@@ -67,6 +67,7 @@ let
     "dub-session-reset"
     "dub-session-start"
     "dub-terminal"
+    "dub-waybar-canonicalize"
     "dub-waybar-reload"
     "random-wallpaper"
     "random-quote"

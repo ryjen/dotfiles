@@ -273,6 +273,7 @@
             ''
               bash ${./scripts/verify-session-files.sh} ${self}
               bash ${./tests/test-dub-terminal.sh} ${self}
+              bash ${./tests/test-waybar-single-owner.sh} ${self}
               touch "$out"
             '';
 

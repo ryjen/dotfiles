@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# Enforce a single Waybar owner: the Home Manager `waybar.service` user unit.
+#
+# Legacy Dubnium sessions launched Waybar directly from the compositor
+# (`exec-once = ... waybar`), and Home Manager wraps the managed binary so its
+# process name is `.waybar-wrapped`. A bare `pkill -x waybar` therefore misses
+# both the wrapper and any transient `app-Hyprland-waybar-*.scope`. Stop the
+# managed unit, reap every leftover Waybar process, then start exactly one
+# managed instance so reattach/reload cannot leave two bars on screen.
+set -euo pipefail
+
+have_systemctl=false
+if command -v systemctl >/dev/null 2>&1; then
+	have_systemctl=true
+fi
+
+if [ "$have_systemctl" = true ]; then
+	systemctl --user stop waybar.service >/dev/null 2>&1 || true
+fi
+
+# Reap unmanaged instances across both naming modes.
+pkill -x waybar >/dev/null 2>&1 || true
+pkill -x .waybar-wrapped >/dev/null 2>&1 || true
+
+# Legacy sessions started Waybar inside a transient Hyprland scope; stopping the
+# scope reaps the process even if it survived the signals above.
+if [ "$have_systemctl" = true ]; then
+	while read -r scope _; do
+		[ -n "$scope" ] || continue
+		systemctl --user stop "$scope" >/dev/null 2>&1 || true
+	done < <(
+		systemctl --user list-units --all --type=scope --no-legend \
+			'app-Hyprland-waybar-*.scope' 2>/dev/null
+	)
+
+	systemctl --user start waybar.service >/dev/null 2>&1 || true
+fi
