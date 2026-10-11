@@ -246,14 +246,19 @@ check_contains modules/home/openwork.nix 'config\.services\.ssh-agent\.socket'
 printf -- '\n--- Waybar lifecycle ownership ---\n'
 check_contains modules/home/waybar.nix 'systemd\.enable = true;'
 check_contains modules/home/waybar.nix 'systemd\.targets = \[ "default\.target" \];'
+check_exists files/home/.local/bin/dub-waybar-canonicalize
+check_contains files/home/.local/bin/dub-waybar-canonicalize 'systemctl --user stop waybar\.service'
+check_contains files/home/.local/bin/dub-waybar-canonicalize 'systemctl --user start waybar\.service'
+check_contains files/home/.local/bin/dub-waybar-canonicalize 'pkill -x waybar'
+check_contains files/home/.local/bin/dub-waybar-canonicalize 'pkill -x \.waybar-wrapped'
+check_contains files/home/.local/bin/dub-waybar-canonicalize 'app-Hyprland-waybar-\*\.scope'
+check_not_contains files/home/.local/bin/dub-waybar-canonicalize 'uwsm app -- waybar|exec waybar'
 check_not_contains files/home/.local/bin/dub-session-start 'start_once[[:space:]]+waybar'
-check_contains files/home/.local/bin/dub-session-start 'systemctl --user restart waybar\.service'
-check_contains files/home/.local/bin/dub-waybar-reload 'systemctl --user stop waybar\.service'
-check_contains files/home/.local/bin/dub-waybar-reload 'systemctl --user start waybar\.service'
+check_contains files/home/.local/bin/dub-session-start 'dub-waybar-canonicalize'
+check_contains files/home/.local/bin/dub-waybar-reload 'dub-waybar-canonicalize'
 check_not_contains files/home/.local/bin/dub-waybar-reload 'uwsm app -- waybar|exec waybar'
-check_contains files/home/.local/bin/dub-session-reset 'systemctl --user stop waybar\.service'
-check_contains files/home/.local/bin/dub-session-reset 'pkill -x waybar'
-check_not_contains files/home/.local/bin/dub-session-reset 'uwsm app -- waybar|exec waybar|start_once[[:space:]]+waybar'
+check_contains files/home/.local/bin/dub-session-reset 'dub-session-start'
+check_not_contains files/home/.local/bin/dub-session-reset 'uwsm app -- waybar|exec waybar|start_once[[:space:]]+waybar|pkill -x waybar'
 
 # --- Waybar templates ---
 printf -- '\n--- Waybar templates ---\n'
@@ -320,6 +325,7 @@ for script in \
 	dub-session-reset \
 	dub-session-start \
 	dub-terminal \
+	dub-waybar-canonicalize \
 	dub-waybar-reload; do
 	check_exists "files/home/.local/bin/$script"
 done
