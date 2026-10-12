@@ -37,6 +37,15 @@ _: {
   # compatibility profile; null selects the current tracked host name.
   # dotfiles.opencode.enable = false;
   # dotfiles.opencode.configProfile = null;
+  # MCP servers are rendered into the managed OpenCode config.json. Register
+  # servers here instead of the hand-written ~/.config/opencode/opencode.json,
+  # which OpenCode loads later and would override the managed value. Headroom
+  # registers itself when dotfiles.headroom.mcp.enable is set.
+  # dotfiles.opencode.mcp = {
+  #   serena = {
+  #     command = [ "${config.home.homeDirectory}/.local/bin/serena" "start-mcp-server" ];
+  #   };
+  # };
 
   # Playwright is Nix-managed so browser binaries remain immutable and version-
   # aligned with the packaged CLI instead of being downloaded into a user cache.
