@@ -14,6 +14,7 @@ REPO_ROOT = Path(sys.argv[1]).resolve() if len(sys.argv) == 2 else Path.cwd().re
 LEGACY_VALIDATOR = REPO_ROOT / "scripts" / "verify-configctl-contracts.py"
 MATERIALIZATION_VALIDATOR = REPO_ROOT / "checks" / "verify-configctl-materialization.py"
 APP_DIR = REPO_ROOT / "contracts" / "configctl" / "apps"
+STATUS_VALIDATOR = REPO_ROOT / "checks" / "verify-configctl-status.py"
 DIVERSION_CONTRACT = REPO_ROOT / "contracts" / "configctl" / "init" / "diversion-cli.toml"
 
 spec = importlib.util.spec_from_file_location("configctl_contracts", LEGACY_VALIDATOR)
@@ -279,6 +280,20 @@ def validate_music_apps() -> None:
     )
 
 
+def validate_status_contract() -> None:
+    status_spec = importlib.util.spec_from_file_location(
+        "configctl_status",
+        STATUS_VALIDATOR,
+    )
+    if status_spec is None or status_spec.loader is None:
+        raise SystemExit(f"unable to load status validator: {STATUS_VALIDATOR}")
+    status = importlib.util.module_from_spec(status_spec)
+    status_spec.loader.exec_module(status)
+    result = status.main()
+    if result != 0:
+        raise SystemExit(result)
+
+
 def validate_materialization() -> None:
     materialization_spec = importlib.util.spec_from_file_location(
         "configctl_materialization",
@@ -299,6 +314,7 @@ if legacy_result != 0:
     raise SystemExit(legacy_result)
 validate_required_diversion_contract()
 validate_music_apps()
+validate_status_contract()
 validate_materialization()
-print("validated Diversion, managed-music, and promoted-materialization configctl contracts")
+print("validated Diversion, managed-music, status-compatibility, and promoted-materialization configctl contracts")
 raise SystemExit(0)
