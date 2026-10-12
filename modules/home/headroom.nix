@@ -79,6 +79,20 @@ in
       };
     })
 
+    # Register the Headroom MCP server with OpenCode as a managed MCP entry.
+    # Headroom owns the launcher path, so clients never hardcode a uv tool
+    # location. This is inert when OpenCode itself is disabled.
+    (lib.mkIf cfg.mcp.enable {
+      dotfiles.opencode.mcp.headroom = {
+        type = "local";
+        command = [
+          cfg.mcp.package
+          "mcp"
+          "serve"
+        ];
+      };
+    })
+
     (lib.mkIf cfg.proxy.enable {
       systemd.user.services.headroom-proxy = {
         Unit = {

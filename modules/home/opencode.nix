@@ -30,6 +30,30 @@ let
     export PATH="${wlCopyShim}/bin:$PATH"
     exec "${npmBin}/opencode" "$@"
   '';
+
+  # Schema for a single OpenCode MCP server entry. This lives in the let binding
+  # as a module value so the option surface only declares the portable
+  # dotfiles.opencode.mcp path, not the per-server sub-fields.
+  mcpServerSubmodule = {
+    options = {
+      type = lib.mkOption {
+        type = lib.types.str;
+        default = "local";
+        description = "OpenCode MCP transport type; local stdio servers use \"local\".";
+      };
+
+      command = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        description = "Command and arguments OpenCode runs for the MCP server.";
+      };
+
+      enabled = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "Whether OpenCode should start this MCP server.";
+      };
+    };
+  };
 in
 {
   options.dotfiles.opencode = {
@@ -46,6 +70,31 @@ in
       description = ''
         Reviewed configctl profile to project as OpenCode config.json. When null,
         the current dotfiles host name is used.
+      '';
+    };
+
+    mcp = lib.mkOption {
+      type = lib.types.attrsOf (lib.types.submodule mcpServerSubmodule);
+      default = { };
+      example = lib.literalExpression ''
+        {
+          serena = {
+            command = [
+              "''${config.home.homeDirectory}/.local/bin/serena"
+              "start-mcp-server"
+              "--project-from-cwd"
+              "--context"
+              "agent"
+            ];
+          };
+        }
+      '';
+      description = ''
+        MCP servers rendered into the Home Manager-owned OpenCode config.json.
+
+        Register servers here rather than in the hand-written
+        ~/.config/opencode/opencode.json, which OpenCode loads afterwards and
+        would otherwise override the managed value.
       '';
     };
   };
@@ -73,8 +122,23 @@ in
     # relying on an implicit fallback or duplicating config files.
     # config.local.json is a machine-local escape hatch Home Manager never
     # overwrites.
-    xdg.configFile."opencode/config.json" = {
-      source = managedConfig;
-    };
+    # The reviewed fragment is the base config. Declarative MCP servers are
+    # rendered on top so they are owned by Home Manager instead of drifting into
+    # the hand-written opencode.json override file. When no MCP servers are
+    # configured the reviewed fragment is projected unchanged.
+    xdg.configFile."opencode/config.json".source =
+      if cfg.mcp == { } then
+        managedConfig
+      else
+        pkgs.writeText "opencode-config.json" (
+          builtins.toJSON (
+            builtins.fromJSON (builtins.readFile managedConfig)
+            // {
+              mcp = lib.mapAttrs (_: server: {
+                inherit (server) type command enabled;
+              }) cfg.mcp;
+            }
+          )
+        );
   };
 }

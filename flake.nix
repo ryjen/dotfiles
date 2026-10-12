@@ -200,6 +200,18 @@
               touch "$out"
             '';
 
+        opencode-mcp-contract =
+          pkgs.runCommand "opencode-mcp-contract"
+            {
+              nativeBuildInputs = [ pkgs.python3Packages.pytest ];
+            }
+            ''
+              export PYTHONDONTWRITEBYTECODE=1
+              cd ${self}
+              pytest -q tests/test_opencode_mcp_contract.py
+              touch "$out"
+            '';
+
         ai-gateway-boundary =
           pkgs.runCommand "ai-gateway-boundary"
             {
