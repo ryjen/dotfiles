@@ -11,6 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 MODULE = ROOT / "modules" / "home" / "opencode.nix"
 HEADROOM = ROOT / "modules" / "home" / "headroom.nix"
+HEADROOM_LAUNCHER = ROOT / "files" / "home" / ".local" / "libexec" / "headroom-mcp"
 WORKSTATION = ROOT / "home" / "ryjen" / "profiles" / "workstation.nix"
 CATALOG = ROOT / "home" / "ryjen" / "user.example.nix"
 FRAGMENTS = (
@@ -33,9 +34,15 @@ def test_headroom_registers_its_mcp_server() -> None:
     headroom = HEADROOM.read_text(encoding="utf-8")
 
     assert "dotfiles.opencode.mcp.headroom" in headroom
-    assert "cfg.mcp.package" in headroom
-    assert '"mcp"' in headroom
-    assert '"serve"' in headroom
+
+    # The MCP command is the launcher path alone: the launcher already appends
+    # `mcp serve`, so duplicating the subcommand here would fail to start.
+    assert "command = [ cfg.mcp.package ]" in headroom
+    assert '"mcp"' not in headroom
+    assert '"serve"' not in headroom
+
+    launcher = HEADROOM_LAUNCHER.read_text(encoding="utf-8")
+    assert "mcp serve" in launcher
 
 
 def test_serena_mcp_is_declared_by_the_workstation_profile() -> None:
