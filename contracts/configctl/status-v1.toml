@@ -1,0 +1,96 @@
+schema_version = 1
+mode = "python-compatibility"
+baseline_tools = [
+  "hypr",
+  "git",
+  "nvim",
+  "zsh",
+  "codex",
+  "hermes",
+  "mpd",
+]
+discover_app_strategies = [
+  "compose",
+]
+
+# This contract is a read-only compatibility projection for the standalone
+# configctl migration. It preserves the current Python status surface without
+# making legacy path names declarative runtime truth. Each entry names the
+# dotfiles-owned source that constrains the tool and records known semantic
+# drift separately.
+
+[tools.hypr]
+root = "$HOME/.config/hypr"
+local = "local.conf"
+custom = "custom.d"
+adopted = "adopted.d"
+authority = "app-manifest"
+authority_path = "contracts/configctl/apps/hypr.toml"
+compatibility_drift = []
+
+[tools.git]
+root = "$HOME/.config/git"
+local = "local.config"
+custom = "conf.d"
+adopted = "adopted.d"
+authority = "app-manifest"
+authority_path = "contracts/configctl/apps/git.toml"
+compatibility_drift = [
+  "local",
+  "adopted",
+]
+
+[tools.nvim]
+root = "$HOME/.config/nvim"
+local = "local.lua"
+custom = "custom"
+adopted = "adopted"
+authority = "home-manager"
+authority_path = "modules/home/neovim.nix"
+authority_refs = [
+  "files/home/.config/nvim/init.lua",
+]
+compatibility_drift = [
+  "root",
+]
+
+[tools.zsh]
+root = "$HOME/.config/zsh"
+local = "local.zsh"
+custom = "config.d"
+adopted = "adopted.d"
+authority = "app-manifest"
+authority_path = "contracts/configctl/apps/zsh.toml"
+compatibility_drift = []
+
+[tools.codex]
+root = "$HOME/.config/codex"
+local = "local.toml"
+custom = "custom.d"
+adopted = "adopted.d"
+authority = "init-contract"
+authority_path = "contracts/configctl/init/codex-config.toml"
+authority_refs = [
+  "files/home/.config/codex/README.md",
+]
+compatibility_drift = [
+  "root",
+]
+
+[tools.hermes]
+root = "$HOME/.config/hermes"
+local = "local.yaml"
+custom = "custom.d"
+adopted = "adopted.d"
+authority = "app-manifest"
+authority_path = "contracts/configctl/apps/hermes.toml"
+compatibility_drift = []
+
+[tools.mpd]
+root = "$HOME/.config/mpd"
+local = "local.conf"
+custom = "custom.d"
+adopted = "adopted.d"
+authority = "app-manifest"
+authority_path = "contracts/configctl/apps/mpd.toml"
+compatibility_drift = []
