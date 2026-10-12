@@ -166,9 +166,9 @@ def validate_home_manager_authority(tool: str, entry: dict[str, Any], authority_
         ref = safe_repo_file(raw, label=f"tools.{tool}.authority_refs")
         text = ref.read_text(encoding="utf-8")
         required = {
-            str(entry["local"]),
-            f'{entry["custom"]}/*.lua',
-            f'{entry["adopted"]}/*.lua',
+            f'~/.config/nvim/{entry["local"]}',
+            f'~/.config/nvim/{entry["custom"]}',
+            f'~/.config/nvim/{entry["adopted"]}',
         }
         for expected in required:
             if expected not in text:
