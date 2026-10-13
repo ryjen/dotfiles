@@ -27,7 +27,7 @@ class CredentialPublicationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             (root / "safe.conf").write_bytes(
-                b"some config\n-----BEGIN OPENSSH PRIVATE KEY-----\nTEST-ONLY"
+                b"some config\n" + b"-----BEGIN " + b"OPENSSH PRIVATE KEY-----\nTEST-ONLY"
             )
             result = guard.inspect(root, [Path("safe.conf")])
             self.assertEqual(result, [("safe.conf", "private key PEM marker")])
