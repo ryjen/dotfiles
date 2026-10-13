@@ -25,7 +25,7 @@
     };
     repora.url = "github:hackelia-micrantha/repora/6fe22ee2c7accb36e60d2df78fbe3ac59ba48616";
     tidyfs = {
-      url = "github:ryjen/tidyfs-community/b6690394c15d4e666b26885d922414527e5c7d68";
+      url = "github:ryjen/tidyfs/8beca6cbcd9c732a712777a59a4dd46ae703906d?dir=distribution";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     sops-nix = {

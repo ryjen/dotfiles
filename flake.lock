@@ -384,17 +384,19 @@
         ]
       },
       "locked": {
-        "lastModified": 1789426046,
-        "narHash": "sha256-ckikCxRwfq4JLofh7j3evmltW8VjqStEk5obS2Y/1Qk=",
+        "dir": "distribution",
+        "lastModified": 1791875511,
+        "narHash": "sha256-+3bO8P77G7OPBiUrKbrUWLFVPmzPwyszDN3m3J8MRxY=",
         "owner": "ryjen",
-        "repo": "tidyfs-community",
-        "rev": "b6690394c15d4e666b26885d922414527e5c7d68",
+        "repo": "tidyfs",
+        "rev": "8beca6cbcd9c732a712777a59a4dd46ae703906d",
         "type": "github"
       },
       "original": {
+        "dir": "distribution",
         "owner": "ryjen",
-        "repo": "tidyfs-community",
-        "rev": "b6690394c15d4e666b26885d922414527e5c7d68",
+        "repo": "tidyfs",
+        "rev": "8beca6cbcd9c732a712777a59a4dd46ae703906d",
         "type": "github"
       }
     },
