@@ -41,7 +41,14 @@ sops secrets.yaml
 ```
 
 Keep `secrets.yaml` encrypted before committing. Never commit plaintext secret
-files.
+files. The repository ignores `secrets.yaml` by default, since the initial
+copy of the example is plaintext. If a reviewed, encrypted SOPS file must be
+committed, first encrypt it and verify its `ENC[` values and `sops:` metadata,
+then opt in deliberately with `git add -f secrets.yaml`. CI runs
+`python3 scripts/verify-publication-secrets.py` against the tracked tree
+and rejects unencrypted known SOPS fields, plaintext environment files and
+private-key PEM blocks. This is a current-tree guard, not a history rewrite
+or a general-purpose credential scanner.
 
 Current encrypted key shape is intentionally small:
 
