@@ -30,6 +30,12 @@ jobs:
       - name: Test Workflow Security Policy
         run: python3 -m unittest discover -s tests -p 'test_workflow_security.py'
 
+      - name: Verify tracked credential publication policy
+        run: python3 scripts/verify-publication-secrets.py
+
+      - name: Test tracked credential publication policy
+        run: python3 -m unittest discover -s tests -p 'test_publication_secrets.py'
+
       - name: Verify Standalone Source Boundary
         run: python3 checks/verify-standalone-source-boundary.py .
 

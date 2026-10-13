@@ -7,3 +7,15 @@ __pycache__/
 home/ryjen/git-local.nix
 home/ryjen/user.local.nix
 .serena/
+
+# Local credentials and decrypted secrets: only explicitly reviewed SOPS
+# ciphertext may be force-added after encryption.
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
+secrets.yaml
+*.agekey
+*.p12
+*.pfx
