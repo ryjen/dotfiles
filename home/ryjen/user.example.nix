@@ -24,6 +24,11 @@ _: {
   # dotfiles.agents.hermes.dashboard.port = 9119;
   # dotfiles.agents.antigravity.enable = false;
 
+  # OpenAI's Linux preview is distributed as ChatGPT, with Codex integrated.
+  # Dubnium enables the desktop by default; disable it here if not wanted.
+  # Other profiles leave the application disabled by default.
+  # dotfiles.codexDesktop.enable = false;
+
   # dotfiles.uv.enable = false;
   # dotfiles.uv.toolsFile = ".config/uv/tools.toml";
 
