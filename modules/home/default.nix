@@ -13,6 +13,7 @@
     ./common.nix
     ./configctl.nix
     ./cowsay.nix
+    ./codex-desktop.nix
     ./devtools.nix
     ./direnv.nix
     ./diversion.nix
