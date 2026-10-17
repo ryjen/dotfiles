@@ -143,6 +143,11 @@ def validate_init_authority(tool: str, entry: dict[str, Any], authority_path: Pa
         observed.add("root")
 
     refs = entry.get("authority_refs", [])
+    if not refs:
+        fail(
+            f"{CONTRACT}: tools.{tool}.authority_refs must provide layer evidence "
+            "for init-contract status authority"
+        )
     for raw in refs:
         ref = safe_repo_file(raw, label=f"tools.{tool}.authority_refs")
         text = ref.read_text(encoding="utf-8")
