@@ -180,14 +180,17 @@ def validate_home_manager_authority(tool: str, entry: dict[str, Any], authority_
     for raw in refs:
         ref = safe_repo_file(raw, label=f"tools.{tool}.authority_refs")
         text = ref.read_text(encoding="utf-8")
-        required = {
-            f'~/.config/nvim/{entry["local"]}',
-            f'~/.config/nvim/{entry["custom"]}',
-            f'~/.config/nvim/{entry["adopted"]}',
+        required_calls = {
+            "local": f'source_lua_file("~/.config/nvim/{entry["local"]}")',
+            "custom": f'source_lua_dir("~/.config/nvim/{entry["custom"]}")',
+            "adopted": f'source_lua_dir("~/.config/nvim/{entry["adopted"]}")',
         }
-        for expected in required:
+        for role, expected in required_calls.items():
             if expected not in text:
-                fail(f"{ref}: missing Neovim layer evidence {expected!r}")
+                fail(
+                    f"{ref}: missing exact Neovim {role} layer evidence "
+                    f"{expected!r}"
+                )
 
     # Home Manager's XDG root is environment-selectable while the Python
     # compatibility surface is hard-coded beneath $HOME/.config.
