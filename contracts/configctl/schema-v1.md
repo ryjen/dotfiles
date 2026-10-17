@@ -385,6 +385,7 @@ Required top-level fields:
 | `mode` | `python-compatibility` | Makes the migration purpose explicit. |
 | `baseline_tools` | ordered tool identifiers | Preserves current Python output ordering. |
 | `discover_app_strategies` | `["compose"]` | Additional app-policy strategy eligible for status discovery. |
+| `default_tool` | compatibility fallback table | Preserves Python's arbitrary tool-specific `DEFAULT_LAYERS` behavior without embedding it in the executor. |
 
 Each `[tools.<id>]` entry declares the compatibility `root`, `local`, `custom`, and `adopted` observation paths plus an existing dotfiles authority source. `compatibility_drift` is mandatory and must exactly name roles where the compatibility view differs from that authority source.
 
@@ -398,3 +399,8 @@ The canonical verifier rejects:
 - undeclared or stale drift annotations;
 - app/init contradictions visible to the status projection;
 - unsupported status fields that could widen authority.
+
+
+For tool-specific status requests not present in `baseline_tools`, `[default_tool]` owns the Python compatibility fallback: `$HOME/.config/{tool}` with `local`, `custom.d`, and `adopted.d`. This is observation metadata only; it does not authorize creation or mutation of arbitrary tool paths.
+
+Init-contract-backed entries must provide non-empty `authority_refs` containing evidence for their `local`, `custom`, and `adopted` compatibility layer names. An init manifest that only establishes a root is insufficient evidence for those layer names.
