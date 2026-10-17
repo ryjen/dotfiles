@@ -148,12 +148,22 @@ def validate_init_authority(tool: str, entry: dict[str, Any], authority_path: Pa
             f"{CONTRACT}: tools.{tool}.authority_refs must provide layer evidence "
             "for init-contract status authority"
         )
+    evidence = ""
     for raw in refs:
         ref = safe_repo_file(raw, label=f"tools.{tool}.authority_refs")
-        text = ref.read_text(encoding="utf-8")
-        for role in ("local", "custom", "adopted"):
-            if entry[role] not in text:
-                fail(f"{ref}: must document status compatibility {role} path {entry[role]!r}")
+        evidence += "\n" + ref.read_text(encoding="utf-8")
+
+    expected_paths = {
+        "local": f"~/.config/{tool}/{entry['local']}",
+        "custom": f"~/.config/{tool}/{entry['custom']}/",
+        "adopted": f"~/.config/{tool}/{entry['adopted']}/",
+    }
+    for role, expected in expected_paths.items():
+        if expected not in evidence:
+            fail(
+                f"{CONTRACT}: tools.{tool}.{role} lacks complete rooted layer "
+                f"evidence {expected!r}"
+            )
     return observed
 
 
@@ -288,6 +298,7 @@ def main() -> int:
     if not isinstance(default_tool, dict):
         fail(f"{CONTRACT}: [default_tool] table is required")
     expected_default = {
+        "tool_name_pattern": r"^[a-z][a-z0-9_.-]*$",
         "root_template": "$HOME/.config/{tool}",
         "local": "local",
         "custom": "custom.d",
