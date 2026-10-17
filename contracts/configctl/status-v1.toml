@@ -13,6 +13,15 @@ discover_app_strategies = [
   "compose",
 ]
 
+# Python accepts arbitrary tool-specific status requests using DEFAULT_LAYERS.
+# Keep that compatibility fallback authoritative here rather than hard-coding it
+# in the standalone executor.
+[default_tool]
+root_template = "$HOME/.config/{tool}"
+local = "local"
+custom = "custom.d"
+adopted = "adopted.d"
+
 # This contract is a read-only compatibility projection for the standalone
 # configctl migration. It preserves the current Python status surface without
 # making legacy path names declarative runtime truth. Each entry names the
