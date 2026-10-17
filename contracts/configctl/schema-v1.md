@@ -401,6 +401,6 @@ The canonical verifier rejects:
 - unsupported status fields that could widen authority.
 
 
-For tool-specific status requests not present in `baseline_tools`, `[default_tool]` owns the Python compatibility fallback: `$HOME/.config/{tool}` with `local`, `custom.d`, and `adopted.d`. This is observation metadata only; it does not authorize creation or mutation of arbitrary tool paths.
+For tool-specific status requests not present in `baseline_tools`, `[default_tool]` owns the Python compatibility fallback: `$HOME/.config/{tool}` with `local`, `custom.d`, and `adopted.d`. `tool_name_pattern = "^[a-z][a-z0-9_.-]*$"` is part of that contract and must be enforced before substituting `{tool}`; path-like names are intentionally rejected rather than preserving Python's traversal weakness. This is observation metadata only; it does not authorize creation or mutation of arbitrary tool paths.
 
-Init-contract-backed entries must provide non-empty `authority_refs` containing evidence for their `local`, `custom`, and `adopted` compatibility layer names. An init manifest that only establishes a root is insufficient evidence for those layer names.
+Init-contract-backed entries must provide non-empty `authority_refs` containing complete rooted-path evidence for their `local`, `custom`, and `adopted` compatibility layers (for example `~/.config/codex/custom.d/`), not mere substring matches. An init manifest that only establishes a root is insufficient evidence for those layer names.
