@@ -258,6 +258,7 @@ def main() -> int:
         "mode",
         "baseline_tools",
         "discover_app_strategies",
+        "default_tool",
         "tools",
     }
     unknown_top = sorted(set(contract) - allowed_top)
@@ -282,6 +283,26 @@ def main() -> int:
 
     if contract.get("discover_app_strategies") != ["compose"]:
         fail(f"{CONTRACT}: discover_app_strategies must be exactly ['compose']")
+
+    default_tool = contract.get("default_tool")
+    if not isinstance(default_tool, dict):
+        fail(f"{CONTRACT}: [default_tool] table is required")
+    expected_default = {
+        "root_template": "$HOME/.config/{tool}",
+        "local": "local",
+        "custom": "custom.d",
+        "adopted": "adopted.d",
+    }
+    if set(default_tool) != set(expected_default):
+        fail(
+            f"{CONTRACT}: default_tool fields must be exactly "
+            f"{sorted(expected_default)!r}"
+        )
+    for key, expected in expected_default.items():
+        if default_tool.get(key) != expected:
+            fail(f"{CONTRACT}: default_tool.{key} must be {expected!r}")
+    for role in ("local", "custom", "adopted"):
+        require_segment(default_tool, "default_tool", role)
 
     tools = contract.get("tools")
     if not isinstance(tools, dict):
