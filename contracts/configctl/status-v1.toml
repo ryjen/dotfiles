@@ -17,6 +17,7 @@ discover_app_strategies = [
 # Keep that compatibility fallback authoritative here rather than hard-coding it
 # in the standalone executor.
 [default_tool]
+tool_name_pattern = "^[a-z][a-z0-9_.-]*$"
 root_template = "$HOME/.config/{tool}"
 local = "local"
 custom = "custom.d"
