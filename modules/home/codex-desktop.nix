@@ -27,11 +27,11 @@ in
     # systemd service, autostart or a mutable second installation method.
     home.packages = [ desktopPackage ];
 
-    # Home-level .desktop ID overrides any bundled entry from the .deb.
-    # This guarantees a Nix-store executable path and makes Codex searchable
-    # through the existing SUPER+R XDG application launcher.
-    xdg.desktopEntries.chatgpt = {
-      name = "ChatGPT (Codex)";
+    # Preserve the existing chatgpt.desktop Chromium profile entry.
+    # A distinct desktop ID makes the native Codex app discoverable via SUPER+R
+    # without colliding with the browser module or changing browser defaults.
+    xdg.desktopEntries.codex-desktop = {
+      name = "Codex Desktop";
       genericName = "Codex desktop workspace";
       comment = "ChatGPT desktop with integrated Codex";
       exec = "${desktopPackage}/bin/chatgpt %U";
@@ -42,6 +42,7 @@ in
         "Development"
         "Utility"
       ];
+      settings.Keywords = "Codex;ChatGPT;OpenAI;AI;";
     };
   };
 }
