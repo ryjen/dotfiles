@@ -2,7 +2,7 @@
 
 This directory is a temporary, locally pinned adaptation of
 [NixOS/nixpkgs](https://github.com/NixOS/nixpkgs/tree/master/pkgs/by-name/ch/chatgpt)
-(the Nixpkgs package recipe is MIT licensed). Captured 2026-10-15 while
+(the Nixpkgs package recipe is MIT licensed). Refreshed 2026-10-18 while
 the dotfiles channel `nixos-26.05` still packages ChatGPT only for macOS.
 
 - `package.nix` is the upstream Nixpkgs recipe with the Nixpkgs-specific
