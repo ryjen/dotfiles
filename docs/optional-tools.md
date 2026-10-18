@@ -246,8 +246,8 @@ dotfiles.codexDesktop.enable = true;
 ```
 
 Dubnium enables it by default with `lib.mkDefault true`; another profile can
-override it. The application appears as **ChatGPT (Codex)** in the desktop launcher
-(`SUPER+R`), using the XDG entry managed by Home Manager. Launch it from a terminal using
+override it. The application appears as **Codex Desktop** in the desktop launcher
+(`SUPER+R`), using a distinct XDG entry managed by Home Manager. The existing ChatGPT Chromium app remains available separately. Launch it from a terminal using
 `chatgpt`. It is not started at login, and the separately managed Codex CLI
 is left untouched.
 
@@ -267,7 +267,7 @@ To qualify after a package update:
    `nix build .#homeConfigurations."ryjen@dubnium".activationPackage` on an
    authorized Nix host.
 3. Apply the reviewed dotfiles configuration through the usual
-   `dubctl apply` process. From a Hyprland session open **ChatGPT (Codex)** through
+   `dubctl apply` process. From a Hyprland session open **Codex Desktop** through
    `SUPER+R`, verify sign-in, Codex workspace opening, file access, and
    quit/relaunch; investigate crashes and portal/keyring errors.
 4. When Linux packaging reaches the pinned Nixpkgs channel, replace the local
