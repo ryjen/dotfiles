@@ -1,4 +1,4 @@
-# Adapted from NixOS/nixpkgs pkgs/by-name/ch/chatgpt (2026-10-15).
+# Adapted from NixOS/nixpkgs pkgs/by-name/ch/chatgpt (2026-10-18).
 # Local snapshot while nixos-26.05 still packages ChatGPT for Darwin only.
 # Keep the official, versioned Linux .deb URL and fixed-output hash in source.json.
 {
@@ -49,6 +49,7 @@
   pango,
   qt6,
   systemdLibs,
+  tpm2-tss,
 
   # runtime deps
   bubblewrap,
@@ -143,6 +144,7 @@ stdenv.mkDerivation (finalAttrs: {
     qt6.qtbase
     stdenv.cc.cc.lib
     systemdLibs
+    tpm2-tss
   ];
 
   runtimeDependencies = lib.optionals isLinux [
