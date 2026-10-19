@@ -21,8 +21,10 @@ your application.
 
 The scrcpy fallback requires USB debugging and an enabled v4l2loopback device.
 It deliberately selects USB-only ADB transport and will not select TCP/IP ADB.
-The normal Dubnium host contract is /dev/dubnium-camera; older or custom hosts
-fall back to v4l2loopback sysfs discovery.
+On current Dubnium main, enable dubnium.videoMeeting.virtualCamera.enable
+in NixOS to provide the loopback sink (normally /dev/video10).
+This helper prefers /dev/dubnium-camera if present and otherwise discovers
+a verified v4l2loopback device through sysfs.
 Set DUBNIUM_PHONE_CAMERA_DEVICE=/dev/videoN to override all device discovery.
 Set DUBNIUM_PHONE_CAMERA_MAX_SIZE=N to override the default 1920-pixel limit.
 EOF
@@ -90,8 +92,8 @@ start_camera() {
 	if ! sink="$(find_loopback_device)"; then
 		cat >&2 <<'EOF'
 dubctl-phone-camera: no v4l2loopback device found.
-Enable dubnium.camera.virtual.enable on the NixOS host and rebuild, or use
-Android's native USB Webcam mode if the phone exposes it.
+Enable dubnium.videoMeeting.virtualCamera.enable on the NixOS host and rebuild,
+or use Android's native USB Webcam mode if the phone exposes it.
 EOF
 		exit 2
 	fi
