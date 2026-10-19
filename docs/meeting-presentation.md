@@ -22,14 +22,17 @@ Disabling `zoom.enable` or `phoneCamera.enable` does not disable meeting UX.
 Chromium and Firefox are owned by `dotfiles.profiles.browser.enable`; Teams
 uses an ordinary browser tab and does not install or require a dedicated PWA.
 
-Native Android USB Webcam/UVC is preferred when offered by the phone. Otherwise
-enable the opt-in NixOS `dubnium.camera.virtual.enable` capability and use
-`dubctl phone camera devices`, `dubctl phone camera cameras`, and then
-`dubctl phone camera back` or `front`. The extension may also be executed
-directly as `dubctl-phone-camera`. It uses USB ADB, does not capture audio, and
-does not start until explicitly invoked. The NixOS capability provides
-`/dev/dubnium-camera` by default; legacy loopback sysfs discovery remains a
-fallback.
+Native Android USB Webcam/UVC is preferred when offered by the phone. Otherwise,
+current Dubnium `main` uses the opt-in NixOS
+`dubnium.videoMeeting.virtualCamera.enable` option for the loopback sink.
+On Dubnium, the enabled host profile reserves `/dev/video10` with
+`exclusive_caps=1` for browser compatibility. Run `dubctl phone camera devices`,
+`dubctl phone camera cameras`, and then `dubctl phone camera back` or `front`.
+The extension may also be executed directly as `dubctl-phone-camera`.
+It uses USB ADB, captures no audio, and starts only when explicitly invoked.
+The helper can use an optional `/dev/dubnium-camera` alias if one exists, but
+the current host module does not create that alias; it otherwise discovers
+the `v4l2loopback` device through sysfs.
 
 ## Ownership Boundaries
 
