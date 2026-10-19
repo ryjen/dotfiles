@@ -23,6 +23,8 @@
       micrantha.enable = lib.mkDefault false;
       office.enable = lib.mkDefault true;
     };
+    # Install the official Linux preview (ChatGPT with Codex), without autostart.
+    codexDesktop.enable = lib.mkDefault true;
     openwork = {
       enable = lib.mkDefault true;
       sandbox.allowSshAgent = lib.mkDefault true;

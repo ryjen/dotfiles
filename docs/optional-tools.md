@@ -231,3 +231,48 @@ troubleshooting with `dotfiles.openwork.sandbox.enable = false`.
 
 The module also installs a desktop entry and registers it as the default handler
 for `openwork://` links.
+
+## Codex desktop (ChatGPT Linux preview)
+
+OpenAI's Linux desktop preview combines ChatGPT, Work and Codex into the
+`chatgpt` application. It is not the Codex CLI. On NixOS, this repo backports
+the Linux package recipe from Nixpkgs master because the pinned
+`nixos-26.05` channel still contains the Darwin-only `chatgpt` package.
+
+The shared module is opt-in:
+
+```nix
+dotfiles.codexDesktop.enable = true;
+```
+
+Dubnium enables it by default with `lib.mkDefault true`; another profile can
+override it. The application appears as **Codex Desktop** in the desktop launcher
+(`SUPER+R`), using a distinct XDG entry managed by Home Manager. The existing ChatGPT Chromium app remains available separately. Launch it from a terminal using
+`chatgpt`. It is not started at login, and the separately managed Codex CLI
+is left untouched.
+
+The package is a tracked snapshot of Nixpkgs's Linux implementation under
+`packages/chatgpt-linux/`. It extracts OpenAI's **official versioned Linux
+.deb**, validates a fixed SHA-256 via `fetchurl`, and patches/wraps its native
+runtime for NixOS. No third-party redistributed desktop binaries, mutable
+`latest` download URLs, activation-time downloads or APT install scripts are
+used. The proprietary app still has the normal privileges of the user running
+it and may access any workspace the user grants it.
+
+To qualify after a package update:
+
+1. Review the Nixpkgs package changes, upstream binary version, source URL,
+   and corresponding fixed-output hash. Update source pins together.
+2. Run `nix flake check --no-build` and
+   `nix build .#homeConfigurations."ryjen@dubnium".activationPackage` on an
+   authorized Nix host.
+3. Apply the reviewed dotfiles configuration through the usual
+   `dubctl apply` process. From a Hyprland session open **Codex Desktop** through
+   `SUPER+R`, verify sign-in, Codex workspace opening, file access, and
+   quit/relaunch; investigate crashes and portal/keyring errors.
+4. When Linux packaging reaches the pinned Nixpkgs channel, replace the local
+   snapshot with `pkgs.chatgpt` and remove the vendored recipe.
+
+The first build downloads a large upstream binary and requires disk/cache
+headroom. Neither a successful evaluation nor CI alone proves that desktop
+authentication, Wayland, and Codex workflows function on the physical host.
