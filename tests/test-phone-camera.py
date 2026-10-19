@@ -75,6 +75,8 @@ class PhoneCameraTest(unittest.TestCase):
         self.assertIn("Webcam", result.stdout)
         self.assertIn("v4l2loopback", result.stdout)
         self.assertIn("/dev/dubnium-camera", result.stdout)
+        self.assertIn("dubnium.videoMeeting.virtualCamera.enable", result.stdout)
+        self.assertNotIn("dubnium.camera.virtual.enable", SCRIPT.read_text())
 
     def test_helper_has_stable_version_surface(self) -> None:
         result = run_helper("--version")
