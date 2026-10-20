@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-VERSION="2"
+VERSION="3"
 
 usage() {
 	cat <<'EOF'
@@ -19,8 +19,10 @@ Native Android USB webcam mode does not require this helper. If Android offers
 "Webcam" under USB preferences, select it and choose that /dev/video* device in
 your application.
 
-The scrcpy fallback requires USB debugging and an enabled v4l2loopback device.
-It deliberately selects USB-only ADB transport and will not select TCP/IP ADB.
+On Android 12+ the scrcpy fallback captures a phone camera directly. On Android
+11 and older, scrcpy cannot capture cameras, so the helper mirrors the Android
+display into the loopback device instead; open the camera app on the phone
+screen to feed the meeting. The display fallback stays USB-only and audio-free.
 On current Dubnium main, enable dubnium.videoMeeting.virtualCamera.enable
 in NixOS to provide the loopback sink (normally /dev/video10).
 This helper prefers /dev/dubnium-camera if present and otherwise discovers
@@ -82,6 +84,14 @@ list_cameras() {
 	exec scrcpy --select-usb --list-cameras
 }
 
+device_sdk_level() {
+	command -v adb >/dev/null 2>&1 || return 1
+	local sdk
+	sdk="$(adb -d shell getprop ro.build.version.sdk 2>/dev/null | tr -d '[:space:]')" || return 1
+	[[ $sdk =~ ^[0-9]+$ ]] || return 1
+	printf '%s' "$sdk"
+}
+
 start_camera() {
 	local facing="$1"
 	shift
@@ -104,6 +114,26 @@ EOF
 	fi
 
 	local max_size="${DUBNIUM_PHONE_CAMERA_MAX_SIZE:-1920}"
+
+	local sdk
+	sdk="$(device_sdk_level 2>/dev/null || true)"
+	if [[ -n $sdk && $sdk -lt 31 ]]; then
+		cat >&2 <<EOF
+dubctl-phone-camera: camera mirroring needs Android 12+ (device reports SDK $sdk).
+Mirroring the Android display into $sink instead.
+Open the camera app on the phone screen; the meeting sees that display.
+Capture stays USB-only and audio-free.
+EOF
+		exec scrcpy \
+			--select-usb \
+			--video-source=display \
+			--max-size="$max_size" \
+			--v4l2-sink="$sink" \
+			--no-audio \
+			--no-playback \
+			"$@"
+	fi
+
 	exec scrcpy \
 		--select-usb \
 		--video-source=camera \
