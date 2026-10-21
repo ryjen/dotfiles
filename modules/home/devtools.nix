@@ -7,6 +7,7 @@
     pkgs.gdu
     pkgs.gh
     pkgs.git
+    pkgs.glab
     pkgs.gnumake
     pkgs.openssh
     pkgs.pkg-config
