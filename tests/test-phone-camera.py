@@ -1,5 +1,8 @@
 from pathlib import Path
+import os
 import subprocess
+import tempfile
+import textwrap
 import unittest
 
 
@@ -80,7 +83,90 @@ class PhoneCameraTest(unittest.TestCase):
 
     def test_helper_has_stable_version_surface(self) -> None:
         result = run_helper("--version")
-        self.assertEqual(result.stdout, "dubctl-phone-camera 2\n")
+        self.assertEqual(result.stdout, "dubctl-phone-camera 3\n")
+
+
+class PhoneCameraCapturePathTest(unittest.TestCase):
+    def setUp(self) -> None:
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        base = Path(tmp.name)
+        self.bin_dir = base / "bin"
+        self.bin_dir.mkdir()
+        self.sink = base / "video99"
+        self.sink.write_text("")
+        self.scrcpy_args = base / "scrcpy-args"
+
+        stub_scrcpy = textwrap.dedent(
+            """\
+            #!/usr/bin/env bash
+            printf '%s\\n' "$@" > "$CAPTURE_ARGS_FILE"
+            exit 0
+            """
+        )
+        stub_adb = textwrap.dedent(
+            """\
+            #!/usr/bin/env bash
+            if [ "$1 $2 $3 $4" = "-d shell getprop ro.build.version.sdk" ]; then
+              if [ -n "${FAKE_ADB_FAIL-}" ]; then
+                printf 'fake adb failure\\n' >&2
+                exit 1
+              fi
+              printf '%s\\n' "$FAKE_SDK"
+              exit 0
+            fi
+            printf 'unexpected adb argv: %s\\n' "$*" >&2
+            exit 2
+            """
+        )
+        (self.bin_dir / "scrcpy").write_text(stub_scrcpy)
+        (self.bin_dir / "adb").write_text(stub_adb)
+        for stub in (self.bin_dir / "scrcpy", self.bin_dir / "adb"):
+            stub.chmod(0o755)
+
+    def run_capture_request(self, facing: str, env_extra: dict[str, str]) -> subprocess.CompletedProcess[str]:
+        env = os.environ.copy()
+        env["PATH"] = f"{self.bin_dir}{os.pathsep}{env['PATH']}"
+        env.update(env_extra)
+        env["DUBNIUM_PHONE_CAMERA_DEVICE"] = str(self.sink)
+        env["CAPTURE_ARGS_FILE"] = str(self.scrcpy_args)
+        return subprocess.run(
+            ["bash", str(SCRIPT), facing],
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+            env=env,
+        )
+
+    def test_back_mirrors_display_below_android_twelve(self) -> None:
+        result = self.run_capture_request("back", {"FAKE_SDK": "30"})
+        self.assertIn("Android 12", result.stderr)
+        self.assertIn("Mirroring the Android display", result.stderr)
+        args = self.scrcpy_args.read_text()
+        self.assertIn("--video-source=display", args)
+        self.assertIn(f"--v4l2-sink={self.sink}", args)
+        self.assertIn("--select-usb", args)
+        self.assertIn("--no-audio", args)
+        self.assertIn("--no-playback", args)
+        self.assertNotIn("--video-source=camera", args)
+        self.assertNotIn("--camera-facing=", args)
+
+    def test_front_captures_camera_on_android_twelve_and_up(self) -> None:
+        result = self.run_capture_request("front", {"FAKE_SDK": "34"})
+        self.assertEqual(result.stderr, "")
+        args = self.scrcpy_args.read_text()
+        self.assertIn("--video-source=camera", args)
+        self.assertIn("--camera-facing=front", args)
+        self.assertIn(f"--v4l2-sink={self.sink}", args)
+        self.assertNotIn("--video-source=display", args)
+
+    def test_unknown_android_version_keeps_camera_fallback_status_quo(self) -> None:
+        result = self.run_capture_request("back", {"FAKE_ADB_FAIL": "1"})
+        self.assertEqual(result.stderr, "")
+        args = self.scrcpy_args.read_text()
+        self.assertIn("--video-source=camera", args)
+        self.assertIn("--camera-facing=back", args)
 
 
 if __name__ == "__main__":
