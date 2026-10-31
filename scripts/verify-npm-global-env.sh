@@ -2,7 +2,7 @@
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-manifest="$repo_root/files/home/.config/npm/global-packages.txt"
+manifest="${1:-$repo_root/files/home/.config/npm/global-packages.txt}"
 npm_module="$repo_root/modules/home/npm.nix"
 agents_module="$repo_root/modules/home/agents.nix"
 default_module="$repo_root/modules/home/default.nix"
@@ -18,7 +18,7 @@ fail() {
 grep -q './npm.nix' "$default_module" || fail "modules/home/default.nix does not import ./npm.nix"
 grep -q 'prefix=' "$npm_module" || fail "npm module does not manage .npmrc prefix"
 grep -q '.local/share/npm' "$npm_module" || fail "npm module does not use the expected npm prefix"
-grep -q 'home.sessionPath' "$npm_module" || fail "npm module does not add npm bin to home.sessionPath"
+grep -Fq 'sessionPath = [ npmGlobalBin ];' "$npm_module" || fail "npm module does not add npm bin to home.sessionPath"
 grep -q 'pkgs.nodejs' "$npm_module" || fail "npm module does not install nodejs"
 
 if grep -q 'pkgs.codex' "$agents_module"; then
@@ -30,13 +30,16 @@ if grep -q 'pkgs.nodejs' "$agents_module"; then
 fi
 
 grep -q '^@openai/codex$' "$manifest" || fail "npm package manifest does not declare @openai/codex"
-
 awk '
   /^[[:space:]]*$/ { next }
   /^[[:space:]]*#/ { next }
   /[[:space:]]#/ { sub(/[[:space:]]#.*/, "") }
+  /^@bitwarden\/cli(@[^[:space:]]+)?$/ {
+    print "Bitwarden CLI is owned by Home Manager; do not duplicate it in npm globals" > "/dev/stderr"
+    bad=1
+  }
   /[[:space:]]/ { print "invalid whitespace in package spec: " $0; bad=1 }
   END { exit bad ? 1 : 0 }
-' "$manifest" || fail "npm package manifest contains invalid package specs"
+' "$manifest" || fail "npm package manifest failed validation"
 
 echo "verify-npm-global-env: ok"
