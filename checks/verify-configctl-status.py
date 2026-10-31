@@ -167,6 +167,29 @@ def validate_init_authority(tool: str, entry: dict[str, Any], authority_path: Pa
     return observed
 
 
+def active_lua_lines(text: str) -> set[str]:
+    """Retain only executable Lua lines for exact loader-call evidence.
+
+    A commented-out loader must never satisfy the status authority validator.
+    Lua long comments can use arbitrary matching levels of `=` delimiters.
+    """
+    long_open = re.compile(r"--\[(=*)\[")
+    while match := long_open.search(text):
+        closing = "]" + match.group(1) + "]"
+        end = text.find(closing, match.end())
+        if end == -1:
+            # An unterminated long comment contains no further executable calls.
+            text = text[: match.start()]
+            break
+        chunk = text[match.start() : end + len(closing)]
+        text = text[: match.start()] + ("\n" * chunk.count("\n")) + text[end + len(closing) :]
+    return {
+        line.split("--", 1)[0].strip()
+        for line in text.splitlines()
+        if line.split("--", 1)[0].strip()
+    }
+
+
 def validate_home_manager_authority(tool: str, entry: dict[str, Any], authority_path: Path) -> set[str]:
     module = authority_path.read_text(encoding="utf-8")
     if tool != "nvim":
@@ -180,11 +203,7 @@ def validate_home_manager_authority(tool: str, entry: dict[str, Any], authority_
     for raw in refs:
         ref = safe_repo_file(raw, label=f"tools.{tool}.authority_refs")
         text = ref.read_text(encoding="utf-8")
-        active_lines = {
-            line.strip()
-            for line in text.splitlines()
-            if line.strip() and not line.lstrip().startswith("--")
-        }
+        active_lines = active_lua_lines(text)
         required_calls = {
             "local": f'source_lua_file("~/.config/nvim/{entry["local"]}")',
             "custom": f'source_lua_dir("~/.config/nvim/{entry["custom"]}")',
