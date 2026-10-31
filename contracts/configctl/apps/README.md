@@ -42,3 +42,8 @@ Managed music coverage:
 A planned compose contract may retain `current_runtime_owner = "user"` when adopting pre-existing user configuration. Such contracts must remain write-disabled until review-gated adoption and a parser-aware renderer are available.
 
 See `../schema-v1.md` and [ryjen/dubnium#858](https://github.com/ryjen/dubnium/issues/858) for the cross-repo reconciliation contract.
+
+
+## Status migration boundary
+
+The app manifests in this directory remain declarative ownership policy; they are not rewritten to reproduce stale executor output during the Go migration. The read-only compatibility projection at `../status-v1.toml` records the current Python `status` inventory and any known differences from app/init authority. New executors must consume that projection for compatibility rather than copying the Python `KNOWN_TOOLS` table into implementation code.

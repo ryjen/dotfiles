@@ -364,3 +364,43 @@ A compose contract must not become write-enabled by flipping only `executor_may_
 | --- | --- |
 | `must_not_manage` | Layout roles that Home Manager or configctl must not own as generated files. |
 | `must_exist_or_be_creatable` | Layout roles whose parent directories may be created safely. |
+
+
+## Status compatibility projection
+
+`contracts/configctl/status-v1.toml` is a read-only migration contract for the standalone Go `configctl` implementation. It preserves the observable tool order and legacy layer names of the current Dubnium Python `status` command without redefining those names as current runtime ownership truth.
+
+The projection is deliberately separate from app and init manifests:
+
+- app manifests remain authoritative for declarative runtime ownership, materialization, adoption, and composition;
+- init manifests remain authoritative for typed initialization handlers and their mutable-state risks;
+- the status projection owns only compatibility inventory, layer observation paths, discovery strategy, and explicit drift annotations;
+- the status projection cannot grant validation, adoption, rendering, apply, or other mutation authority.
+
+Required top-level fields:
+
+| Field | Required value | Meaning |
+| --- | --- | --- |
+| `schema_version` | `1` | Status projection schema version. |
+| `mode` | `python-compatibility` | Makes the migration purpose explicit. |
+| `baseline_tools` | ordered tool identifiers | Preserves current Python output ordering. |
+| `discover_app_strategies` | `["compose"]` | Additional app-policy strategy eligible for status discovery. |
+| `default_tool` | compatibility fallback table | Preserves Python's arbitrary tool-specific `DEFAULT_LAYERS` behavior without embedding it in the executor. |
+
+Each `[tools.<id>]` entry declares the compatibility `root`, `local`, `custom`, and `adopted` observation paths plus an existing dotfiles authority source. `compatibility_drift` is mandatory and must exactly name roles where the compatibility view differs from that authority source.
+
+Known migration drift is evidence, not desired state. For example, the Python Git status table still names `local.config`, while Home Manager and the Git app manifest use `local.conf`. The compatibility projection records that difference so a side-by-side migration can remain reproducible without propagating the stale name into the declarative app contract.
+
+The canonical verifier rejects:
+
+- reordered, missing, duplicate, or unknown baseline entries;
+- unsafe roots or layer path segments;
+- missing authority files;
+- undeclared or stale drift annotations;
+- app/init contradictions visible to the status projection;
+- unsupported status fields that could widen authority.
+
+
+For tool-specific status requests not present in `baseline_tools`, `[default_tool]` owns the Python compatibility fallback: `$HOME/.config/{tool}` with `local`, `custom.d`, and `adopted.d`. `tool_name_pattern = "^[a-z][a-z0-9_.-]*$"` is part of that contract and must be enforced before substituting `{tool}`; path-like names are intentionally rejected rather than preserving Python's traversal weakness. This is observation metadata only; it does not authorize creation or mutation of arbitrary tool paths.
+
+Init-contract-backed entries must provide non-empty `authority_refs` containing complete rooted-path evidence for their `local`, `custom`, and `adopted` compatibility layers (for example `~/.config/codex/custom.d/`), not mere substring matches. An init manifest that only establishes a root is insufficient evidence for those layer names.
