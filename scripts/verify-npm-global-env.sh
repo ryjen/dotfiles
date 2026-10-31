@@ -29,28 +29,8 @@ if grep -q 'pkgs.nodejs' "$agents_module"; then
 	fail "pkgs.nodejs is still installed by agents.nix; nodejs should be owned by npm tooling"
 fi
 
-grep -q '^@openai/codex
-awk '
-  /^[[:space:]]*$/ { next }
-  /^[[:space:]]*#/ { next }
-  /[[:space:]]#/ { sub(/[[:space:]]#.*/, "") }
-  /[[:space:]]/ { print "invalid whitespace in package spec: " $0; bad=1 }
-  END { exit bad ? 1 : 0 }
-' "$manifest" || fail "npm package manifest contains invalid package specs"
-
-echo "verify-npm-global-env: ok"
- "$manifest" || fail "npm package manifest does not declare @openai/codex"
-if grep -q '^@bitwarden/cli
-awk '
-  /^[[:space:]]*$/ { next }
-  /^[[:space:]]*#/ { next }
-  /[[:space:]]#/ { sub(/[[:space:]]#.*/, "") }
-  /[[:space:]]/ { print "invalid whitespace in package spec: " $0; bad=1 }
-  END { exit bad ? 1 : 0 }
-' "$manifest" || fail "npm package manifest contains invalid package specs"
-
-echo "verify-npm-global-env: ok"
- "$manifest"; then
+grep -q '^@openai/codex$' "$manifest" || fail "npm package manifest does not declare @openai/codex"
+if grep -q '^@bitwarden/cli$' "$manifest"; then
 	fail "Bitwarden CLI is owned by Home Manager; do not duplicate it in npm globals"
 fi
 
