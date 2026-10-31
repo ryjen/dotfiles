@@ -30,6 +30,10 @@ On Dubnium, the enabled host profile reserves `/dev/video10` with
 `dubctl phone camera cameras`, and then `dubctl phone camera back` or `front`.
 The extension may also be executed directly as `dubctl-phone-camera`.
 It uses USB ADB, captures no audio, and starts only when explicitly invoked.
+On Android 12+ it captures a phone camera directly; on Android 11 and older,
+scrcpy cannot capture cameras, so the helper mirrors the Android display into
+the loopback device and the meeting sees the phone screen (open the camera app
+on the phone as the video content).
 The helper can use an optional `/dev/dubnium-camera` alias if one exists, but
 the current host module does not create that alias; it otherwise discovers
 the `v4l2loopback` device through sysfs.
