@@ -2,7 +2,7 @@
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-manifest="$repo_root/files/home/.config/npm/global-packages.txt"
+manifest="${1:-$repo_root/files/home/.config/npm/global-packages.txt}"
 npm_module="$repo_root/modules/home/npm.nix"
 agents_module="$repo_root/modules/home/agents.nix"
 default_module="$repo_root/modules/home/default.nix"
@@ -30,16 +30,16 @@ if grep -q 'pkgs.nodejs' "$agents_module"; then
 fi
 
 grep -q '^@openai/codex$' "$manifest" || fail "npm package manifest does not declare @openai/codex"
-if grep -q '^@bitwarden/cli$' "$manifest"; then
-	fail "Bitwarden CLI is owned by Home Manager; do not duplicate it in npm globals"
-fi
-
 awk '
   /^[[:space:]]*$/ { next }
   /^[[:space:]]*#/ { next }
   /[[:space:]]#/ { sub(/[[:space:]]#.*/, "") }
+  /^@bitwarden\/cli(@[^[:space:]]+)?$/ {
+    print "Bitwarden CLI is owned by Home Manager; do not duplicate it in npm globals" > "/dev/stderr"
+    bad=1
+  }
   /[[:space:]]/ { print "invalid whitespace in package spec: " $0; bad=1 }
   END { exit bad ? 1 : 0 }
-' "$manifest" || fail "npm package manifest contains invalid package specs"
+' "$manifest" || fail "npm package manifest failed validation"
 
 echo "verify-npm-global-env: ok"
