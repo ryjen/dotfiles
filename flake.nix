@@ -483,9 +483,11 @@
         {
           config,
           lib,
+          pkgs,
           ...
         }:
         let
+          selectedSystem = pkgs.stdenv.hostPlatform.system;
           selectedUsername = config.dotfiles.homeManager.username;
           selectedProfile = config.dotfiles.homeManager.profile;
           profileEntries = {
@@ -511,6 +513,18 @@
               default = config.dubnium.home.profile or "dubnium";
               description = "Public dotfiles profile name; internal paths are not consumer API.";
             };
+            packageOverrides = {
+              gitAutocommit = lib.mkOption {
+                type = lib.types.nullOr lib.types.package;
+                default = null;
+                description = "Optional consumer-pinned git-autocommit package for parity with host tools.";
+              };
+              hermesAgent = lib.mkOption {
+                type = lib.types.nullOr lib.types.package;
+                default = null;
+                description = "Optional consumer-pinned Hermes package for parity with the Dubnium AI service.";
+              };
+            };
           };
 
           config.home-manager = {
@@ -519,13 +533,25 @@
             extraSpecialArgs = {
               inherit
                 self
-                hermes-agent
                 antigravity-nix
-                git-autocommit
                 repora
                 tidyfs
                 ;
               username = selectedUsername;
+              git-autocommit =
+                if config.dotfiles.homeManager.packageOverrides.gitAutocommit == null then
+                  git-autocommit
+                else
+                  {
+                    packages.${selectedSystem}.default = config.dotfiles.homeManager.packageOverrides.gitAutocommit;
+                  };
+              hermes-agent =
+                if config.dotfiles.homeManager.packageOverrides.hermesAgent == null then
+                  hermes-agent
+                else
+                  {
+                    packages.${selectedSystem}.default = config.dotfiles.homeManager.packageOverrides.hermesAgent;
+                  };
             };
             users.${selectedUsername} = {
               imports = [
