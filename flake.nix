@@ -265,12 +265,13 @@
             '';
 
         configctl-contracts =
-          pkgs.runCommand "configctl-contracts" { nativeBuildInputs = [ pkgs.python3 ]; }
+          pkgs.runCommand "configctl-contracts" { nativeBuildInputs = [ pkgs.python3 pkgs.gawk pkgs.gnugrep ]; }
             ''
               export PYTHONDONTWRITEBYTECODE=1
               cd ${self}
               python3 -m unittest discover -s tests -p 'test_verify_configctl_status.py'
               python3 ${./checks/verify-configctl-contracts.py} ${self}
+              bash ${self}/scripts/verify-npm-global-env.sh
               touch "$out"
             '';
 
