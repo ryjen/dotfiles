@@ -212,6 +212,43 @@ When an application supports layering, prefer:
 
 Runtime and reconciliation metadata belongs under XDG state paths, not managed config directories.
 
+## Public NixOS integration contract
+
+Dubnium (and other trusted NixOS consumers) must import the exported
+`dotfiles.nixosModules.dubnium-home-manager` module rather than constructing paths
+under `home/ryjen/`. The export selects internal profiles using typed NixOS
+options:
+
+```nix
+imports = [ dotfiles.nixosModules.dubnium-home-manager ];
+dotfiles.homeManager = {
+  username = "ryjen";
+  profile = "dubnium";
+};
+```
+
+Supported profiles: `dubnium`, `technetium`, `nixos`, `headless`, `wsl`, and
+`verify`. Username is constrained to a single safe POSIX-style user segment.
+For backward compatibility, the export defaults to the existing
+`dubnium.user.name` and `dubnium.home.profile` options when available, and
+otherwise uses the dotfiles default user and `dubnium` profile.
+
+Dubnium has separately pinned `git-autocommit` and a host-selected Hermes
+package. The public contract therefore also exposes two optional, package-typed
+overrides: `dotfiles.homeManager.packageOverrides.gitAutocommit` and
+`dotfiles.homeManager.packageOverrides.hermesAgent`. The defaults remain the
+dotfiles-pinned packages; the consumer sets both explicitly where it must
+preserve its existing service/CLI versions. Do not replace these with
+unconstrained `extraSpecialArgs` injections or silently change pinned tools.
+
+This first public selector is **not** a completed Dubnium migration: consumers
+must remove duplicate Home Manager bridge declarations and qualify their existing
+XDG state/cache, selected package pins, SOPS import, and systemd activation
+semantics before switching. Effective capability metadata and parent-vs-standalone
+activation parity remain the explicit release gates in
+[dotfiles #147](https://github.com/ryjen/dotfiles/issues/147) and
+[Dubnium #553](https://github.com/ryjen/dubnium/issues/553).
+
 ## Consumer requirements
 
 Dubnium consumers must:
