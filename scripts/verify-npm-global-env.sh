@@ -18,7 +18,7 @@ fail() {
 grep -q './npm.nix' "$default_module" || fail "modules/home/default.nix does not import ./npm.nix"
 grep -q 'prefix=' "$npm_module" || fail "npm module does not manage .npmrc prefix"
 grep -q '.local/share/npm' "$npm_module" || fail "npm module does not use the expected npm prefix"
-grep -q 'home.sessionPath' "$npm_module" || fail "npm module does not add npm bin to home.sessionPath"
+grep -Fq 'sessionPath = [ npmGlobalBin ];' "$npm_module" || fail "npm module does not add npm bin to home.sessionPath"
 grep -q 'pkgs.nodejs' "$npm_module" || fail "npm module does not install nodejs"
 
 if grep -q 'pkgs.codex' "$agents_module"; then
