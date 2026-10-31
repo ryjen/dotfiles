@@ -1,5 +1,6 @@
 from pathlib import Path
 import os
+import shutil
 import subprocess
 import tempfile
 import textwrap
@@ -119,8 +120,13 @@ class PhoneCameraCapturePathTest(unittest.TestCase):
             exit 2
             """
         )
-        (self.bin_dir / "scrcpy").write_text(stub_scrcpy)
-        (self.bin_dir / "adb").write_text(stub_adb)
+        # Nix build sandboxes do not provide /usr/bin/env. Resolve the actual
+        # interpreter rather than making the fake executables depend on /usr.
+        bash = shutil.which("bash")
+        self.assertIsNotNone(bash)
+        shebang = f"#!{bash}"
+        (self.bin_dir / "scrcpy").write_text(stub_scrcpy.replace("#!/usr/bin/env bash", shebang, 1))
+        (self.bin_dir / "adb").write_text(stub_adb.replace("#!/usr/bin/env bash", shebang, 1))
         for stub in (self.bin_dir / "scrcpy", self.bin_dir / "adb"):
             stub.chmod(0o755)
 
