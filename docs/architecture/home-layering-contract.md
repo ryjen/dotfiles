@@ -233,6 +233,14 @@ For backward compatibility, the export defaults to the existing
 `dubnium.user.name` and `dubnium.home.profile` options when available, and
 otherwise uses the dotfiles default user and `dubnium` profile.
 
+Dubnium has separately pinned `git-autocommit` and a host-selected Hermes
+package. The public contract therefore also exposes two optional, package-typed
+overrides: `dotfiles.homeManager.packageOverrides.gitAutocommit` and
+`dotfiles.homeManager.packageOverrides.hermesAgent`. The defaults remain the
+dotfiles-pinned packages; the consumer sets both explicitly where it must
+preserve its existing service/CLI versions. Do not replace these with
+unconstrained `extraSpecialArgs` injections or silently change pinned tools.
+
 This first public selector is **not** a completed Dubnium migration: consumers
 must remove duplicate Home Manager bridge declarations and qualify their existing
 XDG state/cache, selected package pins, SOPS import, and systemd activation
