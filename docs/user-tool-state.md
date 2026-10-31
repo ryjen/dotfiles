@@ -155,10 +155,11 @@ Current durable npm globals include Codex and other npm-owned CLI tools:
 
 ```text
 @openai/codex
-@bitwarden/cli
 @tobilu/qmd
 opencode-ai
 ```
+
+Bitwarden CLI is provided by `pkgs.bitwarden-cli` through `modules/home/bitwarden.nix` when enabled. Do not also install `@bitwarden/cli` globally: the two distributions expose the same `bw` command and create PATH/version ambiguity.
 
 Do not add npm authentication, registry credentials, or machine-local settings to managed files.
 
