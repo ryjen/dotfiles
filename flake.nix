@@ -267,6 +267,9 @@
         configctl-contracts =
           pkgs.runCommand "configctl-contracts" { nativeBuildInputs = [ pkgs.python3 ]; }
             ''
+              export PYTHONDONTWRITEBYTECODE=1
+              cd ${self}
+              python3 -m unittest discover -s tests -p 'test_verify_configctl_status.py'
               python3 ${./checks/verify-configctl-contracts.py} ${self}
               touch "$out"
             '';
