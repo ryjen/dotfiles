@@ -258,6 +258,8 @@ read_io_psi_avg10() {
 
 io_psi_some=$(read_io_psi_avg10 some || printf 'unavailable')
 io_psi_full=$(read_io_psi_avg10 full || printf 'unavailable')
+[[ "$io_psi_some" == unavailable ]] || io_psi_some+="%"
+[[ "$io_psi_full" == unavailable ]] || io_psi_full+="%"
 
 tooltip=$(printf '<b>Disk usage / I/O</b>\n<tt>%-16s %-18s %7s %7s %6s %6s %11s %11s\n' \
   'Disk' 'Mount' 'Used' 'Free' 'Use' 'I/O' 'Read' 'Write')
@@ -266,7 +268,7 @@ tooltip+=$(printf '%-16s %-18s %7s %7s %5s%% %6s %11s %11s' \
   "$root_disks" '/' "$(human_bytes "$root_used")" "$(human_bytes "$root_free")" "$root_percent" \
   "$(format_io_percent "$root_io_util")" "$(human_rate "$root_read_bps")" "$(human_rate "$root_write_bps")")
 tooltip+=$'\n'
-tooltip+=$(printf '<b>Root device I/O</b>  Busy: %s\nRead: %s  Write: %s\nPSI avg10: some %s%%, full %s%%\n<small>Device busy time is not application stall time.</small>\n' \
+tooltip+=$(printf '<b>Root device I/O</b>  Busy: %s\nRead: %s  Write: %s\nPSI avg10: some %s, full %s\n<small>Device busy time is not application stall time.</small>\n' \
   "$(format_io_percent "$root_io_util")" \
   "$(human_rate "$root_read_bps")" "$(human_rate "$root_write_bps")" \
   "$io_psi_some" "$io_psi_full")
