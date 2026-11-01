@@ -224,6 +224,25 @@
               touch "$out"
             '';
 
+        waybar-disk-io-tests =
+          pkgs.runCommand "waybar-disk-io-tests"
+            {
+              nativeBuildInputs = [
+                pkgs.bash
+                pkgs.coreutils
+                pkgs.gawk
+                pkgs.gnused
+                pkgs.util-linux
+                pkgs.python3Packages.pytest
+              ];
+            }
+            ''
+              export PYTHONDONTWRITEBYTECODE=1
+              cd ${self}
+              pytest -q tests/test_waybar_disk_io.py
+              touch "$out"
+            '';
+
         waybar-github-runners-tests =
           pkgs.runCommand "waybar-github-runners-tests"
             {
