@@ -160,8 +160,9 @@
         "tooltip": true
     },
     "clock": {
+        "timezone": "Etc/GMT+7",
         "format": "{:%I:%M %p}",
-        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>\nGMT-7",
         "on-click": "gsimplecal"
     },
     "custom/media": {
