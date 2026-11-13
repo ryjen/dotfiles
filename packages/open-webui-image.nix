@@ -21,7 +21,7 @@ let
     set -euo pipefail
     cd /var/lib/open-webui
     export DATA_DIR=/var/lib/open-webui/data
-    export WEBUI_SECRET_KEY_FILE=/var/lib/open-webui/.webui_secret_key
+    # open-webui serve reads .webui_secret_key from the current directory.
 
     # Created on the host before container startup, never stored in the image.
     if [[ ! -f .webui_secret_key || -L .webui_secret_key || ! -s .webui_secret_key ]]; then
