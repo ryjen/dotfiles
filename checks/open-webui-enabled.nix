@@ -56,7 +56,8 @@ let
     ) "Open WebUI sockets must remain loopback-only and owner-private")
 
     (check (
-      enabled.systemd.user.services.dotfiles-open-webui-ingress.Service.ProtectHome
+      enabled.systemd.user.services.dotfiles-open-webui-ingress.Service.ProtectHome == "tmpfs"
+      && enabled.systemd.user.services.dotfiles-open-webui-ingress.Service.BindReadOnlyPaths == [ "%t/dotfiles-open-webui/ingress" ]
       && enabled.systemd.user.services.dotfiles-open-webui-gateway.Service.ProtectHome
       && enabled.systemd.user.services.dotfiles-open-webui-ingress.Service.CapabilityBoundingSet == ""
       && enabled.systemd.user.services.dotfiles-open-webui-gateway.Service.CapabilityBoundingSet == ""
