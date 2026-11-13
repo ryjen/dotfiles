@@ -61,6 +61,11 @@ let
       && enabled.systemd.user.services.dotfiles-open-webui-ingress.Service.CapabilityBoundingSet == ""
       && enabled.systemd.user.services.dotfiles-open-webui-gateway.Service.CapabilityBoundingSet == ""
     ) "Open WebUI host socket proxies must retain service isolation")
+
+    (check (
+      enabled.systemd.user.services.dotfiles-open-webui.Service.Delegate
+      && has enabled.systemd.user.services.dotfiles-open-webui.Service "ExecStartPost"
+    ) "Rootless Open WebUI requires delegated cgroups and ingress readiness gating")
   ];
 in
 pkgs.runCommand "check-open-webui-enabled" { } ''
