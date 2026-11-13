@@ -68,3 +68,4 @@ dockerTools.buildLayeredImage {
       "org.opencontainers.image.version" = open-webui.version;
     };
   };
+}
