@@ -21,7 +21,7 @@ let
       "--root=$state/podman"
       "--runroot=$runtime/podman"
       "--storage-driver=overlay"
-      "--cgroup-manager=cgroupfs"
+      "--cgroup-manager=systemd"
     )
   '';
 
@@ -53,6 +53,14 @@ let
     [[ -S "$runtime/gateway/socket" ]]
 
     [[ "$(${pkgs.podman}/bin/podman "''${podman_args[@]}" info --format '{{.Host.Security.Rootless}}')" == true ]]
+    if [[ "$(${pkgs.podman}/bin/podman "''${podman_args[@]}" info --format '{{.Host.CgroupsVersion}}')" != "v2" ]]; then
+      echo "Rootless Open WebUI requires cgroup v2 for enforced resource limits" >&2
+      exit 1
+    fi
+    if [[ "$(${pkgs.podman}/bin/podman "''${podman_args[@]}" info --format '{{.Host.CgroupManager}}')" != "systemd" ]]; then
+      echo "Rootless Open WebUI requires systemd-managed container cgroups" >&2
+      exit 1
+    fi
     ${pkgs.podman}/bin/podman "''${podman_args[@]}" rm --force --ignore dotfiles-open-webui >/dev/null
     ${pkgs.podman}/bin/podman "''${podman_args[@]}" load --input ${image}
   '';
@@ -104,6 +112,22 @@ let
       ${lib.escapeShellArg imageName}
   '';
 
+  # ExecStartPost participates in systemd ordering: the browser ingress
+  # proxy does not start until Open WebUI responds on its private socket.
+  readiness = pkgs.writeShellScript "dotfiles-open-webui-readiness" ''
+    set -euo pipefail
+    runtime="''${XDG_RUNTIME_DIR:?}/dotfiles-open-webui"
+    for attempt in $(${pkgs.coreutils}/bin/seq 1 120); do
+      if ${pkgs.curl}/bin/curl --fail --silent --max-time 2 \
+        --unix-socket "$runtime/ingress/socket" \
+        http://localhost/health >/dev/null; then
+        exit 0
+      fi
+      ${pkgs.coreutils}/bin/sleep 1
+    done
+    echo "Open WebUI did not become ready on its private ingress socket" >&2
+    exit 1
+  '';
   stop = pkgs.writeShellScript "dotfiles-open-webui-stop" ''
     set -euo pipefail
     ${podmanSetup}
@@ -200,8 +224,10 @@ in
       };
       Service = {
         Type = "simple";
+        Delegate = true;
         ExecStartPre = "${preflight}";
         ExecStart = "${start}";
+        ExecStartPost = "${readiness}";
         ExecStop = "${stop}";
         Restart = "on-failure";
         RestartSec = "5s";
