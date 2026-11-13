@@ -52,6 +52,15 @@ _: {
   #   };
   # };
 
+  # Optional local Open WebUI browser frontend. Use only one service owner:
+  # do not enable alongside Dubnium's draft NixOS Open WebUI unit (#1613).
+  # Enables socket activation on localhost and a networkless Podman client of
+  # the local Supervisor Gateway. Never store API credentials here.
+  # dotfiles.openWebUI.enable = true;
+  # dotfiles.openWebUI.port = 3000;
+  # Temporarily enable for local first-admin signup, then disable again.
+  # dotfiles.openWebUI.bootstrapSignup = false;
+
   # Playwright is Nix-managed so browser binaries remain immutable and version-
   # aligned with the packaged CLI instead of being downloaded into a user cache.
   # dotfiles.playwright.enable = false;
