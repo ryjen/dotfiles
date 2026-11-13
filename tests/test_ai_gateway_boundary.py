@@ -45,7 +45,16 @@ def test_open_webui_podman_and_model_transport_are_scoped() -> None:
         "--read-only",
         "--pull=never",
         "--volume=\"$runtime/gateway:/run/open-webui/gateway:ro\"",
-        "OPENAI_API_BASE_URL=http://127.0.0.1:8081/v1",
+        "OPENAI_API_BASE_URL=http://127.0.0.1:8080/v1",
+        "OPENAI_API_BASE_URLS=http://127.0.0.1:8080/v1",
+        "OFFLINE_MODE=True",
+        "HF_HUB_OFFLINE=1",
+        "RAG_EMBEDDING_MODEL_AUTO_UPDATE=False",
+        "RAG_RERANKING_MODEL_AUTO_UPDATE=False",
+        "WHISPER_MODEL_AUTO_UPDATE=False",
+        "BYPASS_EMBEDDING_AND_RETRIEVAL=True",
+        "ENABLE_OLLAMA_API=False",
+        "ENABLE_PERSISTENT_CONFIG=False",
         "DEFAULT_MODELS=supervisor",
         "WEBUI_AUTH=True",
         "ENABLE_DIRECT_CONNECTIONS=False",
@@ -81,3 +90,10 @@ def test_open_webui_podman_and_model_transport_are_scoped() -> None:
     assert "cd /var/lib/open-webui" in image
     assert "if [[ ! -f .webui_secret_key" in image
     assert "WEBUI_SECRET_KEY_FILE" not in image
+
+    # Open WebUI owns container port 8081; 8080 is the sole Supervisor proxy.
+    assert "TCP-LISTEN:8080,bind=127.0.0.1" in image
+    assert "open-webui serve --host 127.0.0.1 --port 8081" in image
+    assert "TCP:127.0.0.1:8081" in image
+    assert "TCP-LISTEN:8081,bind=127.0.0.1" not in image
+    assert "open-webui serve --host 127.0.0.1 --port 8080" not in image
