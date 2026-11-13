@@ -57,6 +57,8 @@ let
     ${pkgs.podman}/bin/podman "''${podman_args[@]}" load --input ${image}
   '';
 
+  # All model and embedding inference belongs to Dubnium. Keep the container
+  # offline; its sole application API target is the socket-mediated Supervisor.
   start = pkgs.writeShellScript "dotfiles-open-webui-run" ''
     set -euo pipefail
     ${podmanSetup}
@@ -77,7 +79,6 @@ let
       --env=OPENAI_API_BASE_URLS=http://127.0.0.1:8080/v1 \
       --env=OPENAI_API_KEY=unused-local-gateway-key \
       --env=DEFAULT_MODELS=supervisor \
-      # The UI is only a frontend; no model or embedding fetch at runtime.
       --env=OFFLINE_MODE=True \
       --env=HF_HUB_OFFLINE=1 \
       --env=RAG_EMBEDDING_MODEL_AUTO_UPDATE=False \
