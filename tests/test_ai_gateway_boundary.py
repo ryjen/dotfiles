@@ -67,6 +67,13 @@ def test_open_webui_podman_and_model_transport_are_scoped() -> None:
     ):
         assert forbidden not in source, forbidden
 
+    # Host socket-proxy processes must retain the confined transport boundary.
+    assert source.count("ProtectHome = true;") == 2
+    assert source.count('CapabilityBoundingSet = "";') == 2
+    assert source.count("PrivateTmp = true;") == 2
+    assert 'RestrictAddressFamilies = [ "AF_UNIX" ];' in source
+    assert '        "AF_INET"' in source
+
     assert "dockerTools.buildLayeredImage" in image
     assert "tag = open-webui.version;" in image
     assert 'WEBUI_SECRET_KEY_FILE=/var/lib/open-webui/.webui_secret_key' in image
