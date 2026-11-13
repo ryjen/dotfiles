@@ -83,6 +83,17 @@ def test_open_webui_podman_and_model_transport_are_scoped() -> None:
     assert 'RestrictAddressFamilies = [ "AF_UNIX" ];' in source
     assert '        "AF_INET"' in source
 
+    # Rootless limits require cgroup v2 and systemd delegation.
+    assert "--cgroup-manager=systemd" in source
+    assert "--cgroup-manager=cgroupfs" not in source
+    assert "{{.Host.CgroupsVersion}}" in source
+    assert "{{.Host.CgroupManager}}" in source
+    assert "Delegate = true;" in source
+
+    # An ordered health probe must complete before socket-activated ingress.
+    assert 'ExecStartPost = "${readiness}";' in source
+    assert '--unix-socket "$runtime/ingress/socket"' in source
+    assert "http://localhost/health" in source
     assert "dockerTools.buildLayeredImage" in image
     assert "tag = open-webui.version;" in image
     assert "/bin/head -c 24 /dev/urandom" in source
