@@ -73,10 +73,20 @@ let
       --env=ENABLE_PERSISTENT_CONFIG=False \
       --env=ENABLE_SIGNUP=${if cfg.bootstrapSignup then "True" else "False"} \
       --env=ENABLE_OPENAI_API=True \
-      --env=OPENAI_API_BASE_URL=http://127.0.0.1:8081/v1 \
-      --env=OPENAI_API_BASE_URLS=http://127.0.0.1:8081/v1 \
+      --env=OPENAI_API_BASE_URL=http://127.0.0.1:8080/v1 \
+      --env=OPENAI_API_BASE_URLS=http://127.0.0.1:8080/v1 \
       --env=OPENAI_API_KEY=unused-local-gateway-key \
       --env=DEFAULT_MODELS=supervisor \
+      # The UI is only a frontend; no model or embedding fetch at runtime.
+      --env=OFFLINE_MODE=True \
+      --env=HF_HUB_OFFLINE=1 \
+      --env=RAG_EMBEDDING_MODEL_AUTO_UPDATE=False \
+      --env=RAG_RERANKING_MODEL_AUTO_UPDATE=False \
+      --env=WHISPER_MODEL_AUTO_UPDATE=False \
+      --env=RAG_EMBEDDING_MODEL_TRUST_REMOTE_CODE=False \
+      --env=RAG_RERANKING_MODEL_TRUST_REMOTE_CODE=False \
+      --env=BYPASS_EMBEDDING_AND_RETRIEVAL=True \
+      --env=AUDIO_STT_ENGINE=web \
       --env=ENABLE_OLLAMA_API=False \
       --env=ENABLE_DIRECT_CONNECTIONS=False \
       --env=TOOL_SERVER_CONNECTIONS=[] \
