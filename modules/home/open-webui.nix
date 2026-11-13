@@ -181,7 +181,10 @@ in
         NoNewPrivileges = true;
         PrivateDevices = true;
         PrivateTmp = true;
-        ProtectHome = true;
+        # /run/user is otherwise hidden by ProtectHome; re-expose only
+        # the ingress directory needed by systemd-socket-proxyd.
+        ProtectHome = "tmpfs";
+        BindReadOnlyPaths = [ "${runtimeRoot}/ingress" ];
         ProtectSystem = "strict";
         CapabilityBoundingSet = "";
         RestrictAddressFamilies = [ "AF_UNIX" ];
