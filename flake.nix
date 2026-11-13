@@ -16,7 +16,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     git-autocommit = {
-      url = "github:ryjen/git-autocommit";
+      url = "github:ryjen/git-autocommit/v0.3.1";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     calathea = {
