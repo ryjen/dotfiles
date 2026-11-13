@@ -161,6 +161,39 @@
       };
 
       checks.${system} = {
+        # Exercise the exported selector through an actual NixOS consumer.
+        # No host activation or Home Manager switch is performed.
+        home-manager-public-profile-contract =
+          let
+            evaluate = enabled: profile: nixpkgs.lib.nixosSystem {
+              inherit system;
+              modules = [
+                self.nixosModules.dubnium-home-manager
+                {
+                  dotfiles.homeManager.enable = enabled;
+                  dotfiles.homeManager.username = "profilecheck";
+                  dotfiles.homeManager.profile = profile;
+                }
+              ];
+            };
+            valid = evaluate true "verify";
+            disabled = evaluate false "verify";
+            invalid = builtins.tryEval (evaluate true "invalid-profile").config.dotfiles.homeManager.profile;
+            validUser = valid.config.home-manager.users.profilecheck.home.username;
+            checked =
+              if valid.config.dotfiles.homeManager.profile != "verify" || validUser != "profilecheck" then
+                builtins.throw "Public Home Manager selector does not wire the requested user/profile"
+              else if builtins.hasAttr "profilecheck" disabled.config.home-manager.users then
+                builtins.throw "Disabled public Home Manager integration must not add a user"
+              else if invalid.success then
+                builtins.throw "Public Home Manager selector accepted an invalid profile"
+              else
+                "";
+          in
+          pkgs.runCommand "home-manager-public-profile-contract" { } ''
+            ${checked}
+            touch "$out"
+          '';
         benchmark-nix-build-tests =
           pkgs.runCommand "benchmark-nix-build-tests" { nativeBuildInputs = [ pkgs.python3 ]; }
             ''
@@ -498,36 +531,86 @@
 
       nixosModules.unreal-storage = ./modules/nixos/unreal-storage.nix;
 
+      # Public NixOS/Home Manager integration surface. Consumers select a
+      # profile; only this repository knows the internal profile filenames.
       nixosModules.dubnium-home-manager =
         {
           config,
+          lib,
+          pkgs,
           ...
         }:
         let
-          dubniumUsername = config.dubnium.user.name or username;
+          selectedSystem = pkgs.stdenv.hostPlatform.system;
+          selectedUsername = config.dotfiles.homeManager.username;
+          selectedProfile = config.dotfiles.homeManager.profile;
+          profileEntries = {
+            dubnium = ./home/ryjen/dubnium-home.nix;
+            technetium = ./home/ryjen/technetium-home.nix;
+            nixos = ./home/ryjen/home.nix;
+            headless = ./home/ryjen/headless-home.nix;
+            wsl = ./home/ryjen/wsl-home.nix;
+            verify = ./home/ryjen/verify-home.nix;
+          };
         in
         {
-          imports = [
-            home-manager.nixosModules.home-manager
-          ];
+          imports = [ home-manager.nixosModules.home-manager ];
 
-          home-manager = {
+          options.dotfiles.homeManager = {
+            enable = lib.mkEnableOption "dotfiles-owned Home Manager user integration";
+            username = lib.mkOption {
+              type = lib.types.strMatching "^[a-z_][a-z0-9_-]*$";
+              default = config.dubnium.user.name or username;
+              description = "Local user receiving the dotfiles Home Manager profile.";
+            };
+            profile = lib.mkOption {
+              type = lib.types.enum (builtins.attrNames profileEntries);
+              default = config.dubnium.home.profile or "dubnium";
+              description = "Public dotfiles profile name; internal paths are not consumer API.";
+            };
+            packageOverrides = {
+              gitAutocommit = lib.mkOption {
+                type = lib.types.nullOr lib.types.package;
+                default = null;
+                description = "Optional consumer-pinned git-autocommit package for parity with host tools.";
+              };
+              hermesAgent = lib.mkOption {
+                type = lib.types.nullOr lib.types.package;
+                default = null;
+                description = "Optional consumer-pinned Hermes package for parity with the Dubnium AI service.";
+              };
+            };
+          };
+
+          config.home-manager = lib.mkIf config.dotfiles.homeManager.enable {
             useGlobalPkgs = true;
             useUserPackages = true;
             extraSpecialArgs = {
               inherit
                 self
-                hermes-agent
                 antigravity-nix
-                git-autocommit
                 repora
                 tidyfs
                 ;
-              username = dubniumUsername;
+              username = selectedUsername;
+              git-autocommit =
+                if config.dotfiles.homeManager.packageOverrides.gitAutocommit == null then
+                  git-autocommit
+                else
+                  {
+                    packages.${selectedSystem}.default = config.dotfiles.homeManager.packageOverrides.gitAutocommit;
+                  };
+              hermes-agent =
+                if config.dotfiles.homeManager.packageOverrides.hermesAgent == null then
+                  hermes-agent
+                else
+                  {
+                    packages.${selectedSystem}.default = config.dotfiles.homeManager.packageOverrides.hermesAgent;
+                  };
             };
-            users.${dubniumUsername} = {
+            users.${selectedUsername} = {
               imports = [
-                ./home/ryjen/dubnium-home.nix
+                profileEntries.${selectedProfile}
                 sops-nix.homeManagerModules.sops
               ];
             };
