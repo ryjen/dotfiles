@@ -245,8 +245,11 @@ Nixpkgs' Open WebUI package, loads it into dedicated rootless Podman storage
 and uses user systemd socket activation for a loopback-only browser at
 `http://127.0.0.1:3000`. The container has `--network=none` and no published
 ports. A dedicated read-only-mounted Unix gateway socket forwards to the
-**host-local Dubnium Supervisor Gateway** at `127.0.0.1:8080/v1`, exposing
-only the logical `supervisor` model. Within the isolated container, Open WebUI
+**host-local Dubnium Supervisor Gateway** on TCP port `8080`. Open WebUI is
+configured to request the `/v1` API with the logical `supervisor` model, but
+the socket restricts the destination, **not HTTP paths or permissions**;
+Supervisor must independently enforce authentication and authorization.
+Within the isolated container, Open WebUI
 connects to `http://127.0.0.1:8080/v1` (a Unix-socket-backed proxy), while
 its own web server listens on internal port `8081`; the host browser still
 uses `http://127.0.0.1:3000`. The raw model backend, home/project trees,
@@ -268,8 +271,10 @@ model download.
 
 Persistent data, a locally generated signing key and separate Podman image
 storage live in `~/.local/state/dotfiles/open-webui`, outside Git and the
-Nix store. The application has a private 2 GiB memory / 2 CPU / 256 PID
-budget. No public or tailnet ingress is created.
+Nix store. The application requests 2 GiB memory / 2 CPU / 256 PID limits through
+rootless systemd-managed cgroup v2; first-start validation rejects unsupported
+cgroup configurations, and physical enforcement remains a runtime qualification
+gate. No public or tailnet ingress is created.
 
 One-time bootstrap: set `dotfiles.openWebUI.bootstrapSignup = true` only long
 enough to establish the first local administrator, then restore `false` and
