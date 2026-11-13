@@ -161,6 +161,35 @@
       };
 
       checks.${system} = {
+        # Exercise the exported selector through an actual NixOS consumer.
+        # No host activation or Home Manager switch is performed.
+        home-manager-public-profile-contract =
+          let
+            evaluate = profile: nixpkgs.lib.nixosSystem {
+              inherit system;
+              modules = [
+                self.nixosModules.dubnium-home-manager
+                {
+                  dotfiles.homeManager.username = "profilecheck";
+                  dotfiles.homeManager.profile = profile;
+                }
+              ];
+            };
+            valid = evaluate "verify";
+            invalid = builtins.tryEval (evaluate "invalid-profile").config.dotfiles.homeManager.profile;
+            validUser = valid.config.home-manager.users.profilecheck.home.username;
+            checked =
+              if valid.config.dotfiles.homeManager.profile != "verify" || validUser != "profilecheck" then
+                builtins.throw "Public Home Manager selector does not wire the requested user/profile"
+              else if invalid.success then
+                builtins.throw "Public Home Manager selector accepted an invalid profile"
+              else
+                "";
+          in
+          pkgs.runCommand "home-manager-public-profile-contract" { } ''
+            ${checked}
+            touch "$out"
+          '';
         benchmark-nix-build-tests =
           pkgs.runCommand "benchmark-nix-build-tests" { nativeBuildInputs = [ pkgs.python3 ]; }
             ''
