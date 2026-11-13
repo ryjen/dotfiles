@@ -46,7 +46,7 @@ let
     else
       temp="$(${pkgs.coreutils}/bin/mktemp "$state/data/.webui_secret_key.XXXXXXXX")"
       trap '${pkgs.coreutils}/bin/rm -f -- "$temp"' EXIT
-      ${pkgs.coreutils}/bin/head -c 32 /dev/urandom | ${pkgs.coreutils}/bin/base64 -w0 > "$temp"
+      ${pkgs.coreutils}/bin/head -c 24 /dev/urandom | ${pkgs.coreutils}/bin/base64 -w0 > "$temp"
       ${pkgs.coreutils}/bin/mv -n -- "$temp" "$key"
     fi
     [[ -s "$key" && ! -L "$key" && "$(${pkgs.coreutils}/bin/stat -c %a "$key")" == 600 ]]
