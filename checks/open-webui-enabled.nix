@@ -34,9 +34,9 @@ let
 
   evaluated = builtins.concatStringsSep "" [
     (check (
-      !has disabled.systemd.user.services "dotfiles-open-webui"
-      && !has disabled.systemd.user.sockets "dotfiles-open-webui-ingress"
-      && !has disabled.systemd.user.sockets "dotfiles-open-webui-gateway"
+      !(has disabled.systemd.user.services "dotfiles-open-webui")
+      && !(has disabled.systemd.user.sockets "dotfiles-open-webui-ingress")
+      && !(has disabled.systemd.user.sockets "dotfiles-open-webui-gateway")
     ) "disabled Open WebUI must create no user services or sockets")
 
     (check (
