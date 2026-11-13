@@ -165,22 +165,26 @@
         # No host activation or Home Manager switch is performed.
         home-manager-public-profile-contract =
           let
-            evaluate = profile: nixpkgs.lib.nixosSystem {
+            evaluate = enabled: profile: nixpkgs.lib.nixosSystem {
               inherit system;
               modules = [
                 self.nixosModules.dubnium-home-manager
                 {
+                  dotfiles.homeManager.enable = enabled;
                   dotfiles.homeManager.username = "profilecheck";
                   dotfiles.homeManager.profile = profile;
                 }
               ];
             };
-            valid = evaluate "verify";
-            invalid = builtins.tryEval (evaluate "invalid-profile").config.dotfiles.homeManager.profile;
+            valid = evaluate true "verify";
+            disabled = evaluate false "verify";
+            invalid = builtins.tryEval (evaluate true "invalid-profile").config.dotfiles.homeManager.profile;
             validUser = valid.config.home-manager.users.profilecheck.home.username;
             checked =
               if valid.config.dotfiles.homeManager.profile != "verify" || validUser != "profilecheck" then
                 builtins.throw "Public Home Manager selector does not wire the requested user/profile"
+              else if builtins.hasAttr "profilecheck" disabled.config.home-manager.users then
+                builtins.throw "Disabled public Home Manager integration must not add a user"
               else if invalid.success then
                 builtins.throw "Public Home Manager selector accepted an invalid profile"
               else
@@ -532,6 +536,7 @@
           imports = [ home-manager.nixosModules.home-manager ];
 
           options.dotfiles.homeManager = {
+            enable = lib.mkEnableOption "dotfiles-owned Home Manager user integration";
             username = lib.mkOption {
               type = lib.types.strMatching "^[a-z_][a-z0-9_-]*$";
               default = config.dubnium.user.name or username;
@@ -556,7 +561,7 @@
             };
           };
 
-          config.home-manager = {
+          config.home-manager = lib.mkIf config.dotfiles.homeManager.enable {
             useGlobalPkgs = true;
             useUserPackages = true;
             extraSpecialArgs = {
