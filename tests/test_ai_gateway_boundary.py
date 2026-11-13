@@ -76,4 +76,8 @@ def test_open_webui_podman_and_model_transport_are_scoped() -> None:
 
     assert "dockerTools.buildLayeredImage" in image
     assert "tag = open-webui.version;" in image
-    assert 'WEBUI_SECRET_KEY_FILE=/var/lib/open-webui/.webui_secret_key' in image
+    assert "/bin/head -c 24 /dev/urandom" in source
+    assert "/bin/head -c 32 /dev/urandom" not in source
+    assert "cd /var/lib/open-webui" in image
+    assert "if [[ ! -f .webui_secret_key" in image
+    assert "WEBUI_SECRET_KEY_FILE" not in image
