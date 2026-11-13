@@ -9,6 +9,7 @@ CLIENT_CONFIGS = (
     "files/home/.config/opencode/config.d/dubnium/config.json",
     "files/home/.config/opencode/config.d/technetium/config.json",
     "home/ryjen/user.example.nix",
+    "modules/home/open-webui.nix",
 )
 
 
@@ -31,3 +32,41 @@ def test_local_client_configs_use_supervisor_alias() -> None:
     assert "default_model: supervisor" in hermes
     assert '"model": "dubnium/supervisor"' in opencode_dubnium
     assert '"model": "dubnium/supervisor"' in opencode_technetium
+
+
+def test_open_webui_podman_and_model_transport_are_scoped() -> None:
+    source = (ROOT / "modules/home/open-webui.nix").read_text(encoding="utf-8")
+    image = (ROOT / "packages/open-webui-image.nix").read_text(encoding="utf-8")
+
+    for required in (
+        "--network=none",
+        "--cap-drop=ALL",
+        "--security-opt=no-new-privileges",
+        "--read-only",
+        "--pull=never",
+        "--volume=\"$runtime/gateway:/run/open-webui/gateway:ro\"",
+        "OPENAI_API_BASE_URL=http://127.0.0.1:8081/v1",
+        "DEFAULT_MODELS=supervisor",
+        "WEBUI_AUTH=True",
+        "ENABLE_DIRECT_CONNECTIONS=False",
+        "ENABLE_SIGNUP=",
+        'ListenStream = "127.0.0.1:',
+        "XDG_RUNTIME_DIR",
+        "Host.Security.Rootless",
+    ):
+        assert required in source, required
+
+    for forbidden in (
+        "--network=host",
+        "--privileged",
+        "slirp4netns:allow_host_loopback",
+        "pasta:--map-gw",
+        "ghcr.io/open-webui/open-webui:main",
+        "--volume=/var/run/docker.sock",
+        "--volume=/run/podman",
+    ):
+        assert forbidden not in source, forbidden
+
+    assert "dockerTools.buildLayeredImage" in image
+    assert "tag = open-webui.version;" in image
+    assert 'WEBUI_SECRET_KEY_FILE=/var/lib/open-webui/.webui_secret_key' in image
