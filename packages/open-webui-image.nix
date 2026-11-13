@@ -29,13 +29,13 @@ let
       exit 1
     fi
 
-    ${socat}/bin/socat UNIX-LISTEN:/run/open-webui/ingress/socket,unlink-early,mode=0600,fork TCP:127.0.0.1:8080 &
+    ${socat}/bin/socat UNIX-LISTEN:/run/open-webui/ingress/socket,unlink-early,mode=0600,fork TCP:127.0.0.1:8081 &
     ingress_pid=$!
 
-    ${socat}/bin/socat TCP-LISTEN:8081,bind=127.0.0.1,reuseaddr,fork UNIX-CONNECT:/run/open-webui/gateway/socket &
+    ${socat}/bin/socat TCP-LISTEN:8080,bind=127.0.0.1,reuseaddr,fork UNIX-CONNECT:/run/open-webui/gateway/socket &
     gateway_pid=$!
 
-    ${open-webui}/bin/open-webui serve --host 127.0.0.1 --port 8080 &
+    ${open-webui}/bin/open-webui serve --host 127.0.0.1 --port 8081 &
     webui_pid=$!
     trap 'kill "$ingress_pid" "$gateway_pid" "$webui_pid" 2>/dev/null || true' EXIT
     wait -n "$ingress_pid" "$gateway_pid" "$webui_pid"
