@@ -222,10 +222,16 @@ options:
 ```nix
 imports = [ dotfiles.nixosModules.dubnium-home-manager ];
 dotfiles.homeManager = {
+  enable = true; # Required: integration is disabled by default.
   username = "ryjen";
   profile = "dubnium";
 };
 ```
+
+Importing the public module alone does not configure a Home Manager user;
+`dotfiles.homeManager.enable` is explicitly opt-in and defaults to `false`.
+An enabled host must set it to `true` to instantiate its selected user/profile
+and SOPS integration. Disabled hosts must remain user-free.
 
 Supported profiles: `dubnium`, `technetium`, `nixos`, `headless`, `wsl`, and
 `verify`. Username is constrained to a single safe POSIX-style user segment.
