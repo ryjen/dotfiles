@@ -145,7 +145,10 @@ in
         ExecStart = "${pkgs.systemd}/lib/systemd/systemd-socket-proxyd ${ingressSocket}";
         NoNewPrivileges = true;
         PrivateDevices = true;
+        PrivateTmp = true;
+        ProtectHome = true;
         ProtectSystem = "strict";
+        CapabilityBoundingSet = "";
         RestrictAddressFamilies = [ "AF_UNIX" ];
       };
     };
@@ -165,7 +168,10 @@ in
         ExecStart = "${pkgs.systemd}/lib/systemd/systemd-socket-proxyd 127.0.0.1:8080";
         NoNewPrivileges = true;
         PrivateDevices = true;
+        PrivateTmp = true;
+        ProtectHome = true;
         ProtectSystem = "strict";
+        CapabilityBoundingSet = "";
         RestrictAddressFamilies = [
           "AF_UNIX"
           "AF_INET"
