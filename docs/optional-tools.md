@@ -246,10 +246,25 @@ and uses user systemd socket activation for a loopback-only browser at
 `http://127.0.0.1:3000`. The container has `--network=none` and no published
 ports. A dedicated read-only-mounted Unix gateway socket forwards to the
 **host-local Dubnium Supervisor Gateway** at `127.0.0.1:8080/v1`, exposing
-only the logical `supervisor` model. The raw model backend, home/project trees,
+only the logical `supervisor` model. Within the isolated container, Open WebUI
+connects to `http://127.0.0.1:8080/v1` (a Unix-socket-backed proxy), while
+its own web server listens on internal port `8081`; the host browser still
+uses `http://127.0.0.1:3000`. The raw model backend, home/project trees,
 Podman management socket, SSH credentials and remote model APIs are not
 mounted into the container. The GUI may hold untrusted chat/account state,
 but Dubnium owns run context, model routing and effect authorization.
+
+**No model downloads:** the service defaults to `OFFLINE_MODE=True`,
+`HF_HUB_OFFLINE=1`, disables embedding/reranker/Whisper automatic updates,
+disables Ollama and direct connections, and bypasses Open WebUI embedding/
+retrieval. Rootless Podman's `--network=none` independently prevents general
+container egress. The WebUI itself does not fetch or run inference models;
+all text inference goes to the existing Dubnium Supervisor. Open WebUI native
+semantic RAG/document search will not work without a separately reviewed,
+pre-provisioned embedding path. Project context retrieval should be owned by
+Dubnium instead. The OCI application **package** and its Nix dependencies
+must still be built/downloaded by the Nix build system; that is not a runtime
+model download.
 
 Persistent data, a locally generated signing key and separate Podman image
 storage live in `~/.local/state/dotfiles/open-webui`, outside Git and the
