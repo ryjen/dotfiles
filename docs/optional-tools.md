@@ -232,6 +232,53 @@ troubleshooting with `dotfiles.openwork.sandbox.enable = false`.
 The module also installs a desktop entry and registers it as the default handler
 for `openwork://` links.
 
+## Open WebUI (isolated user service)
+
+Enable a portable Open WebUI frontend from a Home Manager user profile:
+
+```nix
+dotfiles.openWebUI.enable = true;
+```
+
+The module is **off by default**. It builds a version-pinned OCI image from
+Nixpkgs' Open WebUI package, loads it into dedicated rootless Podman storage
+and uses user systemd socket activation for a loopback-only browser at
+`http://127.0.0.1:3000`. The container has `--network=none` and no published
+ports. A dedicated read-only-mounted Unix gateway socket forwards to the
+**host-local Dubnium Supervisor Gateway** at `127.0.0.1:8080/v1`, exposing
+only the logical `supervisor` model. The raw model backend, home/project trees,
+Podman management socket, SSH credentials and remote model APIs are not
+mounted into the container. The GUI may hold untrusted chat/account state,
+but Dubnium owns run context, model routing and effect authorization.
+
+Persistent data, a locally generated signing key and separate Podman image
+storage live in `~/.local/state/dotfiles/open-webui`, outside Git and the
+Nix store. The application has a private 2 GiB memory / 2 CPU / 256 PID
+budget. No public or tailnet ingress is created.
+
+One-time bootstrap: set `dotfiles.openWebUI.bootstrapSignup = true` only long
+enough to establish the first local administrator, then restore `false` and
+re-apply Home Manager. Normal signup is disabled. Review the pinned
+Open WebUI license/branding terms before installation.
+
+**Ownership gate:** Dubnium issue [#249](https://github.com/ryjen/dubnium/issues/249)
+and draft [PR #1613](https://github.com/ryjen/dubnium/pull/1613)
+already contain a NixOS-managed Podman implementation. They must not be
+activated alongside this Home Manager candidate. The two implementations
+are alternatives until independently reviewed and a single owner is chosen;
+do not treat this source-only work as cutover or prior runtime qualification.
+
+**Before activation:** verify the built OCI image, rootless Podman mount and
+network restrictions, socket restarts and Supervisor chat SSE, first-admin
+signing-key persistence, negative host-network/credential probes, disk
+headroom and rollback. This module requires the Supervisor Gateway on the
+**same host**. A laptop-to-Dubnium connection needs a separately reviewed,
+private authenticated transport rather than changing the container network
+mode to host/slirp.
+
+Do not activate the module with `home-manager switch` until those
+prerequisites and the single-owner decision have been met.
+
 ## Codex desktop (ChatGPT Linux preview)
 
 OpenAI's Linux desktop preview combines ChatGPT, Work and Codex into the
