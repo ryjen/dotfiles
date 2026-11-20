@@ -357,6 +357,10 @@
           inherit pkgs home-manager self;
         };
 
+        open-webui-enabled = import ./checks/open-webui-enabled.nix {
+          inherit pkgs home-manager;
+        };
+
         phone-camera-tests =
           pkgs.runCommand "phone-camera-tests"
             {

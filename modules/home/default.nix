@@ -41,6 +41,7 @@
     ./npm.nix
     ./office.nix
     ./opencode.nix
+    ./open-webui.nix
     ./openwork.nix
     ./pass.nix
     ./pinentry.nix
