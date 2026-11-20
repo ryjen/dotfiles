@@ -104,15 +104,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1788848977,
-        "narHash": "sha256-97nPe7nh6N5r1YprPHaigtJ29kPsv2YQg34Llth3N8U=",
+        "lastModified": 1791752370,
+        "narHash": "sha256-+nGsKiPILRlaFduk9j+6fctpcSLHqanwmLh7k4mw5cc=",
         "owner": "ryjen",
         "repo": "git-autocommit",
-        "rev": "eed06f860494a492b51892dc678c0d1093e2620d",
+        "rev": "8cad9a7f14a7d322f4789e58918c3cc03fa8efa6",
         "type": "github"
       },
       "original": {
         "owner": "ryjen",
+        "ref": "v0.3.1",
         "repo": "git-autocommit",
         "type": "github"
       }
