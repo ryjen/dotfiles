@@ -79,9 +79,12 @@ jobs:
             exit 1
           fi
 
-          mapfile -t check_names < <(
-            printf '%s\n' "$checks" | python3 -c 'import json, sys; [print(name) for name in json.load(sys.stdin)]'
-          )
+          check_lines="$(printf '%s\n' "$checks" | python3 -c 'import json, sys; [print(name) for name in json.load(sys.stdin)]')"
+          if [ -z "$check_lines" ]; then
+            echo "No blocking repository check names were decoded" >&2
+            exit 1
+          fi
+          mapfile -t check_names <<< "$check_lines"
 
           build_targets=()
           for check in "${check_names[@]}"; do
@@ -161,42 +164,39 @@ jobs:
       - name: Validate Flake Metadata
         run: nix flake metadata --no-write-lock-file
 
-      - name: Evaluate Home Manager profile — nixos
+      - name: Evaluate all Home Manager profiles in one Nix invocation
         shell: bash
         run: |
-          set -o pipefail
-          nix eval --show-trace --raw '.#homeConfigurations."ryjen@nixos".activationPackage.drvPath' \
-            2>&1 | tee profile-nixos-eval.log
+          set -euo pipefail
+          nix eval --show-trace --json .#homeConfigurations --apply '
+            profiles:
+            let
+              required = [
+              "ryjen@nixos"
+              "ryjen@verify"
+              "ryjen@headless"
+              "ryjen@wsl"
+              "ryjen@dubnium"
+              "ryjen@technetium"
+              "ryjen@meeting-verify"
+              "ryjen@unreal-verify"
+              ];
+              missing = builtins.filter (name: !builtins.hasAttr name profiles) required;
+            in
+            if missing != [] then
+              throw ("Missing required Home Manager profiles: " + builtins.concatStringsSep ", " missing)
+            else
+              builtins.mapAttrs (_: profile: profile.activationPackage.drvPath) profiles
+          ' 2>&1 | tee profile-eval.log
 
       - name: Upload Failed Profile Evaluation Log
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: profile-nixos-eval
-          path: profile-nixos-eval.log
+          name: profile-eval
+          path: profile-eval.log
           if-no-files-found: error
           retention-days: 1
-
-      - name: Evaluate Home Manager profile — verify
-        run: nix eval --raw '.#homeConfigurations."ryjen@verify".activationPackage.drvPath' >/dev/null
-
-      - name: Evaluate Home Manager profile — headless
-        run: nix eval --raw '.#homeConfigurations."ryjen@headless".activationPackage.drvPath' >/dev/null
-
-      - name: Evaluate Home Manager profile — wsl
-        run: nix eval --raw '.#homeConfigurations."ryjen@wsl".activationPackage.drvPath' >/dev/null
-
-      - name: Evaluate Home Manager profile — dubnium
-        run: nix eval --raw '.#homeConfigurations."ryjen@dubnium".activationPackage.drvPath' >/dev/null
-
-      - name: Evaluate Home Manager profile — technetium
-        run: nix eval --raw '.#homeConfigurations."ryjen@technetium".activationPackage.drvPath' >/dev/null
-
-      - name: Evaluate Home Manager profile — meeting-verify
-        run: nix eval --raw '.#homeConfigurations."ryjen@meeting-verify".activationPackage.drvPath' >/dev/null
-
-      - name: Evaluate Home Manager profile — unreal-verify
-        run: nix eval --raw '.#homeConfigurations."ryjen@unreal-verify".activationPackage.drvPath' >/dev/null
 
       - name: Build Enabled Unreal Configuration
         run: |
