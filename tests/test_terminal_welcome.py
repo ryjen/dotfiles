@@ -15,7 +15,7 @@ ART = MOTD.with_name("motd.d")
 DRIVER = 'source "$WELCOME_SOURCE" "$WELCOME_MOTD" "$WELCOME_ART" "$WELCOME_PROFILE" "$WELCOME_SED" "$WELCOME_DATE"'
 VARS = (
     "CI", "SSH_CONNECTION", "SSH_TTY", "SSH_CLIENT", "DOTFILES_WELCOME",
-    "DOTFILES_WELCOME_SHOWN", "DOTFILES_MOTD", "NO_COLOR",
+    "DOTFILES_WELCOME_SHOWN", "DOTFILES_MOTD", "NO_COLOR", "IN_NIX_SHELL",
 )
 
 
@@ -100,6 +100,17 @@ class WelcomeTests(unittest.TestCase):
         self.assertNotIn("FORTUNE_MARKER", non_tty)
         self.assertNotIn("TASK_MARKER", non_tty)
         self.assertNotIn("micrantha.com", non_tty)
+
+    def test_nix_development_shell_suppression(self):
+        for mode in ("pure", "impure"):
+            with self.subTest(mode=mode):
+                self.assertEqual(self.invoke(IN_NIX_SHELL=mode), "")
+                self.assertEqual(
+                    self.invoke(IN_NIX_SHELL=mode, SSH_CONNECTION="fixture",
+                                DOTFILES_WELCOME="1"),
+                    "",
+                )
+        self.assertIn("FORTUNE_MARKER", self.invoke(IN_NIX_SHELL=""))
 
     def test_ssh_opt_in(self):
         self.assertIn("FORTUNE_MARKER", self.invoke(SSH_CONNECTION="fixture",
