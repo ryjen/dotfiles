@@ -80,6 +80,25 @@ Current overlays:
 - `dotfiles.profiles.android.enable` for Android tooling
 - `dotfiles.profiles.micrantha.enable` for Micrantha SSH, Git, and Zsh config
 
+### Terminal welcome
+
+`dotfiles.shell.welcome.enable` defaults to graphical and WSL profiles and can
+be overridden in `user.local.nix`. The interactive Zsh welcome selects local
+artwork, a short fortune, and the existing task summary. Bash, root, CI,
+non-interactive sessions, non-TTY sessions, and dumb terminals do not run it.
+SSH sessions skip it by default to avoid repeating the static login MOTD;
+`DOTFILES_WELCOME=1` opts into the welcome in an interactive SSH session when
+the profile enables it. `DOTFILES_WELCOME=0` disables it for any session.
+`DOTFILES_MOTD=random` (default), `daily`, `micrantha`, `digital-sovereignty`,
+`unix`, `retro`, or `dubnium` selects a banner. `NO_COLOR=1` disables rainbow
+colour. Child shells inherit the welcome marker and do not repeat it.
+The reserved root `~/.config/zsh/config.d/fortunes` fragment is no longer
+sourced by the managed Zsh startup. Move any unrelated personal customization
+from that file into `local.zsh` or another fragment; its contents are not
+modified. Other custom startup scripts remain user-owned.
+
+The static system MOTD is unchanged and is exported as `nixosModules.motd`.
+
 Tracked profile entrypoints:
 
 - `home/USERNAME/profiles/nixos.nix` for the full local machine profile

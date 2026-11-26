@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }:
 let
@@ -84,12 +85,6 @@ in
       # extra variables
       export GPG_TTY=$(tty)
 
-      # fortune
-      if [[ $- == *i* ]]; then
-        fortune -s | cowsay -f www | lolcat
-        task todo
-      fi
-
       # Reviewed profile-scoped fragments promoted into dotfiles. Home Manager
       # materializes this namespace without taking ownership of root config.d.
       if [ -d "$HOME/.config/zsh/config.d/${machineProfileName}" ]; then
@@ -101,12 +96,23 @@ in
       # Live user-authored promotion candidates override reviewed fragments.
       if [ -d "$HOME/.config/zsh/config.d" ]; then
         for file in "$HOME/.config/zsh/config.d/"*; do
+          # The legacy root fortunes fragment is superseded by the welcome.
+          # Leave the unmanaged file intact, but do not execute it.
+          [[ "$file" == "$HOME/.config/zsh/config.d/fortunes" ]] && continue
           [ -f "$file" ] && source "$file"
         done
       fi
 
       # Machine-local overrides remain unmanaged and have highest precedence.
       [ -f "$HOME/.config/zsh/local.zsh" ] && source "$HOME/.config/zsh/local.zsh"
+
+      # Run after local configuration so session preferences can be overridden.
+      ${lib.optionalString config.dotfiles.shell.welcome.enable ''
+        source ${../../files/home/.config/zsh/welcome.zsh} \
+          ${../../files/system/motd} ${../../files/system/motd.d} \
+          ${lib.escapeShellArg machineProfileName} \
+          ${pkgs.gnused}/bin/sed ${pkgs.coreutils}/bin/date
+      ''}
     '';
 
     loginExtra = ''
