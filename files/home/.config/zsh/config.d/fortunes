@@ -1,2 +1,1 @@
-
-fortune -s | cowsay -f www | lolcat
+# Superseded by the Home Manager Zsh welcome in ../welcome.zsh.

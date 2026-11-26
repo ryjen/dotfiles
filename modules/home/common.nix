@@ -51,6 +51,13 @@ in
       };
     };
 
+    shell.welcome.enable = lib.mkOption {
+      type = lib.types.bool;
+      default = config.dotfiles.host.graphical.enable || config.dotfiles.host.wsl.enable;
+      defaultText = lib.literalExpression "config.dotfiles.host.graphical.enable || config.dotfiles.host.wsl.enable";
+      description = "Show the optional terminal welcome for interactive personal Zsh sessions.";
+    };
+
     sshAgent.enable = lib.mkOption {
       type = lib.types.bool;
       default = config.dotfiles.host.userSystemd.enable;

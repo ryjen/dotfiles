@@ -496,6 +496,7 @@
         "${username}@unreal-verify" = mkHomeConfig ./home/ryjen/unreal-verify-home.nix;
       };
 
+      nixosModules.motd = ./modules/nixos/motd.nix;
       nixosModules.unreal-storage = ./modules/nixos/unreal-storage.nix;
 
       nixosModules.dubnium-home-manager =
