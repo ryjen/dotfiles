@@ -68,6 +68,9 @@ _: {
   #   "ghcr.io"
   # ];
 
+  # Terminal artwork, fortunes and task summary for personal interactive shells.
+  # dotfiles.shell.welcome.enable = false;
+
   # The OpenSSH agent defaults on when Home Manager user systemd is available.
   # Disable it when another trusted provider deliberately owns SSH_AUTH_SOCK.
   # dotfiles.sshAgent.enable = false;

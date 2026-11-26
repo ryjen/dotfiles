@@ -45,7 +45,11 @@ _dotfiles_terminal_welcome() {
   } | command "$colorizer" || true
 
   if command -v task >/dev/null 2>&1; then
-    command task todo || true
+    if [[ -n ${NO_COLOR:-} ]]; then
+      command task rc.color=off todo || true
+    else
+      command task todo || true
+    fi
   fi
 }
 _dotfiles_terminal_welcome "$@"

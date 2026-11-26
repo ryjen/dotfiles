@@ -96,6 +96,9 @@ in
       # Live user-authored promotion candidates override reviewed fragments.
       if [ -d "$HOME/.config/zsh/config.d" ]; then
         for file in "$HOME/.config/zsh/config.d/"*; do
+          # The legacy root fortunes fragment is superseded by the welcome.
+          # Leave the unmanaged file intact, but do not execute it.
+          [[ "$file" == "$HOME/.config/zsh/config.d/fortunes" ]] && continue
           [ -f "$file" ] && source "$file"
         done
       fi

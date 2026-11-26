@@ -52,6 +52,9 @@ jobs:
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@3138316df39ed29be04236d7ffc686fa525866aa # v23
 
+      - name: Verify interactive terminal welcome
+        run: nix shell --inputs-from . nixpkgs#zsh --command python3 tests/test_terminal_welcome.py
+
       - name: Verify Generated Lockfile
         shell: bash
         run: |

@@ -92,8 +92,10 @@ the profile enables it. `DOTFILES_WELCOME=0` disables it for any session.
 `DOTFILES_MOTD=random` (default), `daily`, `micrantha`, `digital-sovereignty`,
 `unix`, `retro`, or `dubnium` selects a banner. `NO_COLOR=1` disables rainbow
 colour. Child shells inherit the welcome marker and do not repeat it.
-Previously copied, unmanaged Zsh startup fragments may still contain the old
-fortune command; inspect and reconcile those locally if output is duplicated.
+The reserved root `~/.config/zsh/config.d/fortunes` fragment is no longer
+sourced by the managed Zsh startup. Move any unrelated personal customization
+from that file into `local.zsh` or another fragment; its contents are not
+modified. Other custom startup scripts remain user-owned.
 
 The static system MOTD is unchanged and is exported as `nixosModules.motd`.
 
