@@ -91,9 +91,10 @@ shells with `IN_NIX_SHELL` set do not run it. This includes `nix-shell` and
 already-welcomed marker from the parent terminal; it does not reliably expose
 a dedicated environment marker. For direct launches without an inherited
 marker, use `DOTFILES_WELCOME=0 nix shell ...`.
-SSH sessions skip it by default to avoid repeating the static login MOTD;
-`DOTFILES_WELCOME=1` opts into the welcome in an interactive SSH session when
-the profile enables it. `DOTFILES_WELCOME=0` disables it for any session.
+Interactive SSH sessions follow the same welcome rules as local terminals
+when the profile enables it. Non-interactive SSH commands, transfers, and
+sessions without a terminal remain quiet. A host may separately display its
+static login MOTD. `DOTFILES_WELCOME=0` disables the welcome for any session.
 `DOTFILES_MOTD=random` (default), `daily`, `micrantha`, `digital-sovereignty`,
 `unix`, `retro`, or `dubnium` selects a banner. `NO_COLOR=1` disables rainbow
 colour. Child shells inherit the welcome marker and do not repeat it.

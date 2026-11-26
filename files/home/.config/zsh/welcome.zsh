@@ -5,7 +5,6 @@ _dotfiles_terminal_welcome() {
   # Development environments are not new personal terminal sessions.
   [[ -z ${IN_NIX_SHELL:-} ]] || return 0
   [[ ${DOTFILES_WELCOME:-1} != 0 && -z ${DOTFILES_WELCOME_SHOWN:-} ]] || return 0
-  [[ -z ${SSH_CONNECTION:-}${SSH_TTY:-}${SSH_CLIENT:-} || ${DOTFILES_WELCOME:-} == 1 ]] || return 0
 
   local canonical="$1" directory="$2" profile="$3" sed_bin="$4" date_bin="$5"
   local banner="$canonical" day index colorizer=cat

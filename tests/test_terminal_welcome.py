@@ -91,7 +91,7 @@ class WelcomeTests(unittest.TestCase):
     def test_suppression(self):
         for overrides in (
             {"DOTFILES_WELCOME": "0"}, {"CI": "true"}, {"TERM": "dumb"},
-            {"SSH_CONNECTION": "fixture"}, {"DOTFILES_WELCOME_SHOWN": "1"},
+            {"DOTFILES_WELCOME_SHOWN": "1"},
         ):
             with self.subTest(overrides=overrides):
                 self.assertEqual(self.invoke(**overrides), "")
@@ -112,9 +112,21 @@ class WelcomeTests(unittest.TestCase):
                 )
         self.assertIn("FORTUNE_MARKER", self.invoke(IN_NIX_SHELL=""))
 
-    def test_ssh_opt_in(self):
-        self.assertIn("FORTUNE_MARKER", self.invoke(SSH_CONNECTION="fixture",
-                                                   DOTFILES_WELCOME="1"))
+    def test_interactive_ssh_welcome(self):
+        for marker in ("SSH_CONNECTION", "SSH_TTY", "SSH_CLIENT"):
+            with self.subTest(marker=marker):
+                self.assertIn("FORTUNE_MARKER", self.invoke(**{marker: "fixture"}))
+        ssh = {"SSH_CONNECTION": "fixture", "SSH_TTY": "/dev/pts/0"}
+        self.assertEqual(self.invoke(repeat=True, **ssh).count("FORTUNE_MARKER"), 1)
+        for overrides in ({"DOTFILES_WELCOME": "0"}, {"CI": "true"},
+                          {"IN_NIX_SHELL": "impure"}, {"TERM": "dumb"},
+                          {"DOTFILES_WELCOME_SHOWN": "1"}):
+            with self.subTest(overrides=overrides):
+                self.assertEqual(self.invoke(**ssh, **overrides), "")
+        self.assertEqual(self.invoke(interactive=False, **ssh), "")
+        non_tty = self.invoke(terminal=False, **ssh)
+        for marker in ("FORTUNE_MARKER", "TASK_MARKER", "micrantha.com"):
+            self.assertNotIn(marker, non_tty)
 
     def test_nested(self):
         self.assertEqual(self.invoke(repeat=True).count("FORTUNE_MARKER"), 1)
