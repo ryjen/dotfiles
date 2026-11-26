@@ -8,6 +8,7 @@ let
   evalMeeting =
     {
       meeting ? false,
+      desktop ? false,
       zoom ? false,
       teams ? false,
       phone ? false,
@@ -17,6 +18,10 @@ let
       modules = [
         ../modules/home/meeting.nix
         ({ lib, ... }: {
+          options.dotfiles.profiles.workstation.enable = lib.mkOption {
+            type = lib.types.bool;
+            default = desktop;
+          };
           options.dotfiles.host.graphical.enable = lib.mkOption {
             type = lib.types.bool;
             default = true;
@@ -42,6 +47,7 @@ let
       ];
     }).config;
   none = evalMeeting { };
+  desktopOnly = evalMeeting { desktop = true; };
   zoomOnly = evalMeeting { zoom = true; };
   phoneOnly = evalMeeting { phone = true; };
   uxOnly = evalMeeting { meeting = true; };
@@ -56,6 +62,13 @@ let
   hasPkg = cfg: pkg: builtins.elem (toString pkg) (map toString cfg.home.packages);
   hasPhone = cfg: builtins.hasAttr ".local/bin/dubctl-phone-camera" cfg.home.file;
   hasUx = cfg: builtins.hasAttr "hypr/custom.d/meeting.conf" cfg.xdg.configFile;
+  hasDesktopTools = cfg:
+    builtins.hasAttr ".local/bin/dub-obs-hotkey" cfg.home.file
+    && builtins.hasAttr ".local/libexec/dubnium-eww-quote-overlay" cfg.home.file
+    && builtins.hasAttr ".local/bin/dub-eww-quote-overlay" cfg.home.file
+    && builtins.hasAttr "hypr/custom.d/obs-hotkeys.conf" cfg.xdg.configFile
+    && builtins.hasAttr "dubnium/meeting/obs-init.json" cfg.xdg.configFile
+    && builtins.hasAttr "dubnium/obs/v1" cfg.xdg.dataFile;
   check = condition: message: if condition then "" else builtins.throw message;
   evaluated = builtins.concatStringsSep "" [
     (check (
@@ -75,6 +88,15 @@ let
     (check (
       !hasPkg none pkgs.zoom-us && !hasPhone none && !hasUx none
     ) "disabled meeting must install neither optional apps nor meeting UX")
+    (check (
+      hasDesktopTools desktopOnly
+      && !hasUx desktopOnly
+      && !(builtins.hasAttr "dubnium-meeting-mode" desktopOnly.systemd.user.services)
+      && !(builtins.hasAttr "dubnium-cliphist" desktopOnly.systemd.user.services)
+    ) "Desktop OBS/Eww tools must work without enabling meeting privacy or clipboard capture")
+    (check (
+      !hasDesktopTools none && hasDesktopTools uxOnly
+    ) "Non-desktop defaults must remain unchanged and existing meeting tools retained")
     (check (
       hasPkg zoomOnly pkgs.zoom-us && !hasPhone zoomOnly && !hasUx zoomOnly
     ) "Zoom must install when meeting UX is disabled")

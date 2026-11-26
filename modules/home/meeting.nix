@@ -6,6 +6,13 @@
 }:
 let
   cfg = config.dotfiles.meeting;
+  desktopSupport =
+    cfg.enable
+    || (
+      (config.dotfiles.profiles.workstation.enable or false)
+      && config.dotfiles.host.graphical.enable
+      && config.dotfiles.host.userSystemd.enable
+    );
   obsHotkeyHelper = lib.escapeShellArg "${config.home.homeDirectory}/.local/bin/dub-obs-hotkey";
   ewwOverlayHelper = lib.escapeShellArg "${config.home.homeDirectory}/.local/libexec/dubnium-eww-quote-overlay";
   singleLineString = lib.types.strMatching "[^\n\r]*";
@@ -64,6 +71,48 @@ in
         executable = true;
       };
     }
+    # Retain desktop presentation tools independently of the privacy lifecycle.
+    (lib.mkIf desktopSupport {
+      xdg = {
+        configFile = {
+          "hypr/custom.d/obs-hotkeys.conf".text = ''
+            bind = SUPER CTRL, 1, exec, ${obsHotkeyHelper} code-only
+            bind = SUPER CTRL, 2, exec, ${obsHotkeyHelper} code-camera
+            bind = SUPER CTRL, 3, exec, ${obsHotkeyHelper} camera-toggle
+          '';
+
+          "dubnium/meeting/obs-init.json".text = builtins.toJSON {
+            inherit (cfg) cameraDevice;
+          };
+
+        };
+
+        dataFile."dubnium/obs/v1" = {
+          source = ../../files/home/.local/share/dubnium/obs/v1;
+          recursive = true;
+        };
+      };
+      home.file = {
+        ".local/bin/dub-obs-hotkey" = {
+          source = ../../files/home/.local/bin/dub-obs-hotkey;
+          executable = true;
+        };
+        ".local/libexec/dubnium-eww-quote-overlay" = {
+          source = ../../files/home/.local/libexec/dubnium-eww-quote-overlay;
+          executable = true;
+        };
+        ".local/bin/dub-eww-quote-overlay" = {
+          executable = true;
+          text = ''
+            #!/usr/bin/env bash
+            export DUBNIUM_PRESENTATION_OUTPUT=${
+              lib.escapeShellArg (if cfg.presentationOutput == null then "" else cfg.presentationOutput)
+            }
+            exec ${ewwOverlayHelper} "$@"
+          '';
+        };
+      };
+    })
     (lib.mkIf cfg.enable {
       assertions = [
         {
@@ -87,9 +136,6 @@ in
             bind = SUPER SHIFT, G, movetoworkspace, special:meeting
             bind = SUPER, P, workspace, name:presentation
             bind = SUPER SHIFT, P, movetoworkspace, name:presentation
-            bind = SUPER CTRL, 1, exec, ${obsHotkeyHelper} code-only
-            bind = SUPER CTRL, 2, exec, ${obsHotkeyHelper} code-camera
-            bind = SUPER CTRL, 3, exec, ${obsHotkeyHelper} camera-toggle
 
             ${lib.optionalString cfg.zoom.enable ''
               windowrule {
@@ -123,24 +169,11 @@ in
             }
           '';
 
-          "dubnium/meeting/obs-init.json".text = builtins.toJSON {
-            inherit (cfg) cameraDevice;
-          };
-
-        };
-
-        dataFile."dubnium/obs/v1" = {
-          source = ../../files/home/.local/share/dubnium/obs/v1;
-          recursive = true;
         };
       };
 
       home = {
         file = {
-          ".local/bin/dub-obs-hotkey" = {
-            source = ../../files/home/.local/bin/dub-obs-hotkey;
-            executable = true;
-          };
           ".local/bin/dub-meeting-session" = {
             source = ../../files/home/.local/bin/dub-meeting-session;
             executable = true;
@@ -148,20 +181,6 @@ in
           ".local/libexec/dubnium-meeting-mode" = {
             source = ../../files/home/.local/libexec/dubnium-meeting-mode;
             executable = true;
-          };
-          ".local/libexec/dubnium-eww-quote-overlay" = {
-            source = ../../files/home/.local/libexec/dubnium-eww-quote-overlay;
-            executable = true;
-          };
-          ".local/bin/dub-eww-quote-overlay" = {
-            executable = true;
-            text = ''
-              #!/usr/bin/env bash
-              export DUBNIUM_PRESENTATION_OUTPUT=${
-                lib.escapeShellArg (if cfg.presentationOutput == null then "" else cfg.presentationOutput)
-              }
-              exec ${ewwOverlayHelper} "$@"
-            '';
           };
         };
       };
