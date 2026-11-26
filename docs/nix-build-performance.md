@@ -180,6 +180,24 @@ or workflow changes cause material check rebuilds before narrowing any source
 set. Repository-wide security and policy checks should remain broad unless a
 smaller source set is proven complete.
 
+### Meeting-mode lifecycle check
+
+The meeting-mode check has a narrow fixture source consisting of the existing
+lifecycle test, its three helper scripts, the session doctor and startup scripts,
+and the meeting, Hypr and Mako configuration files referenced by the test.
+The check executes the unchanged lifecycle and static ownership assertions
+against that source rather than the whole checkout. Other checks, including
+repository-wide policy and evaluated meeting-option ownership, retain their
+existing source boundaries.
+
+Qualification for #151 must compare the check's `drvPath` in disposable
+checkouts with identical locked inputs: an unrelated documentation edit should
+leave the candidate derivation unchanged, while a change to a required helper
+must invalidate it. Build the existing
+`.#checks.x86_64-linux.meeting-mode-tests` target to verify that all required
+fixtures are present. Do not infer a measured latency reduction from the
+source change alone.
+
 ## Store maintenance
 
 Nix garbage collection is scheduled outside the interactive apply path through
