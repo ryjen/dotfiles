@@ -18,6 +18,10 @@ dotfiles.meeting = {
 ```
 
 Disabling `meeting.enable` does not uninstall Zoom or the phone camera helper.
+On workstation and laptop profiles, OBS templates, scene hotkeys and the Eww
+quote-overlay helper also remain installed independently. This transition does
+not change the existing clipboard-history or meeting-privacy service gate;
+restore any active privacy journal before changing that gate in a later slice.
 Disabling `zoom.enable` or `phoneCamera.enable` does not disable meeting UX.
 Chromium and Firefox are owned by `dotfiles.profiles.browser.enable`; Teams
 uses an ordinary browser tab and does not install or require a dedicated PWA.
@@ -43,6 +47,8 @@ the `v4l2loopback` device through sysfs.
 - **Generated meeting fragment** (`hypr/custom.d/meeting.conf`): owned by
   `modules/home/meeting.nix`. Do not edit manually; changes are overwritten
   on activation.
+- **Generated OBS hotkeys** (`hypr/custom.d/obs-hotkeys.conf`): separate from
+  the meeting workspace fragment; owned by `modules/home/meeting.nix`.
 - **OBS immutable templates** (`files/home/.local/share/dubnium/obs/v1/`):
   shipped by the NixOS module and installed via `xdg.dataFile`. The executor
   copies them into the live OBS profile on first `configctl init apply
