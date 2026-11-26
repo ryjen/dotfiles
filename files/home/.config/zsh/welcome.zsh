@@ -2,6 +2,8 @@
 _dotfiles_terminal_welcome() {
   [[ $- == *i* && -t 0 && -t 1 && -t 2 && $EUID != 0 ]] || return 0
   [[ -n ${TERM:-} && ${TERM:-} != dumb && -z ${CI:-} ]] || return 0
+  # Development environments are not new personal terminal sessions.
+  [[ -z ${IN_NIX_SHELL:-} ]] || return 0
   [[ ${DOTFILES_WELCOME:-1} != 0 && -z ${DOTFILES_WELCOME_SHOWN:-} ]] || return 0
   [[ -z ${SSH_CONNECTION:-}${SSH_TTY:-}${SSH_CLIENT:-} || ${DOTFILES_WELCOME:-} == 1 ]] || return 0
 

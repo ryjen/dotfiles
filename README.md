@@ -85,7 +85,12 @@ Current overlays:
 `dotfiles.shell.welcome.enable` defaults to graphical and WSL profiles and can
 be overridden in `user.local.nix`. The interactive Zsh welcome selects local
 artwork, a short fortune, and the existing task summary. Bash, root, CI,
-non-interactive sessions, non-TTY sessions, and dumb terminals do not run it.
+non-interactive sessions, non-TTY sessions, dumb terminals, and Nix development
+shells with `IN_NIX_SHELL` set do not run it. This includes `nix-shell` and
+`nix develop` when they enter Zsh. The newer `nix shell` normally inherits the
+already-welcomed marker from the parent terminal; it does not reliably expose
+a dedicated environment marker. For direct launches without an inherited
+marker, use `DOTFILES_WELCOME=0 nix shell ...`.
 SSH sessions skip it by default to avoid repeating the static login MOTD;
 `DOTFILES_WELCOME=1` opts into the welcome in an interactive SSH session when
 the profile enables it. `DOTFILES_WELCOME=0` disables it for any session.
