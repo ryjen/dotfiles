@@ -338,6 +338,23 @@
             '';
 
         meeting-mode-tests =
+          let
+            # Keep this fixture's inputs independent of unrelated checkout changes.
+            meetingSource = pkgs.lib.fileset.toSource {
+              root = ./.;
+              fileset = pkgs.lib.fileset.unions [
+                ./tests/test-meeting-mode.sh
+                ./files/home/.local/libexec/dubnium-meeting-mode
+                ./files/home/.local/libexec/dubnium-eww-quote-overlay
+                ./files/home/.local/bin/dub-clipboard
+                ./files/home/.local/bin/dub-session-doctor
+                ./files/home/.local/bin/dub-session-start
+                ./modules/home/meeting.nix
+                ./files/home/.config/hypr/adopted.d/technetium.conf
+                ./files/home/.config/mako/config
+              ];
+            };
+          in
           pkgs.runCommand "meeting-mode-tests"
             {
               nativeBuildInputs = [
@@ -349,7 +366,7 @@
               ];
             }
             ''
-              bash ${./tests/test-meeting-mode.sh} ${self}
+              bash ${meetingSource}/tests/test-meeting-mode.sh ${meetingSource}
               touch "$out"
             '';
 
